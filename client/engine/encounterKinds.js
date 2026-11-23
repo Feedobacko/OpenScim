@@ -5,6 +5,9 @@ var encounterDefinitions = [
   // Desert Treasure II (client/dt2/bosses.js). Vardorvis is registered
   // (client/encounters/vardorvis/, his awakened variant with it); the
   // other three fights do not exist yet.
+  // The sandbox (client/encounters/sandbox/): one variant kind per arena but
+  // the first; client/encounters/sandbox/arenas.js lists them.
+  {kind:"sandbox",variantKinds:["sandbox_sol_heredit","sandbox_inferno","sandbox_yama","sandbox_zebak","sandbox_vardorvis","sandbox_doom","sandbox_doom_deep","sandbox_toa_nexus"],slug:"sandbox",registered:true},
   {kind:"vardorvis",variantKinds:["vardorvis_awakened"],slug:"vardorvis",registered:true},
   {kind:"duke_sucellus",variantKinds:["duke_sucellus_awakened"],slug:"duke-sucellus",registered:false},
   {kind:"whisperer",variantKinds:["whisperer_awakened"],slug:"whisperer",registered:false},
