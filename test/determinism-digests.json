@@ -2063,6 +2063,227 @@
     "final": "ef56f7b6cf7b3991",
     "endsLikeLiveRun": true
    }
+  },
+  "sandbox/versus-kill": {
+   "ticks": 42,
+   "outcome": "victory",
+   "final": "165c24142efa521c1f1c277289755fd7d141a59ef1d337b06d22bcb3dc31fce4",
+   "perTick": "487d09a754 aa00a559ae 4a9fa28689 029d06d3e5 6b23c43a59 f239e1ba2d 9e5bb8fc36 7a2e17d285 16a792f81d 9eaf453597 f5213032fb 8d3a4d57c0 6ae0ef571c 04b47b1daa 29dab37875 d40377f7e2 12b8e3644e 79491be320 e4a8328186 9c596f9c2a db7ea24764 b7366b81d7 a7a5496fbf 73c21028e4 454e20d464 78c021654b 8d079fe041 027a3af4e4 5607ccdcff 91516aae58 19708648b4 a7f43f345f 8fce16ee83 f14594dbf7 819f4720ff b7b1b0a610 0a6cd65644 7170aa83e8 867805d334 cec33a3fb8 36c999c287 8a400c6926 ca733755d2",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 21,
+    "digest": "3371617f7432a8b1",
+    "final": "8efbd0194f5371fb",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/ffa-spectator": {
+   "ticks": 131,
+   "outcome": "victory",
+   "final": "82dc64c8d75bdda4207bfb34254f2e32daff319e9a92bcb5b29bfe202fd8e0d8",
+   "perTick": "92d7183f8b 64177a188d 1a6fc7f195 a111115363 461433e417 cf18944e83 a34acf62fb 9eb70725e4 51be4e8ab3 40230d6fa2 8b7d0bdcce 6c007c2369 b731431c03 33d4cfb9b4 c29c7e881b 075bb70c52 48fa03f6a2 121c991932 fa7ada32e0 ee468ca68d 3e6c5f3b73 edafd498c7 90b4dfdf56 b0419c91d8 0319659b56 23392a9154 d855ff2f8c a3a63b4e5e 63a7ec5ed3 e7736867e0 dc2efdfd09 22381c1594 e1584168b1 01b11f7760 8154adb5d3 5b6923062e dafc0777d7 8da1e8dace 54a5bc8c81 493d544d7e 70ad0281b4 8e24dd96f5 7d96468392 1ceac1f255 164e4b491f 39c74c8bc9 eb0fd95915 c3d76aa404 a8f4bf3df6 d4728838dd 4223e7ebba 5801b9ac1e f2471fe68b bff899c6cf 1a61f91680 3afbe5a6a4 41e665bda1 be853578d4 86fedc91d9 48ea0f3c14 e07e69d18e 9c5d2e49b7 23e2c9a1e7 b63c4203d8 f53b0dc241 aab42223e1 cea56aa6f4 c04bcde70a 51e845c3ee 85cf9365db 6833746866 ae6fbad073 1576aa3cd9 96d1acff20 770c2abd48 da5af95dcf 3039c05189 76e2e19003 f129cafdfc 7f0d770a4d 6832aebc3b 6cd947ffec 69bbbd73a7 a15b3963c3 105abf2659 b4932829f5 7f8b07e4b0 7ea79e9802 dd3fa194eb f6f7517b3b 01f8253125 ffd9ad21e9 bfab9c45af c6060a8c2e 84578f3580 4c50e75b2c 7a019eb9e3 f9a30bb96d 4cfdb7d5d3 4d9fe281bb e50c474ef1 0908e65a92 d7d4157b35 dd2b6d6495 bcead80174 9d6581421b dc520068d7 e6a433c5e5 4e5eadf115 5ebd3c3498 d212b9b68a 361e98c9b2 55d2f2151f 9e20962112 1c69dd289a 7917051b21 57fd51d61a 32ae941581 8cfcf9125a c6eb47595c 7aa2f2cc88 15a98efffe 3e29e29cf3 890b5decbd fa656fe520 72b9ca260f fed8e56795 6bdaab70cb 140f036eb9 0dcb2f94ed f4e3e0a2eb b5e205ad40",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 65,
+    "digest": "10f45039397d7e26",
+    "final": "f8b406c751162420",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/ffa-allies": {
+   "ticks": 39,
+   "outcome": "victory",
+   "final": "9576e098af08eef660ffbfa09e501b187641a2171a363aaa8d890205eb1107b2",
+   "perTick": "0e0d9b21e4 a3d55ae257 5da3a090ad 3fe5c15272 d335b4142e 5380762a92 b46bfcbdea 88d85592c5 79da353742 e47ad558bb 366ce88a09 d6286457ad e12bbe461b 68c504ec09 32d224055b 7279f1ff13 c780e39733 ffe60a1694 8b102d47ef 7f301e5981 0e197808a2 baf933c5ea 4a735099f9 a92f05df21 695acc481f ee38ba614b 8c67247d0e 5b90449cf2 5316002d38 9466b9281d 45229860f3 99f809d4f7 fd83a0d723 bf54f1133e 8341cebebc 5c6d70b2d8 d29c927cad 38d9a3f3d1 a1924b2868 c3c6a57a52",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 19,
+    "digest": "2f95c46627c26282",
+    "final": "5d3300fce7ba8d02",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/two-suns": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "d3cf22b9995df8cebd66d67c1d6d206c7908129f20f964593cf2986d009eae29",
+   "perTick": "702805b854 722a5f06a9 ccc7d70593 b5d98adffc 90db351c9b b4fad7a548 d29c22456c 9f6fbfe58d 1bb5d59ed9 5fc6a910bb 97fba484b0 b3baea2728 e057ca143b",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "a3183ca02de99f88",
+    "final": "92ce6e52ca8d34e0",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/inferno-gauntlet": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "4cd30c52c6301bd1c895bf30adcdaefd740cabadbdef14f7b14926aa89bcaf6f",
+   "perTick": "bfab8580d7 87944512c9 dd89b0de46 be857222a0 866335b606 1fca7bded1 3be74510d8 771139db69 2e4b6ea371 d710629fe2 fef0b3a5b6 0bac67b3a1 fdf604ccaa",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "037ec85eff5df7dd",
+    "final": "34c2f8af9132bb62",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/colosseum-royale": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "8a0bb83ba318ee576100e8c485bea3e6115b22e726ca2780b06453727d70716f",
+   "perTick": "30a14928cd d8622e8daf ada0658f0f 63525e2ec1 b7689e171d 4143940130 aa536b8492 2226f41b8f 97031f0ed9 76decb652a c40de93a55 a9854c1942 c67eaa7e87",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "af8b74a3c7c26224",
+    "final": "40ac42a07aedbe5f",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/warband-stand": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "0e5a00c17f9a71cc8b2d9ca1fe020dec6c5158e05f7d0f021d5cebeb8fc30039",
+   "perTick": "4789e084a9 6659ff5612 d1904af2d3 72014f503a e7889513f0 0c1deaf8e9 c4fead1cab 75c21c4bd3 de2a4abdfa b9decf3ed9 f6ac90ffe9 ccf5f4f29f f0c7211538",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "8fddaf7f8ca85110",
+    "final": "f908d3bb19a86ee0",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/jad-duel": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "41260a9f5cfb7edbf6c3b861c6bfb715d5e117769d25de723f770f10e308f320",
+   "perTick": "7f9b562e9c d9de98494d c2e3c45d3a 5e0056bc05 c1bbfae175 78067946a0 359fe5b6bc 5bef956ded e2900bec54 933f1ff64e b26c05e964 46fc044899 69d0b5127e",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "6acc0b862e2075a0",
+    "final": "629f13ec9542d2ac",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/boss-brawl": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "ba32197839567026bda01f152cd3e53b1e1eff649aba03c945a78faf5de01820",
+   "perTick": "d72752ffee 88195bbdb6 f989d6e624 7fe5c84742 a74f8aefd2 9f81651c34 87ea3cfd2f c2411b91bb c03bd2caad d945fac5c1 37d8b6c2a8 7bbdfb4e3d 583981d583",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "7bfa34544709c49d",
+    "final": "4bd57777e24b093f",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/nibbler-swarm": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "a48dacfccd51161df91f9c137d3d7452ddc966b1e7df742462c6aa155e8cda55",
+   "perTick": "315277a68f 46260bc59a 7627127cb2 14f11bd07b 73f4b59c08 2ae0cf717a 5b5c58b67a 5f572d9297 3f2ceb684c ceb37d75c3 a5d7de36e1 516c58e4a9 4f47c303bc",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "0ae360d39fd2b974",
+    "final": "12fcf41280550e67",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/clearing-skirmish": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "854cef748a8a68d67c47d99ab3382ba22c89fab5974daccf35b5dc8d1cf98957",
+   "perTick": "c3decff305 a4ad3b6a27 d7b1fe1137 02847f8ed8 b0b6bdce54 02d395bfca 910ae231d5 2c644de60f 780c99f63d fdaed120c4 5e91fde3c2 6417bd908e b77db3f199",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "6fef48062881ce0e",
+    "final": "aa62cdab187f1d09",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/mage-hall": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "5d5cbade0818605ec79021783a0dabe650deaeedbf08051bc2ea6db806e27341",
+   "perTick": "18962bd98f 5f46fb0263 23260d5a91 4f1b2da861 2c1b51925c ce2b3b0567 0d99195286 ffc93c7dd1 54d5c416b9 89d22b35b6 c3ac43e792 43cd736f1e 79fb121bcb",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "e58034f91085e2b7",
+    "final": "fe6be22770d3ffb9",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/minotaur-pit": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "67c1739d8162cac42bf0d8b3f6b2d22e3986dfe937ce1f19ddd24e4143d0a136",
+   "perTick": "44d3b07999 670e4bc345 93f5fc2b80 cdba1ac673 2c5b31ead1 682a9081b7 1d6d8db18b a689be7237 38473a9d39 57771b2953 3579baf704 e77370f7f5 b12bd96a3d",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "a74bd674aa9cbf1e",
+    "final": "8fb813522772b60b",
+    "endsLikeLiveRun": true
+   }
   }
  }
 }
