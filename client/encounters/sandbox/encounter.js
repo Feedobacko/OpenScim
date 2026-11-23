@@ -31,6 +31,7 @@ import { getSandboxNpcEntry, sandboxNpcCatalog } from "./catalog.js";
 import { getSandboxArena, sandboxArenas, sandboxKind, sandboxVariantKind } from "./arenas.js";
 import { createEmptyScenario, normalizeScenario, playerTeam } from "./scenario.js";
 import { getActiveScenario } from "./activeScenario.js";
+import { holdSandboxForStart, isSandboxHeld } from "./clock.js";
 
 // inferred: a body stays four ticks after the kill (the Colosseum's monsters stay three or four).
 const deathTicks = 4;
@@ -67,6 +68,12 @@ export class SandboxEncounter {
     this.outcome = { phase: "active" };
     this.winner = null;
     this.npcIds = [];
+    // A new run or a restart waits for "Start encounter" (clock.js).
+    holdSandboxForStart();
+  }
+  // Asked by the application's tick loop only (not by the engine).
+  isPaused() {
+    return isSandboxHeld();
   }
   // The editor's scenario when it is for this arena; otherwise an empty one,
   // and the editor offers to go to the arena of its own.
@@ -253,7 +260,10 @@ export const sandboxDefinition = {
     ...describeArena(firstArena),
     loadsMapLocs: true,
     isWorkInProgress: true,
-    variants: sandboxArenas.map((arena) => ({
+    // The arenas are chosen in the sandbox's own editor, not in the menus:
+    // `routeVariants` gives each its route (/sandbox/<arena>) and its
+    // presets, and nothing else of the application lists them.
+    routeVariants: sandboxArenas.map((arena) => ({
       id: arena.id,
       encounterKind: sandboxVariantKind(arena.id),
       name: arena.name,
@@ -261,7 +271,6 @@ export const sandboxDefinition = {
       available: true,
       presetsKey: sandboxKind,
     })),
-    variantLabel: "Arena",
     victory: { eyebrow: "Sandbox", title: "VICTORY", narrative: "SCENARIO CLEARED", accent: "gold" },
   },
   controls,

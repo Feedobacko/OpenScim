@@ -35,9 +35,9 @@ const presentationOf = (arena) => (BaseScene) => {
     defaultCamera: arena.camera,
     presentation: {
       title: "Sandbox",
-      tagline: arena.name,
-      setupContext: "Arena",
-      blurb: "Build a fight of your own: choose an arena, drag monsters of the other fights onto it, and fight them or watch them fight each other. Scenarios can be saved, exported and shared as a code.",
+      tagline: "Build your own fight",
+      setupContext: "Sandbox",
+      blurb: "Build a fight of your own: the sandbox editor chooses the arena, places monsters of the other fights and the boss with its own mechanics, and saves, exports and shares scenarios. Each run waits for Start encounter and can be paused.",
     },
   };
 };

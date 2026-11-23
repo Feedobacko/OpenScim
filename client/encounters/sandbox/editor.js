@@ -9,7 +9,9 @@
 //                is the "P" marker, dragged the same way.
 //   3 Save & share   save in this browser, export and import a file, copy a
 //                share code or a link.
-// "Play" applies the scenario: the run restarts with it.
+// "Apply & restart" applies the scenario: the run restarts with it, and, as
+// every run of the sandbox, waits for "Start encounter" (clock.js); the same
+// button pauses and resumes it.
 //
 // Every change is applied to the active scenario (activeScenario.js) at
 // once, so that a reload keeps it; the fight on screen changes only when it
@@ -30,10 +32,12 @@ import {
   scenarioToJson,
 } from "./scenario.js";
 import { deleteSavedScenario, listSavedScenarios, saveScenario } from "./storage.js";
+import { sandboxClock, startSandbox, toggleSandboxPause } from "./clock.js";
 
 const reopenKey = "openscim.sandbox.editorStep";
 const style = `
-.sbx-toggle { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 40; }
+.sbx-hud { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 40; display: flex; gap: 6px; }
+.sbx-hud .sbx-start { box-shadow: 0 0 0 2px var(--color-primary, #ff981f); }
 .sbx-panel { position: fixed; top: 48px; right: 12px; z-index: 40; width: min(440px, calc(100vw - 24px)); max-height: calc(100vh - 64px);
   display: flex; flex-direction: column; color: var(--color-text-body, #e6dcc8); background: var(--color-bg-solid, #1e1812);
   border: 1px solid var(--modal-card-border, var(--color-border, #5d5245)); border-radius: var(--modal-radius, 6px);
@@ -154,7 +158,7 @@ function loadDraft(scenario, savedId = null) {
   }
   commit(false);
   showStep(2);
-  setStatus(`Loaded "${ui.draft.meta.name}". Press Play to start it.`);
+  setStatus(`Loaded "${ui.draft.meta.name}". Press Apply & restart to load it.`);
 }
 
 // Another arena is another route: the page goes there, the editor reopens.
@@ -186,7 +190,7 @@ function play() {
     goToArena(ui.draft.arena, 2);
     return;
   }
-  setStatus("Starting the scenario...");
+  setStatus("Restarted with the scenario. Press Start encounter.");
   restartFight();
 }
 
@@ -705,11 +709,16 @@ function create(kind) {
       el("div", { class: "sbx-grow" }, ui.status),
       button("Back", () => showStep(Math.max(1, ui.step - 1)), "ghost"),
       button("Next", () => showStep(Math.min(steps.length, ui.step + 1)), "ghost"),
-      button("Play", play, "primary"),
+      button("Apply & restart", play, "primary"),
     ]),
   ]);
-  ui.toggle = button("Sandbox editor", () => setOpen(ui.panel.hidden), "default", { class: "osrs-btn osrs-btn--default sbx-toggle" });
-  ui.root = el("div", { class: "sbx-root" }, [ui.toggle, ui.panel]);
+  ui.toggle = button("Sandbox editor", () => setOpen(ui.panel.hidden), "default");
+  ui.clockButton = button("Start encounter", () => {
+    if (sandboxClock.state === "waiting") startSandbox();
+    else toggleSandboxPause();
+    syncClockButton();
+  }, "primary");
+  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle]), ui.panel]);
   // Keys typed in the panel are the panel's, not the game's hotkeys.
   for (const type of ["keydown", "keyup", "keypress", "wheel"]) ui.root.addEventListener(type, (event) => event.stopPropagation());
   document.body.append(ui.root);
@@ -733,6 +742,14 @@ function setOpen(open) {
   if (open) renderBody();
 }
 
+const clockLabels = { waiting: "Start encounter", running: "Pause", paused: "Resume" };
+function syncClockButton() {
+  if (!ui.clockButton || ui.clockState === sandboxClock.state) return;
+  ui.clockState = sandboxClock.state;
+  ui.clockButton.textContent = clockLabels[sandboxClock.state];
+  ui.clockButton.classList.toggle("sbx-start", sandboxClock.state !== "running");
+}
+
 export function syncSandboxEditor(kind, simulationState) {
   if (typeof document === "undefined") return;
   if (ui.root && ui.kind !== kind) closeSandboxEditor();
@@ -740,10 +757,11 @@ export function syncSandboxEditor(kind, simulationState) {
   // The arena is built from the cache after the scene: the map follows when it is there.
   if (refreshTiles() && ui.step === 2 && !ui.panel.hidden) renderBody();
   ui.simulationState = simulationState;
+  syncClockButton();
 }
 
 export function closeSandboxEditor() {
   ui.drag?.ghost?.remove();
   ui.root?.remove();
-  Object.assign(ui, { root: null, toggle: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
+  Object.assign(ui, { root: null, toggle: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
 }
