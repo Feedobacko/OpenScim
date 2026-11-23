@@ -17,7 +17,11 @@ assert.equal(sandboxExamples.length, 10);
 assert.equal(new Set(sandboxExamples.map((entry) => entry.key)).size, 10);
 assert.ok(new Set(sandboxExamples.map((entry) => entry.scenario.arena)).size >= 6);
 assert.deepEqual(new Set(sandboxExamples.map((entry) => entry.scenario.mode)), new Set(["versus", "ffa"]));
-assert.ok(sandboxExamples.some((entry) => entry.scenario.npcs.filter((npc) => npc.npc === "sol_heredit").length === 2));
+// Two Suns: the real Sol Heredit (the arena's host, bossMechanics) and a second one of the sandbox's.
+const twoSuns = sandboxExamples.find((entry) => entry.key === "two-suns").scenario;
+assert.equal(twoSuns.arena, "sol_heredit");
+assert.equal(twoSuns.options.bossMechanics, true);
+assert.equal(twoSuns.npcs.filter((npc) => npc.npc === "sol_heredit").length, 1);
 for (const { scenario: example } of sandboxExamples) assert.deepEqual(normalizeScenario(example), example);
 
 // A share code, a link that carries one, and the JSON all read back the same scenario.
@@ -35,7 +39,7 @@ assert.equal(minimal.format, "openscim-sandbox");
 assert.equal(minimal.version, 1);
 assert.equal(minimal.mode, "versus");
 assert.equal(minimal.meta.name, "Untitled");
-assert.deepEqual(minimal.options, { playerStart: null, ffaIncludesPlayer: true });
+assert.deepEqual(minimal.options, { playerStart: null, ffaIncludesPlayer: true, bossMechanics: false });
 assert.deepEqual(minimal.npcs, [{ id: "npc-1", npc: "inferno.bat", position: [30, 30], team: "red", levels: { magic: 99 } }]);
 
 // Refused, each with a message.
