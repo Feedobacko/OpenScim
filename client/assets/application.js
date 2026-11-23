@@ -7117,7 +7117,7 @@ for (const e of new Set(Object.values(_le))) {
 _le.sandbox = Object.fromEntries(
   Object.entries(_le)
     .filter(([kind]) => !/^yama_p3_/.test(kind))
-    .flatMap(([kind, presets]) => Object.entries(presets).filter(([key]) => key !== "naked").map(([key, preset]) => [kind + "." + key, { ...preset, name: preset.name + " (" + (cE.getDescriptor(kind)?.displayName ?? kind) + ")" }])),
+    .flatMap(([kind, presets]) => Object.entries(presets).filter(([key]) => key !== "naked").map(([key, preset]) => [kind + "__" + key, { ...preset, name: preset.name + " (" + (cE.getDescriptor(kind)?.displayName ?? kind) + ")" }])),
 );
 _le.sandbox.naked = Ple;
 var Hle = "yama_p3";
