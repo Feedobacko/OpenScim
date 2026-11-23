@@ -57583,7 +57583,8 @@ var VV = {
 var KV = [
   // The presentations written in modules (encounters/presentations.js), each
   // a function of the base scene; the chunk's own four follow.
-  ...presentationBuilders.map((buildPresentation) => buildPresentation(InfernoScene, packHsl, { widgetModelView })),
+  // presentationOf(kind): another kind's presentation, looked up when called (the sandbox draws a host's scene).
+  ...presentationBuilders.map((buildPresentation) => buildPresentation(InfernoScene, packHsl, { widgetModelView, presentationOf: (kind) => ZV(kind) })),
   {
     kind: "yama_p3",
     sceneBuilder: (e) => new ZN(e),
