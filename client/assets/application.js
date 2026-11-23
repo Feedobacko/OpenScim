@@ -33152,7 +33152,7 @@ var _ye = (0, React.memo)(
                       search: hk,
                       fieldId: fieldId,
                     }),
-                    (0, jsxRuntime.jsx)(ga, {
+                    (0, jsxRuntime.jsx)(CommunityLinks, {
                       className: "panel-header-action",
                     }),
                     !hg &&
