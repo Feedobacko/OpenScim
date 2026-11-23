@@ -5,7 +5,9 @@
 //
 //   node tools/fetch-assets.mjs [--out client] [--cache .cache/assets] [--check] [--force]
 //
-// tools/assets/manifest.json     every untracked media file: sha256 or pixels, source (null = no upstream)
+// tools/assets/manifest.json     every untracked media file: sha256 or pixels, source (null = no upstream),
+//                                and for a file with no upstream the recipe of a stand-in (standIn,
+//                                tools/assets/standins.mjs), written where the file is absent
 // tools/assets/cache-groups.json groups kept in the trimmed client/osrs-cache/disk.zip
 import fs from "node:fs/promises";
 import { existsSync, createWriteStream } from "node:fs";
@@ -17,6 +19,7 @@ import { pipeline } from "node:stream/promises";
 import JSZip from "jszip";
 import { SECTOR, container, unpack, unzipCache } from "./assets/cache.mjs";
 import { decodePng, decodeSprites, encodePng, onCanvas, pixelHash } from "./assets/sprites.mjs";
+import { isStandIn, makeStandIn } from "./assets/standins.mjs";
 
 const repo = path.resolve(import.meta.dirname, "..");
 const { values: opt } = parseArgs({
@@ -248,13 +251,14 @@ function matches(file, bytes) {
   }
 }
 
-const tally = { present: [], fetched: [], differs: [], failed: [], missingNoSource: [] };
+const tally = { present: [], fetched: [], differs: [], failed: [], missingNoSource: [], standIns: [], standInsWritten: [] };
 const noUpstream = manifest.files.filter((file) => !file.source);
 const wanted = [];
 
 for (const file of manifest.files) {
   const bytes = await readIfExists(path.join(out, file.path));
   if (bytes && matches(file, bytes)) tally.present.push(file);
+  else if (bytes && !file.source && file.standIn && isStandIn(bytes)) tally.standIns.push(file);
   else if (bytes && !(opt.force && file.source && !opt.check)) tally.differs.push(file);
   else if (!file.source) tally.missingNoSource.push(file);
   else wanted.push(file);
@@ -286,6 +290,21 @@ if (!opt.check) {
       });
   }
   await pool(jobs, (job) => job());
+
+  // The files no upstream has: a stand-in where the file is absent (an
+  // original put back from a backup is never replaced).
+  const sources = new Map();
+  const openCached = (alias) => sources.get(alias) ?? sources.set(alias, openSource(alias)).get(alias);
+  for (const file of tally.missingNoSource.filter((candidate) => candidate.standIn)) {
+    try {
+      await writeFile(path.join(out, file.path), await makeStandIn(file.standIn, { tree: out, fullCache: openFullCache, openSource: openCached }));
+      tally.standInsWritten.push(file);
+    } catch (error) {
+      tally.failed.push({ ...file, error: "stand-in " + file.standIn + ": " + error.message });
+    }
+  }
+  tally.missingNoSource = tally.missingNoSource.filter((file) => !tally.standInsWritten.includes(file));
+  tally.standIns.push(...tally.standInsWritten);
 }
 
 // ----------------------------------------------------------------- summary
@@ -308,6 +327,7 @@ if (!opt.check) {
   console.log("  missing, has upstream:    " + wanted.length);
 }
 console.log("  missing, no upstream:     " + tally.missingNoSource.length);
+console.log("  stand-ins in their place: " + tally.standIns.length + (tally.standInsWritten.length ? " (" + tally.standInsWritten.length + " written now)" : "") + " (not the originals: tools/assets/standins.mjs)");
 console.log("  present but hash differs: " + tally.differs.length + (tally.differs.length && !opt.check ? " (kept; --force replaces those that have an upstream)" : ""));
 for (const file of tally.differs) console.log("    " + file.path);
 if (tally.failed.length) {
@@ -327,5 +347,5 @@ console.log("  full list: entries with \"source\":null in tools/assets/manifest.
 // A fresh clone always lacks the no-upstream files, so only --check treats an
 // incomplete tree as failure; a fetch fails when something that has an
 // upstream could not be reproduced.
-const incomplete = cacheStatus !== "ok" || tally.differs.length || tally.missingNoSource.length || wanted.length;
+const incomplete = cacheStatus !== "ok" || tally.differs.length || tally.missingNoSource.length || tally.standIns.length || wanted.length;
 process.exitCode = tally.failed.length || (opt.check && incomplete) ? 1 : 0;
