@@ -1423,6 +1423,24 @@ var ls = Object.fromEntries(
         "..##.......##..",
       ],
     },
+    github: {
+      origin: [0, 0],
+      rows: [
+        ".....#####.....",
+        "...#########...",
+        "..###########..",
+        ".###.#####.###.",
+        ".###.......###.",
+        "###.........###",
+        "###.........###",
+        "####.......####",
+        ".####.....####.",
+        ".######.######.",
+        "..#.##...####..",
+        "...#.....###...",
+        ".....#...#.....",
+      ],
+    },
     keyboard: {
       origin: [-1, 2],
       rows: [
@@ -40350,26 +40368,24 @@ function fHe({
     ],
   });
 }
-function Ase({ className: className, label: label }) {
-  return (0, wn.jsxs)(l_e, {
-    href: "https://discord.gg/openscim",
+const communityLinks = [
+  { name: "Discord", glyph: "discord", href: "https://discord.gg/openscim", description: "Join the OpenScim Discord" },
+  { name: "GitHub", glyph: "github", href: "https://github.com/realkadera/OpenScim", description: "View OpenScim on GitHub" },
+];
+function CommunityLinks({ className, showLabels = false }) {
+  return communityLinks.map(({ name, glyph, href, description }) => (0, wn.jsxs)(l_e, {
+    href,
     target: "_blank",
     rel: "noopener noreferrer",
     className: className,
-    hint: label ? null : "Discord",
-    "aria-label": "Join the OPENSCIM.DEV Discord",
+    hint: showLabels ? null : name,
+    "aria-label": description,
     onMouseDown: (eC) => eC.preventDefault(),
-    tabIndex: -1,
     children: [
-      (0, wn.jsx)(zae, {
-        glyph: "discord",
-      }),
-      label &&
-        (0, wn.jsx)("span", {
-          children: label,
-        }),
+      (0, wn.jsx)(zae, { glyph }),
+      showLabels && (0, wn.jsx)("span", { children: name }),
     ],
-  });
+  }, name));
 }
 function bHe(ez, eA) {
   const eB = {
@@ -42429,9 +42445,9 @@ var FHe = (ez) => {
           style: fX,
           "aria-hidden": "true",
           children: [
-            (0, wn.jsx)("span", {
+            communityLinks.map(({ name }) => (0, wn.jsx)("span", {
               className: "launcher-btn launcher-btn--icon",
-            }),
+            }, name)),
             (0, wn.jsx)("button", {
               type: "button",
               className: "launcher-btn launcher-btn--plugins",
@@ -42445,7 +42461,7 @@ var FHe = (ez) => {
           "data-tucked": fJ,
           style: fY(fA.x, fA.y),
           children: [
-            (0, wn.jsx)(Ase, {
+            (0, wn.jsx)(CommunityLinks, {
               className: "launcher-btn launcher-btn--icon launcher-btn--link",
             }),
             (0, wn.jsx)("button", {
@@ -56064,7 +56080,7 @@ export {
   Mse,
   Pse,
   Ise,
-  Ase,
+  CommunityLinks,
   Rse,
   Lse,
   Ese,

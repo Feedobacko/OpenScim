@@ -6682,7 +6682,7 @@ button.branch-entry {
   background: var(--color-surface-hover);
   color: var(--color-heading);
 }
-.osm-tools .osm-tools__menu .controls-toggle-open--discord {
+.osm-tools .osm-tools__menu .controls-toggle-open--community {
   color: var(--color-heading);
   order: 4;
 }

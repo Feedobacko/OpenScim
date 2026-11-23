@@ -405,7 +405,7 @@ import {
   Mse as g7,
   Pse as g8,
   Ise as g9,
-  Ase as ga,
+  CommunityLinks,
   Rse as gb,
   Lse as gc,
   Ese as gd,
@@ -53136,9 +53136,9 @@ function eCe({ devHarness: devHarness } = {}) {
           ],
         }),
       sk &&
-        (0, jsxRuntime.jsx)(ga, {
-          className: "controls-toggle-open controls-toggle-open--discord",
-          label: "Discord",
+        (0, jsxRuntime.jsx)(CommunityLinks, {
+          className: "controls-toggle-open controls-toggle-open--community",
+          showLabels: true,
         }),
     ],
   });
