@@ -8,7 +8,9 @@ Ways in: "Sandbox" in the encounter picker and the quick search (one entry;
 the arena is chosen in the sandbox's editor, not in the menus), and the
 gateway in the lobby, a dais ringed with coloured beams on the spoke between
 Yama and his neighbour. Both open the setup window, where the loadout can be
-any preset of any fight. Routes: `/sandbox/` and `/sandbox/<arena>` (e.g.
+any preset of any fight, and "Load a scenario" takes a share code, a link or
+a scenario's JSON and switches the window to its arena, so that Start
+Encounter plays it. Routes: `/sandbox/` and `/sandbox/<arena>` (e.g.
 `/sandbox/inferno`).
 
 ## Using it
