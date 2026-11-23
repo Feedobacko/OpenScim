@@ -7111,6 +7111,13 @@ for (const e of new Set(Object.values(_le))) {
     }
   }
 }
+// The sandbox (client/encounters/sandbox/) offers the presets of every fight.
+_le.sandbox = Object.fromEntries(
+  Object.entries(_le)
+    .filter(([kind]) => !/^yama_p3_/.test(kind))
+    .flatMap(([kind, presets]) => Object.entries(presets).filter(([key]) => key !== "naked").map(([key, preset]) => [kind + "." + key, { ...preset, name: preset.name + " (" + (cE.getDescriptor(kind)?.displayName ?? kind) + ")" }])),
+);
+_le.sandbox.naked = Ple;
 var Hle = "yama_p3";
 var qle = "learner-mage";
 var Ble = gT([
@@ -39960,7 +39967,9 @@ function $we(h2, h3) {
   );
 }
 function _we(h2) {
-  return xle(h2, cE.getDescriptorOfKindOrVariant(h2)?.variants);
+  // routeVariants: variants that have a route and presets but no place in the menus (the sandbox's arenas).
+  const descriptor = cE.getDescriptorOfKindOrVariant(h2);
+  return xle(h2, descriptor?.variants ?? descriptor?.routeVariants);
 }
 function Hwe(h2, h3, h4) {
   const h5 = {
@@ -42459,7 +42468,7 @@ function Ike(h2, h3) {
   if (h2 === h6) {
     return h7;
   }
-  const h8 = h5?.variants?.find((h9) => h9.encounterKind === h2);
+  const h8 = (h5?.variants ?? h5?.routeVariants)?.find((h9) => h9.encounterKind === h2);
   if (h8) {
     if (h8.encounterKind === h6) {
       return h7;
@@ -42556,7 +42565,7 @@ function Ake(h2, h3, h4, h5, h6, h7 = Mke) {
         }
         const hs = hk[1];
         const ht = hs.replace(/-/g, "_");
-        const hu = descriptor.variants?.find((hv) => hv.id === ht);
+        const hu = (descriptor.variants ?? descriptor.routeVariants)?.find((hv) => hv.id === ht);
         if (hu) {
           return hu.encounterKind;
         } else {

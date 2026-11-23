@@ -19760,7 +19760,8 @@ var TIe = [false, SIe];
 var NIe = {};
 var PIe = () => {};
 function $Ie(ez) {
-  return ez.canAdvanceTick() && !ez.isTutorialPaused();
+  // isPaused: an encounter may hold the clock (the sandbox, before its start and while paused).
+  return ez.canAdvanceTick() && !ez.isTutorialPaused() && ez.encounter?.isPaused?.() !== true;
 }
 function RIe(ez, eA) {
   return ez !== null && eA[ez] !== false;
