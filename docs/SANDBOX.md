@@ -1,10 +1,15 @@
 # Sandbox
 
 A fight of the player's own: an arena of another encounter, monsters of the
-other encounters placed on it, and one of two modes. Route `/sandbox/`
-(`/sandbox/<arena>` for each arena, e.g. `/sandbox/inferno`); in the
-encounter picker it is "Sandbox", with an "Arena" choice. Code:
-`client/encounters/sandbox/`.
+other encounters placed on it, optionally the arena's own boss with all its
+mechanics, and one of two modes. Code: `client/encounters/sandbox/`.
+
+Ways in: "Sandbox" in the encounter picker and the quick search (one entry;
+the arena is chosen in the sandbox's editor, not in the menus), and the
+gateway in the lobby, a dais ringed with coloured beams on the spoke between
+Yama and his neighbour. Both open the setup window, where the loadout can be
+any preset of any fight. Routes: `/sandbox/` and `/sandbox/<arena>` (e.g.
+`/sandbox/inferno`).
 
 ## Using it
 
@@ -21,9 +26,37 @@ The **Sandbox editor** button at the top of the screen opens a panel in three st
 3. **Save & share**: save in this browser, export or import a `.json` file,
    copy a share code or a link, import a code, a link or JSON.
 
-**Play** restarts the run with the scenario (the application's own restart).
-Every change is kept at once as the active scenario (localStorage), so a
-reload keeps it; the fight on screen only changes on a restart.
+**Apply & restart** restarts the run with the scenario (the application's
+own restart; a reload when the boss was switched on or off, because the
+scene is chosen as a visit starts). Every change is kept at once as the
+active scenario (localStorage), so a reload keeps it; the fight on screen
+only changes on a restart.
+
+Every run waits: nothing moves until **Start encounter** at the top of the
+screen, which then becomes **Pause** / **Resume**. The application's tick
+loop asks the encounter (`isPaused`, a seam in `assets/Grid.js`); the engine
+never does, so replays, rebuilds and the determinism harness are untouched.
+
+## The arena's boss
+
+Step 1 has "Fight this arena's boss with all its mechanics" in the arenas
+that have one (`hostKind` in `arenas.js`): Sol Heredit's arena, Yama's room,
+Zebak's room, Vardorvis' clearing and both rooms of the Doom of Mokhaiotl.
+The scenario's `options.bossMechanics` then makes the arena's own encounter
+the sandbox's host (`encounter.js`): it is made by its own factory and runs
+inside the sandbox with everything it has (attacks, phases, hazards, adds,
+its engine rules, its debug actions and boss hitpoint controls in the
+Practice panel), and its scene is the one the fight has
+(`presentationOf(kind)`, a seam in `assets/rendering.js`, reaches the scenes
+that live in the bundle). The scenario's monsters fight beside it; in "ffa"
+the host's NPCs are one team, "boss". The run is won when the host's fight
+is won and the scenario's monsters are beaten. "Two Suns" is the real Sol
+Heredit and a second one of the sandbox's.
+
+One host per arena, where its fight puts it: a boss's mechanics are written
+for its own room and its own actor ids, so a second copy of a boss, or a
+boss in another arena, is the sandbox's plain version (below). The host's
+intro is left out (the sandbox's Start replaces it).
 
 ## Modes
 
@@ -43,13 +76,12 @@ other.
 
 ## Limitations
 
-- Every sandbox NPC has one behaviour (`brawler.js`): walk to the target
-  (with the route search around obstacles), attack with whichever of its
-  attacks reaches, wait its attack speed. The special mechanics of the
-  original fights are not there: no Jad prayer switch, no Sol Heredit
-  spears, shields or grapples, no manticore charge, no healers healing, no
-  Vardorvis axes, no Doom orbs or shields. Their stats, models and
-  animations are the originals'.
+- Every monster placed from the catalog has one behaviour (`brawler.js`):
+  walk to the target (with the route search around obstacles), attack with
+  whichever of its attacks reaches, wait its attack speed. Their special
+  mechanics are those of the arena's host only (above): a Jad, a Sol or a
+  Doom placed from the catalog has no prayer switch, spears or orbs. Their
+  stats, models and animations are the originals'.
 - The catalog is the monsters whose models and sequences the trimmed cache
   already holds and whose stats are in the monster table
   (`client/data/monsters.js`); the Doom's larvae, Zebak and Yama are left
@@ -77,7 +109,7 @@ top. In short:
   "meta": { "name": "Two Suns", "author": "OpenScim", "description": "..." },
   "arena": "sol_heredit",
   "mode": "versus",
-  "options": { "playerStart": null, "ffaIncludesPlayer": true },
+  "options": { "playerStart": null, "ffaIncludesPlayer": true, "bossMechanics": true },
   "npcs": [
     { "id": "sol-west", "npc": "sol_heredit", "position": [27, 36] },
     { "id": "sol-east", "npc": "sol_heredit", "position": [34, 36], "hp": 750, "team": "red" }
@@ -103,7 +135,8 @@ choice is deterministic (last attacker, current target, nearest); the one
 random choice, between attacks that reach, draws from the encounter's
 seeded generator.
 
-`tools/determinism/scenarios/sandbox.mjs` runs both modes and each example.
+`tools/determinism/scenarios/sandbox.mjs` runs both modes, each host with
+two of the sandbox's monsters, and each example.
 `test/test-sandbox-scenario.mjs` checks the format, the codes and the
 examples.
 
@@ -120,6 +153,13 @@ examples.
 | `activeScenario.js` | the scenario the next run starts with (localStorage, `#sbx=` links) |
 | `storage.js` | the saved scenarios (localStorage) |
 | `presentation.js` | one presentation per arena; brings the editor in step every frame |
-| `editor.js` | the editor panel |
+| `editor.js` | the editor panel, and Start / Pause |
+| `clock.js` | whether the run may tick: waiting for Start, running, paused |
+| `visit.js` | whether a visit fights the host (and draws its scene) |
+| `gateway.js` | the gateway in the lobby (`client/lobby/gateways.js` lists it) |
 
-No file under `client/assets/` was changed.
+What needed `client/assets/`, each a few lines: the tick loop asks
+`encounter.isPaused()` (`Grid.js`); `routeVariants` (variants with a route
+and presets that the menus do not list) and the sandbox's presets, every
+fight's (`application.js`); `presentationOf(kind)` handed to the
+presentations written in modules (`rendering.js`).
