@@ -5,7 +5,10 @@
 // vault opens its chooser. No object of the cache is placed.
 import { centerX, lobbyGateway, rimY } from "../../lobby/gateway.js";
 import { toaMesh, toaShaderModes } from "../../toa/shader.js";
-import { sandboxKind } from "./arenas.js";
+
+// The sandbox's kind (arenas.js). Not imported: the lobby's gateways load
+// in plain Node in a test, and arenas.js reaches the engine's modules.
+const sandboxKind = "sandbox";
 
 // The direction of the spoke, anticlockwise from east: between Yama (90) and
 // his neighbour at 149.
