@@ -24,7 +24,7 @@ npm run assets       # game cache and media from public sources (about 230 MB do
 npm run dev          # http://127.0.0.1:5173/
 ```
 
-Encounters: `/` (menu), `/yama/`, `/inferno/`, `/sol-heredit/`, `/zebak/`.
+Encounters: `/` (menu), `/yama/`, `/inferno/`, `/sol-heredit/`, `/zebak/`, `/sandbox/` (a fight of your own: `docs/SANDBOX.md`).
 `/toa/` is the Tombs of Amascut nexus, also reached through the gateway in the lobby.
 The lobby's Desert Treasure II gate opens a chooser for its four bosses (not built yet: "Coming Soon").
 
