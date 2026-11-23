@@ -1,0 +1,15 @@
+{
+  "npcAttack.js": {
+    "108": ["rollNpcAttackAgainstNpc", "the branch of rollNpcAttack for a target whose kind is not \"player\"; it reads the target's stats with getDrainedNpcFormulaStats and returns rollNpcAccuracyAndDamage(...); 'AgainstNpc' is inferred from getDrainedNpcFormulaStats"]
+  },
+  "npcMovement.js": {
+    "63": ["getCardinalStepCollisionMasks", "its result is stored as edgeMasks in canFootprintStepCardinally and is one of westStepCollisionMasks, eastStepCollisionMasks, southStepCollisionMasks, northStepCollisionMasks"],
+    "101": ["getDiagonalStepCollisionMasks", "its result is stored as diagonalMasks in canFootprintStepDiagonally and is one of southWestStepCollisionMasks ... northEastStepCollisionMasks"],
+    "162": ["isFootprintWithinArenaBounds", "it reads getArenaBounds() and tests toTile and toTile + width - 1, + height - 1 against minX, minY, maxX, maxY; 'Footprint' is from its parameters width and height"],
+    "250": ["getPursuitDestinationTile", "its result is stored as destinationTile in getNpcPursuitMoves, from actor and target"]
+  },
+  "npcRoutes.js": {
+    "146": ["findNearestReachedIndex", "its result is stored as nearestIndex and is where the route of kind \"alternative\" ends; among the cells with a step count it keeps the one with the smallest distanceSquared to the destination, then the smallest stepCount; 'Reached' is inferred"],
+    "202": ["findBossPursuitPath", "its result is stored as path in getBossPursuitMoves and its parameter is pursuit; 'find' is inferred (it calls findNpcRouteToMeleeRange)"]
+  }
+}

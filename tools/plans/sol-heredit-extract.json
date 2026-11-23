@@ -1,0 +1,16 @@
+{
+  "client/encounters/sol-heredit/constants.js": ["CC", "xC", "BC", "WC", "RC", "PC", "_C", "FC", "EC", "NC", "GC", "UC", "jC", "OC", "$C", "VC", "KC", "qC", "ZC", "YC", "XC", "JC", "QC", "we", "ex", "ax", "ux", "Vj", "Zj"],
+  "client/encounters/sol-heredit/phases.js": ["_j", "Fj", "Ej", "Nj"],
+  "client/encounters/sol-heredit/controls.js": ["Pj", "ue", "Gj"],
+  "client/encounters/sol-heredit/modifiers.js": ["Uj", "jj", "Oj", "$j", "z$", "TV"],
+  "client/encounters/sol-heredit/actors.js": ["mO", "hO", "fO"],
+  "client/encounters/sol-heredit/bossAttacks.js": ["Kj", "qj", "Yj", "Xj", "Jj", "Qj", "eO", "aO", "tO", "nO", "sO", "rO", "iO", "lO", "oO", "dO", "gO", "cO", "$O", "VO"],
+  "client/encounters/sol-heredit/grapple.js": ["bO", "yO", "zO", "wO", "AO", "LO", "DO", "HO", "qO", "ZO"],
+  "client/encounters/sol-heredit/boss.js": ["OO", "KO", "YO", "XO", "JO"],
+  "client/encounters/sol-heredit/lightBeams.js": ["dx", "gx", "uO", "vO", "pO", "kO", "SO", "H$"],
+  "client/encounters/sol-heredit/moltenSand.js": ["T$", "I$", "P$"],
+  "client/encounters/sol-heredit/minions.js": ["_O", "FO", "QO", "e$", "a$", "t$", "n$", "s$", "r$", "i$", "l$", "o$", "d$", "g$", "c$", "m$", "h$", "f$"],
+  "client/encounters/sol-heredit/solarflare.js": ["u$", "v$", "p$", "k$", "S$"],
+  "client/encounters/sol-heredit/modifierEffects.js": ["b$", "y$", "w$", "A$", "L$", "D$", "M$"],
+  "client/encounters/sol-heredit/SolHereditEncounter.js": ["C$", "x$", "B$", "W$", "R$"]
+}

@@ -1,0 +1,9 @@
+{
+  "client/encounters/yama/cacheArena.js": ["arenaConfigFromCache", "ql"],
+  "client/encounters/yama/sceneConstants.js": ["detonatedDeathCause", "yamaBasePosition", "isYamaSealedRow", "yamaSpawnFireballCommand", "yamaSpawnVoidFlareCommand"],
+  "client/encounters/yama/fireballGeometry.js": ["defaultYamaFireballBeats", "getFireballBurstStartTicks", "vN", "getFireballPhase", "kN", "SN", "getFireballImpactTiles", "getFireballExplosionTiles"],
+  "client/encounters/yama/shadowWaves.js": ["defaultYamaWaveDeltas", "defaultYamaFirstCycleWaveDeltas", "getYamaWaveCyclePosition", "isYamaWaveActiveInCycle", "isInsideYamaWaveDiamond", "PN", "getYamaWaveRandomOffset", "getYamaWaveTiles"],
+  "client/encounters/inferno/startTile.js": ["canChooseInfernoStartTile", "parseTileString", "formatTileString", "validateInfernoStartTile", "clampInfernoWave", "canPinInfernoWave"],
+  "client/encounters/inferno/spawnLayout.js": ["cI", "infernoSpawnTileCount", "isInfernoSlotNpcKind", "getInfernoWaveSlotNpcs", "SI", "bI", "validateInfernoSpawnLayout", "zI", "wI", "AI", "formatInfernoSpawnLayout", "parseInfernoSpawnLayout"],
+  "client/encounters/inferno/events.js": ["copyTilePosition", "emitZukAttack", "emitInfernoVisual", "emitInfernoNpcAttack", "isOutsideZukShieldCoverage"]
+}

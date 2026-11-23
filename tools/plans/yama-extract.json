@@ -1,0 +1,11 @@
+{
+  "client/encounters/yama/constants.js": ["nh", "sh", "dh", "gh", "ch", "mh", "hh", "fh"],
+  "client/encounters/yama/beatClock.js": ["lh", "oh"],
+  "client/encounters/yama/fireballWaves.js": ["kh", "Sh", "bh", "yh", "zh", "wh", "bN", "zN"],
+  "client/encounters/yama/contracts.js": ["_$", "F$", "E$", "N$", "G$", "U$", "j$", "O$", "$$", "V$", "K$", "q$", "Z$", "Y$", "X$", "J$", "Q$", "eV", "aV", "tV", "nV", "sV"],
+  "client/encounters/yama/controls.js": ["dV"],
+  "client/encounters/yama/voidFlares.js": ["gV", "cV", "AV"],
+  "client/encounters/yama/boss.js": ["mV", "hV", "fV", "uV", "vV", "pV", "kV", "SV"],
+  "client/encounters/yama/fireballs.js": ["bV", "yV"],
+  "client/encounters/yama/YamaEncounter.js": ["zV", "LV", "DV", "HV", "MV", "cn"]
+}

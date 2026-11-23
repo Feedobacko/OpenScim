@@ -1,0 +1,56 @@
+{
+  "SceneCompositor": {
+    "yD": [
+      "setEncounterRenderConfig",
+      "assigns `this.encounterRenderConfig`, then hands its `primaryNpc` to the NPC instance manager and makes its scene object controller; every scene builder passes it `context.encounterRenderConfig ?? <the presentation's render config>`"
+    ],
+    "XD": [
+      "setEventAudioPlayer",
+      "its whole body is `this.eventAudioPlayer = e`; the scene builders pass it `context.eventAudioPlayer`"
+    ],
+    "TD": [
+      "setGroundItemLoaderSource",
+      "its whole body is `this.groundItemLoaderSource = e`. The scene builders pass it `context.cacheManager`: the name says what the scene keeps it for, not what is passed"
+    ],
+    "ND": [
+      "getPlayingSequenceFrames",
+      "inferred. Returns one entry per actor that is playing a sequence, `{ actorId, seqId, currentFrame, seqType, position }`: the NPCs' animation controllers, the player's, and the spot animations'. The scenes hand the list to the frame sound tracker (log tag \"FrameSoundTracker\" in application.js), which plays `seqType.frameSounds.get(frame)`",
+      { "alsoIn": ["ZebakScene@client/toa/zebak/native.js"] }
+    ],
+    "JD": [
+      "syncNpcInstances",
+      "calls `this.npcInstanceManager.syncInstances(...)` with the NPCs of the simulation state, the primary NPC's actor id replaced by its render instance id; then starts the death animations that a jump in the timeline skipped. The lobby's scene (IE) and the Inferno's (InfernoScene) override it, as does Zebak's",
+      { "alsoIn": ["IE", "InfernoScene", "ZebakScene@client/toa/zebak/native.js"] }
+    ],
+    "NH": [
+      "setTerrainHeightsAndBounds",
+      "assigns `this.terrainHeights` (level 0 of the map's `tileHeights`) and `this.terrainBounds`, and calls `setTerrainHeights` on the NPC instance manager and the spot animation renderer; called once, when the terrain mesh is built",
+      { "alsoIn": ["ZebakScene@client/toa/zebak/native.js"] }
+    ],
+    "QD": [
+      "getNpcRenderInstanceId",
+      "returns the instance id of the primary NPC (the constant `M_`) for `encounterRenderConfig.primaryNpc.actorId` and the actor id itself for every other; \"render instance\" from the class's own fields `hiddenNpcRenderIds` and `isNpcRenderInstanceHidden`. The verb is inferred"
+    ],
+    "WD": [
+      "createFirstAvailableSequence",
+      "inferred. Goes through a list of sequence ids and returns the first that `playerAnimationSystem.createSequenceFromSeqType` can make (through `BD`), or null"
+    ]
+  },
+  "InfernoScene": {
+    "hM": [
+      "setFrameSoundTracker",
+      "its whole body is `this.frameSoundTracker = e`, in each of the three scenes that have one (the Inferno's InfernoScene, Sol Heredit's iN, Yama's qN); the scene builders pass it `context.frameSoundTracker`",
+      { "alsoIn": ["iN", "qN"] }
+    ]
+  },
+  "NpcInstanceManager": {
+    "vA": [
+      "removeInstance",
+      "deletes the actor's entry from `instanceRegistry` and `dyingInstances`, its pending attack triggers, its movement flag and its facing (`facingController.drop`)"
+    ],
+    "zA": [
+      "setInstancePositionAndFacing",
+      "inferred. Rebuilds the instance's `currentModelMatrix` from a tile position, a size and a facing angle (through `iA`), marks the instance for a new transparency sort when the matrix changed, and keeps the angle as `lastRenderFacingAngle`. Beside `setInstanceModelMatrix`, which takes the matrix itself"
+    ]
+  }
+}

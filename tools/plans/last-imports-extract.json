@@ -1,0 +1,6 @@
+{
+  "client/util/logger.js": ["Xl", "Jl", "Ql", "ed", "ad", "logger"],
+  "client/util/packHsl.js": ["packHsl"],
+  "client/encounters/inferno/spawnCommandType.js": ["_H", "getInfernoSpawnCommandType"],
+  "client/encounters/lobby/lobbyNpcs.js": ["lobbyNpcs"]
+}

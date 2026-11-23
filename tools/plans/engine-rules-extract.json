@@ -1,0 +1,9 @@
+{
+  "client/engine/mechanicsConfig.js": ["Qh", "buildMechanicsConfig"],
+  "client/engine/prayerTables.js": ["Prayer", "prayerSlotByPrayer", "df", "isPrayerUnlockedByMechanics", "prayerDrainEffects", "redemptionHealFraction", "createPrayerState"],
+  "client/engine/npcRetaliation.js": ["wG", "scheduleNpcRetaliation", "resolvePendingRetaliations", "HG"],
+  "client/engine/damage.js": ["resolveRolledDamage", "isCorrectProtectionPrayer", "applyPrayerReduction"],
+  "client/engine/equipmentStats.js": ["JM", "QM", "eT", "aT", "tT", "nT", "sT", "getGracefulBonusPercent", "iT", "createEmptyEquipmentStats", "oT", "dT", "gT", "cT", "getItemEquipmentStats", "computeEquipmentStats", "getCarriedWeight"],
+  "client/engine/monsterStats.js": ["getMonsterHitpoints", "getMonsterFormulaStats", "applyMonsterStatOverride"],
+  "+setup": ["nT"]
+}

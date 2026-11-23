@@ -1,0 +1,120 @@
+{
+  "../../assets/rendering.js": {
+    "ih": ["defaultYamaFireballBeats","the fallback for an attack pattern's fireballBeats (a?.fireballBeats ?? ih)"],
+    "th": ["hashInteger","inferred: a 32-bit integer mixing hash; callers take one bit of the result or divide it by 2^32"],
+    "ph": ["getFireballBurstStartTicks","inferred: maps fireballBeats to beatStartTick + beat * beatIntervalTicks + 3, the tick each burst's first fireball starts"],
+    "lV": ["yamaSpawnFireballCommand","the object { encounter: \"yama_p3\", type: \"spawn-fireball\" }; the command of the debug action \"Spawn Fireball\""],
+    "oV": ["yamaSpawnVoidFlareCommand","the object { encounter: \"yama_p3\", type: \"spawn-void-flare\" }; the command of the debug action \"Spawn Void Flare\""],
+    "rh": ["detonatedDeathCause","its value is \"detonated\"; assigned to actor.deathCause and used as a key of deathClips"],
+    "FA": ["getMonsterHitpoints","returns levels.hitpoints of a monster table entry; a caller's error string \"Missing Colosseum monster data for ...\""],
+    "EA": ["getMonsterFormulaStats","error strings \"Missing monster formula stats for NPC 14179\" and \"Missing Phase 3 Yama formula stats\"; stored under formulaStats; handed to zebakDefinition as stats"],
+    "gM": ["startScriptedNpcDeath","handed to zebakDefinition as startNpcDeath: gM; it makes the death record with causeStage \"scripted\""],
+    "ET": ["defineNpc","error string \"NPC definition '...' has invalid spawnUntargetableTicks\""],
+    "eU": ["healNpc","raises vitals.hp and emits \"hitsplat_spawned\" with hitsplatType \"heal\"; its result is stored under the key heal"],
+    "wV": ["voidFlareImpactSpotAnimId","its value is Kz.VFX_VOIDFLARE_HUMAN_IMPACT_BLUE; passed as spotAnimId"],
+    "hM": ["getDistanceToFootprint","the engine stores its result as targetDistance and as const distance (player tile, target.position, target.size)"],
+    "NM": ["getNpcAttackAccuracy","its other caller stores the result under the key accuracy; Yama compares it with accuracyRandom() for accuracySucceeded"],
+    "OM": ["getPrayerMultipliers","handed out under the key targetPrayerMultipliers"],
+    "wT": ["getDrainedNpcFormulaStats","callers' error strings \"Yama cannot roll accuracy without formula stats\" and \"Zuk requires formula stats\"; inferred otherwise: formulaStats with the debuffs' drains taken off the levels"],
+    "AT": ["getPlayerFormulaStats","inferred: the player counterpart ({ kind: \"player\", levels, stance }), passed under the key target of an accuracy roll"],
+    "nd": ["logger","it sets window.__log and prints \"Logger commands:\""],
+    "rf": ["LogEventType","its members (TICK_START, FIREBALL_SPAWN, ...) are the type of the events passed to logEvent()"],
+    "pN": ["getFireballPhase","returns { phase: \"falling\" | \"impact\" | \"explosion\" | \"done\", progress }; the event \"fireball_impact\" is emitted on its \"impact\""],
+    "yN": ["getFireballImpactTiles","the tiles returned while the phase is \"impact\" (center, side1, side2)"],
+    "wN": ["getFireballExplosionTiles","the tiles returned while the phase is \"explosion\""],
+    "Nl": ["getArenaBounds","returns bounds of the arena config in force ({ bounds, walkableTiles, collisionMap })"],
+    "Ul": ["isArenaTileWalkable","inferred: looks a tile up in walkableTiles of the arena config in force"],
+    "Kl": ["arenaConfigFromCache","inferred: the cache manager stores here what it builds under the profiler label \"CacheManager.buildArenaConfig\" (log \"Arena bounds extracted\")"],
+    "me": ["createSeededRandom","handed to zebakDefinition as seedRandom: me; the engine does this.combatRandom = me(this.combatSeed)"],
+    "uh": ["yamaBasePosition","feeds basePosition of the render config's primaryNpc with actorId \"yama\" (through Mh); Yama's actor is created at it"],
+    "vh": ["isYamaSealedRow","inferred: y <= 19; getArenaConfig drops those walkable tiles to make sealedArenaConfig"],
+    "ZH": ["canNpcActAtTick","the engine's canAttackerAct(worldState, attacker) returns it for an npc"],
+    "NT": ["NpcDefinitionRegistry","the engine keeps one as this.npcDefinitions; it holds registrations and throws DuplicateNpcDefinitionError"],
+    "CN": ["defaultYamaWaveDeltas","the fallback for waves.deltas"],
+    "xN": ["defaultYamaFirstCycleWaveDeltas","the fallback for waves.firstCycleDeltas"],
+    "BN": ["getYamaWaveCyclePosition","inferred: returns { tp, cycleNum }, the ticks into the wave period and the number of the period, for a wave's delta"],
+    "WN": ["isYamaWaveActiveInCycle","inferred: false before cycle 0, and in cycle 0 true only for deltas listed in firstCycleDeltas"],
+    "RN": ["isInsideYamaWaveDiamond","inferred: true when y - x is within -19..19 and x + y within 40..81; wave tiles outside it are skipped"],
+    "_N": ["getYamaWaveRandomOffset","inferred: used when waves.randomOffsets is true; picks one of four offset pairs by a hash of seed, wave and cycle"],
+    "FN": ["getYamaWaveTiles","its result becomes wavePositions of the event \"wave_activated\"; entries are { x, y, waveType, waveIndex, layer }"],
+    "jO": ["getBossPursuitMoves","inferred: routes a boss ({ bossSW, size, maxSpeed, underFootprint, unreachable }) toward the player and returns [{ npcId, path }]; Yama calls it when resolvedConfig.pursuit"]
+  },
+  "constants.js": {
+    "nh": ["yamaNpcTypeId","npcTypeId: nh on the actor whose id is \"yama\"; looked up as getMonsterFormulaStats(nh, \"Phase 3\")"],
+    "sh": ["voidFlareNpcTypeId","npcTypeId: sh on the actor with archetypeId \"voidflare\"; error string \"Missing monster formula stats for NPC 14179\""],
+    "dh": ["getYamaAttackKind","its result is stored under the key attackKind (\"melee_crush\", \"range_shadow\", \"magic_fire\")"],
+    "gh": ["mixSeed","its results are stored as waveConfig.seed and the void flare seed and seed pursuitRng and accuracyRng; inferred otherwise: a two-integer multiplicative hash"],
+    "ch": ["voidFlareSpawnTiles","the position of a spawned flare (event \"voidflare_spawned\") is picked from it by state.spawnIndex"],
+    "mh": ["yamaDefeatOverheadTexts","one entry is emitted as overheadText (event \"overhead_text\") when Yama is defeated"],
+    "hh": ["yamaPlayerStartMin","getDefaultPlayerStart() returns a random tile between hh and fh; this is the lower corner"],
+    "fh": ["yamaPlayerStartMax","getDefaultPlayerStart() returns a random tile between hh and fh; this is the upper corner"]
+  },
+  "beatClock.js": {
+    "lh": ["getYamaBeatInfo","its result is passed under the key beatInfo; it returns { isBeat, beatIndex, globalBeatOrdinal, isFireballBeat, isVoidFlareBeat, fireballBeatKind }"],
+    "oh": ["getNextYamaBeatTick","the attackTimer of the \"yama\" definition returns it as nextAttackTick; inferred otherwise: the first beat tick after the given tick"]
+  },
+  "fireballWaves.js": {
+    "kh": ["fireballBurstTickOffsets","inferred: added to a burst's start tick to get the startTick of each of its three fireballs"],
+    "Sh": ["isDuoSide","applied to mechanics.duoSide; true for \"player1\" and \"player2\""],
+    "bh": ["fireballAnglesByDuoSide","inferred: keyed by player1/player2 (the duoSide values), then vertical/horizontal; an entry becomes a fireball's angle"],
+    "yh": ["isFireballBurstVertical","its result picks start: \"vertical\" or \"horizontal\" for a burst; a fixed start is compared with \"vertical\""],
+    "zh": ["getFireballAngle","its result is stored under the key angle"],
+    "wh": ["getFireballInstanceId","its result is stored under the key instanceId"],
+    "bN": ["getScheduledFireballPhases","the method activePhases() returns its result when scheduledEnabled; entries are { startTick, endTick, angle, instanceId }"],
+    "zN": ["isFireballPerfectDodgeTile","it gates the event \"yama_perfect_dodge\" (log category \"PerfectDodge\")"]
+  },
+  "contracts.js": {
+    "_$": ["getMissingHpPercent","inferred: floor((maxHp - hp) * 100 / maxHp); handed out as damageBonusPercent under wretchedStrength and scales playerMinimumHit"],
+    "F$": ["defaultYamaAttackPattern","the fallback for every property of resolvedConfig.attackPattern ({ beatStartTick, beatIntervalTicks, beatsPerCycle, ... })"],
+    "E$": ["scaleBossHp","inferred: floor(maxHp * fraction); only used for the boss hp values"],
+    "N$": ["defaultYamaBossHp","the fallback for resolvedConfig.boss.hp (a third of 2500)"],
+    "G$": ["contractYamaBossHp","boss.hp of the config every contract is merged from (half of 2500)"],
+    "U$": ["bloodiedBlowsBossHp","boss.hp of the contract with contractId \"bloodied_blows\" (half of 3000)"],
+    "j$": ["glyphicAttenuationBossHp","boss.hp of the contract with contractId \"glyphic_attenuation\" (half of 2875)"],
+    "O$": ["defaultRangedMagicPrayerReduction","the fallback for autoAttacks.rangedMagicPrayerReduction"],
+    "$$": ["defaultMeleePrayerReduction","the fallback for autoAttacks.meleePrayerReduction"],
+    "V$": ["defaultWaveDamage","the fallback for waves.damage"],
+    "K$": ["defaultFireballDamage","the fallback for fireballs.damage"],
+    "q$": ["contractLevelOverrides","passed as levelOverrides when the contract has a contractId"],
+    "Z$": ["contractEncounterDefaults","inferred: the base every contract's encounter is merged from"],
+    "Y$": ["mergeEncounterConfig","its result is stored under the key encounter; inferred otherwise: merges attackPattern, autoAttacks, waves, fireballs, voidFlares and boss one level deep"],
+    "X$": ["noContract","contractId: null and kind \"yama_p3\", the variant with id \"no_contract\" (\"No Contract\"); the fallback for this.contract"],
+    "J$": ["divineSeveranceContract","contractId \"divine_severance\", kind \"yama_p3_divine\""],
+    "Q$": ["staminaDepletedFailure","its value is \"StaminaDepleted\"; returned under the key fail"],
+    "eV": ["forfeitBreathContract","contractId \"forfeit_breath\", kind \"yama_p3_forfeit_breath\""],
+    "aV": ["sensoryCloudingContract","contractId \"sensory_clouding\", kind \"yama_p3_sensory\""],
+    "tV": ["bloodiedBlowsContract","contractId \"bloodied_blows\", kind \"yama_p3_bloodied\""],
+    "nV": ["glyphicAttenuationContract","contractId \"glyphic_attenuation\", kind \"yama_p3_glyphic\""],
+    "sV": ["yamaContractVariants","handed out as variants: sV with variantLabel \"Contract\" in the registry entry of kind \"yama_p3\""]
+  },
+  "controls.js": {
+    "dV": ["buildYamaControls","handed out as controls: dV() and under variantControls in the registry entry of kind \"yama_p3\""]
+  },
+  "voidFlares.js": {
+    "gV": ["voidFlareNpcDefinition","the NPC definition with id \"yama-void-flare\""],
+    "cV": ["destroyVoidFlare","emits \"voidflare_destroyed\" and sets lifecycle to \"destroyed\""],
+    "AV": ["VoidFlareCoordinator","constructed into this.voidFlareCoordinator"]
+  },
+  "boss.js": {
+    "mV": ["createYamaAttackPolicyState","its result is stored under the key attackPolicy ({ openingStyle, attackPattern })"],
+    "hV": ["yamaAttackPolicy","its onTick takes and returns (nextState) the state kept as actor.state.attackPolicy; error string \"Unexpected Yama attack intent\""],
+    "fV": ["yamaNpcDefinition","the NPC definition with id \"yama\""],
+    "uV": ["getYamaState","inferred: returns the \"yama\" definition's state of an actor"],
+    "vV": ["clearYamaAttackState","inferred: nulls queuedAttack, windup and latestAttack* and zeroes alternatingAttackCount; the definition's onDefeated"],
+    "pV": ["queueAlternatingAttack","it sets state.queuedAttack and counts state.alternatingAttackCount"],
+    "kV": ["buildYamaAttack","its result is pushed into npcAttacks"],
+    "SV": ["rollYamaAccuracy","error string \"Yama cannot roll accuracy without formula stats\"; result under the key accuracySucceeded"]
+  },
+  "fireballs.js": {
+    "bV": ["FireballRuntime","constructed into this.fireballRuntime"],
+    "yV": ["isValidSeed","applied to seeds.encounterSeed, seeds.fireballSeed and seeds.voidFlareSeed; inferred otherwise: an integer from 0 to 4294967295"]
+  },
+  "YamaEncounter.js": {
+    "zV": ["createYamaEncounterState","its result is assigned to this.state ({ run, fireballs, voidFlares, lifecycle })"],
+    "LV": ["yamaActorId","its value is \"yama\"; used as actorId, primaryActorId and in completionActorIds"],
+    "DV": ["yamaPursuitMovement","inferred: the movement options ({ size, maxSpeed, underFootprint, unreachable, canOccupy }) given to the pursuit routing when resolvedConfig.pursuit"],
+    "HV": ["fallbackYamaArenaBounds","the last fallback for getArenaConfig().bounds ({ minX, maxX, minY, maxY })"],
+    "MV": ["getNearestPosition","inferred: the entry of a list with the smallest squared distance to a position; gives position of the event \"wave_activated\""],
+    "cn": ["YamaEncounter","the registry entry of kind \"yama_p3\" constructs it (factory: () => new cn()); the module's file name"]
+  }
+}

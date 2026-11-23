@@ -1,0 +1,40 @@
+{
+  "about": "Names given by hand in the ninth session's commits that are not in another names file: six functions that a comma sequence with temporaries became again (the temporaries are their parameters), and nine numbers that stood bare in more than one place. Each with its evidence, or the word inferred.",
+  "sol-heredit/actors.js": {
+    "getHealingTotemFormulaStats": "its value is the formulaStats of the kind \"healing_totem\"; it reads getMonsterFormulaStats(healingTotemNpcTypeId) into the temporary that was called totemStats"
+  },
+  "sol-heredit/minions.js": {
+    "applyRelentlessToPlan": "its parameters are the temporaries basePlan and relentlessTier; applyRelentlessDefenceBypass(player, relentlessTier) stands beside it, whole; 'ToPlan' is inferred"
+  },
+  "sol-heredit/constants.js": {
+    "grappleWindowTicks": "grapple.js: resolveTick = pending.startTick + 4, and a click counts from startTick to startTick + 4; the snapshot's grapple.resolveTick is the same sum; 'window' is inferred"
+  },
+  "sol-heredit/lightBeams.js": {
+    "beamPrepareLeadTicks": "LightBeamRuntime.prepare sets chargeTick: tick + 3 and answers 3 + chargeTicks; cancelActiveRound takes the 3 off again; 'lead' is inferred"
+  },
+  "inferno/waves.js": {
+    "isSpawnLayoutComplete": "inferred: the layout's filled slots are as many as the slot NPCs of its wave; its parameter is the temporary spawnLayout"
+  },
+  "inferno/InfernoEncounter.js": {
+    "registerWaveMonsters": "its parameter is the temporary waveMonsterServices; it returns the results of nibblerNpcDefinition.register(...) to magerNpcDefinition.register(...)",
+    "registerWaveNpcs": "its parameter is the temporary services; it returns the wave monsters' registrations and those of jadHealerNpcDefinition and jadNpcDefinition; 'Wave' is inferred",
+    "registerZukNpcs": "its parameters are the temporaries getZukFight and presentParentHeal; it returns the registrations of zukShieldNpcDefinition, zukHealerNpcDefinition and zukNpcDefinition"
+  },
+  "inferno/zuk.js": {
+    "zukJadHpThreshold": "under it, and while !state.jadSpawned, the definition calls config.spawnJad; ZukFight.syncBossHp sets jadSpawned = bossHp < 480; the hitpoint preset of 480 is labelled \"Pre-Jad\"",
+    "zukHealersHpThreshold": "under it, and while !state.healersSpawned, the definition calls config.spawnHealers; ZukFight.syncBossHp sets healersSpawned = bossHp < 240",
+    "zukCastIntervalTicks": "getZukCastIntervalTicks returns it, or enragedZukCastIntervalTicks, which the bundle left with its name"
+  },
+  "inferno/zukFight.js": {
+    "zukOpeningCastDelayTicks": "it is passed as openingDelayTicks, and openingCastTick = glyphSpawnTick + openingDelayTicks"
+  },
+  "yama/constants.js": {
+    "yamaSize": "Yama's actor record and his pursuit options had size: 5, and the attack policy measures the distance to a footprint of 5"
+  },
+  "yama/fireballGeometry.js": {
+    "fireballLifetimeTicks": "getFireballPhase answers \"done\" from 5 ticks after the start, and endTick was startTick + 5 - 1 in three places; 'lifetime' is inferred"
+  },
+  "yama/boss.js": {
+    "yamaMeleePoisonSeverity": "it is the attack's applyPoison, which the engine hands to applyPoisonToPlayer(poisonSeverity)"
+  }
+}

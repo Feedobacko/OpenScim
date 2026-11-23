@@ -1,0 +1,13 @@
+{
+  "client/data/itemVariants.js": ["Ch", "xh", "getBaseItemId"],
+  "client/data/spotAnimIds.js": ["spotAnimIds"],
+  "client/data/monsters.js": ["WA", "monsterByNpcTypeId", "monsterByNpcTypeIdAndVersion", "_A"],
+  "client/data/combatSpells.js": ["combatSpells", "jA", "OA", "$A", "VA", "KA", "qA", "ZA", "YA", "getSpellDefinition"],
+  "client/data/equipment.js": ["yL", "zL", "wL", "AL", "LL", "DL", "HL", "ML", "TL", "IL", "CL", "getEquipmentDefinition", "BL", "WL", "getCanonicalEquipmentId", "PL"],
+  "client/data/weaponCategories.js": ["_L", "FL", "EL", "NL", "GL", "getDefaultAttackStyleIndex", "getActiveSpell", "getWeaponCategory", "getWeaponCategoryOrUnarmed", "getWeaponCategoryDefinition"],
+  "client/data/specialAttackDefinitions.js": ["iB", "lB", "oB", "dB", "getSpecialAttackDefinition", "hasSpecialAttack"],
+  "client/engine/ammunition.js": ["variantArrowsByItemId", "hD", "fD", "uD", "vD", "pD", "kD", "SD", "bD", "isArrowOrBolt", "weaponRequiresAmmo", "isAmmoCompatibleWithWeapon"],
+  "client/engine/weapons.js": ["getPoweredStaffBaseMaxHit", "XW", "JW", "getHitDelayWeaponKind", "eR", "getRangedDefenceType", "tR", "getWeaponFormulaStyle", "sR", "computePlayerCombatParams", "formulaStyleToAttackStyle", "formulaStyleToAttackKind", "oR", "dR", "gR", "cR", "getWeaponProjectileTiming"],
+  "client/encounters/yama/voidFlareSpotAnim.js": ["voidFlareImpactSpotAnimId"],
+  "+setup": ["Ch", "monsterByNpcTypeId", "ML"]
+}

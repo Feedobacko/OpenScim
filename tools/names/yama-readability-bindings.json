@@ -1,0 +1,5 @@
+{
+  "fireballWaves.js": {
+    "getScheduledFireballPhases": ["getScheduledFireballs", "it returns one entry { startTick, endTick, angle, instanceId } per fireball in the air; its callers name the elements fireball; a phase is falling, impact or explosion (getFireballPhase)"]
+  }
+}

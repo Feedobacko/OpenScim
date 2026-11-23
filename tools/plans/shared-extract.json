@@ -1,0 +1,42 @@
+{
+  "client/engine/collision.js": ["Xg", "CollisionFlag", "createCollisionMap"],
+  "client/engine/arena.js": [
+    "xl", "Bl", "Wl", "Rl", "Pl", "_l", "Fl",
+    "setArenaConfig", "getArenaBounds", "Gl", "isArenaTileWalkable", "isInsideArenaBounds", "getArenaCollisionMap", "$l", "getArenaDefaultWalkable",
+    "Zl", "oe", "Yl"
+  ],
+  "client/engine/random.js": ["createSeededRandom", "hashInteger"],
+  "client/engine/attackRange.js": [
+    "getDistanceToFootprint", "fM", "uM", "vM", "pM", "isFootprintInAttackRange", "SM", "bM", "yM", "zM", "areFootprintsOverlapping"
+  ],
+  "client/engine/npcState.js": [
+    "isNpcBoundAtTick", "EH", "NH", "GH", "UH", "OH", "$H", "VH", "KH", "qH",
+    "canNpcActAtTick", "isActorAlive", "XH", "isNpcAlive", "canNpcBeHealed",
+    "eM", "aM", "tM", "nM", "sM", "rM", "iM", "lM", "oM", "dM", "startScriptedNpcDeath", "reviveNpc", "mM",
+    "isNpcHeldInPlace", "scheduleNpcHitpointRegen", "SG"
+  ],
+  "client/engine/decisions.js": ["createRandomDecisions", "weightEqually", "getContextDecisions"],
+  "client/engine/occupancy.js": ["MM", "TM", "IM", "createOccupancyStepCheck"],
+  "client/engine/combatFormulas.js": [
+    "hf", "BM", "WM", "neutralPrayerMultipliers", "getSingleRollHitChance", "_M", "FM", "EM",
+    "getNpcAttackAccuracy", "getNpcAttackRoll", "getPlayerDefenceRoll", "jM", "getPrayerMultipliers", "getFormulaMaxHit", "VM",
+    "vT", "getDrainedNpcFormulaStats", "getPlayerFormulaStats"
+  ],
+  "client/engine/projectiles.js": ["KM", "qM", "getProjectileFlightCycles", "YM", "getTicksFromCycles"],
+  "client/encounters/shared/npcAttack.js": ["uT", "getDistanceFromNpcCentre", "kT", "rollNpcAttack", "isNpcInAttackRange"],
+  "client/encounters/shared/npcMovement.js": [
+    "LT", "DT", "HT", "MT", "TT", "IT", "CT", "xT", "BT", "WT",
+    "canFootprintStepInArena", "isArenaFootprintWalkable", "getNpcPursuitMoves"
+  ],
+  "client/encounters/shared/npcDefinitions.js": ["defineNpc", "NpcDefinitionRegistry", "GT", "UT"],
+  "client/encounters/shared/npcRoutes.js": [
+    "MO", "TO", "IO", "CO", "isTileInFootprint", "BO", "WO", "RO",
+    "findNpcRouteToMeleeRange", "findNpcRoute", "NO", "isTileUnderFootprint", "UO", "getBossPursuitMoves"
+  ],
+  "client/encounters/shared/npcHelpers.js": [
+    "buildActorVisualTarget", "getProjectileSourcePosition",
+    "activeOutcome", "scheduleNextActionTick", "faceActorToward", "buildNpcProjectileVisual", "healNpc"
+  ],
+  "client/encounters/inferno/collisionFlags.js": ["infernoPillarCollisionFlags", "monsterObstacleCollisionFlags", "infernoObstacleCollisionFlags"],
+  "+setup": ["CollisionFlag"]
+}

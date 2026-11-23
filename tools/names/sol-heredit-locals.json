@@ -1,0 +1,947 @@
+{
+  "constants.js": {
+    "ux": {
+      "e": ["tickEvents","callers pass context.tickEvents"],
+      "a": ["visual","emitted with type 'colosseum_visual'"]
+    },
+    "Zj": {
+      "e": ["tile","inferred: callers pass [x, y]"],
+      "a": ["bounds","inferred: callers pass CC, the arena's { minX, maxX, minY, maxY }"],
+      "t": ["x","tile[0]"],
+      "n": ["y","tile[1]"],
+      "s": ["onEastWestEdge","inferred: x equals bounds.minX or bounds.maxX"],
+      "r": ["onNorthSouthEdge","inferred: y equals bounds.minY or bounds.maxY"]
+    }
+  },
+  "phases.js": {
+    "Ej": {
+      "e#1": ["bossHp","called as Ej(bossHp, this.boss.vitals.maxHp)"],
+      "a": ["maxHp","called with boss.vitals.maxHp"],
+      "t": ["hpFraction","inferred: bossHp / maxHp, compared with solPhase.threshold"],
+      "n": ["phase","returned; callers store it as this.phase"],
+      "e#2": ["solPhase","element of _j; controls.js error string 'No Sol phase at'"]
+    },
+    "Nj": {
+      "e": ["phase","called as Nj(this.phase)"]
+    }
+  },
+  "controls.js": {
+    "Gj": {
+      "e#1": ["maxHp","getMonsterHitpoints(NC); stored as { hp } of the Start preset; actors.js stores the same value as vitals.maxHp"],
+      "e#2": ["solPhase","element of _j; error string 'No Sol phase at'"]
+    }
+  },
+  "modifiers.js": {
+    "jj": {
+      "e": ["modifierId","compared with modifier.id"],
+      "a": ["modifier","element of Uj, the modifier descriptions"]
+    },
+    "$j": {
+      "e#1": ["setup","rendering.js registers this list as setupNotes; the app passes { equipment, inventory, modifiers }"],
+      "e#2": ["itemId","value of loadout.equipment, tested with itemIds.includes"],
+      "e#3": ["item","element of loadout.inventory; read .id"],
+      "a": ["loadout","message string 'Noxious halberd in loadout'; same object as setup"],
+      "t": ["itemIds","inferred: the item ids looked for (Oj, the noxious halberd)"]
+    },
+    "z$.constructor": {
+      "e": ["selection","stored as this.selection"]
+    },
+    "z$.configureRunStart": {
+      "e": ["mechanics","stored as this.mechanics; engine: encounter.configureRunStart(this.mechanicsConfig, ...)"]
+    },
+    "z$.getEngineRules": {
+      "e#1": ["combatParams","engine: encounterRules.modifyPlayerCombatParams(combatParams, this.buildRulesContext())"],
+      "a#1": ["rulesContext","engine: this.buildRulesContext(); same name in yama/contracts.js"],
+      "player3": ["player","read from rulesContext.player"],
+      "weapon2": ["weaponId","passed as { weaponId }"],
+      "r": ["formulaStyle","inferred: nR returns 'ranged', 'magic' or 'melee_*', the values of plan.formulaStyle in minions.js"],
+      "i": ["autocastSpell","inferred: the spell jL finds for a weapon on a Casting style, null otherwise"],
+      "l": ["reducedAttackRange","stored as { attackRange }; tier text 'Attack range is reduced by 2 tiles'"],
+      "t": ["hit","engine: encounterRules.onPlayerDamageTaken(hit, this.buildRulesContext())"],
+      "n": ["ruleOutcome","engine: const ruleOutcome = encounterRules.onPlayerDamageTaken(...)"],
+      "a#2": ["doomLimit","inferred: stacks that kill, 15/10/5 by tier; tier text '15 stacks kill you'"],
+      "e#2": ["doomStacks","caller passes this.doomStacks"],
+      "a#3": ["doomLimit","same value as the outer doomLimit"]
+    },
+    "TV": {
+      "e": ["modifierId","compared with modifier.id"],
+      "a": ["modifier","element of jj, the modifier descriptions"]
+    }
+  },
+  "actors.js": {
+    "fO": {
+      "e": ["npcKey","inferred: key of the NPC table hO ('sol', 'beam_crystal', 'solarflare', 'bees', 'healing_totem')"],
+      "a": ["actorId","stored as { id }"],
+      "t": ["position","stored as { position }"],
+      "n": ["archetype","inferred: the hO entry { npcTypeId, size, archetypeId }"],
+      "s": ["isBoss","decides role: 'boss'"],
+      "r": ["maxHp","stored as { maxHp }"],
+      "i": ["formulaStats","stored as { formulaStats }"],
+      "l": ["totemStats","inferred: getMonsterFormulaStats of the healing totem"]
+    }
+  },
+  "bossAttacks.js": {
+    "Kj": {
+      "e": ["bossPosition","iO passes geometry.position, which boss.js fills with actor.position"]
+    },
+    "qj": {
+      "e": ["fromTile","inferred: first tile of a Chebyshev distance"],
+      "a": ["toTile","inferred: second tile of a Chebyshev distance"]
+    },
+    "Yj": {
+      "e": ["dx","inferred: tile x minus the boss position x"],
+      "a": ["dy","inferred: tile y minus the boss position y"],
+      "t": ["direction","inferred: switched over 'south', 'north', 'west', 'east', the value sO returns"]
+    },
+    "Qj": {
+      "e#1": ["bossPosition","eO passes its first argument, geometry.position"],
+      "a#1": ["direction","inferred: the value sO returns ('south', 'north-east', ...)"],
+      "t#1": ["variant","eO passes pendingGround.variant"],
+      "n#1": ["arena","eO passes geometry.arena"],
+      "e#2": ["direction","inferred: passed the direction; diagonal when it contains '-'"],
+      "e#3": ["bossPosition","passed the outer bossPosition"],
+      "a#2": ["direction","inferred: passed the outer direction, here a diagonal such as 'north-east'"],
+      "t#2": ["variant","passed the outer variant"],
+      "n#2": ["arena","passed the outer arena"],
+      "s#1": ["stepX","inferred: +1 towards east, -1 towards west"],
+      "r#1": ["stepY","inferred: +1 towards north, -1 towards south"],
+      "i#1": ["cornerX","inferred: x of the footprint corner the diagonal leaves from"],
+      "l#1": ["cornerY","inferred: y of the footprint corner the diagonal leaves from"],
+      "o#1": ["tiles","returned through eO and stored as { tiles } by iO"],
+      "a#3": ["dx","inferred: x offset inside the 5x5 footprint"],
+      "t#3": ["dy","inferred: y offset inside the 5x5 footprint"],
+      "s#2": ["footprintTile","inferred: tile under the boss"],
+      "e#4": ["laneOffset","inferred: sideways shift of one diagonal line, element of Jj[variant]"],
+      "a#4": ["step","inferred: 1 to 3 tiles out along the diagonal"],
+      "t#4": ["laneTile","inferred: tile on a diagonal line"],
+      "s#3": ["spearLanes","inferred: Xj[variant], the columns across the boss's front that the spear reaches beyond the first row"],
+      "r#2": ["tiles","returned through eO and stored as { tiles } by iO"],
+      "t#5": ["x","inferred: loops arena.minX to arena.maxX"],
+      "i#2": ["y","inferred: loops arena.minY to arena.maxY"],
+      "l#2": ["lane","inferred: column across the boss's front, 0 to 4; tested against the spear lanes"],
+      "o#2": ["rowsAhead","inferred: rows in front of the boss's facing edge; 0 and below is under him, 1 the adjacent row"]
+    },
+    "eO": {
+      "e#1": ["bossPosition","iO passes geometry.position"],
+      "a#1": ["direction","inferred: iO passes the value sO returns"],
+      "t#1": ["style","iO passes pendingGround.style; compared with 'spear'"],
+      "n#1": ["variant","iO passes pendingGround.variant"],
+      "s#1": ["arena","iO passes geometry.arena"],
+      "e#2": ["bossPosition","passed the outer bossPosition"],
+      "a#2": ["variant","passed the outer variant"],
+      "t#2": ["arena","passed the outer arena"],
+      "n#2": ["centre","iO stores the same Kj(position) as { centre }"],
+      "s#2": ["safeDistance","inferred: the one distance from the centre the shield does not hit, 4 or 5"],
+      "e#3": ["variant","passed the variant"],
+      "r": ["tiles","returned and stored as { tiles } by iO"],
+      "e#4": ["x","inferred: loops arena.minX to arena.maxX"],
+      "a#3": ["y","inferred: loops arena.minY to arena.maxY"],
+      "i": ["distance","inferred: Chebyshev distance of the tile from the boss's centre"]
+    },
+    "aO": {
+      "e": ["tile","boss.js passes an element of the ground attack's tiles"],
+      "a": ["centre","boss.js passes the ground attack's .centre"]
+    },
+    "nO": {
+      "e": ["lastAction","stored as { lastAction }"],
+      "a": ["lastVariant","stored as { lastVariant }"]
+    },
+    "sO": {
+      "e#1": ["bossPosition","iO passes geometry.position"],
+      "a#1": ["targetTile","iO passes geometry.target, which boss.js fills with the player's position"],
+      "t#1": ["targetX","inferred: x of the target tile"],
+      "n#1": ["targetY","inferred: y of the target tile"],
+      "s#1": ["footprintMaxX","inferred: east column of the 5x5 footprint"],
+      "r#1": ["footprintMaxY","inferred: north row of the 5x5 footprint"],
+      "e#2": ["centre","passed Kj(bossPosition), which iO stores as { centre }"],
+      "a#2": ["targetTile","passed the outer targetTile"],
+      "t#2": ["dx","inferred: target x minus centre x"],
+      "n#2": ["dy","inferred: target y minus centre y"],
+      "s#2": ["eastOrWest","inferred: holds 'west' or 'east'"],
+      "r#2": ["northOrSouth","inferred: holds 'south' or 'north'"],
+      "i": ["shortAxis","inferred: the smaller of |dx| and |dy|"],
+      "l": ["longAxis","inferred: the larger of |dx| and |dy|"]
+    },
+    "rO": {
+      "e": ["phase","cO passes the phase it destructures from its launch conditions"]
+    },
+    "iO": {
+      "e": ["pendingGround","callers pass scheduler.pendingGround"],
+      "a": ["geometry","inferred: { position, target, arena } of the boss, the targeted tile and the arena bounds"]
+    },
+    "lO": {
+      "e": ["firstAttackTick","encounter passes its firstAttackTick; stored as { nextAttackTick }"]
+    },
+    "oO": {
+      "e": ["scheduler","callers pass actor.state.scheduler"],
+      "a": ["tick","callers pass context.tick"]
+    },
+    "dO": {
+      "e": ["scheduler","callers pass the scheduler from actor.state.scheduler"],
+      "a": ["grappleAvailable","callers pass .grappleAvailable"]
+    },
+    "gO": {
+      "e#1": ["scheduler","boss.js passes actor.state.scheduler"],
+      "a#1": ["launchConditions","inferred: { tick, phase, random, grappleAvailable, stylePin } the next attack is chosen under"],
+      "forceSpearNext2": ["forceSpearNext","read from scheduler.forceSpearNext"],
+      "i": ["forcedSpecial","dO returns scheduler.forcedSpecial"],
+      "l": ["specialChance","inferred: chance that this attack is a special, compared with random()"],
+      "e#2": ["phase","passed the destructured phase"],
+      "e#3": ["regularsSinceSpecial","passed scheduler.regularsSinceSpecial"],
+      "a#2": ["rampedChance","inferred: chance that grows with each regular attack, before the 0.6 cap"],
+      "e#4": ["phase","passed the destructured phase"],
+      "o": ["rolledSpear","inferred: the coin flip between spear and shield came up spear"],
+      "d": ["style","stored as { style }"],
+      "g": ["variant","stored as { variant }"],
+      "e#5": ["memory","passed scheduler.memory"],
+      "a#3": ["action","compared with memory.lastAction"],
+      "e#6": ["style","passed the value stored as { style }"],
+      "a#4": ["phase","passed the destructured phase"],
+      "c": ["groundTick","returned as { groundTick }"]
+    },
+    "cO": {
+      "e#1": ["scheduler","callers pass the scheduler from actor.state.scheduler"],
+      "a#1": ["special","compared with scheduler.forcedSpecial; 'grapple' or 'triple'"],
+      "t": ["launchConditions","gO passes its launchConditions"],
+      "r": ["longTriple","returned as { long }"],
+      "e#2": ["phase","passed the destructured phase"],
+      "i": ["hitDelays","inferred: ticks from the launch to each of the three hits"],
+      "l": ["hitDamages","its elements are stored as { damage }"],
+      "e#3": ["hitDelay","inferred: element of the hit delays, added to the launch tick"],
+      "a#2": ["index","stored as { index }"],
+      "e#4": ["tripleHit","element of scheduler.pendingTriple"]
+    },
+    "$O": {
+      "e": ["boss","encounter passes this.boss"],
+      "a": ["scheduler","assigned boss.state.scheduler"]
+    },
+    "VO": {
+      "e": ["boss","encounter passes this.boss"]
+    }
+  },
+  "grapple.js": {
+    "zO": {
+      "e": ["grappleTarget","encounter passes grapple.pending.target"],
+      "a": ["bodyPartStart","inferred: index of the body part word in the taunt"],
+      "t": ["bodyPartEnd","inferred: index just after the body part word in the taunt"]
+    },
+    "wO": {
+      "e": ["grappleTarget","encounter passes grapple.pending.target"],
+      "a": ["leadSegment","inferred: the taunt text before the body part"],
+      "t": ["bodyPartSegment","inferred: the segment whose text is grappleTarget.bodyPart"],
+      "n": ["tailSegment","inferred: the taunt text after the body part"]
+    },
+    "DO": {
+      "e": ["resolution","inferred: { outcome, target, damages } of a grapple that resolved this tick"],
+      "a": ["grappleTarget","assigned resolution.target, the grapple.pending.target"]
+    },
+    "HO": {
+      "e": ["grapple","passed boss.state.grapple"],
+      "a": ["clickedSlot","passed an element of context.inputs.equipmentSlotClicks"],
+      "t": ["tick","passed context.tick"],
+      "pending3": ["pending","read from grapple.pending"]
+    },
+    "qO": {
+      "e": ["player","passed context.world.getPlayer()"],
+      "a": ["slot","engine: pendingEquipmentSlotClicks.push(slot)"]
+    },
+    "ZO": {
+      "e#1": ["boss","encounter passes this.boss"],
+      "a#1": ["context","encounter passes the context of its completeNpcBand hook"],
+      "t#1": ["random","encounter passes this.random"],
+      "n#1": ["player","returned by context.world.getPlayer()"],
+      "s": ["grappleTarget","read from grapple.pending.target"],
+      "t#2": ["clickedSlot","element of context.inputs.equipmentSlotClicks"],
+      "r#1": ["resolution","inferred: { outcome, target, damages } of the grapple if it resolved this tick"],
+      "e#2": ["grapple","passed boss.state.grapple"],
+      "a#2": ["tick","passed context.tick"],
+      "t#3": ["bossAlive","passed boss.alive"],
+      "n#2": ["random","passed the outer random"],
+      "pending4": ["pending","read from grapple.pending"],
+      "r#2": ["resolveTick","encounter snapshot stores the same startTick + 4 as { resolveTick }"],
+      "i#1": ["rollDamage","inferred: one roll of 0 to 44; the higher of two becomes { baseDamage }"],
+      "i#2": ["segments","stored as { segments }"]
+    }
+  },
+  "boss.js": {
+    "KO": {
+      "n#1": ["target","looked up from actor.combat.targetId in world.actors"],
+      "e#1": ["arena","passed config.arena"],
+      "a#1": ["context","passed the hook's context"],
+      "t#1": ["isStepUnblocked","inferred: xM(world.occupancy) returns the (from, to, size) step test that canStep forwards to"],
+      "a#2": ["x","inferred: tile x; getBossPursuitMoves calls canOccupy(tile, size)"],
+      "t#2": ["y","inferred: tile y; getBossPursuitMoves calls canOccupy(tile, size)"],
+      "n#2": ["size","getBossPursuitMoves calls canOccupy(r, size)"],
+      "s#1": ["dx","inferred: x offset inside the size-by-size footprint"],
+      "r#1": ["dy","inferred: y offset inside the size-by-size footprint"],
+      "e#2": ["fromTile","inferred: getBossPursuitMoves calls canStep(bossSW, r, size)"],
+      "a#3": ["toTile","inferred: getBossPursuitMoves calls canStep(bossSW, r, size)"],
+      "n#3": ["size","getBossPursuitMoves calls canStep(bossSW, r, size)"],
+      "n#4": ["player","context.world.getPlayer()"],
+      "s#2": ["damages","yama/YamaEncounter.js: damages.push(...resolveLocalEffects(...))"],
+      "r#2": ["groundAttack","inferred: the spear or shield attack resolved from scheduler.pendingGround"],
+      "e#3": ["scheduler","passed actor.state.scheduler"],
+      "a#4": ["tick","passed context.tick"],
+      "t#3": ["geometry","inferred: { position, target, arena } handed to iO; the name bossAttacks.js uses for the parameter it is passed as"],
+      "n#5": ["groundAttack","inferred: the spear or shield attack resolved from scheduler.pendingGround"],
+      "e#4": ["tile","element of groundAttack.tiles"],
+      "a#5": ["index","inferred: position in groundAttack.tiles"],
+      "e#5": ["x","inferred: tile x compared with player.position[0]"],
+      "a#6": ["y","inferred: tile y compared with player.position[1]"],
+      "e#6": ["rollDamage","inferred: one 0-44 roll; baseDamage is the higher of two"],
+      "pendingTriple2": ["pendingTriple","read from actor.state.scheduler.pendingTriple"],
+      "l": ["hitNextTick","inferred: the pendingTriple entry whose tick is context.tick + 1"],
+      "e#7": ["hit","inferred: element of pendingTriple (cO reports their ticks as hitTicks)"],
+      "e#8": ["followingHit","inferred: earliest pendingTriple entry after hitNextTick"],
+      "e#9": ["hit","inferred: element of pendingTriple (cO reports their ticks as hitTicks)"],
+      "e#10": ["hitA","inferred: element of pendingTriple, sort comparator"],
+      "a#7": ["hitB","inferred: element of pendingTriple, sort comparator"],
+      "o": ["hitThisTick","inferred: the pendingTriple entry whose tick is context.tick"],
+      "e#11": ["scheduler","passed actor.state.scheduler"],
+      "a#8": ["tick","passed context.tick"],
+      "t#4": ["hitThisTick","inferred: the pendingTriple entry whose tick is this tick"],
+      "e#12": ["hit","inferred: element of pendingTriple (cO reports their ticks as hitTicks)"],
+      "e#13": ["hit","inferred: element of pendingTriple (cO reports their ticks as hitTicks)"],
+      "d": ["activatedProtectMeleeThisTick","inferred: player.prayerState.prayerActivationTicks[ProtectMelee] === context.tick"]
+    },
+    "YO": {
+      "e": ["boss","encounter passes this.boss"],
+      "a": ["context","encounter passes the engine tick context"],
+      "t": ["bossTile","inferred: the boss position, or the tile it moved from this tick"],
+      "n": ["target","looked up from boss.combat.targetId in world.actors"]
+    },
+    "XO": {
+      "e#1": ["boss","encounter passes this.boss"],
+      "a#1": ["context","encounter passes the engine tick context"],
+      "t#1": ["launchOptions","inferred: { phase, random, enabled, stylePin } built by the encounter; error string 'Unknown Sol launch'"],
+      "scheduler2": ["scheduler","read from boss.state.scheduler"],
+      "s": ["launchConditions","inferred: { tick, phase, random, grappleAvailable, stylePin } handed to gO and cO with the scheduler; the name bossAttacks.js uses for the parameter it is passed as"],
+      "r": ["launch","error string 'Unknown Sol launch'"],
+      "e#2": ["forcedSpecial","dO returns scheduler.forcedSpecial"],
+      "i": ["clipId","stored as { clipId }"],
+      "l": ["immobileTicks","inferred: added to context.tick for state.immobileUntilTick"],
+      "o": ["delayCycles","stored as { delayCycles }"],
+      "d": ["graphics","stored as { graphics }"],
+      "g": ["taunt","stored as { taunt }"],
+      "e#3": ["grapple","passed boss.state.grapple"],
+      "a#2": ["startTick","stored as { startTick }"],
+      "t#2": ["random","passed launchOptions.random"],
+      "n": ["grappleTarget","stored as grapple.pending.target"],
+      "e#4": ["unknownLaunch","error string 'Unknown Sol launch'"]
+    },
+    "JO": {
+      "e": ["bossTile","inferred: south-west tile of the 5x5 boss, called with actor.position"],
+      "a": ["targetTile","inferred: called with the target's position"],
+      "t": ["xWithinFootprint","inferred: target x lies in the boss's 5 columns"],
+      "n": ["yWithinFootprint","inferred: target y lies in the boss's 5 rows"]
+    }
+  },
+  "lightBeams.js": {
+    "gx": {
+      "e#1": ["direction","encounter passes SO(line.index), which returns uO[index].direction"],
+      "a#1": ["tiles","encounter passes line.tiles"],
+      "t": ["stage","inferred: 'charge' or 'fire', the key of the spot animation to draw"],
+      "n": ["beamVisual","inferred: the direction's { charge, fire, dx, dy } entry"],
+      "s#1": ["graphics","encounter stores the result as { graphics }"],
+      "e#2": ["x","inferred: tile x"],
+      "a#2": ["y","inferred: tile y"],
+      "s#2": ["index","inferred: position along the beam line"],
+      "r": ["lastTile","inferred: tiles.at(-1)"]
+    },
+    "vO": {
+      "state7": ["state","read from actor.state"],
+      "n": ["crystalEdge","inferred: uO[state.index]; encounter error string 'off its ${edge} edge'"],
+      "s": ["currentAlong","inferred: the crystal's coordinate along its edge; encounter calls it spawnAlong"],
+      "r": ["nextAlong","inferred: coordinate along the edge after this step; passed as pO's second argument"]
+    },
+    "pO": {
+      "e": ["crystalIndex","callers pass state.index; encounter error string 'Crystal ${index}'"],
+      "a": ["along","encounter passes spawnAlong ?? spawn"],
+      "t": ["crystalEdge","inferred: uO[crystalIndex]; encounter error string 'off its ${edge} edge'"]
+    },
+    "kO": {
+      "e#1": ["crystalIndex","bT passes crystal.state.index"],
+      "a": ["crystalTile","bT passes crystal.position"],
+      "t": ["crystalEdge","inferred: uO[crystalIndex]; encounter error string 'off its ${edge} edge'"],
+      "e#2": ["unusedElement","inferred: unused Array.from element"],
+      "n": ["index","inferred: position along the beam line"]
+    },
+    "SO": {
+      "e": ["crystalIndex","encounter passes line.index, copied from crystal.state.index"]
+    },
+    "H$.vT": {
+      "e": ["line","element of this.round.lines"]
+    },
+    "H$.pT": {
+      "e#1": ["tick","encounter passes context.tick; compared with this.fired.tick"],
+      "e#2": ["line","element of this.fired.round.lines"]
+    },
+    "H$.kT": {
+      "e": ["tick","encounter passes context.tick"]
+    },
+    "H$.isReady": {
+      "e": ["crystals","inferred: encounter passes its alive beam-crystal actors"],
+      "a": ["tick","encounter passes context.tick"]
+    },
+    "H$.ST": {
+      "e": ["crystals","inferred: encounter passes its alive beam-crystal actors"],
+      "a": ["crystal","inferred: element of crystals"]
+    },
+    "H$.prepare": {
+      "e": ["crystals","inferred: encounter passes its alive beam-crystal actors"],
+      "a": ["tick","encounter passes context.tick"],
+      "t": ["enraged","inferred: encounter passes Nj(this.phase), the test that gates nextEnrageSandTick"],
+      "n": ["chargeTicks","stored as { chargeTicks }"]
+    },
+    "H$.bT": {
+      "e#1": ["crystals","inferred: encounter passes its alive beam-crystal actors"],
+      "a": ["tick","encounter passes context.tick"],
+      "prepared2": ["prepared","read from this.prepared"],
+      "e#2": ["crystal","inferred: element of crystals"]
+    },
+    "H$.yT": {
+      "e": ["crystals","inferred: encounter passes its alive beam-crystal actors"],
+      "a": ["fireTick","read from this.round.fireTick"],
+      "t": ["crystal","inferred: element of crystals"]
+    },
+    "H$.zT": {
+      "e": ["tick","encounter passes context.tick or world.tick"]
+    },
+    "H$.wT": {
+      "e#1": ["crystals","inferred: encounter passes its alive beam-crystal actors"],
+      "a": ["tickInfo","inferred: { tick, playerPos, phase, random } built by the encounter; word from yama/voidFlares.js processPostTick"],
+      "round2": ["round","read from this.round"],
+      "n": ["crystal","inferred: element of crystals"],
+      "e#2": ["line","element of round.lines"],
+      "e#3": ["x","inferred: tile x compared with playerPos[0]"],
+      "t": ["y","inferred: tile y compared with playerPos[1]"]
+    },
+    "H$.LT": {
+      "e": ["tick","encounter passes context.tick"],
+      "a": ["playerPos","encounter passes context.playerPos"],
+      "t": ["damageOptions","inferred: { random, relentless } built by the encounter"],
+      "n": ["maxHit","inferred: upper bound of the 40..n damage roll"],
+      "s": ["rollDamage","inferred: one damage roll; baseDamage is the higher of two"]
+    },
+    "H$.AT": {
+      "e": ["phase","wT passes tickInfo.phase"],
+      "a": ["random","wT passes tickInfo.random"],
+      "t": ["cooldownRoll","inferred: random() drawn before the enrage test, scaled into the cooldown range"],
+      "n": ["minCooldownTicks","inferred: lower bound of the ticks added to readyTick"],
+      "s": ["maxCooldownTicks","inferred: upper bound of the ticks added to readyTick"]
+    }
+  },
+  "moltenSand.js": {
+    "T$": {
+      "e": ["tile","inferred: [x, y] joined into a tile key"]
+    },
+    "I$.WT": {
+      "e": ["tileKey","key of this.pools"]
+    },
+    "I$.RT": {
+      "e": ["tick","encounter passes the defeat tick"],
+      "a": ["tileKey","key of this.pools"],
+      "t": ["formedTick","inferred: value of this.pools, set to strikeTick + 5"]
+    },
+    "I$.PT": {
+      "e": ["tile","passed to T$"]
+    },
+    "I$.strike": {
+      "e#1": ["centreTile","inferred: encounter passes context.playerPos; the random tiles fall within 4 of it"],
+      "a#1": ["tileCount","inferred: how many tiles to strike"],
+      "t": ["strikeTick","stored as { strikeTick }"],
+      "n": ["random","encounter passes this.random"],
+      "s": ["includeCentre","inferred: whether centreTile itself is struck first"],
+      "r": ["tiles","stored as { tiles }"],
+      "i": ["chosenKeys","inferred: tile keys already chosen in this strike"],
+      "l": ["addTile","inferred: adds a tile unless chosen, burning or outside the arena"],
+      "e#2": ["tile","passed to T$ and Zj"],
+      "a#2": ["tileKey","result of T$(tile)"],
+      "o": ["randomTileCount","inferred: tiles still to pick at random"],
+      "a#3": ["i","inferred: loop counter"],
+      "e#3": ["tile","element of tiles"]
+    },
+    "I$.advance": {
+      "e": ["tick","encounter passes context.tick"],
+      "a#1": ["pendingTile","element of this.pending"],
+      "a#2": ["pendingTile","element of this.pending"]
+    },
+    "I$.resolve": {
+      "e": ["context","encounter passes the resolveHazards context"]
+    },
+    "P$": {
+      "e#1": ["strike","encounter passes the result of this.sand.strike(...)"],
+      "e#2": ["x","inferred: tile x"],
+      "a": ["y","inferred: tile y"]
+    }
+  },
+  "minions.js": {
+    "_O": {
+      "e": ["pathRequest","inferred: the { source, destination, size, canOccupy } object the pathfinder EO destructures"]
+    },
+    "FO": {
+      "e": ["pathRequest","passed on to _O and EO unchanged"]
+    },
+    "QO": {
+      "e": ["sourceTile","passed as { source }"],
+      "a": ["targetTile","inferred: the tile the slot offsets are added to; callers pass the player's position"],
+      "t#1": ["formation","inferred: the { size, maxSteps, slotOffset, fallbackOffsets, canOccupy, unreachable } object o$ builds"],
+      "r#1": ["offset","element of [formation.slotOffset, ...formation.fallbackOffsets]"],
+      "t#2": ["slotPath","inferred: pathfinder result { kind, steps } to the slot tile"],
+      "r#2": ["adjacentPath","inferred: pathfinder result to a tile next to the target; formation.unreachable is 'nearest-adjacent'"]
+    },
+    "e$": {
+      "e#1": ["actorTile","caller passes actor.position"],
+      "a#1": ["targetTile","passed as QO's targetTile"],
+      "t#1": ["formation","passed as QO's formation; built by o$"],
+      "n#1": ["route","caller passes actor.state.route; holds remainingSteps"],
+      "s": ["sourceTile","passed as QO's sourceTile"],
+      "r": ["foundSteps","read from QO(...).steps"],
+      "i": ["plannedSteps","inferred: the steps just found, or the remembered route.remainingSteps when none were found"],
+      "e#2": ["sourceTile","same value as the outer sourceTile"],
+      "a#2": ["route","same object as the outer route; read .remainingSteps"],
+      "t#2": ["formation","same object as the outer formation"],
+      "n#2": ["nextStep","read from route.remainingSteps[0]"],
+      "l": ["path","returned to the move hook, which stores it as { path }"]
+    },
+    "r$": {
+      "e": ["player","caller passes context.world.getPlayer()"],
+      "a": ["relentlessTier","caller passes actor.state.relentless; indexes VC, the percent per tier"],
+      "defence2": ["defence","read from player.stats.defence"],
+      "n": ["bypassedDefence","modifiers.js tier text: 'Enemies bypass 33% of your Defence level'"]
+    },
+    "i$": {
+      "e": ["actor","read .spawnTick; callers pass the hook's actor"]
+    },
+    "l$": {
+      "e": ["actor","caller passes the attackTimer hook's actor"],
+      "a": ["tick","caller passes context.tick"],
+      "t": ["firstAttackTick","inferred: spawn tick plus the role's attackPhase"]
+    },
+    "o$": {
+      "e": ["slotOffset","stored as { slotOffset }"],
+      "a": ["fallbackOffsets","stored as { fallbackOffsets }"]
+    },
+    "d$": {
+      "e#1": ["actorTile","caller passes actor.previousPosition"],
+      "a#1": ["targetTile","caller passes the player's position; passed as QO's targetTile"],
+      "t#1": ["slotOffset","passed as o$'s slotOffset; caller passes actor.state.slotOffset"],
+      "n#1": ["fallbackOffsets","passed as o$'s fallbackOffsets; caller passes actor.state.fallbackOffsets"],
+      "e#2": ["actorTile","same value as the outer actorTile"],
+      "a#2": ["targetTile","same value as the outer targetTile"],
+      "t#2": ["formation","result of o$, passed as QO's formation"],
+      "n#2": ["slotPath","inferred: QO's result; exact with no steps when the actor already stands in its slot"]
+    },
+    "g$": {
+      "t#1": ["player","= context.world.getPlayer()"],
+      "e#1": ["actor","same object as the hook's actor"],
+      "a#1": ["targetTile","passed as e$'s targetTile; caller passes player.position"],
+      "t#2": ["formation","result of o$, passed as e$'s formation"],
+      "n#1": ["route","caller passes actor.state.route"],
+      "s": ["path","stored as { path }"],
+      "t#3": ["noAttack","inferred: the tick result with no npcAttacks, returned when the warbander does not attack"],
+      "n#2": ["player","= context.world.getPlayer()"],
+      "e#2": ["actor","same object as the hook's actor"],
+      "a#2": ["tick","caller passes context.tick"],
+      "t#4": ["ticksSinceFirstAttack","inferred: tick minus spawn tick minus the role's attackPhase; attacks when a multiple of 6"],
+      "previousPosition2": ["previousPosition","read from actor.previousPosition"],
+      "r": ["roleProfile","inferred: the s$ entry for actor.state.role (npcTypeId, attackPhase, plan, weakness, seqs, projectile)"],
+      "l": ["npcAttack","returned in { npcAttacks }"],
+      "o": ["basePlan","inferred: roleProfile.plan before the relentless max hit bonus"],
+      "d": ["relentlessTier","assigned actor.state.relentless; indexes $C, the max hit bonus per tier"],
+      "c": ["impactGraphic","read from projectile.impact; emitted in { graphics }"]
+    },
+    "h$": {
+      "t#1": ["player","= context.world.getPlayer()"],
+      "state8": ["state","= actor.state"],
+      "s#1": ["windowStartTick","inferred: start of the current 12-tick window, derived from state.nextWindowTick"],
+      "e#1": ["playerTile","caller passes player.position"],
+      "a#1": ["size","caller passes actor.size"],
+      "t#2": ["random","caller passes context.random"],
+      "n#1": ["candidateTiles","inferred: tiles within 6 of the player that the swarm can occupy"],
+      "t#3": ["dx","inferred: x offset from the player tile"],
+      "s#2": ["dy","inferred: y offset from the player tile"],
+      "r#1": ["tile","inferred: candidate destination tile"],
+      "s#3": ["pathToDestination","inferred: path result { kind, steps } from the swarm to state.destination"],
+      "e#2": ["pathRequest","passed on to _O and EO; same shape as their pathRequest"],
+      "a#2": ["steps","returned as { steps }"],
+      "t#4": ["currentTile","inferred: tile the straight-line walk has reached, starts at pathRequest.source"],
+      "n#2": ["nextTile","inferred: the tile one step closer to the destination on both axes"],
+      "r#2": ["nextStep","read from pathToDestination.steps[0]; sent as the one-tile path"],
+      "t#5": ["player","= context.world.getPlayer()"],
+      "n#3": ["defeatedLastTick","actor.state.defeatedTick === context.tick - 1"],
+      "s#4": ["poisonImmune","poisonVarp < 0; client/engine/consumables.js stores poisonVarp: -immunityCycles"]
+    },
+    "f$": {
+      "e": ["actor","caller passes a bee swarm actor from world.getNpcs()"],
+      "a": ["tick","caller passes context.tick"],
+      "state9": ["state","= actor.state"]
+    }
+  },
+  "solarflare.js": {
+    "u$.constructor": {
+      "e#1": ["corners","caller passes orbSpawn.corners; error string 'Corner routes require ...'"],
+      "a#1": ["timing","error string 'Invalid corner route timing'"],
+      "s": ["offset","stored as { offset }; its final value is stored as this.lapTicks"],
+      "a#2": ["cornerIndex","index into corners"],
+      "r": ["fromX","inferred: x of the corner the side starts at"],
+      "i": ["fromY","inferred: y of the corner the side starts at"],
+      "l": ["toX","inferred: x of the next corner"],
+      "o": ["toY","inferred: y of the next corner"],
+      "d": ["dx","inferred: toX - fromX"],
+      "g": ["dy","inferred: toY - fromY"],
+      "c": ["sideLength","error string '... nonempty cardinal sides on integer tiles'"],
+      "e#2": ["distance","inferred: tiles travelled along the side, 1 to sideLength"]
+    },
+    "u$.fT": {
+      "e#1": ["elapsedTicks","inferred: caller passes context.tick - actor.state.firstStepTick"],
+      "a": ["lapOffset","elapsedTicks % this.lapTicks; compared with step.offset"],
+      "e#2": ["index","index into this.steps"],
+      "t": ["step","element of this.steps"]
+    },
+    "p$": {
+      "t": ["routePosition","result of actor.state.route.fT, which returns a step's position"]
+    },
+    "k$": {
+      "e": ["orbSpawn","inferred: { id, corners, tier, spawnTick, firstStepTick } describing the solarflare orb to create"],
+      "a": ["route","stored as { route }"]
+    },
+    "S$.resolveTick": {
+      "e": ["context","caller passes the tick context of processTick; read .tick .playerPos .world .setProtectionPrayer"],
+      "a#1": ["orbMovements","inferred: caller passes context.npcMovements filtered to the solarflare orbs"],
+      "t": ["tier","caller passes selection.solarflare, the tier k$ receives as { tier }"],
+      "n#1": ["damages","inferred: environmental damages for the pending hits due this tick, returned to processTick"],
+      "a#2": ["impactTick","element of this.pending; pushed as context.tick + 1"],
+      "a#3": ["impactTick","element of this.pending; pushed as context.tick + 1"],
+      "n#2": ["movement","element of orbMovements; engine: npcMovements.set(npc.id, { npcId, from, to, path, moved })"]
+    }
+  },
+  "modifierEffects.js": {
+    "b$": {
+      "e": ["position","caller passes explosion.position"],
+      "a": ["size","caller passes explosion.size"],
+      "t#1": ["volatilityTier","caller passes this.selection.volatility (the modifier's tier 1-3)"],
+      "n": ["reach","inferred: tiles beyond the footprint; modifier text 'reaches two tiles beyond the enemy footprint'"],
+      "s": ["blastTiles","inferred: every tile of the footprint widened by reach; each gets the fireblastImpact graphic"],
+      "t#2": ["x","first element of the pushed tile"],
+      "r": ["y","second element of the pushed tile"]
+    },
+    "y$": {
+      "e": ["blastTile","inferred: caller passes an element of b$'s blast tiles"],
+      "a": ["explosionCenter","inferred: caller passes the tile shown with finalBossExplosion"]
+    },
+    "L$": {
+      "e#1": ["target","caller passes the actor stored as { target } of the totem spawn"],
+      "a#1": ["canOccupy","minions.js passes the same PT predicate as { canOccupy }"],
+      "t": ["targetX","first element of target.position"],
+      "n": ["targetY","second element of target.position"],
+      "size4": ["size","= target.size"],
+      "r": ["southWestCorner","inferred: tile diagonally outside the footprint's south-west corner"],
+      "i": ["northEastCorner","inferred: tile diagonally outside the footprint's north-east corner"],
+      "l": ["ringTiles","inferred: the tiles of the one-tile ring around the footprint"],
+      "e#2": ["y","second element of the pushed tile"],
+      "a#2": ["x","first element of the pushed tile"],
+      "o": ["distanceFromSouthWest","inferred: Chebyshev distance of a tile from southWestCorner, the sort key"],
+      "e#3": ["tile","inferred: a ring tile [x, y]"],
+      "e#4": ["tile","element of ringTiles"],
+      "e#5": ["x","first element of the tile"],
+      "a#3": ["y","second element of the tile"],
+      "e#6": ["tileA","inferred: sort comparator's first ring tile"],
+      "a#4": ["tileB","inferred: sort comparator's second ring tile"],
+      "e#7": ["tile","candidate tile passed to canOccupy"]
+    },
+    "D$": {
+      "e#1": ["totem","inferred: actor of the colosseum-healing-totem definition; caller iterates this.HT(world)"],
+      "a": ["context","engine: encounter.completeNpcBand(tickContext, mechanics), passed on unchanged"],
+      "state10": ["state","= totem.state"],
+      "n": ["target","= world.getNpc(state.targetId)"],
+      "s": ["dueArrivals","inferred: entries of state.arrivals whose tick has come"],
+      "e#2": ["arrivalTick","element of state.arrivals, pushed as context.tick + flight ticks"],
+      "e#3": ["arrivalTick","element of dueArrivals"]
+    },
+    "M$.constructor": {
+      "e": ["selection","stored as this.selection"]
+    },
+    "M$.orbs": {
+      "e": ["world","callers pass context.world"]
+    },
+    "M$.bees": {
+      "e": ["world","callers pass context.world"]
+    },
+    "M$.DT": {
+      "e": ["world","caller passes context.world"]
+    },
+    "M$.HT": {
+      "e": ["world","callers pass context.world"]
+    },
+    "M$.MT": {
+      "e#1": ["context","engine: encounter.completeNpcBand(tickContext, mechanics), passed on unchanged"],
+      "a#1": ["target","stored as { target } and state.targetId; caller passes this.boss or null"],
+      "t": ["spawnTile","inferred: free tile beside the target; stored as { position }"],
+      "e#2": ["tile","candidate tile passed to PT"],
+      "e#3": ["totemSpawn","inferred: { id, position, target, healAmount, tick } of the totem to create"],
+      "a#2": ["totemActor","passed to A$.createActor as the actor"],
+      "a#3": ["totem","element of this.HT(world), the healing totem actors"],
+      "a#4": ["totem","element of this.HT(world), the healing totem actors"]
+    },
+    "M$.onNpcDefeated": {
+      "e": ["defeat","engine: encounter.onNpcDefeated(defeat, tickContext, completionOwnership)"],
+      "a": ["world","caller passes context.world"],
+      "t": ["defeatedNpc","= world.getNpc(defeat.npcId)"]
+    },
+    "M$.TT": {
+      "e": ["context","inferred: the tick context enterBossHpPhase receives, passed on unchanged"],
+      "a": ["totem","element of this.HT(world), the healing totem actors"]
+    },
+    "M$.IT": {
+      "e": ["context","engine: encounter.resolveHazards(tickContext, mechanics), passed on unchanged"],
+      "a": ["swarm","element of this.bees(world); modifier text 'bee swarm'"]
+    },
+    "M$.CT": {
+      "e": ["context","engine: encounter.completeNpcBand(tickContext, mechanics), passed on unchanged"],
+      "a": ["minion","bee and warbander actors are created with role: 'minion'"]
+    },
+    "M$.xT": {
+      "e": ["tick","caller passes context.tick"]
+    },
+    "M$.BT": {
+      "e": ["defeatTick","caller passes defeat.tick"],
+      "a": ["bossPosition","caller passes this.boss.position; stored as explosion.position"],
+      "t": ["bossSize","caller passes this.boss.size; stored as explosion.size"]
+    },
+    "M$.processTick": {
+      "e#1": ["context","engine: encounter.completeNpcBand(tickContext, mechanics), passed on unchanged"],
+      "a#1": ["bossAlive","inferred: caller passes this.boss?.alive === true"],
+      "t#1": ["random","passed as { random }; caller passes this.random"],
+      "solarflare2": ["solarflareTier","passed as { tier } to the orb factory"],
+      "s#1": ["orbIds","ids of this.orbs(world)"],
+      "e#2": ["orb","element of this.orbs(world)"],
+      "r": ["orbMovements","inferred: entries of context.npcMovements that belong to orbs"],
+      "e#3": ["movement","element of context.npcMovements"],
+      "i": ["environmentalDamages","inferred: same { baseDamage, attackType, source, playerPosition } entries NPC turns return as environmentalDamages; engine applies each with applyEnvironmentalDamage"],
+      "a#2": ["swarm","inferred: a created bees actor; modifier text 'bee swarm'"],
+      "e#4": ["swarmSpawn","inferred: { tier, tick, idPrefix, random } for the bee swarms to create"],
+      "a#3": ["remainingSpawnTiles","inferred: copy of the bee spawn tiles, one spliced out per swarm"],
+      "e#5": ["tile","element of the bee spawn tile list c$"],
+      "t#2": ["unusedElement","inferred: Array.from's undefined element"],
+      "n#1": ["index","position in Array.from; suffix of the swarm id"],
+      "s#2": ["spawnTile","stored as state.spawnPosition"],
+      "a#4": ["role","passed as { role }"],
+      "n#2": ["spawnTile","inferred: random entry of the warbander spawn tiles FC; passed as { position }"],
+      "e#6": ["warbanderSpawn","inferred: { id, role, position, spawnTick, slotOffset, fallbackOffsets, relentless } of the warbander to create"],
+      "a#5": ["roleProfile","inferred: the entry of the warband role table s$ for warbanderSpawn.role"],
+      "t#3": ["hitpoints","= getMonsterHitpoints(npcTypeId); stored as vitals.hp and vitals.maxHp"],
+      "n#3": ["formulaStats","= getMonsterFormulaStats(npcTypeId); stored under formulaStats"],
+      "s#3": ["warbanderActor","passed to g$.createActor as the actor"],
+      "e#7": ["offset","element of fallbackOffsets"],
+      "a#6": ["swarm","element of this.bees(world); modifier text 'bee swarm'"],
+      "a#7": ["orbIndex","index of EC.entries(); suffix of the orb id"],
+      "t#4": ["corners","passed as { corners }"],
+      "a#8": ["orb","element of this.orbs(world)"],
+      "explosion2": ["explosion","= this.explosion"],
+      "volatility2": ["volatilityTier","= this.selection.volatility (the modifier's tier 1-3)"],
+      "d": ["explosionCenter","inferred: middle tile of the dead boss's footprint; position of the finalBossExplosion graphic"],
+      "e#8": ["position","caller passes explosion.position"],
+      "a#9": ["size","caller passes explosion.size"],
+      "t#5": ["halfSize","inferred: Math.floor(size / 2)"],
+      "e#9": ["blastTile","inferred: element of b$'s blast tiles; passed as { position } of a fireblastImpact graphic"],
+      "e#10": ["position","caller passes explosion.position"],
+      "a#10": ["size","caller passes explosion.size"],
+      "t#6": ["volatilityTier","caller passes volatilityTier, passed on to b$"],
+      "n#4": ["playerPosition","stored as { playerPosition }; caller passes context.playerPos"],
+      "e#11": ["x","first element of a blast tile"],
+      "a#11": ["y","second element of a blast tile"]
+    }
+  },
+  "SolHereditEncounter.js": {
+    "x$.constructor": {
+      "e": ["encounterSeed","stored as { encounterSeed } and this.encounterSeed"],
+      "a": ["modifiers","factory calls new x$(undefined, a.modifiers); its frozen copy is this.modifiers"]
+    },
+    "x$.configureRunStart": {
+      "e": ["mechanics","engine: encounter.configureRunStart(this.mechanicsConfig, ...)"]
+    },
+    "x$.createNpcs": {
+      "e": ["bossSetup","as bossSetup in client/encounters/yama/YamaEncounter.js createNpcs"],
+      "a": ["baseActor","as baseActor in Yama createNpcs; first argument of KO.createActor"]
+    },
+    "x$.reset": {
+      "e": ["seeds","engine: encounter.reset(recording.encounter.seeds)"]
+    },
+    "x$.getArenaConfig": {
+      "e": ["walkableTiles","stored as { walkableTiles }"],
+      "a": ["x","coordinate, CC.minX..CC.maxX"],
+      "t": ["y","coordinate, CC.minY..CC.maxY"]
+    },
+    "x$.getNpcDamageSourceLabel": {
+      "e": ["sourceId","engine: encounter.getNpcDamageSourceLabel(hit.sourceId)"]
+    },
+    "x$.getEngineRules": {
+      "e#1": ["attackKind","engine: validateAttack(hit.attackKind, target.id, ...)"],
+      "a#1": ["targetId","engine: validateAttack(hit.attackKind, target.id, ...)"],
+      "e#2": ["encounterContext","engine: consumePlayerGuaranteedMaxHit(encounterContext)"],
+      "e#3": ["boss","called with this.boss"],
+      "a#2": ["tick","called with encounterContext.tick"],
+      "state11": ["bossState","KO.getState(boss), as bossState in Yama getSnapshot"]
+    },
+    "x$.acceptsInput": {
+      "e": ["input","engine: encounter.acceptsInput(input)"]
+    },
+    "x$.prepareNpcBand": {
+      "e": ["context","engine: encounter.prepareNpcBand(tickContext, mechanics)"],
+      "a": ["mechanics","engine: encounter.prepareNpcBand(tickContext, mechanics)"]
+    },
+    "x$.moveNpc": {
+      "e#1": ["npc","engine: encounter.moveNpc(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.moveNpc(npc, tickContext, mechanics)"],
+      "t": ["mechanics","engine: encounter.moveNpc(npc, tickContext, mechanics)"],
+      "n": ["definitionContext","as definitionContext in Yama resolveHazards: the context plus random, passed to definitions.move"],
+      "s": ["boss","read from this.boss, null unless it is the actor registered in world.actors"],
+      "e#2": ["phaseChangeDue","inferred: the boss's hitpoints are past the threshold of a phase later than this.phase"],
+      "r": ["crystals","this._T(world): the living beam crystal actors; snapshot stores their length as crystalCount"]
+    },
+    "x$.processNpcTick": {
+      "e": ["npc","engine: encounter.processNpcTick(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.processNpcTick(npc, tickContext, mechanics)"]
+    },
+    "x$.resolveHazards": {
+      "e": ["context","engine: encounter.resolveHazards(tickContext, mechanics)"],
+      "a": ["mechanics","engine: encounter.resolveHazards(tickContext, mechanics)"]
+    },
+    "x$.completeNpcBand": {
+      "e": ["context","engine: encounter.completeNpcBand(tickContext, mechanics)"],
+      "a#1": ["mechanics","engine: encounter.completeNpcBand(tickContext, mechanics)"],
+      "t": ["attacksEnabled","stored as this.attacksWereEnabled and { enabled }; read from mechanics.solHereditAttacks"],
+      "n": ["bossAlive","read from this.boss.alive"],
+      "s": ["damages","returned to the engine, which iterates it as bandDamage; as damages in Yama resolveHazards"],
+      "r": ["definitionContext","as definitionContext in Yama resolveHazards: the context plus random, passed to definitions.resolveLocalEffects"],
+      "a#2": ["crystal","element of world.getNpcs().filter(vO.isActor), vO being the colosseum-beam-crystal definition"],
+      "i": ["encounterSeed","read from this.encounterSeed"],
+      "boss5": ["boss","read from this.boss"],
+      "o": ["attackLaunch","returned by XO as { launched, taunt }; XO's error string says 'Unknown Sol launch'"],
+      "d": ["grappleTarget","read from boss.state.grapple.pending.target"],
+      "a#3": ["fireInTicks","stored as { fireInTicks }"]
+    },
+    "x$.processPostTick": {
+      "e": ["context","engine: encounter.processPostTick(postTickContext, mechanics)"]
+    },
+    "x$.onNpcDefeated": {
+      "e#1": ["defeat","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "a": ["context","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "t": ["completionOwnership","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "e#2": ["crystal","element of this._T(world), the living beam crystal actors"]
+    },
+    "x$.getSnapshot": {
+      "e#1": ["request","as request in Yama getSnapshot; engine passes { tick, mechanics, world }"],
+      "a#1": ["bossState","KO.getState(this.boss), as bossState in Yama getSnapshot"],
+      "t": ["pendingGrapple","read from bossState.grapple.pending"],
+      "n": ["player","world.getPlayer()"],
+      "e#2": ["orb","element of modifierEffects.orbs(world)"],
+      "e#3": ["beeSwarm","element of modifierEffects.bees(world)"],
+      "e#4": ["x","coordinate of a tile [x, y]"],
+      "a#2": ["y","coordinate of a tile [x, y]"],
+      "e#5": ["x","coordinate of a tile [x, y]"],
+      "a#3": ["y","coordinate of a tile [x, y]"],
+      "e#6": ["x","coordinate of a tile [x, y]"],
+      "a#4": ["y","coordinate of a tile [x, y]"],
+      "e#7": ["tripleHit","element of scheduler.pendingTriple; its ticks are stored as tripleHitTicks"]
+    },
+    "x$.executeCommand": {
+      "e#1": ["command","engine: encounter.executeCommand(command, { playerPos, tick, world, ... }, this.mechanicsConfig)"],
+      "a": ["context","engine: encounter.executeCommand(command, { playerPos, tick, world, spawnNpc, despawnNpc }, this.mechanicsConfig)"],
+      "t": ["mechanics","engine: encounter.executeCommand(command, ..., this.mechanicsConfig)"],
+      "e#2": ["sandStrike","returned by this.sand.strike"]
+    },
+    "x$.syncBossHp": {
+      "e": ["bossHp","engine: encounter.syncBossHp(bossHp, { world })"],
+      "a": ["context","inferred: the engine passes only { world: this.worldState }, a reduced tick context"]
+    },
+    "x$.enterBossHpPhase": {
+      "e#1": ["bossHp","engine: encounter.enterBossHpPhase(bossHp, { tick, world, spawnNpc, despawnNpc })"],
+      "a": ["context","engine: encounter.enterBossHpPhase(bossHp, { tick, world, spawnNpc, despawnNpc })"],
+      "t": ["boss","read from this.boss"],
+      "n": ["firstAttackTick","passed to lO like bossSetup.firstAttackTick in createNpcs"],
+      "e#2": ["crystal","element of world.getNpcs().filter(vO.isActor), vO being the colosseum-beam-crystal definition"],
+      "length17": ["crystalCount","inferred: number of phases already entered that have addsCrystal; one crystal is spawned for each"],
+      "e#3": ["solPhase","element of _j; controls.js error string 'No Sol phase at'"],
+      "e#4": ["i","loop counter"]
+    },
+    "x$.say": {
+      "e": ["context","called with the hook context; .tickEvents"],
+      "a": ["text","stored as { text }"]
+    },
+    "x$.VT": {
+      "e": ["overheadText","stored as { overheadText }"]
+    },
+    "x$.jT": {
+      "e": ["grappleTarget","called with boss.state.grapple.pending.target"]
+    },
+    "x$.ET": {
+      "e": ["context","called with the completeNpcBand context"],
+      "a": ["boss","called with this.boss"],
+      "t": ["enteredPhase","inferred: the _j entry of the phase Sol enters now (taunt, addsCrystal)"]
+    },
+    "x$.NT": {
+      "e": ["context","called with the completeNpcBand context"],
+      "a#1": ["mechanics","called with the completeNpcBand mechanics"],
+      "t": ["dueTransitions","inferred: the entries of this.pendingTransitions whose tick is this tick"],
+      "a#2": ["transition","element of this.pendingTransitions"],
+      "a#3": ["transition","element of this.pendingTransitions"],
+      "n": ["transition","element of this.pendingTransitions"]
+    },
+    "x$.$T": {
+      "e": ["minDelay","inferred: RC is the [min, max] range of ticks before the first enrage sand strike"],
+      "a": ["maxDelay","inferred: RC is the [min, max] range of ticks before the first enrage sand strike"]
+    },
+    "x$.GT": {
+      "e": ["context","called with the completeNpcBand context"],
+      "a": ["mechanics","called with the completeNpcBand mechanics"]
+    },
+    "x$.KT": {
+      "e": ["context","called with the completeNpcBand context"],
+      "a": ["mechanics","called with the completeNpcBand mechanics"],
+      "t": ["sandStrike","called with the result of this.sand.strike"]
+    },
+    "x$._T": {
+      "e#1": ["world","called with context.world"],
+      "e#2": ["crystal","element of world.getNpcs().filter(vO.isActor), vO being the colosseum-beam-crystal definition"],
+      "e#3": ["crystal","element of world.getNpcs().filter(vO.isActor), vO being the colosseum-beam-crystal definition"],
+      "a": ["otherCrystal","inferred: the crystal compared against in the sort"]
+    },
+    "x$.FT": {
+      "e": ["boss","called with the boss in moveNpc"],
+      "a": ["context","called with the moveNpc context"],
+      "t": ["mechanics","called with the moveNpc mechanics"]
+    },
+    "x$.UT": {
+      "e#1": ["context","called with the completeNpcBand context"],
+      "a": ["mechanics","called with the completeNpcBand mechanics"],
+      "t": ["crystals","this._T(world): the living beam crystal actors"],
+      "n": ["beamDamages","returned by beams.LT, whose damage source is 'SolLightBeam'; pushed into damages by the caller"],
+      "s": ["chargingRound","inferred: the beam round beams.bT starts charging this tick (it returns this.round)"],
+      "e#2": ["line","element of round.lines"],
+      "e#3": ["line","element of round.lines"],
+      "r": ["fired","returned by beams.wT as { round }; lightBeams stores the same round under this.fired"],
+      "e#4": ["line","element of round.lines"],
+      "e#5": ["line","element of round.lines"]
+    },
+    "x$.OT": {
+      "e#1": ["context","called with the hook context; .tick .tickEvents .world .spawnNpc"],
+      "a#1": ["existingCrystals","inferred: every beam crystal actor in the world, living or not"],
+      "t#1": ["crystalIndex","stored as { index } and in the id sol_crystal_<index>"],
+      "e#2": ["candidateIndex","compared with crystal.state.index"],
+      "a#2": ["crystal","element of existingCrystals"],
+      "n": ["spawnedCrystal","inferred: the crystal actor passed to context.spawnNpc"],
+      "e#3": ["crystalSetup","inferred: like bossSetup in createNpcs, the values the crystal actor is built from"],
+      "a#3": ["crystalTrack","inferred: the uO entry of the arena edge the crystal moves along (edge, from, to, spawn)"],
+      "t#2": ["spawnAlong","read from crystalSetup.spawnAlong"]
+    },
+    "B$": {
+      "e": ["action","error string 'Unknown Sol Heredit action:'"]
+    },
+    "W$": {
+      "e": ["mechanics","called with the completeNpcBand mechanics"],
+      "a": ["attackStyle","read from mechanics.solHereditAttackStyle"]
+    }
+  }
+}

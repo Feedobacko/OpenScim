@@ -1,0 +1,56 @@
+{
+  "lightBeams.js": {
+    "LightBeamRuntime": {
+      "uT": ["hasActiveRound","its result is passed under the key charging of a new crystal's state; true while this.prepared or this.round is set"],
+      "vT": ["getBeamTiles","getSnapshot() stores its result under the key beamTiles; the tiles of the charging round's lines"],
+      "pT": ["getFiredBeamTiles","getSnapshot() stores its result under the key beamFiredTiles; the tiles of the round fired on the given tick"],
+      "kT": ["ensureReadyTick","inferred: sets this.readyTick to the tick unless it is already set; called when a crystal is spawned"],
+      "ST": ["markCrystalsCharging","it sets state.charging = true on each crystal"],
+      "bT": ["startRoundCharge","it makes this.round ({ chargeTick, fireTick, lines }) from this.prepared once prepared.chargeTick is reached; the encounter plays clipId \"charge\" for its result"],
+      "yT": ["cancelActiveRound","inferred: clears round, prepared, fired and hitTick, keeps a readyTick and sets the crystals' state.charging false; called while mechanics.solHereditBeams is false"],
+      "zT": ["capReadyTick","inferred: readyTick = min(readyTick, tick) when no round is active; called when the enrage phase begins"],
+      "wT": ["fireRound","at round.fireTick it moves the round into this.fired and sets hitTick; the encounter plays clipId \"attack\" and the \"fire\" graphics for its result"],
+      "LT": ["resolveBeamHit","returns the damage with source \"SolLightBeam\" once this.hitTick is reached"],
+      "AT": ["rollCooldownTicks","inferred: added to the fire tick to make this.readyTick; 5 in the enrage phase, otherwise a random value from 22 to 29"]
+    }
+  },
+  "moltenSand.js": {
+    "MoltenSand": {
+      "WT": ["getPoolTiles","getSnapshot() stores its result under the key sandTiles; the keys of this.pools as [x, y]"],
+      "RT": ["cancelPendingStrikes","inferred: empties this.pending and deletes the pools formed on or after the given tick; called when Sol is defeated"],
+      "PT": ["hasPoolAt","inferred: this.pools has the tile's key; nothing calls it"]
+    }
+  },
+  "solarflare.js": {
+    "CornerRoute": {
+      "fT": ["getPositionAfterTicks","inferred: the route position a number of ticks after the first step (this.start for a negative number); it gives the orb's path step and its spawn position"]
+    }
+  },
+  "modifierEffects.js": {
+    "SolModifierEffects": {
+      "DT": ["warbanders","returns the actors of the \"colosseum-warbander\" definition; a noun to match orbs() and bees()"],
+      "HT": ["totems","returns the actors of the \"colosseum-healing-totem\" definition; a noun to match orbs() and bees()"],
+      "MT": ["processTotems","inferred: for selection.totemic it spawns the totem (\"sol_totem_N\") once this.totemDue is reached and updates the totems; it despawns them when the boss is not alive"],
+      "TT": ["resetTotems","inferred: despawns every totem and sets this.totemDue back to \"half-hp\"; called from enterBossHpPhase()"],
+      "IT": ["advanceBeeRespawns","inferred: runs the respawn step (state.teleportAt, state.resumeAt) for every bee swarm"],
+      "CT": ["despawnBeesAndWarbanders","it calls despawnNpc for every bee swarm and warbander; called on deathCleanupTick"],
+      "xT": ["areOrbsActive","inferred: true until this.removeOrbsAt is reached; it gates the movement of the solarflare orbs"],
+      "BT": ["scheduleBossDefeatEffects","inferred: sets this.removeOrbsAt (tick + 11) and, for selection.volatility, this.explosion (tick + 9); called when \"sol_heredit\" is defeated"]
+    }
+  },
+  "SolHereditEncounter.js": {
+    "SolHereditEncounter": {
+      "_T": ["getAliveCrystals","getSnapshot() stores its length under the key crystalCount; the alive actors of the \"colosseum-beam-crystal\" definition, sorted by state.index"],
+      "FT": ["isAttackLaunchExpected","inferred: mechanics.solHereditAttacks is false or Sol can launch from its position; the same condition (launched || !enabled) prepares the beams later in the tick"],
+      "ET": ["startPhaseTransition","it raises this.phase, says the phase's taunt and pushes the \"sand\" and \"crystal\" entries of this.pendingTransitions"],
+      "NT": ["resolvePendingTransitions","it takes the due entries of this.pendingTransitions (kind \"sand\" or \"crystal\")"],
+      "GT": ["strikeEnrageSand","it strikes sand once this.nextEnrageSandTick is reached and sets the next one"],
+      "UT": ["processLightBeams","inferred: resolves the beam hit, starts the charge and fires the round with their \"colosseum_visual\"; cancels the round when mechanics.solHereditBeams is false"],
+      "jT": ["buildGrappleOverheadTextEvent","returns the \"overhead_text\" event of a grapple taunt, with overheadTextColor and overheadTextSegments"],
+      "OT": ["spawnCrystal","the command case \"spawn-crystal\" calls it; it calls spawnNpc with id \"sol_crystal_N\""],
+      "$T": ["rollEnrageSandDelay","added to the tick to make this.nextEnrageSandTick; a random value from 6 to 8"],
+      "VT": ["buildOverheadTextEvent","returns an event of type \"overhead_text\" anchored to the actor \"sol_heredit\""],
+      "KT": ["emitSandStrikeVisual","it emits the sand strike's \"colosseum_visual\" unless mechanics.solHereditSand is false"]
+    }
+  }
+}

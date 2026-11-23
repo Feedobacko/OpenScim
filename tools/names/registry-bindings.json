@@ -1,0 +1,21 @@
+{
+  "registry.js": {
+    "IV": ["registeredEncounterDefinitions", "two of its entries are the exports `zebakDefinition` and `nexusDefinition` of client/toa/, and the loop at the end of the module registers every entry (its kind, factory and descriptor, and each of its variant factories); \"registered\" keeps it apart from `encounterDefinitions` of engine/encounterKinds.js, the table of kinds and route slugs"],
+    "CV": ["getDefinitionKinds", "returns the definition's `kind` followed by the keys of its `variantFactories`; inferred wording"],
+    "xV": ["definitionByKind", "a Map built from the pairs [kind, definition] for every kind `getDefinitionKinds` gives; `BV` reads it with a kind"],
+    "BV": ["getDefinitionOfKind", "returns `definitionByKind.get(kind)`; inferred wording"],
+    "WV": ["infiniteHealthToggle", "its `key` is \"infiniteHealth\" and its `label` \"Infinite Health\"; it is appended to every kind's `mechanicsToggles`"],
+    "RV": ["infiniteSpecialAttackToggle", "its `key` is \"infiniteSpecialAttack\" and its `label` \"Infinite Special Attack\"; it is appended to every kind's `mechanicsToggles`"],
+    "PV": ["controlsByKind", "a Map from each kind to the definition's `variantControls[kind]` or `controls`, with the two toggles appended to `mechanicsToggles`"],
+    "_V": ["getEncounterControls", "returns `controlsByKind.get(kind)`; what it returns is the value of a definition's key `controls`"],
+    "NV": ["isIntroEnabledForKind", "true when the kind's definition has `enableIntro === true`; application.js uses it as the default of an engine's `enableIntro`"],
+    "GV": ["hasCountdownMovement", "true when the kind's definition has a `countdownMovement` function that answers true for the mechanics; \"has\" is inferred"],
+    "UV": ["resolveKindOrRetiredEntry", "returns `{ kind, mechanics: {} }` for a kind that has a definition, and otherwise the kind and mechanics of the definition whose `retiredEntries` holds the name (the Inferno's holds \"zuk\"); \"resolve\" is inferred"],
+    "cK": ["DuplicateEncounterKindError", "its constructor sets `this.name = \"DuplicateEncounterKindError\"`"],
+    "mK": ["EncounterDescriptorKindMismatchError", "its constructor sets `this.name = \"EncounterDescriptorKindMismatchError\"`"]
+  },
+  "sol-heredit/boundaryLocs.js": {
+    "xE": ["solBoundaryLocIds", "the six loc ids the entries of the next table take their `locId` from; the scene of Sol Heredit builds one mesh per entry of that table and names it `sol-boundary-<localX>-<localY>` (rendering.js, the class with the field `boundary`)"],
+    "BE": ["solBoundaryLocs", "the scene's field `boundary` is built from it, each mesh named `sol-boundary-<localX>-<localY>`; the registry hands it to the arena's collision as `dynamicLocs`. Four runs of twelve placements: y 42, x 40, y 27, x 25"]
+  }
+}

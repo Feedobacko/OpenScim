@@ -1,0 +1,8 @@
+{
+  "fireballs.js": {
+    "FireballRuntime": {
+      "activePhases": ["getActiveFireballs", "it joins the scheduled and the manual fireballs in the air at a tick; every caller loops over the result as fireball; the verb is inferred"],
+      "getManualActivePhases": ["getActiveManualFireballs", "it returns the entries of fireballs.manual that are in the air at a tick"]
+    }
+  }
+}

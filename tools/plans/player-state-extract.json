@@ -1,0 +1,3 @@
+{
+  "client/engine/playerState.js": ["JA", "QA", "defaultSpellbook", "isSpellbook", "tL", "nL", "sL", "rL", "iL", "lL", "maxRunEnergy", "createRunEnergy", "createPoisonState", "combatStatNames", "decayingStatNames", "purgingStaffItemId", "lightbearerItemId", "ringOfEnduranceItemId", "createDefaultStats", "vL", "cloneStats", "resetStatsToMax", "createSpecialAttackState", "createCombatTimers"]
+}

@@ -1,0 +1,19 @@
+{
+  "playerMovement.js": {
+    "findBfsPathToAttackRange": {
+      "startTile": ["fromTile", "the same parameter of findBfsPathToTile, whose search this function repeats statement for statement (the two differ in the goal test and in the fallback); with the same names a diff of the two shows only that"],
+      "currentX": ["x", "the same local of findBfsPathToTile: the tile taken from the queue"],
+      "currentY": ["y", "the same local of findBfsPathToTile: the tile taken from the queue"],
+      "currentGridX": ["gridX", "the same local of findBfsPathToTile: that tile's index in the cost grid"],
+      "currentGridY": ["gridY", "the same local of findBfsPathToTile: that tile's index in the cost grid"],
+      "directionIndex": ["direction", "the same local of findBfsPathToTile: the index into pathfindNeighborOffsets, cardinalBlockFlags and pathfindBacktrackFlags"],
+      "bestDistanceSquared": ["closestDistanceSquared", "the same local of findBfsPathToTile's fallback: the least squared distance found so far"],
+      "bestCost": ["closestCost", "the same local of findBfsPathToTile's fallback: the step cost of the tile with that distance"]
+    }
+  },
+  "SimulationEngine.js": {
+    "SimulationEngine.runTick": {
+      "energy": ["specialAttackEnergyAtTickStart", "it is player.specialAttack.energy read before the inputs of the tick are applied, and its one use is the argument of runPlayerUpkeep(tick, previousTick, specialAttackEnergyAtTickStart); the same function reads the run energy as player.runEnergy.energy"]
+    }
+  }
+}

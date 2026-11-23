@@ -1,0 +1,31 @@
+{
+  "about": "Names given by hand in the tenth session's commits that are not in another names file: the functions that a comma sequence with temporaries became again (the temporaries are their parameters), and one function called at once that closes over locals of the function around it. Each as [name, evidence], or the word inferred.",
+  "client/engine/consumables.js": {
+    "withPlayerGraphic": [
+      "withPlayerGraphic",
+      "it sets the key playerGraphic of every entry, as withMinHpToUse above it sets minHpToUse with the same statements; its parameters were the temporaries surgePotionEntries and surgePotionPlayerGraphicId"
+    ]
+  },
+  "client/engine/playerAttack/launch.js": {
+    "isVenatorBow": [
+      "isVenatorBow",
+      "it tests venatorBowIdSet.has(getBaseItemId(weaponId)); its parameter was the temporary weaponId, assigned player.equipment.weapon"
+    ]
+  },
+  "client/engine/playerAttack/roll.js": {
+    "withMinimumDamage": [
+      "withMinimumDamage",
+      "it returns the damage spec with minimumWhenSelected or wrapped as { kind: \"minimum\", ..., minimumDamage }; its parameters were the temporaries damageSpec and hitMinimumDamage, and overrides.minimumDamage gives the second; 'with' is inferred"
+    ],
+    "rollProcDamage": [
+      "rollProcDamage",
+      "its result is stored as rolledDamage when procActivated; its parameter is proc (rollContext.plannedHit.proc) and it draws random() for the kind \"uniformDamage\"; named beside rollDamageSpec; declared inside resolvePlannedHitRoll because it reads rollContext and priorDamage"
+    ]
+  },
+  "client/engine/playerAttack/plan.js": {
+    "addAmmoStats": [
+      "addAmmoStats",
+      "it adds, key by key, the bonuses of its second parameter to those of its first; its parameters were the temporaries wornEquipmentStats and addedAmmoStats, and the second was assigned ammoStats"
+    ]
+  }
+}

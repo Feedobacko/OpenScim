@@ -1,0 +1,70 @@
+{
+  "data/itemVariants.js": {
+    "Ch": ["baseItemIdByVariantId", "the loop stores `baseId` under each of the entry's `variantIds`; getBaseItemId answers from it"],
+    "xh": ["variantIdsByBaseItemId", "the loop stores `variantIds` under `baseId`; nothing reads it"]
+  },
+  "data/monsters.js": {
+    "WA": ["monsters", "the loop files each entry under its `ids` in monsterByNpcTypeId and under an id and its `version` in monsterByNpcTypeIdAndVersion"],
+    "_A": ["getMonsterName", "returns the `name` of the entry of an NPC type id; Grid.js calls it with `npcTypeId` and application.js with `sourceNpcTypeId`, each for the label of a damage source"]
+  },
+  "data/combatSpells.js": {
+    "jA": ["spellSecondaryEffectSchema", "the schema of `secondaryEffect` in the schema of the spell list"],
+    "OA": ["parsedCombatSpells", "what the Zod schema's `parse(combatSpells)` returned; every lookup reads this list"],
+    "$A": ["unsupportedSpellNames", "names the lookups leave out: the list of a spellbook is filtered by it, and the test Grid.js uses next to `supported` refuses them"],
+    "VA": ["fixedHitDelayBySpellName", "stored as `fixedHitDelay` of the spell's definition"],
+    "KA": ["multiTargetSpellNames", "a spell in it gets `multiTarget: { radius: 1, maxTargets: 9 }` in its definition"],
+    "qA": ["getSpellIconName", "stored as `icon` of the spell's definition; Grid.js and application.js build the path of the icon from it"],
+    "ZA": ["getCombatSpellsOfSpellbook", "filters the list by `spellbook`; Grid.js calls it with `spellbook` for the spell grid"],
+    "YA": ["isSupportedCombatSpell", "Grid.js: `true === entry.supported || (\"combat\" === entry.category && YA(entry.label))`"]
+  },
+  "data/equipment.js": {
+    "yL": ["syncedEquipmentEntries", "inferred: the list of `{ ids, name, slot, category, version }`; the `_why` of the entries added by hand after it says sync-osrs-data.ts makes the list from the wiki and drops those"],
+    "zL": ["equipmentSlotSchema", "the schema of an entry's `slot`"],
+    "wL": ["equipmentEntrySchema", "the schema of one entry of the list"],
+    "AL": ["equipmentEntriesSchema", "the array of that schema, which parses the list"],
+    "LL": ["canonicalIdByVariantIdSchema", "parses the record getCanonicalEquipmentId answers from"],
+    "DL": ["equipmentEntries", "the synced list and the six entries added by hand, parsed"],
+    "HL": ["canonicalEquipmentIdByVariantId", "getCanonicalEquipmentId returns `HL[String(id)] ?? id`"],
+    "ML": ["equipmentDefinitionById", "getEquipmentDefinition returns `ML.get(id)`"],
+    "TL": ["variantIdsByCanonicalEquipmentId", "the second loop collects under each canonical id the ids the record maps to it"],
+    "IL": ["equipmentDefinitions", "the values of equipmentDefinitionById sorted by id"],
+    "CL": ["getEquipmentDefinitions", "returns that list; application.js filters it by `slot` and reads `id`"],
+    "BL": ["getItemName", "Grid.js: `BL(itemId, objTypeLoader.load(itemId).name, \"Item \" + itemId)`; without a cache name it answers the equipment definition's `name`"],
+    "WL": ["getInventoryActions", "Grid.js passes the cache item's `inventoryActions`; when all are empty it answers \"Wield\" or \"Wear\" by the definition's slot"],
+    "PL": ["getEquipmentVariantIds", "returns the ids collected under a canonical id; application.js adds them to a set of item ids"]
+  },
+  "data/weaponCategories.js": {
+    "_L": ["weaponCategoryDefinitions", "getWeaponCategoryDefinition returns `_L[category]`"],
+    "FL": ["weaponCategoryByItemId", "getWeaponCategory returns `FL[getBaseItemId(itemId)]`"],
+    "EL": ["defaultSpellNamesByStaffId", "inferred: per staff id, a spell name by spellbook; getActiveSpell falls back to it when no spell is selected"],
+    "NL": ["getDefaultStaffSpell", "inferred: the definition of that spell for a weapon and a spellbook; what getActiveSpell returns when no spell is selected"],
+    "GL": ["defaultCombatStyleByCategory", "getDefaultAttackStyleIndex looks for the style whose `combatStyle` it names for the weapon's category"]
+  },
+  "data/specialAttackDefinitions.js": {
+    "iB": ["elderMaulSpecial", "the entry of 21003 and 27100, which the equipment table names \"Elder maul\" and \"Elder maul (or)\""],
+    "lB": ["accursedSceptreSpecial", "the entry of 27665, 27679 and 27676, which the equipment table names \"Accursed sceptre\", \"(a)\" and \"(au)\""],
+    "oB": ["abyssalTentacleSpecial", "the entry of 12006 and 26484, which the equipment table names \"Abyssal tentacle\" and \"Abyssal tentacle (or)\""],
+    "dB": ["specialAttackDefinitionByWeaponId", "getSpecialAttackDefinition returns `dB[getBaseItemId(weaponId)]`"]
+  },
+  "engine/ammunition.js": {
+    "hD": ["atlatlWeaponIds", "isAmmoCompatibleWithWeapon accepts only \"atlatl_dart\" for them; the equipment table names both ids \"Eclipse atlatl\""],
+    "fD": ["arrowWeaponIds", "isAmmoCompatibleWithWeapon accepts only \"arrow\" for them (Dark bow, Twisted bow, Venator bow, Scorching bow)"],
+    "uD": ["standardBoltWeaponIds", "isAmmoCompatibleWithWeapon accepts only \"standard_bolt\" for it (Rune crossbow)"],
+    "vD": ["dragonBoltWeaponIds", "isAmmoCompatibleWithWeapon accepts \"standard_bolt\" and \"dragon_bolt\" for them (Armadyl crossbow, Zaryte crossbow)"],
+    "pD": ["arrowNamePattern", "an item of the ammo slot whose name matches is \"arrow\""],
+    "kD": ["standardBoltNamePattern", "an item of the ammo slot whose name matches is \"standard_bolt\""],
+    "SD": ["dragonBoltNamePattern", "an item of the ammo slot whose name matches is \"dragon_bolt\""],
+    "bD": ["getAmmoKind", "returns \"atlatl_dart\", \"arrow\", \"standard_bolt\", \"dragon_bolt\" or \"unsupported\"; the word \"kind\" is inferred"]
+  },
+  "engine/weapons.js": {
+    "XW": ["hitDelayKindByWeaponCategory", "getHitDelayWeaponKind returns `XW[category]`"],
+    "JW": ["hitDelayKindByWeaponId", "getHitDelayWeaponKind returns `JW[getBaseItemId(weaponId)]` before it asks the category"],
+    "eR": ["rangedDefenceTypeByWeaponCategory", "getRangedDefenceType returns `eR[category]`"],
+    "tR": ["formulaStyleByAttackType", "getWeaponFormulaStyle returns `tR[style.attackType]`"],
+    "sR": ["castingCombatStyles", "the two values of a style's `combatStyle` that make computePlayerCombatParams answer attack speed 5"],
+    "oR": ["projectileTimingByWeaponCategory", "getWeaponProjectileTiming returns `oR[category]` last"],
+    "dR": ["accursedSceptreSpecialProjectileTiming", "the entry of 27665, 27679 and 27676 (the Accursed sceptres) in the timings of a special attack"],
+    "gR": ["projectileTimingByWeaponId", "getWeaponProjectileTiming returns `gR[getBaseItemId(weaponId)]`"],
+    "cR": ["specialProjectileTimingByWeaponId", "read only when the second argument is true; playerAttack/launch.js passes `isSpecialAttack` there"]
+  }
+}

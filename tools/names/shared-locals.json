@@ -1,0 +1,951 @@
+{
+  "engine/collision.js": {
+    "createCollisionMap": {
+      "e#1": ["sizeX","stored as { sizeX }"],
+      "a#1": ["sizeY","stored as { sizeY }"],
+      "t#1": ["flags","stored as { flags }"],
+      "n#1": ["x","getFlag: (x, y) in encounters/lobby/LobbyEncounter.js and inferno/pillars.js"],
+      "s#1": ["y","getFlag: (x, y) in encounters/lobby/LobbyEncounter.js and inferno/pillars.js"],
+      "e#2": ["x","hasFlag(x, y, mask) in encounters/lobby/LobbyEncounter.js"],
+      "a#2": ["y","hasFlag(x, y, mask) in encounters/lobby/LobbyEncounter.js"],
+      "t#2": ["mask","hasFlag(x, y, mask) in encounters/lobby/LobbyEncounter.js"],
+      "flag2": ["flag","const flag = this.getFlag(x, y) in encounters/lobby/LobbyEncounter.js"],
+      "n#2": ["x","flag(x, y, mask) in encounters/lobby/LobbyEncounter.js"],
+      "s#2": ["y","flag(x, y, mask) in encounters/lobby/LobbyEncounter.js"],
+      "r#1": ["mask","flag(x, y, mask) in encounters/lobby/LobbyEncounter.js"],
+      "n#3": ["x","unflag(x, y, mask) in encounters/lobby/LobbyEncounter.js"],
+      "s#3": ["y","unflag(x, y, mask) in encounters/lobby/LobbyEncounter.js"],
+      "r#2": ["mask","unflag(x, y, mask) in encounters/lobby/LobbyEncounter.js"]
+    }
+  },
+  "engine/arena.js": {
+    "xl": {
+      "e": ["coordinate","inferred: one tile coordinate tested for the packable range"]
+    },
+    "Bl": {
+      "e": ["x","inferred: called as Bl(x, y) with the two halves of an \"x,y\" key"],
+      "a": ["y","inferred: called as Bl(x, y) with the two halves of an \"x,y\" key"]
+    },
+    "Wl.constructor": {
+      "e#1": ["tileKeys","inferred: the set of \"x,y\" strings it packs (the arena's walkableTiles)"],
+      "a": ["fullyPacked","stored as this.fullyPacked"],
+      "t": ["tileKey","inferred: one \"x,y\" string of the set"],
+      "e#2": ["commaIndex","inferred: tileKey.indexOf(\",\")"],
+      "n": ["x","compared as `${x},${y}` with the tile key"],
+      "s": ["y","compared as `${x},${y}` with the tile key"]
+    },
+    "Wl.has": {
+      "e": ["x","looked up as `${x},${y}` in the source set"],
+      "a": ["y","looked up as `${x},${y}` in the source set"]
+    },
+    "Rl.get": {
+      "e": ["tileKeys","passed on to new Wl(tileKeys); called with Pl.walkableTiles"]
+    },
+    "setArenaConfig": {
+      "e": ["arenaConfig","engine: setArenaConfig(encounter.refineArenaConfig?.(arenaConfig) ?? arenaConfig, ...) in SimulationEngine.js"],
+      "a": ["defaultWalkable","returned by getArenaDefaultWalkable(); engine: setArenaConfig(savedArenaConfig, savedArenaDefaultWalkable) in replay.js"]
+    },
+    "isArenaTileWalkable": {
+      "e": ["x","callers: isArenaTileWalkable(x, y) in inferno/InfernoEncounter.js"],
+      "a": ["y","callers: isArenaTileWalkable(x, y) in inferno/InfernoEncounter.js"],
+      "walkableTiles2": ["walkableTiles","read from Pl.walkableTiles"]
+    },
+    "isInsideArenaBounds": {
+      "e": ["x","callers: isInsideArenaBounds(x, y) in SimulationEngine.js"],
+      "a": ["y","callers: isInsideArenaBounds(x, y) in SimulationEngine.js"]
+    },
+    "$l": {
+      "e": ["overrides","inferred: an optional parameter the bundler turned into a local that is always {}; its bounds/walkableTiles/collisionMap would replace the current ones"]
+    },
+    "oe": {
+      "e": ["encounterKind","inferred: the bundle calls it with (encounter.kind, resolvedArenaConfig); read back with Yl(baseEncounterKind)"],
+      "a": ["arenaConfig","engine: const registeredArenaConfig = Yl(baseEncounterKind) in SimulationEngine.js"]
+    },
+    "Yl": {
+      "e": ["encounterKind","engine: aN(baseEncounterKind) in SimulationEngine.js applyArenaConfig"]
+    }
+  },
+  "engine/random.js": {
+    "createSeededRandom": {
+      "e#1": ["seed","callers: createSeededRandom(this.combatSeed), createSeededRandom(randomSeed)"],
+      "a": ["state","inferred: the generator's 32-bit state (mulberry32), advanced on every draw"],
+      "e#2": ["mixed","inferred: the state after the mulberry32 mixing steps, scaled to [0, 1)"]
+    },
+    "hashInteger": {
+      "e": ["integer","inferred: the function's own name; callers pass a seed xor-ed with a salt"],
+      "a": ["hash","inferred: the value being mixed and returned"]
+    }
+  },
+  "engine/attackRange.js": {
+    "getDistanceToFootprint": {
+      "e": ["fromX","callers: player.position[0]"],
+      "a": ["fromY","callers: player.position[1]"],
+      "t": ["targetX","callers: target.position[0]"],
+      "n": ["targetY","callers: target.position[1]"],
+      "s": ["targetSize","callers: target.size"],
+      "r": ["targetMaxX","inferred: east column of the target footprint"],
+      "i": ["targetMaxY","inferred: north row of the target footprint"],
+      "l": ["distanceX","inferred: tiles between the point and the footprint along x"],
+      "o": ["distanceY","inferred: tiles between the point and the footprint along y"]
+    },
+    "fM": {
+      "e#1": ["fromX","engine: X(fromX, fromY, toX, toY) in playerAttack/launch.js"],
+      "a#1": ["fromY","engine: X(fromX, fromY, toX, toY) in playerAttack/launch.js"],
+      "t#1": ["toX","engine: X(fromX, fromY, toX, toY) in playerAttack/launch.js"],
+      "n#1": ["toY","engine: X(fromX, fromY, toX, toY) in playerAttack/launch.js"],
+      "s#1": ["collisionMap","returned by getArenaCollisionMap()"],
+      "r#1": ["dx","inferred: toX - fromX"],
+      "i": ["dy","inferred: toY - fromY"],
+      "l": ["distanceX","inferred: Math.abs(dx)"],
+      "o": ["distanceY","inferred: Math.abs(dy)"],
+      "d": ["stepX","inferred: Math.sign(dx), the walk's x step"],
+      "g": ["stepY","inferred: Math.sign(dy), the walk's y step"],
+      "c": ["canProjectileEnter","inferred: false when the tile is off the map or has a projectile blocker facing the move"],
+      "e#2": ["tileX","passed as collisionMap.getFlag(x, y)"],
+      "a#2": ["tileY","passed as collisionMap.getFlag(x, y)"],
+      "t#2": ["moveX","inferred: x direction the projectile enters the tile from (stepX or 0)"],
+      "n#2": ["moveY","inferred: y direction the projectile enters the tile from (stepY or 0)"],
+      "flag3": ["flag","returned by collisionMap.getFlag"],
+      "e#3": ["directionX","inferred: 1 picks BLOCK_EAST_PROJECTILE, -1 BLOCK_WEST_PROJECTILE"],
+      "a#3": ["directionY","inferred: 1 picks BLOCK_NORTH_PROJECTILE, otherwise BLOCK_SOUTH_PROJECTILE"],
+      "n#3": ["fixedY","inferred: y in 16.16 fixed point, starting at the tile centre"],
+      "s#2": ["slopeY","inferred: fixed-point y advance per x step"],
+      "r#2": ["x","inferred: column the walk is on, from fromX to toX"],
+      "e#4": ["tileY","inferred: fixedY >> 16 before the slope is added"],
+      "a#4": ["nextTileY","inferred: fixedY >> 16 after the slope is added"],
+      "m": ["fixedX","inferred: x in 16.16 fixed point, starting at the tile centre"],
+      "h": ["slopeX","inferred: fixed-point x advance per y step"],
+      "f": ["y","inferred: row the walk is on, from fromY to toY"],
+      "e#5": ["tileX","inferred: fixedX >> 16 before the slope is added"],
+      "a#5": ["nextTileX","inferred: fixedX >> 16 after the slope is added"]
+    },
+    "uM": {
+      "e": ["coordinate","inferred: the value clamped; always a tile coordinate"],
+      "a": ["min","inferred: lower bound of the clamp"],
+      "t": ["max","inferred: upper bound of the clamp"]
+    },
+    "vM": {
+      "e#1": ["fromMinX","inferred: southWest[0] of the first footprint; line of sight is walked from this rectangle (callers pass the attacker or, in isNpcInAttackRange, the target)"],
+      "a": ["fromMinY","inferred: southWest[1] of the first footprint"],
+      "t": ["fromMaxX","inferred: southWest[0] + width - 1 of the first footprint"],
+      "n": ["fromMaxY","inferred: southWest[1] + height - 1 of the first footprint"],
+      "s": ["toMinX","inferred: southWest[0] of the second footprint"],
+      "r": ["toMinY","inferred: southWest[1] of the second footprint"],
+      "i": ["toMaxX","inferred: southWest[0] + width - 1 of the second footprint"],
+      "l": ["toMaxY","inferred: southWest[1] + height - 1 of the second footprint"],
+      "o#1": ["attackRange","passed from options.attackRange"],
+      "d#1": ["checkCollision","passed from options.checkCollision"],
+      "g#1": ["meleeReach","passed from options.meleeReach"],
+      "c#1": ["gapX","inferred: empty columns between the two rectangles plus one, 0 when they share a column"],
+      "m": ["gapY","inferred: empty rows between the two rectangles plus one, 0 when they share a row"],
+      "o#2": ["fromEdgeX","inferred: column of the first rectangle that faces the second"],
+      "d#2": ["toEdgeX","inferred: column of the second rectangle that faces the first"],
+      "g#2": ["sharedMinY","inferred: lowest row both rectangles cover"],
+      "c#2": ["sharedMaxY","inferred: highest row both rectangles cover"],
+      "e#2": ["y","inferred: row of the pair of facing tiles tested for a wall"],
+      "h": ["fromEdgeY","inferred: row of the first rectangle that faces the second"],
+      "f": ["toEdgeY","inferred: row of the second rectangle that faces the first"],
+      "u": ["sharedMinX","inferred: lowest column both rectangles cover"],
+      "v": ["sharedMaxX","inferred: highest column both rectangles cover"],
+      "e#3": ["x","inferred: column of the pair of facing tiles tested for a wall"]
+    },
+    "pM": {
+      "e": ["fromX","inferred: engine passes the player's tile (startX, currentX) in playerMovement.js"],
+      "a": ["fromY","inferred: engine passes the player's tile (startY, currentY) in playerMovement.js"],
+      "t": ["targetX","engine: targetTile[0] in playerMovement.js"],
+      "n": ["targetY","engine: targetTile[1] in playerMovement.js"],
+      "s": ["targetSize","engine: s(startX, startY, targetTile[0], targetTile[1], targetSize, attackRange) in playerMovement.js"],
+      "r": ["attackRange","engine: s(startX, startY, targetTile[0], targetTile[1], targetSize, attackRange) in playerMovement.js"],
+      "i": ["meleeReach","compared with \"cardinal\" / \"diagonal\" like options.meleeReach"],
+      "l": ["footprintSize","inferred: targetSize, at least 1"]
+    },
+    "isFootprintInAttackRange": {
+      "e": ["fromFootprint","inferred: { southWest, width, height } the range and line of sight are measured from"],
+      "a": ["toFootprint","inferred: { southWest, width, height } they are measured to"],
+      "t": ["options","inferred: { attackRange, checkCollision, meleeReach }"],
+      "n": ["fromWidth","read from fromFootprint.width"],
+      "s": ["fromHeight","read from fromFootprint.height"],
+      "r": ["toWidth","read from toFootprint.width"],
+      "i": ["toHeight","read from toFootprint.height"]
+    },
+    "SM": {
+      "e#1": ["fromTile","inferred: engine passes player.position"],
+      "a#1": ["targetTile","engine: target.position in playerAttack/launch.js"],
+      "t#1": ["targetSize","engine: target.size in playerAttack/launch.js"],
+      "n#1": ["attackRange","engine: aT(player.position, target.position, target.size, attackRange, true, meleeReach)"],
+      "s#1": ["checkCollision","inferred: selects the variant that passes checkCollision true to vM"],
+      "r#1": ["meleeReach","engine: aT(player.position, target.position, target.size, attackRange, true, meleeReach)"],
+      "e#2": ["fromX","passed fromTile[0]"],
+      "a#2": ["fromY","passed fromTile[1]"],
+      "t#2": ["targetX","passed targetTile[0]"],
+      "n#2": ["targetY","passed targetTile[1]"],
+      "s#2": ["targetSize","passed targetSize"],
+      "r#2": ["attackRange","passed attackRange"],
+      "i": ["meleeReach","passed meleeReach"],
+      "l": ["footprintSize","inferred: targetSize, at least 1"]
+    },
+    "bM": {
+      "e": ["tile","inferred: engine passes player.position"],
+      "a": ["targetTile","engine: l(player.position, targetNpc.position, targetNpc.size)"],
+      "t": ["targetSize","engine: l(player.position, targetNpc.position, targetNpc.size)"]
+    },
+    "yM": {
+      "e": ["x","inferred: engine passes startX / currentX"],
+      "a": ["y","inferred: engine passes startY / currentY"],
+      "t": ["targetX","engine: targetTile[0] in playerMovement.js"],
+      "n": ["targetY","engine: targetTile[1] in playerMovement.js"],
+      "s": ["targetSize","engine: aK(startX, startY, targetTile[0], targetTile[1], targetSize)"]
+    },
+    "zM": {
+      "e": ["fromX","inferred: first of two adjacent tiles"],
+      "a": ["fromY","inferred: first of two adjacent tiles"],
+      "t": ["toX","inferred: second of two adjacent tiles"],
+      "n": ["toY","inferred: second of two adjacent tiles"],
+      "s": ["collisionMap","returned by getArenaCollisionMap()"],
+      "r": ["dx","inferred: toX - fromX"],
+      "i": ["dy","inferred: toY - fromY"],
+      "flag4": ["fromFlag","inferred: collision flag of the first tile"],
+      "flag5": ["toFlag","inferred: collision flag of the second tile"]
+    },
+    "areFootprintsOverlapping": {
+      "e": ["footprint","callers: areFootprintsOverlapping(footprint, player) in inferno/mager.js"],
+      "a": ["otherFootprint","inferred: the second { position, size }"]
+    }
+  },
+  "engine/npcState.js": {
+    "isNpcBoundAtTick": {
+      "e": ["npc","inferred: the function's own name; callers pass an NPC actor"],
+      "a": ["tick","callers: isNpcBoundAtTick(actor, context.tick)"]
+    },
+    "EH": {
+      "e": ["npc","inferred: engine passes the special attack's target"],
+      "a": ["tick","engine: au(target, tick) in specialAttacks.js"],
+      "t": ["boundUntilTick","read from debuffs.boundUntilTick"]
+    },
+    "NH": {
+      "e": ["npc","inferred: called by UH, which the engine calls with targetNpc"],
+      "a": ["tick","compared with npc.targetableFromTick"]
+    },
+    "GH": {
+      "e": ["npc","passed on to NH(npc, tick)"],
+      "a": ["tick","passed on to NH(npc, tick)"]
+    },
+    "UH": {
+      "e": ["npc","engine: J(npc, deps.world.tick) in playerAttack/launch.js"],
+      "a": ["tick","engine: J(targetNpc, worldState.tick) in playerAttack/launch.js"]
+    },
+    "OH": {
+      "e": ["npc","inferred: engine passes the special attack's target"],
+      "a": ["defenceDrain","stored as debuffs.defenceDrain"],
+      "defenceDrainFloor2": ["defenceDrainFloor","read from npc.defenceDrainFloor"]
+    },
+    "$H": {
+      "e": ["actor","engine: at(actor) in CombatSystem.js applyBurnPulse"]
+    },
+    "VH": {
+      "e": ["actor","engine: as(actor) in CombatSystem.js applyPoisonPulse"]
+    },
+    "KH": {
+      "e": ["npc","inferred: every caller passes the NPC whose death it handles"]
+    },
+    "qH": {
+      "e": ["world","engine: H(this.worldState, npc); the brief's word for the WorldState"],
+      "a": ["actor","inferred: looked up in world.actors by id; engine passes npc or a hit's target"]
+    },
+    "canNpcActAtTick": {
+      "e": ["npc","engine: canNpcActAtTick(npc, tick) in SimulationEngine.js"],
+      "a": ["tick","engine: canNpcActAtTick(npc, tick) in SimulationEngine.js"],
+      "death2": ["death","read from npc.death"]
+    },
+    "isActorAlive": {
+      "e": ["actor","inferred: the function's own name; tests actor.kind"]
+    },
+    "XH": {
+      "e": ["actor","engine: a3(actor) in playerAttack/launch.js"]
+    },
+    "isNpcAlive": {
+      "e": ["npc","callers: isNpcAlive(npc) in inferno/mager.js"]
+    },
+    "canNpcBeHealed": {
+      "e": ["npc","passed on to isNpcAlive(npc)"]
+    },
+    "eM": {
+      "e": ["actor","inferred: tests actor.kind; engine passes a hit's source and target"]
+    },
+    "aM": {
+      "e": ["npc","error string: NPC '${id}' already has a death record"],
+      "a": ["killTick","stored as { killTick }"],
+      "t": ["causeStage","stored as { causeStage }"],
+      "n": ["death","stored as npc.death"]
+    },
+    "tM": {
+      "e": ["npc","engine: F(targetNpc, worldState.tick) in CombatSystem.js"],
+      "a": ["tick","engine: F(targetNpc, worldState.tick) in CombatSystem.js"],
+      "death3": ["death","read from npc.death"]
+    },
+    "nM": {
+      "e": ["npc","engine: N(npc, tick) in SimulationEngine.js"],
+      "a": ["tick","engine: N(npc, tick) in SimulationEngine.js"]
+    },
+    "sM": {
+      "e": ["npc","passed on to nM(npc, tick)"],
+      "a": ["tick","passed on to nM(npc, tick)"],
+      "death4": ["death","read from npc.death"]
+    },
+    "rM": {
+      "e": ["npc","engine: bn(npc, tick) in SimulationEngine.js"],
+      "a": ["tick","engine: bn(npc, tick) in SimulationEngine.js"]
+    },
+    "iM": {
+      "e": ["npc","engine: a9(npc, tick) in SimulationEngine.js"],
+      "a": ["tick","engine: a9(npc, tick) in SimulationEngine.js"]
+    },
+    "lM": {
+      "e": ["npc","engine: b6(npc) in SimulationEngine.js"],
+      "death5": ["death","read from npc.death"]
+    },
+    "oM": {
+      "e": ["npc","engine: C(npc, tick) in SimulationEngine.js"],
+      "a": ["tick","engine: C(npc, tick) in SimulationEngine.js; stored as npc.lastStepTick"]
+    },
+    "dM": {
+      "e": ["npc","inferred: every caller passes the NPC whose death it handles"],
+      "death6": ["death","read from npc.death"],
+      "t": ["processTick","assigned death.processTick"],
+      "n": ["lastStepTick","assigned npc.lastStepTick"]
+    },
+    "startScriptedNpcDeath": {
+      "e": ["npc","callers: startScriptedNpcDeath(npc, defeat.tick) in inferno/zukFight.js"],
+      "a": ["tick","callers: startScriptedNpcDeath(actor, context.tick) in yama/voidFlares.js"]
+    },
+    "reviveNpc": {
+      "e": ["npc","inferred: the function's own name"]
+    },
+    "mM": {
+      "e": ["npc","engine: const despawnTick = ai(npc) in SimulationEngine.js"],
+      "despawnTick2": ["despawnTick","read from npc.despawnTick"]
+    },
+    "isNpcHeldInPlace": {
+      "e": ["npc","engine: isNpcHeldInPlace(npc, this.player(), tick)"],
+      "a": ["player","engine: isNpcHeldInPlace(npc, this.player(), tick)"],
+      "t": ["tick","engine: isNpcHeldInPlace(npc, this.player(), tick)"]
+    },
+    "scheduleNpcHitpointRegen": {
+      "e": ["npc","callers: scheduleNpcHitpointRegen(npc, context.tick) in inferno/InfernoEncounter.js"],
+      "a": ["tick","callers: scheduleNpcHitpointRegen(npc, context.tick) in inferno/InfernoEncounter.js"]
+    },
+    "SG": {
+      "e": ["npc","engine: K(npc, tick) in SimulationEngine.js"],
+      "a": ["tick","engine: K(npc, tick) in SimulationEngine.js"]
+    }
+  },
+  "engine/decisions.js": {
+    "createRandomDecisions": {
+      "e#1": ["random","callers: createRandomDecisions(random); getContextDecisions passes context.random"],
+      "a#1": ["decisionKey","callers: getContextDecisions(context).chance(decisionKey, 0.5) in inferno/blob.js"],
+      "t#1": ["probability","inferred: the draw is below it that often; callers pass 0.5"],
+      "a#2": ["decisionKey","callers: getContextDecisions(context).int(decisionKey, 0, 20) in inferno/meleer.js"],
+      "t#2": ["min","inferred: lowest integer returned"],
+      "n": ["max","inferred: highest integer returned"],
+      "a#3": ["decisionKey","callers: getContextDecisions(context).choose(decisionKey, [...]) in inferno/jad.js"],
+      "t#3": ["options","inferred: the { value, weight } entries to choose from"],
+      "e#2": ["options","passed choose's options"],
+      "a#4": ["draw","error string: a draw in [0, 1)"],
+      "t#4": ["remainingWeight","inferred: draw scaled to the total weight, reduced by each option passed over"],
+      "e#3": ["total","inferred: running sum of the weights"],
+      "a#5": ["option","inferred: one { value, weight } entry"],
+      "a#6": ["option","inferred: one { value, weight } entry"]
+    },
+    "weightEqually": {
+      "e#1": ["values","stored as { value } per element"],
+      "e#2": ["value","stored as { value }"]
+    },
+    "getContextDecisions": {
+      "e": ["context","callers: getContextDecisions(context)"]
+    }
+  },
+  "engine/occupancy.js": {
+    "MM": {
+      "e": ["x","inferred: called as MM(x + dx, y + dy)"],
+      "a": ["y","inferred: called as MM(x + dx, y + dy)"]
+    },
+    "TM": {
+      "e": ["actor","engine: occupancy.add(actor) in SimulationEngine.js"]
+    },
+    "IM.isBlocked": {
+      "e": ["x","inferred: tile coordinate packed by MM"],
+      "a": ["y","inferred: tile coordinate packed by MM"]
+    },
+    "IM.add": {
+      "e": ["actor","engine: occupancy.add(actor) in SimulationEngine.js"]
+    },
+    "IM.remove": {
+      "e": ["actor","engine: this.occupancy.remove(actor) in WorldState.js"],
+      "a": ["footprint","inferred: the { x, y, size } recorded for the actor in this.flagged"]
+    },
+    "IM.ly": {
+      "e#1": ["actors","engine: occupancy.ly(this.worldState.actors.values())"],
+      "a": ["presentActors","inferred: the actors passed in, to drop flagged ones that are gone"],
+      "t": ["actor","element of actors"],
+      "e#2": ["footprint","inferred: the { x, y, size } recorded for the actor in this.flagged"],
+      "e#3": ["flaggedActor","key of this.flagged"]
+    },
+    "IM.step": {
+      "e": ["actor","inferred: engine passes player or npc"],
+      "a": ["fromTile","engine: occupancy.step(player, fromTile, stepTile)"],
+      "t": ["stepTile","engine: occupancy.step(player, fromTile, stepTile)"],
+      "n": ["footprint","inferred: the { x, y, size } recorded for the actor in this.flagged"]
+    },
+    "IM.enter": {
+      "e": ["actor","passed on from add(actor) and step(actor, ...)"],
+      "a": ["tile","inferred: add passes actor.position, step passes stepTile"],
+      "t": ["footprint","inferred: the { x, y, size } stored in this.flagged"]
+    },
+    "IM.mark": {
+      "e": ["x","destructured key x"],
+      "a": ["y","destructured key y"],
+      "n": ["blocked","inferred: true flags the footprint's tiles, false clears them"],
+      "s": ["dx","inferred: column offset inside the footprint"],
+      "r": ["dy","inferred: row offset inside the footprint"]
+    },
+    "createOccupancyStepCheck": {
+      "e#1": ["occupancy","callers: createOccupancyStepCheck(context.world.occupancy)"],
+      "a#1": ["fromTile","callers: canStep: (fromTile, toTile, size) => isStepUnblocked(fromTile, toTile, size) in sol-heredit/boss.js"],
+      "t#1": ["toTile","callers: isStepUnblocked(fromTile, toTile, size) in sol-heredit/boss.js"],
+      "n": ["size","callers: isStepUnblocked(fromTile, toTile, size) in sol-heredit/boss.js"],
+      "s": ["dx","inferred: toTile[0] - fromTile[0]"],
+      "r": ["dy","inferred: toTile[1] - fromTile[1]"],
+      "i": ["isFree","inferred: not occupancy.isBlocked(x, y)"],
+      "a#2": ["x","passed as occupancy.isBlocked(x, y)"],
+      "t#2": ["y","passed as occupancy.isBlocked(x, y)"],
+      "e#2": ["leadingX","inferred: column the footprint newly covers after the step"],
+      "a#3": ["offset","inferred: position along the leading column"],
+      "e#3": ["leadingY","inferred: row the footprint newly covers after the step"],
+      "a#4": ["offset","inferred: position along the leading row"]
+    }
+  },
+  "engine/combatFormulas.js": {
+    "BM": {
+      "e": ["attacker","engine: az(attackSetup.attacker, ...) in playerAttack/plan.js, passed on by EM"],
+      "a": ["prayerMultipliers","engine: attackSetup.prayerMultipliers in playerAttack/plan.js, passed on by EM"],
+      "t": ["prayerScaledAttack","inferred: attack level times the prayer multiplier, floored"],
+      "n": ["stanceBonus","inferred: +3 Accurate, +1 Controlled, read from attacker.stance"],
+      "s": ["voidMultiplier","inferred: 1.1 with the melee void set, read from attacker.voidSet"]
+    },
+    "WM": {
+      "e": ["target","caller: getPlayerDefenceRoll(target, ...) in inferno/zuk.js, passed on"]
+    },
+    "getSingleRollHitChance": {
+      "e": ["attackRoll","engine: getSingleRollHitChance(attackRoll, defenceRoll) in playerAttack/plan.js"],
+      "a": ["defenceRoll","engine: getSingleRollHitChance(attackRoll, defenceRoll) in playerAttack/plan.js"]
+    },
+    "_M": {
+      "e": ["attackRoll","engine: bh(attackRoll, defenceRoll) in playerAttack/plan.js"],
+      "a": ["defenceRoll","engine: bh(attackRoll, defenceRoll) in playerAttack/plan.js"]
+    },
+    "FM": {
+      "e": ["singleRollChance","engine: q(singleRollChance, bh(attackRoll, defenceRoll)) in playerAttack/plan.js"],
+      "a": ["doubleRollChance","inferred: the engine passes bh(attackRoll, defenceRoll), the chance with two accuracy rolls"],
+      "t": ["doubleRollShare","inferred: steady-state share of attacks made with the double roll (after a miss)"]
+    },
+    "EM": {
+      "e#1": ["attacker","engine: az(attackSetup.attacker, ...) in playerAttack/plan.js"],
+      "a#1": ["target","engine: attackSetup.target in playerAttack/plan.js"],
+      "t#1": ["formulaStyle","engine: attackSetup.formulaStyle in playerAttack/plan.js"],
+      "n#1": ["equipmentStats","engine: attackSetup.equipmentStats in playerAttack/plan.js"],
+      "s#1": ["prayerMultipliers","engine: attackSetup.prayerMultipliers in playerAttack/plan.js"],
+      "r": ["defenceStyle","engine: attackSetup.defenceStyle in playerAttack/plan.js"],
+      "i": ["rangedDefenceType","engine: attackSetup.rangedDefenceType in playerAttack/plan.js"],
+      "l": ["attackRoll","stored as { attackRoll }"],
+      "e#2": ["attacker","passed EM's attacker"],
+      "a#2": ["formulaStyle","passed EM's formulaStyle"],
+      "t#2": ["equipmentStats","passed EM's equipmentStats"],
+      "n#2": ["prayerMultipliers","passed EM's prayerMultipliers"],
+      "e#3": ["attacker","passed EM's attacker"],
+      "a#3": ["prayerMultipliers","passed EM's prayerMultipliers"],
+      "t#3": ["prayerScaledRanged","inferred: ranged level times the prayer multiplier, floored"],
+      "n#3": ["stanceBonus","inferred: +3 Accurate, read from attacker.stance"],
+      "s#2": ["voidMultiplier","inferred: 1.1 with a ranged void set, read from attacker.voidSet"],
+      "e#4": ["attacker","passed EM's attacker"],
+      "a#4": ["prayerMultipliers","passed EM's prayerMultipliers"],
+      "t#4": ["prayerScaledMagic","inferred: magic level times the prayer multiplier, floored"],
+      "n#4": ["stanceBonus","inferred: +3 Accurate, +1 Longrange, read from attacker.stance"],
+      "s#3": ["voidMultiplier","inferred: 1.45 with a magic void set, read from attacker.voidSet"],
+      "o": ["defenceRoll","stored as { defenceRoll }"]
+    },
+    "getNpcAttackAccuracy": {
+      "e": ["attacker","passed rollOptions.attacker by uT in shared/npcAttack.js"],
+      "a": ["target","passed rollOptions.target by uT in shared/npcAttack.js"],
+      "t": ["formulaStyle","caller: yama/boss.js passes its formulaStyle"],
+      "n": ["targetEquipmentStats","passed rollOptions.targetEquipmentStats by uT in shared/npcAttack.js"],
+      "s": ["targetPrayerMultipliers","passed rollOptions.targetPrayerMultipliers by uT in shared/npcAttack.js"],
+      "r": ["attackRoll","result of getNpcAttackRoll, first argument of getSingleRollHitChance"]
+    },
+    "getNpcAttackRoll": {
+      "e": ["attacker","caller: getNpcAttackRoll(attacker, \"ranged\") in inferno/zuk.js"],
+      "a": ["formulaStyle","inferred: same values as the engine's formulaStyle (melee_stab ... magic)"]
+    },
+    "getPlayerDefenceRoll": {
+      "e#1": ["target","caller: getPlayerDefenceRoll(target, \"ranged\", targetEquipmentStats, targetPrayerMultipliers) in inferno/zuk.js"],
+      "a#1": ["formulaStyle","inferred: same values as the engine's formulaStyle (melee_stab ... magic)"],
+      "t#1": ["targetEquipmentStats","caller: inferno/zuk.js"],
+      "n#1": ["targetPrayerMultipliers","caller: inferno/zuk.js"],
+      "s": ["effectiveDefenceLevel","inferred: effective level (prayer, stance bonus, +8) the defence roll multiplies"],
+      "e#2": ["target","passed getPlayerDefenceRoll's target"],
+      "a#2": ["targetPrayerMultipliers","passed getPlayerDefenceRoll's targetPrayerMultipliers"],
+      "t#2": ["prayerScaledMagic","inferred: magic level times the prayer multiplier, floored"],
+      "n#2": ["prayerScaledDefence","inferred: defence level times the prayer multiplier, floored"],
+      "e#3": ["target","passed getPlayerDefenceRoll's target"],
+      "a#3": ["targetPrayerMultipliers","passed getPlayerDefenceRoll's targetPrayerMultipliers"],
+      "e#4": ["formulaStyle","passed getPlayerDefenceRoll's formulaStyle"],
+      "a#4": ["targetEquipmentStats","passed getPlayerDefenceRoll's targetEquipmentStats"]
+    },
+    "jM": {
+      "e#1": ["target","engine: attackSetup.target, passed on by EM"],
+      "a#1": ["defenceStyle","engine: attackSetup.defenceStyle, passed on by EM"],
+      "t#1": ["rangedDefenceType","engine: attackSetup.rangedDefenceType, passed on by EM"],
+      "n": ["defendingLevel","inferred: the level the NPC defends with, magic against magic and defence otherwise"],
+      "e#2": ["defenceStyle","passed jM's defenceStyle"],
+      "a#2": ["rangedDefenceType","passed jM's rangedDefenceType"],
+      "t#2": ["defensiveBonuses","read from target.defensive"],
+      "e#3": ["rangedDefenceType","passed jM's rangedDefenceType"],
+      "a#3": ["defensiveBonuses","read from target.defensive"]
+    },
+    "getPrayerMultipliers": {
+      "e#1": ["activePrayer","engine: getPrayerMultipliers(planInput.player.activePrayer, planInput.player.offensivePrayer)"],
+      "a#1": ["offensivePrayer","engine: getPrayerMultipliers(planInput.player.activePrayer, planInput.player.offensivePrayer)"],
+      "e#2": ["prayers","inferred: the two prayer names, either may be null"],
+      "a#2": ["combinedMultipliers","inferred: the highest multiplier per stat so far, starts at neutralPrayerMultipliers"],
+      "t": ["prayer","element of prayers, key of the prayer table hf"],
+      "e#3": ["prayerMultipliers","inferred: the prayer's entry in the table hf"]
+    },
+    "getFormulaMaxHit": {
+      "e#1": ["attacker","engine: getFormulaMaxHit(attackSetup.attacker, attackSetup.formulaStyle, attackSetup.equipmentStats, attackSetup.prayerMultipliers)"],
+      "a#1": ["formulaStyle","engine: attackSetup.formulaStyle in playerAttack/plan.js"],
+      "t#1": ["equipmentStats","engine: attackSetup.equipmentStats in playerAttack/plan.js"],
+      "n#1": ["prayerMultipliers","engine: attackSetup.prayerMultipliers in playerAttack/plan.js"],
+      "e#2": ["attacker","passed getFormulaMaxHit's attacker"],
+      "a#2": ["formulaStyle","passed getFormulaMaxHit's formulaStyle"],
+      "e#3": ["attacker","passed getFormulaMaxHit's attacker"],
+      "a#3": ["formulaStyle","passed getFormulaMaxHit's formulaStyle"],
+      "t#2": ["equipmentStats","passed getFormulaMaxHit's equipmentStats"],
+      "n#2": ["prayerMultipliers","passed getFormulaMaxHit's prayerMultipliers"],
+      "e#4": ["attacker","passed getFormulaMaxHit's attacker"],
+      "a#4": ["prayerMultipliers","passed getFormulaMaxHit's prayerMultipliers"],
+      "t#3": ["meleeStrengthBonusPercent","read from attacker.meleeStrengthBonusPercent"],
+      "n#3": ["prayerScaledStrength","inferred: strength level times the prayer multiplier (plus the bonus percent), floored"],
+      "s#1": ["stanceBonus","inferred: +3 Aggressive, +1 Controlled, read from attacker.stance"],
+      "r#1": ["voidMultiplier","inferred: 1.1 with the melee void set, read from attacker.voidSet"],
+      "e#5": ["attacker","passed getFormulaMaxHit's attacker"],
+      "a#5": ["prayerMultipliers","passed getFormulaMaxHit's prayerMultipliers"],
+      "t#4": ["prayerScaledRanged","inferred: ranged (or rangedStrengthLevel) level times the prayer multiplier, floored"],
+      "n#4": ["stanceBonus","inferred: +3 Accurate, read from attacker.stance"],
+      "s#2": ["voidMultiplier","inferred: 1.125 elite, 1.1 normal ranged void set, read from attacker.voidSet"],
+      "a#6": ["magicBaseMaxHit","read from attacker.magicBaseMaxHit"],
+      "s#3": ["equipmentDamageBonus","inferred: equipmentStats.magicDamage percent as a fraction"],
+      "r#2": ["prayerDamageBonus","inferred: prayerMultipliers.magicDamage above 1"],
+      "i": ["voidDamageBonus","inferred: 0.05 with the elite magic void set"]
+    },
+    "VM": {
+      "e": ["effectiveLevel","inferred: callers pass level + 9 or the stance, prayer and void adjusted level"],
+      "a": ["strengthBonus","inferred: callers pass offensive.str, equipmentStats.meleeStrength, equipmentStats.rangedStrength"]
+    },
+    "vT": {
+      "e#1": ["player","engine: aA(planInput.player) in playerAttack/plan.js"],
+      "styles2": ["styles","read from VL(weapon).styles"],
+      "t": ["selectedStyle","indexed by player.selectedAttackStyleIndex"],
+      "e#2": ["combatStyle","passed selectedStyle.combatStyle"],
+      "e#3": ["unhandledCombatStyle","error string: Unhandled combat style"]
+    },
+    "getDrainedNpcFormulaStats": {
+      "e": ["npc","inferred: the NPC actor (.npcTypeId .formulaStats .debuffs); callers pass actor, attacker, target"]
+    },
+    "getPlayerFormulaStats": {
+      "e": ["player","caller: getPlayerFormulaStats(player) in yama/boss.js and inferno/zuk.js"]
+    }
+  },
+  "engine/projectiles.js": {
+    "KM": {
+      "e": ["weaponKind","inferred: melee, bow, thrown, magic or magic_slow; the engine passes n(weaponId, formulaStyle)"],
+      "a": ["distance","engine: aG(n(weaponId, formulaStyle), distance) in SimulationEngine.js"]
+    },
+    "getProjectileFlightCycles": {
+      "e": ["timing","caller: getProjectileFlightCycles(batProjectile.timing, distance) in inferno/bat.js"],
+      "a": ["distance","caller: getProjectileFlightCycles(batProjectile.timing, distance) in inferno/bat.js"]
+    },
+    "YM": {
+      "e": ["cycles","engine: av(projectileFlightCycles), av(startCycles) in playerAttack/launch.js"]
+    },
+    "getTicksFromCycles": {
+      "e": ["cycles","caller: getTicksFromCycles(endDelayCycles) in inferno/bat.js; named for the function"]
+    }
+  },
+  "encounters/shared/npcAttack.js": {
+    "uT": {
+      "e": ["rollOptions","the inlined counterpart in inferno/zuk.js names the same object rollOptions"],
+      "a": ["targetEquipmentStats","read from rollOptions.targetEquipmentStats"],
+      "t": ["targetPrayerMultipliers","read from rollOptions.targetPrayerMultipliers"],
+      "n": ["accuracy","stored as { accuracy }"],
+      "s": ["maxHit","stored as { maxHit }"],
+      "r": ["decisions","read from rollOptions.labelled.decisions"],
+      "i": ["decisionKey","read from rollOptions.labelled.key"]
+    },
+    "getDistanceFromNpcCentre": {
+      "e": ["attacker","passed rollNpcAttack's attacker through kT; callers pass the attacking actor"],
+      "a": ["target","caller: getDistanceFromNpcCentre(actor, target) in inferno/jad.js"],
+      "t": ["centreX","inferred: x of the NPC's centre tile, named for the function"],
+      "n": ["centreY","inferred: y of the NPC's centre tile, named for the function"]
+    },
+    "kT": {
+      "e": ["attacker","caller: kT(attacker, target, plan.projectile) in rollNpcAttack"],
+      "a": ["target","caller: kT(attacker, target, plan.projectile) in rollNpcAttack"],
+      "t": ["timing","passed as getProjectileFlightCycles's timing; read from plan.projectile"]
+    },
+    "rollNpcAttack": {
+      "e#1": ["attackOptions","inferred: { attacker, target, plan, random, labelled }"],
+      "r": ["attackerFormulaStats","callers name getDrainedNpcFormulaStats's result formulaStats (yama/boss.js, inferno/zuk.js)"],
+      "i": ["labelledOptions","inferred: { labelled } to spread into the roll options, or nothing"],
+      "l": ["rolledAttack","inferred: accuracy and damage rolled by uT; inferno/zuk.js calls its counterpart blastRoll"],
+      "e#2": ["rollOptions","same shape as uT's rollOptions, target still an NPC actor"],
+      "a": ["targetFormulaStats","result of getDrainedNpcFormulaStats(rollOptions.target), stored as { target }"]
+    },
+    "isNpcInAttackRange": {
+      "e": ["attacker","caller: isNpcInAttackRange(attacker, target, ...) in inferno/monsterHelpers.js"],
+      "a": ["target","caller: isNpcInAttackRange(attacker, target, ...) in inferno/monsterHelpers.js"],
+      "t": ["attackRange","stored as { attackRange }"]
+    }
+  },
+  "encounters/shared/npcMovement.js": {
+    "BT": {
+      "e#1": ["destinationFootprint","inferred: canFootprintStepInArena builds it as { southWest: toTile, width, height }"],
+      "a#1": ["direction","inferred: the [dx, dy] of the step, one of them 0"],
+      "r": ["dx","inferred: x component of the step direction"],
+      "i": ["dy","inferred: y component of the step direction"],
+      "l": ["edgeMasks","inferred: the table for this direction, read as .single .start .middle .end"],
+      "e#2": ["dx","inferred: same value as the outer dx"],
+      "a#2": ["dy","inferred: same value as the outer dy"],
+      "o": ["isHorizontalStep","inferred: dy === 0"],
+      "d": ["edgeLength","inferred: number of tiles on the footprint's leading edge (height or width)"],
+      "g": ["edgeStartX","inferred: x of the first tile of the leading edge"],
+      "c": ["edgeStartY","inferred: y of the first tile of the leading edge"],
+      "m": ["collisionMap","result of getArenaCollisionMap(); inferno/monsterHelpers.js names it collisionMap"],
+      "e#3": ["edgeIndex","inferred: position along the leading edge, picks start/middle/end"],
+      "a#3": ["x","inferred: tile coordinate, passed to isArenaTileWalkable and hasFlag"],
+      "t": ["y","inferred: tile coordinate, passed to isArenaTileWalkable and hasFlag"],
+      "n": ["blockFlags","inferred: a CollisionFlag.BLOCK_* value from the table, passed to hasFlag"]
+    },
+    "WT": {
+      "e#1": ["fromTile","canFootprintStepInArena passes its fromTile; sol-heredit/boss.js canStep: (fromTile, toTile, size)"],
+      "a#1": ["destinationFootprint","inferred: canFootprintStepInArena builds it as { southWest: toTile, width, height }"],
+      "t#1": ["direction","inferred: the [dx, dy] of the diagonal step"],
+      "i": ["dx","inferred: x component of the step direction"],
+      "l": ["dy","inferred: y component of the step direction"],
+      "o": ["diagonalMasks","inferred: the table for this diagonal, read as .corner .horizontalStrip .verticalStrip .xIntermediate .yIntermediate"],
+      "e#2": ["dx","inferred: same value as the outer dx"],
+      "a#2": ["dy","inferred: same value as the outer dy"],
+      "d": ["collisionMap","result of getArenaCollisionMap(); inferno/monsterHelpers.js names it collisionMap"],
+      "g": ["isTileUnblocked","inferred: walkable and none of the given block flags set"],
+      "e#3": ["x","inferred: tile coordinate, passed to isArenaTileWalkable and hasFlag"],
+      "a#3": ["y","inferred: tile coordinate, passed to isArenaTileWalkable and hasFlag"],
+      "t#2": ["blockFlags","inferred: a CollisionFlag.BLOCK_* value from the table, passed to hasFlag"],
+      "c": ["cornerX","tested with diagonalMasks.corner"],
+      "m": ["cornerY","tested with diagonalMasks.corner"],
+      "e#4": ["columnOffset","inferred: columns back from the leading corner along the horizontal strip"],
+      "e#5": ["rowOffset","inferred: rows back from the leading corner along the vertical strip"]
+    },
+    "canFootprintStepInArena": {
+      "e#1": ["fromTile","sol-heredit/boss.js canStep: (fromTile, toTile, size); minions.js passes (currentTile, nextTile, ...)"],
+      "a#1": ["toTile","sol-heredit/boss.js canStep: (fromTile, toTile, size); minions.js passes (currentTile, nextTile, ...)"],
+      "t#1": ["footprintDimensions","inferred: callers pass { width: size, height: size }"],
+      "r": ["dx","inferred: toTile x minus fromTile x"],
+      "i": ["dy","inferred: toTile y minus fromTile y"],
+      "e#2": ["toTile","same value as the outer toTile"],
+      "a#2": ["width","same value as the outer width"],
+      "t#2": ["height","same value as the outer height"],
+      "n": ["bounds","result of getArenaBounds(); read as .minX .minY .maxX .maxY"],
+      "l": ["destinationFootprint","inferred: { southWest: toTile, width, height }, the footprint after the step"]
+    },
+    "isArenaFootprintWalkable": {
+      "e": ["southWestTile","used as canOccupy; yama/YamaEncounter.js canOccupy: (southWestTile, size)"],
+      "a": ["size","callers: isArenaFootprintWalkable(tile, size)"],
+      "t": ["x","inferred: tile coordinate, passed to isInsideArenaBounds and isArenaTileWalkable"],
+      "n": ["y","inferred: tile coordinate, passed to isInsideArenaBounds and isArenaTileWalkable"]
+    },
+    "getNpcPursuitMoves": {
+      "e#1": ["actor","stored as { actorId: actor.id } in the decision site; callers pass (actor, context)"],
+      "a#1": ["context","callers: getNpcPursuitMoves(actor, context); reads .tick .world"],
+      "t#1": ["targetOverride","inferred: used instead of the combat target; inferno/jad.js passes supportTarget"],
+      "n#1": ["combatTarget","read from world.actors by actor.combat.targetId"],
+      "s#1": ["target","stored as { targetId: target.id }"],
+      "r#1": ["isOverlappingTarget","result of areFootprintsOverlapping(actor, target); decision site npc.movement.overlap_escape"],
+      "i#1": ["isStepUnblocked","sol-heredit/boss.js names createOccupancyStepCheck's result isStepUnblocked"],
+      "l#1": ["canStepTo","inferred: arena collision and NPC occupancy allow the step"],
+      "a#2": ["toTile","passed as canFootprintStepInArena's toTile"],
+      "t#2": ["escapeDirection","decision site \"npc.movement.overlap_escape\"; one of the four cardinal [dx, dy]"],
+      "n#2": ["escapeTile","inferred: the tile one step in escapeDirection"],
+      "o#1": ["destinationTile","inferred: the tile beside the target's footprint the NPC walks toward"],
+      "e#2": ["actor","same value as the outer actor"],
+      "a#3": ["target","same value as the outer target"],
+      "t#3": ["dx","inferred: actor x minus target x"],
+      "n#3": ["dy","inferred: actor y minus target y"],
+      "s#2": ["diagonalSum","inferred: dx + dy, the side of the target's falling diagonal"],
+      "r#2": ["diagonalDifference","inferred: dx - dy, the side of the target's rising diagonal"],
+      "i#2": ["inNorthWestHalf","inferred: dy > dx; with not inNorthEastHalf the NPC is west of the target"],
+      "l#2": ["inNorthEastHalf","inferred: dx + dy at or past the size difference; with not inSouthEastHalf the NPC is north"],
+      "o#2": ["inSouthEastHalf","inferred: dx > dy; with not inSouthWestHalf the NPC is east"],
+      "d#1": ["inSouthWestHalf","inferred: dx + dy at or below the size difference"],
+      "g#1": ["targetX","destructured from target.position"],
+      "c#1": ["targetY","destructured from target.position"],
+      "t#4": ["westOffsetY","inferred: y offset from targetY of the tile on the target's west side"],
+      "t#5": ["eastOffsetY","inferred: y offset from targetY of the tile on the target's east side"],
+      "d#2": ["stepX","inferred: sign of the x distance to destinationTile"],
+      "g#2": ["stepY","inferred: sign of the y distance to destinationTile"],
+      "c#2": ["nextTile","inferred: first of the diagonal, x-only and y-only tiles that can be stepped to; returned as { path }"]
+    }
+  },
+  "encounters/shared/npcDefinitions.js": {
+    "defineNpc": {
+      "e#1": ["options","inferred: the object literal encounters pass (id, hooks, deathPolicy, spawnUntargetableTicks)"],
+      "a#1": ["identity","returned as { identity }; stored on actors as definition"],
+      "t#1": ["isActor","returned as { isActor }"],
+      "e#2": ["actor","inferred: reads .definition .state; hooks store it as { actor }"],
+      "n#1": ["spawnUntargetableTicks","read from options.spawnUntargetableTicks; named in the error string"],
+      "s#1": ["buildUntargetableWindow","inferred: returns { targetableFromTick }; error string says \"untargetable window\""],
+      "a#2": ["baseActor","createActor passes its baseActor"],
+      "t#2": ["baseActor","callers: definition.createActor(baseActor, { ... })"],
+      "n#2": ["state","stored as { state }"],
+      "e#3": ["actor","inferred: callers pass npc, boss, jad; isActor(actor)"],
+      "a#3": ["config","stored as { config }"],
+      "n#3": ["buildHook","inferred: builds the { actor, config, context } object every hook receives"],
+      "e#4": ["actor","stored as { actor }"],
+      "n#4": ["context","stored as { context }"],
+      "a#4": ["actor","passed to buildHook as actor; engine passes targetNpc"],
+      "t#3": ["damage","stored as { damage }; engine passes hit"],
+      "s#2": ["context","passed to buildHook as context; engine: this.buildNpcDefinitionContext()"],
+      "r#1": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#5": ["actor","passed to buildHook as actor; engine passes actor"],
+      "t#4": ["defeat","stored as { defeat }; engine passes defeat"],
+      "s#3": ["ownership","stored as { ownership }; engine passes this.completionOwnership"],
+      "r#2": ["context","passed to buildHook as context; engine: this.buildNpcDefinitionContext()"],
+      "i": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#6": ["actor","passed to buildHook as actor; engine passes npc"],
+      "t#5": ["context","passed to buildHook as context; engine: this.buildNpcDefinitionContext()"],
+      "s#4": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#7": ["actor","passed to buildHook as actor; engine passes npc"],
+      "t#6": ["context","passed to buildHook as context; reads .tick"],
+      "s#5": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#8": ["actor","passed to buildHook as actor; engine passes npc"],
+      "t#7": ["context","passed to buildHook as context; reads .tick"],
+      "s#6": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#9": ["actor","passed to buildHook as actor; engine passes npc"],
+      "t#8": ["context","passed to buildHook as context; engine: this.buildNpcDefinitionContext()"],
+      "s#7": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#10": ["actor","passed to buildHook as actor and to getNpcPursuitMoves(actor, context)"],
+      "t#9": ["context","passed to buildHook as context and to getNpcPursuitMoves(actor, context)"],
+      "s#8": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#11": ["actor","passed to buildHook as actor; yama: npcDefinitions.tick(npc, ...)"],
+      "t#10": ["context","passed to buildHook as context"],
+      "s#9": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#12": ["actor","passed to buildHook as actor; yama: npcDefinitions.postTick(boss, ...)"],
+      "t#11": ["context","passed to buildHook as context"],
+      "s#10": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#13": ["actor","passed to buildHook as actor; yama: npcDefinitions.resolveLocalEffects(npc, definitionContext)"],
+      "t#12": ["context","passed to buildHook as context"],
+      "s#11": ["hook","inferred: the { actor, config, context } object passed to the hook"],
+      "a#14": ["actor","passed to buildHook as actor; engine passes npc"],
+      "t#13": ["context","passed to buildHook as context; engine: this.buildNpcDefinitionContext()"],
+      "s#12": ["hook","inferred: the { actor, config, context } object passed to the hook"]
+    },
+    "NpcDefinitionRegistry.constructor": {
+      "e": ["registrations","callers: new NpcDefinitionRegistry([definition.register(config), ...]); kept as this.registrations"],
+      "a": ["registrationsById","assigned to this.registrations; keyed by definitionId"],
+      "t": ["registration","element of registrations; reads .definitionId"]
+    },
+    "NpcDefinitionRegistry.uy": {
+      "e": ["actor","its id is stored as actorId by the mismatch error; passed to registration.isActor"]
+    },
+    "NpcDefinitionRegistry.notifyDamageResolved": {
+      "e": ["actor","passed on as registration.notifyDamageResolved's actor; engine passes targetNpc"],
+      "a": ["damage","passed on as registration.notifyDamageResolved's damage (stored as { damage }); engine passes hit"],
+      "t": ["context","engine: this.buildNpcDefinitionContext()"]
+    },
+    "NpcDefinitionRegistry.notifyDefeated": {
+      "e": ["actor","engine: notifyDefeated(actor, defeat, this.completionOwnership, context)"],
+      "a": ["defeat","engine: notifyDefeated(actor, defeat, this.completionOwnership, context)"],
+      "t": ["ownership","stored by the hook as { ownership }; engine passes this.completionOwnership"],
+      "n": ["context","engine: this.buildNpcDefinitionContext()"]
+    },
+    "NpcDefinitionRegistry.notifyDespawn": {
+      "e": ["actor","passed on as registration.notifyDespawn's actor; engine passes npc"],
+      "a": ["context","engine: this.buildNpcDefinitionContext()"]
+    },
+    "NpcDefinitionRegistry.notifyDeathStarted": {
+      "e": ["actor","passed on as registration.notifyDeathStarted's actor; engine passes npc"],
+      "a": ["context","engine: this.buildNpcDefinitionContext()"]
+    },
+    "NpcDefinitionRegistry.notifyDeathAnimation": {
+      "e": ["actor","passed on as registration.notifyDeathAnimation's actor; engine passes npc"],
+      "a": ["context","engine: this.buildNpcDefinitionContext()"]
+    },
+    "NpcDefinitionRegistry.releaseOnDeathAnimation": {
+      "e": ["actor","passed on as registration.releaseOnDeathAnimation's actor; engine passes npc"],
+      "a": ["context","engine: this.buildNpcDefinitionContext()"]
+    },
+    "NpcDefinitionRegistry.move": {
+      "e": ["actor","passed on as registration.move's actor; engine passes npc"],
+      "a": ["context","engine: this.buildNpcDefinitionContext()"]
+    },
+    "NpcDefinitionRegistry.tick": {
+      "e": ["actor","passed on as registration.tick's actor; yama passes npc"],
+      "a": ["context","yama: this.buildNpcDefinitionContext(context)"]
+    },
+    "NpcDefinitionRegistry.postTick": {
+      "e": ["actor","passed on as registration.postTick's actor; yama passes boss"],
+      "a": ["context","yama: this.buildNpcDefinitionContext(context)"]
+    },
+    "NpcDefinitionRegistry.resolveLocalEffects": {
+      "e": ["actor","passed on as registration.resolveLocalEffects's actor; yama passes npc"],
+      "a": ["context","yama passes definitionContext"]
+    },
+    "NpcDefinitionRegistry.attackTimer": {
+      "e": ["actor","passed on as registration.attackTimer's actor; engine passes npc"],
+      "a": ["context","engine: this.buildNpcDefinitionContext()"]
+    },
+    "GT.constructor": {
+      "e": ["definitionId","stored as this.definitionId"]
+    },
+    "UT.constructor": {
+      "e": ["actorId","stored as this.actorId"],
+      "a": ["definitionId","stored as this.definitionId"]
+    }
+  },
+  "encounters/shared/npcRoutes.js": {
+    "CO": {
+      "e": ["rangeMin","inferred: low end of the interval; callers pass the footprint's south-west coordinate"],
+      "a": ["rangeMax","inferred: high end of the interval; callers pass south-west + size - 1"],
+      "t": ["coordinate","inferred: the x or y whose distance to the interval is returned"]
+    },
+    "isTileInFootprint": {
+      "e": ["southWestTile","inferred: the footprint's south-west tile (callers pass actor.position); yama names it southWestTile in canOccupy"],
+      "a": ["size","callers pass actor.size"],
+      "t": ["tile","inferred: the tile tested; callers pass player.position, destination"]
+    },
+    "BO": {
+      "e": ["southWestTile","inferred: the footprint's south-west tile, as in isTileInFootprint"],
+      "a": ["size","findNpcRoute passes its size"],
+      "t": ["tile","inferred: the tile tested for being one cardinal step from the footprint; findNpcRoute passes destination"]
+    },
+    "WO": {
+      "e": ["windowX","inferred: x inside the 128-wide search window"],
+      "a": ["windowY","inferred: y inside the 128-wide search window"]
+    },
+    "RO": {
+      "e#1": ["endIndex","inferred: window cell the path ends on; walked back to searchTree.startIndex"],
+      "a": ["searchTree","inferred: { startIndex, parents, base } of the breadth-first search"],
+      "t": ["steps","returned and stored by findNpcRoute as { steps }"],
+      "n": ["cellIndex","inferred: window cell being walked back through parents"],
+      "e#2": ["windowX","inferred: x inside the search window, cellIndex / 128"],
+      "s": ["windowY","inferred: y inside the search window, cellIndex % 128"]
+    },
+    "findNpcRouteToMeleeRange": {
+      "e": ["pathRequest","sol-heredit/minions.js: findNpcRoute(pathRequest, \"tile\")"]
+    },
+    "findNpcRoute": {
+      "e#1": ["pathRequest","sol-heredit/minions.js: findNpcRoute(pathRequest, \"tile\")"],
+      "a#1": ["goal","inferred: \"tile\" to stand on the destination, \"melee\" to stand next to it"],
+      "i#1": ["baseTile","stored as { base }; the search window's south-west tile"],
+      "l#1": ["startIndex","stored as { startIndex }"],
+      "o#1": ["parents","stored as { parents }"],
+      "d#1": ["stepCounts","inferred: steps from the start per window cell, -1 when not reached"],
+      "g#1": ["queue","inferred: the breadth-first queue of window cells"],
+      "c#1": ["queueHead","inferred: next queue position to read"],
+      "m#1": ["queueTail","inferred: next queue position to write"],
+      "h#1": ["maxWindowCoordinate","inferred: 128 - size, the last window coordinate the footprint fits at"],
+      "f#1": ["footprintDimensions","passed as canFootprintStepInArena's footprintDimensions"],
+      "u#1": ["searchTree","inferred: { startIndex, parents, base }, passed to the path builder"],
+      "t#1": ["cellIndex","inferred: window cell taken from the queue"],
+      "l#2": ["windowX","inferred: x inside the search window"],
+      "v#1": ["windowY","inferred: y inside the search window"],
+      "p": ["currentTile","sol-heredit/minions.js names the same pair currentTile, nextTile"],
+      "u#2": ["nextWindowX","inferred: window x after the step"],
+      "k": ["nextWindowY","inferred: window y after the step"],
+      "S": ["nextIndex","inferred: window cell after the step"],
+      "b": ["nextTile","sol-heredit/minions.js names the same pair currentTile, nextTile"],
+      "v#2": ["nearestIndex","inferred: reached cell closest to the destination (request.moveNear); returned as kind \"alternative\""],
+      "e#2": ["pathRequest","same value as the outer pathRequest"],
+      "a#2": ["baseTile","same value as the outer baseTile"],
+      "t#2": ["stepCounts","inferred: same value as the outer stepCounts"],
+      "n": ["destination","destructured key destination"],
+      "s": ["size","destructured key size"],
+      "r#1": ["destinationWindowX","inferred: destination x inside the search window"],
+      "i#2": ["destinationWindowY","inferred: destination y inside the search window"],
+      "l#3": ["bestIndex","inferred: closest reached cell so far; returned"],
+      "o#2": ["bestDistanceSquared","inferred: squared distance of bestIndex to the destination"],
+      "d#2": ["bestStepCount","inferred: route length of bestIndex, the tie-break"],
+      "e#3": ["windowX","inferred: x inside the search window, within 10 of the destination"],
+      "r#2": ["windowY","inferred: y inside the search window, within 10 of the destination"],
+      "i#3": ["cellIndex","inferred: window cell of the candidate"],
+      "g#2": ["stepCount","inferred: route length to the candidate, read from stepCounts"],
+      "c#2": ["tileX","inferred: world x of the candidate tile"],
+      "m#2": ["tileY","inferred: world y of the candidate tile"],
+      "h#2": ["dx","inferred: x distance from the candidate to the destination"],
+      "f#2": ["dy","inferred: y distance from the candidate to the destination"],
+      "u#3": ["distanceSquared","inferred: dx * dx + dy * dy"]
+    },
+    "isTileUnderFootprint": {
+      "e": ["southWestTile","passed as isTileInFootprint's southWestTile; callers pass actor.position, bossSW"],
+      "a": ["size","passed as isTileInFootprint's size"],
+      "t": ["tile","passed as isTileInFootprint's tile; callers pass target.position"]
+    },
+    "UO": {
+      "e": ["unhandledResult","error string \"Unhandled NPC route result\""]
+    },
+    "getBossPursuitMoves": {
+      "e#1": ["boss","stored as { bossSW: boss.position }; callers pass actor, npc"],
+      "a": ["playerTile","stored as { player }; yama passes context.playerPos, sol passes target.position"],
+      "t": ["random","stored as { rng }; sol passes context.random"],
+      "n#1": ["pursuitMovement","yama passes yamaPursuitMovement; reads .size .maxSpeed .canOccupy .canStep .underFootprint .unreachable"],
+      "s#1": ["path","stored as { path }"],
+      "e#2": ["pursuit","inferred: { bossSW, size, player, rng, maxSpeed, ... } for this tick's pursuit"],
+      "player": ["playerTile","inferred: a tile [x, y], not the player actor; passed as isTileUnderFootprint's tile and as destination"],
+      "s#2": ["random","destructured key rng; a random function called for the direction"],
+      "e#3": ["isHorizontalStep","inferred: half the time the step out is along x"],
+      "n#2": ["stepDelta","inferred: +1 or -1 on the chosen axis"],
+      "r": ["escapeTile","inferred: the tile one cardinal step away the boss moves to from over its target"],
+      "g": ["route","result of findNpcRouteToMeleeRange; error string \"Unhandled NPC route result\""]
+    }
+  },
+  "encounters/shared/npcHelpers.js": {
+    "buildActorVisualTarget": {
+      "e": ["actor","stored as { actorId: actor.id }"]
+    },
+    "getProjectileSourcePosition": {
+      "e": ["projectileSource","caller: blob.js passes projectileSource through buildNpcProjectileVisual; stored as { sourcePosition }"],
+      "a": ["centreOffset","inferred: from the south-west corner to the middle of the centre tile"]
+    },
+    "scheduleNextActionTick": {
+      "e": ["combat","caller: scheduleNextActionTick(actor.combat, context.tick, 3) in inferno/bat.js"],
+      "a": ["tick","caller: context.tick"],
+      "t": ["delayTicks","inferred: ticks until the next action; callers pass 3, 4, 8 or the attack speed"]
+    },
+    "faceActorToward": {
+      "e": ["actor","caller: faceActorToward(actor, target) in inferno/jad.js"],
+      "a": ["target","caller: faceActorToward(actor, target) in inferno/jad.js"],
+      "t": ["dx","inferred: x from the actor's centre to the target's centre"],
+      "n": ["dy","inferred: y from the actor's centre to the target's centre"]
+    },
+    "buildNpcProjectileVisual": {
+      "e": ["attacker","passed as getDistanceFromNpcCentre's attacker; callers pass actor"],
+      "a": ["target","caller: buildNpcProjectileVisual(actor, target, batProjectile, endDelayCycles) in inferno/bat.js"],
+      "t": ["projectile","caller: buildNpcProjectileVisual(actor, target, projectile, projectileArrivalCycles, projectileSource) in inferno/blob.js"],
+      "n": ["endDelayCycles","stored as { endDelayCycles }"],
+      "s": ["projectileSource","caller: inferno/blob.js"]
+    },
+    "healNpc": {
+      "e": ["npc","inferred: named for the function; callers pass target"],
+      "a": ["amount","caller: healNpc(target, pendingHeal.amount, context.tickEvents) in inferno/zukHealers.js"],
+      "t": ["tickEvents","caller: context.tickEvents"],
+      "n": ["healedAmount","inferred: the amount capped at the missing hitpoints; stored as { amount }"]
+    }
+  }
+}

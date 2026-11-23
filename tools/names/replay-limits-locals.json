@@ -1,0 +1,23 @@
+{
+  "engine/logEventTypes.js": {
+    "LogEventType": {
+      "e": ["types", "inferred: the object the type names are set on, which becomes `LogEventType`"]
+    }
+  },
+  "engine/replayLimits.js": {
+    "ReplaySafetyError.constructor": {
+      "e": ["reason", "stored as `this.reason`"],
+      "a": ["details", "stored as `this.details`"]
+    },
+    "JR": {
+      "e": ["cycle", "rendering.js passes `startCycle`, `endCycleExclusive` and `this.cycle`; Grid.js passes 30 times a tick"]
+    },
+    "QR": {
+      "e#1": ["position", "Grid.js passes `position`, `previousPosition`, `sourcePosition`, `targetPosition`"],
+      "e#2": ["coordinate", "inferred: an element of the position, tested for being a finite number of at most a million"]
+    },
+    "eP": {
+      "e": ["size", "Grid.js passes `size`, `primaryNpcSize`, `targetSize`"]
+    }
+  }
+}

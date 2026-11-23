@@ -1,0 +1,19 @@
+{
+  "util/logger.js": {
+    "(anonymous class)": {
+      "zd": ["readUrlParams", "the logger's help text: \"URL params: ?logLevel=debug&logCategories=Cache,Renderer\"; it reads both from `window.location.search`. Census: defined by this class only; one access in logger.js (the constructor), two in the shared scenarios"],
+      "Ld": ["getLevelName", "its result is shown under the key `level` of `window.__log`; it returns the key of the table of level names whose number is `this.level`, or \"unknown\"; \"name\" is inferred. Census: defined by this class only; two accesses, both in logger.js"],
+      "Dd": ["getLevel", "returns `this.level`. Census: defined by this class only; no access in the client, two in the shared scenarios"],
+      "Id": ["setErrorSink", "sets `this.errorSink`. Census: defined by this class only; no access in the client, three in the shared scenarios"],
+      "Wd": ["getBreadcrumbs", "returns `this.breadcrumbs`. Census: defined by this class only; no access in the client, six in the shared scenarios"],
+      "Hd": ["addBreadcrumb", "pushes `{ level, category, message, at }` onto `this.breadcrumbs` and keeps the last 30; \"add\" is inferred. Census: defined by this class only; three accesses, all `this.Hd` in logger.js"],
+      "Rd": ["clearBreadcrumbs", "sets `this.breadcrumbs.length = 0`. Census: defined by this class only; no access in the client, four in the shared scenarios"],
+      "Td": ["shouldLog", "inferred: the test every log method and `isEnabled` make before they print: the level against `this.level`, the category against `disabledCategories` and `enabledCategories`. Census: defined by this class only; six accesses, all `this.Td` in logger.js"]
+    }
+  },
+  "assets/rendering.js": {
+    "Em": {
+      "Xh": ["isWearable", "true when the item type has a `wearPos1`, a `maleModel0` or a `femaleModel0`; SimulationEngine.getEquipmentSlotForItem asks it before it maps `wearPos1` to an equipment slot, and isAmmoSlotItem before it tests `wearPos1` for 13; \"wearable\" is inferred from `wearPos1`. Census: defined by this class only; two accesses, both in engine/SimulationEngine.js on what `objTypeLoader.load(itemId)` returns"]
+    }
+  }
+}

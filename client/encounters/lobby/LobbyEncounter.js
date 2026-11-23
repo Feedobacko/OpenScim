@@ -1,0 +1,152 @@
+import { extendLobbyArena } from "/lobby/gateways.js";
+import { lobbyNpcs } from "./lobbyNpcs.js";
+import { CollisionFlag } from "../../engine/collision.js";
+import { activeOutcome } from "../shared/npcHelpers.js";
+var LobbyEncounter = class {
+  kind = "lobby";
+  getDefaultPlayerStart() {
+    return [31, 25];
+  }
+  getIntroConfig() {
+    return {
+      facingAngle: 1024,
+      animationSeqId: 12152,
+    };
+  }
+  createNpcs(startPosition) {
+    return [];
+  }
+  reset(seeds) {}
+  getSeeds() {
+    return {};
+  }
+  resolveHazards(context, mechanics) {
+    return [];
+  }
+  processPostTick(context, mechanics) {
+    return [];
+  }
+  getSnapshot() {
+    return {
+      kind: "lobby",
+      state: {},
+      visuals: {},
+    };
+  }
+  getOutcome() {
+    return activeOutcome;
+  }
+  getDefaultMechanicsConfig() {
+    return {
+      infiniteHealth: false,
+    };
+  }
+  getNpcDamageSourceLabel() {
+    return "NpcAttack";
+  }
+  getArenaConfig() {
+    if (lobbyArenaCache) {
+      return lobbyArenaCache;
+    }
+    const walkableTiles = new Set();
+    const flags = new Int32Array(4096);
+    for (let x = 0; x < lobbyGridSize; x++) {
+      for (let y = 0; y < lobbyGridSize; y++) {
+        const dx = x + 0.5 - lobbyCenterX;
+        const dy = y + 0.5 - lobbyCenterY;
+        if (Math.sqrt(dx * dx + dy * dy) <= lobbyRadius) {
+          walkableTiles.add(`${x},${y}`);
+        }
+      }
+    }
+    const blockTile = (x, y) => {
+      const tileX = Math.floor(x);
+      const tileY = Math.floor(y);
+      if (tileX >= 0 && tileX < lobbyGridSize && tileY >= 0 && tileY < lobbyGridSize) {
+        flags[tileX + tileY * lobbyGridSize] |= CollisionFlag.OBJECT;
+        walkableTiles.delete(`${tileX},${tileY}`);
+      }
+    };
+    const blockDisc = (centerX, centerY, radius) => {
+      const fromX = Math.floor(centerX - radius);
+      const toX = Math.floor(centerX + radius);
+      const fromY = Math.floor(centerY - radius);
+      const toY = Math.floor(centerY + radius);
+      for (let x = fromX; x <= toX; x++) {
+        for (let y = fromY; y <= toY; y++) {
+          const dx = x + 0.5 - centerX;
+          const dy = y + 0.5 - centerY;
+          if (dx * dx + dy * dy <= radius * radius) {
+            blockTile(x, y);
+          }
+        }
+      }
+    };
+    for (let index = 0; index < 8; index++) {
+      const angle = (index / 8) * Math.PI * 2 + Math.PI / 8;
+      blockDisc(lobbyCenterX + Math.cos(angle) * 11, lobbyCenterY + Math.sin(angle) * 11, 0.7);
+    }
+    for (const lobbyNpc of lobbyNpcs) {
+      blockDisc(lobbyNpc.position[0] + 1.5, lobbyNpc.position[1] + 1.5, 2.3);
+    }
+    extendLobbyArena(walkableTiles, blockTile);
+    const collisionMap = {
+      sizeX: lobbyGridSize,
+      sizeY: lobbyGridSize,
+      flags: flags,
+      getFlag: (x, y) =>
+        x < 0 || x >= lobbyGridSize || y < 0 || y >= lobbyGridSize ? -1 : flags[x + y * lobbyGridSize],
+      hasFlag(x, y, mask) {
+        const flag = this.getFlag(x, y);
+        return flag !== -1 && (flag & mask) !== 0;
+      },
+      flag(x, y, mask) {
+        if (x >= 0 && x < lobbyGridSize && y >= 0 && y < lobbyGridSize) {
+          flags[x + y * lobbyGridSize] |= mask;
+        }
+      },
+      unflag(x, y, mask) {
+        if (x >= 0 && x < lobbyGridSize && y >= 0 && y < lobbyGridSize) {
+          flags[x + y * lobbyGridSize] &= ~mask;
+        }
+      },
+    };
+    let minX = lobbyGridSize;
+    let maxX = 0;
+    let minY = lobbyGridSize;
+    let maxY = 0;
+    for (const tileKey of walkableTiles) {
+      const [x, y] = tileKey.split(",").map(Number);
+      if (x < minX) {
+        minX = x;
+      }
+      if (x > maxX) {
+        maxX = x;
+      }
+      if (y < minY) {
+        minY = y;
+      }
+      if (y > maxY) {
+        maxY = y;
+      }
+    }
+    return (lobbyArenaCache = {
+      bounds: {
+        minX: minX,
+        maxX: maxX,
+        minY: minY,
+        maxY: maxY,
+        width: maxX - minX + 1,
+        height: maxY - minY + 1,
+      },
+      walkableTiles: walkableTiles,
+      collisionMap: collisionMap,
+    });
+  }
+};
+var lobbyCenterX = 31.5;
+var lobbyCenterY = 25.5;
+var lobbyRadius = 16;
+var lobbyGridSize = 64;
+var lobbyArenaCache = null;
+export { LobbyEncounter };

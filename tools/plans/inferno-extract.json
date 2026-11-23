@@ -1,0 +1,21 @@
+{
+  "client/encounters/inferno/constants.js": ["GD", "UD", "jD", "OD", "$D", "VD", "aH", "tH", "nH", "sH", "rH", "iH", "lH", "oH", "gH", "cH", "mH", "hH", "fH", "uH", "vH", "pH", "kH", "SH", "bH", "yH", "zH", "wH", "AH", "LH", "DH", "HH", "MH", "TH"],
+  "client/encounters/inferno/actors.js": ["LC", "DC", "HC", "MC", "TC", "IC", "AG"],
+  "client/encounters/inferno/monsterHelpers.js": ["LM", "HM", "bT", "xx", "Bx", "yG", "MG", "xG", "UG"],
+  "client/encounters/inferno/pillars.js": ["jT", "OT", "$T", "VT", "qT", "ZT", "YT", "XT", "JT", "QT", "eI"],
+  "client/encounters/inferno/waves.js": ["iI", "lI", "oI", "dI", "gI", "HI", "oU", "fj", "uj", "vj", "pj"],
+  "client/encounters/inferno/controls.js": ["BH", "rI", "jI", "OI", "$I", "VI", "KI", "qI", "ZI", "YI", "QI", "eC", "aC", "tC"],
+  "client/encounters/inferno/bat.js": ["CG", "jG"],
+  "client/encounters/inferno/blob.js": ["OG", "$G", "VG", "KG", "qG", "ZG", "YG", "XG", "JG", "QG"],
+  "client/encounters/inferno/meleer.js": ["jH", "mU", "hU", "fU", "uU", "vU"],
+  "client/encounters/inferno/nibbler.js": ["pU", "kU"],
+  "client/encounters/inferno/mager.js": ["TG", "IG", "WG", "RG", "PG", "bU", "yU", "zU", "wU", "AU", "LU", "DU", "MU", "TU", "IU", "xU", "BU"],
+  "client/encounters/inferno/ranger.js": ["HU", "CU", "WU"],
+  "client/encounters/inferno/jad.js": ["zT", "BG", "aU", "tU", "nU", "sU", "rU", "iU", "lU", "dU", "gU", "cU"],
+  "client/encounters/inferno/waveMonsters.js": ["SU", "RU", "PU", "_U", "FU", "kj", "Sj", "bj", "yj"],
+  "client/encounters/inferno/zuk.js": ["EU", "NU", "GU", "VU", "KU", "qU", "ZU", "YU"],
+  "client/encounters/inferno/zukSetClock.js": ["XU", "JU"],
+  "client/encounters/inferno/zukHealers.js": ["_G", "UU", "QU", "ej"],
+  "client/encounters/inferno/zukFight.js": ["aj", "tj", "nj", "sj", "rj", "ij", "lj", "oj", "dj", "gj", "cj", "mj", "hj"],
+  "client/encounters/inferno/InfernoEncounter.js": ["zj", "wj", "Aj", "Lj", "Hj", "Mj", "Tj"]
+}

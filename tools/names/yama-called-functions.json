@@ -1,0 +1,36 @@
+{
+  "YamaEncounter.js": {
+    "44": ["deriveFireballSeed", "its result is stored as fireballSeed and its argument is encounterSeed; the verb is inferred"],
+    "145": ["resolveEncounterConfig", "its result is stored as this.resolvedConfig and its argument is this.contract.encounter; contracts.js has mergeEncounterConfig for the same object"],
+    "241": ["createYamaActor", "its result is stored as this.yamaActor and it ends in yamaNpcDefinition.createActor; it throws 'Missing Phase 3 Yama formula stats'"],
+    "367": ["isPlayerOnYamaWave", "its parameters are playerX, playerY; it guards the damage with source 'Waves'; it calls getYamaWaveCyclePosition and isYamaWaveActiveInCycle like getYamaWaveTiles"],
+    "494": ["recordFireballAsLatestAttack", "it sets state.latestAttackKind = 'fireball' and state.latestAttackTick"],
+    "603": ["setYamaOpeningStyle", "it is the body of the command 'set-opening-style' and sets state.openingStyle"]
+  },
+  "boss.js": {
+    "65": ["getStyleForBeat", "its result is stored as style, the style of the attack intent; its first parameter is beatInfo"],
+    "70": ["getAlternatingStyle", "its parameters are attackOrdinal, openingStyle; queueAlternatingAttack in the same module makes the same choice from alternatingAttackCount"]
+  },
+  "contracts.js": {
+    "210": ["getWretchedStrengthMinimumHit", "it is the engine rule playerMinimumHit of the contract whose terms say 'Wretched Strength — minimum hit rises as health falls' and whose config sets wretchedStrength"]
+  },
+  "fireballGeometry.js": {
+    "9": ["getFireballImpactLineOffset", "its result is taken apart as dx, dy, the offsets of side1 and side2 in getFireballImpactLine"]
+  },
+  "fireballWaves.js": {
+    "33": ["toBurstShapeLookup", "its result is stored as shapeForBurst and called with a burst index; fireballs.js has createBurstShapeLookup for the same function; 'to' is inferred"],
+    "44": ["getCycleTicks", "its result is stored as cycleTicks"],
+    "78": ["getFireballPerfectDodgeTiles", "it is the tile list isFireballPerfectDodgeTile searches"]
+  },
+  "fireballs.js": {
+    "52": ["resolveFireballHazards", "it is the whole body of FireballRuntime.resolveHazards and its first parameter is fireballs"]
+  },
+  "shadowWaves.js": {
+    "26": ["hashYamaWaveOffset", "its result is stored as offsetHash, in getYamaWaveRandomOffset"]
+  },
+  "voidFlares.js": {
+    "39": ["getExplosionDamageRange", "its result is taken apart as [minDamage, maxDamage] and its first parameter is explosionDamage"],
+    "60": ["getExplosionHeal", "its result is the amount handed to healNpc(boss, ...) and shown as heal in the event 'voidflare_exploded'"],
+    "201": ["createVoidFlareActor", "its result is stored as flare and it ends in voidFlareNpcDefinition.createActor"]
+  }
+}

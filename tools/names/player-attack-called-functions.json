@@ -1,0 +1,58 @@
+{
+  "formula.js": {
+    "75": ["getDemonbaneSpellStages", "its result is stored as demonbaneSpellStages; it tests demonbaneSpellNameSet.has(resources.spellId); 'get' is inferred"],
+    "108": ["getTwistedBowStages", "its result is stored as twistedBowStages; it tests twistedBowIdSet.has(formulaStageInput.weaponId); 'get' is inferred"],
+    "126": ["getCrystalBowStages", "its result is stored as crystalBowStages; it tests crystalBowIdSet.has(getBaseItemId(formulaStageInput.weaponId)); 'get' is inferred"],
+    "154": ["getDemonbaneWeaponStages", "the branch of computeFormulaStages for targetAttributes.includes(DEMON_ATTRIBUTE) after the spell case; it reads demonbanePercentByWeaponId and returns attackRollStages and maxHitStages; 'get' is inferred"]
+  },
+  "launch.js": {
+    "91": ["isAncientSceptreEquipped", "its result is stored as hasAncientSceptre; it tests ancientSceptreIdSet.has(getCanonicalEquipmentId(equipment.weapon)); 'Equipped' is from its parameter equipment"],
+    "221": ["getSpellLaunchHeal", "its result is stored as launchHeal when the attack is not a special attack; its parameter is spellId and it reads getSpellSecondaryEffect(spellId) for the kind \"leech_hp\""],
+    "248": ["applyBloodFuryHeal", "it sums rollBloodFuryHeal over the landed hits, adds the total to attack.player.vitals.hp and emits BLOOD_FURY_HEAL_GRAPHIC; 'apply' is inferred"],
+    "349": ["resolvePendingConflictionAttack", "its result is assigned to attack.player.pendingConflictionAttack and its first parameter is pendingConflictionAttack; 'resolve' is inferred"],
+    "393": ["awardAttackXp", "it adds the xpGains of the attack's predicted hit to attack.player.xpCounters and emits an event of type \"xp_drop\"; 'award' is inferred"],
+    "423": ["applyXpGains", "its parameters are xpCounters and xpGains and its result is stored as xpDrops; it adds each gain to its counter and returns the whole points gained per skill; 'apply' is inferred"],
+    "440": ["computeXpGains", "its result is the argument for the parameter xpGains and its local is xpGains; 'compute' is inferred"],
+    "590": ["getActorCenterTiles", "it returns [getActorCenterTile(fromActor)] for an odd size and the four centre tiles for an even size"],
+    "672": ["facePlayerTowardTarget", "it sets player.facing from Math.atan2 of the offset between the player's tile and the target's centre; 'face' is from player.facing"],
+    "763": ["getConflictionAttack", "its result is stored as conflictionAttack; it tests isConflictionGauntletsAttack(attackCandidate); 'get' is inferred"],
+    "859": ["planAttackWithOptions", "it calls planPlayerAttack with attackInput and the three fields of planOptions; 'WithOptions' is from its parameter planOptions"],
+    "968": ["buildVenatorRicochet", "its result is stored as venatorRicochet, behind the test venatorBowIdSet.has(...), and is { hops, flights }; 'build' is inferred"],
+    "972": ["findRicochetHopTargets", "it returns its local hopTargets, each chosen by pickLatestSpawnedActor among the candidates that canRicochetBetweenActors allows; 'find' is inferred"],
+    "1067": ["getSoulreaperAfterAttack", "its result is assigned to player.soulreaper when isSoulreaperAxe(player.equipment.weapon); one more stack (up to 5) with a new decayTick, nothing after a special attack; 'AfterAttack' is inferred from performPlayerAutoAttack around it"]
+  },
+  "plan.js": {
+    "27": ["buildReadyAttackPlan", "it returns the plan of kind \"ready\" in buildAttackPlanFromProfile; 'build' is from the function around it"],
+    "73": ["getBranchSelectionHitChance", "its result is stored as hitChance in buildAccuracyBranchSelection and its error says the accuracy \"cannot select a damage branch\"; 'get' is inferred"],
+    "387": ["roundMaxHitBound", "its parameters are unroundedBound and rounding (\"floor\", \"ceiling\"), in resolveMaxHitFractionBound"],
+    "422": ["buildFormulaTarget", "its result is stored as formulaTarget; it returns { kind: \"npc\", ... } from target.formulaStats; 'build' is inferred"],
+    "459": ["getAttackEquipmentStats", "its result is stored as equipmentStats; it returns adjustEquipmentStatsForAttack(...); 'Attack' is from that call, 'get' is inferred"],
+    "507": ["getMagicBaseMaxHit", "its result is stored as magicBaseMaxHit when planInput.magicBaseMaxHitOverride is absent; 'get' is inferred"]
+  },
+  "planPlayerAttack.js": {
+    "79": ["scaleAttackPlanMaximumHit", "its result is stored as scaledAttackPlan and its parameter is maximumHitScale; it applies lowerDamageSpecMaximum to the damage of every planned hit"]
+  },
+  "profiles.js": {
+    "542": ["selectBaseProfile", "its result is stored as baseProfile in selectPlayerAttackProfile; 'select' is from the function around it"],
+    "595": ["buildSoulreaperProfile", "its parameter is soulreaperStacks, its argument canonicalInput.soulreaperStacks; it returns a profile of kind \"singleHit\"; 'build' is inferred"],
+    "656": ["isDragonHunterWeaponAgainstDragon", "it tests targetAttributes.includes(\"dragon\") and dragonHunterWeaponIdSet.has(canonicalInput.weaponId)"],
+    "667": ["buildOsmumtensFangProfile", "the branch canonicalInput.weaponId === OSMUMTENS_FANG_ID; it returns a profile of kind \"singleHit\"; 'build' is inferred"],
+    "718": ["adjustProfileForSlayerHelm", "its result is stored as slayerAdjustedProfile and it works from slayerHelmRatio; 'adjust' is from slayerAdjustedProfile"],
+    "719": ["getSlayerHelmRatio", "its result is stored as slayerHelmRatio; it returns SLAYER_HELM_MELEE_RATIO or SLAYER_HELM_IMBUED_RATIO; 'get' is inferred"],
+    "743": ["applyScorchingBowSlayerHelm", "the branch scorchingBowIdSet.has(canonicalInput.weaponId) against a \"demon\"; it combines the profile with slayerHelmRatio; 'apply' is inferred"],
+    "753": ["getAdditiveMaxHitRatio", "its result is stored as additiveMaxHitRatio; 'get' is inferred"],
+    "757": ["getGreatestCommonDivisor", "its result is stored as greatestCommonDivisor"],
+    "788": ["getInquisitorCrushRatio", "its result is stored as inquisitorCrushRatio; it sums inquisitorCrushBonusByItemId; 'get' is inferred"],
+    "805": ["applyChinchompaAccuracy", "it appends chinchompaAccuracyRatio to profile.hit.accuracy with appendAttackRollStage; 'apply' is inferred"],
+    "809": ["getChinchompaAccuracyRatio", "its result is stored as chinchompaAccuracyRatio; it reads CHINCHOMPA_ACCURACY_PERCENT_BY_STYLE; 'get' is inferred"]
+  },
+  "projection.js": {
+    "46": ["computeBranchSplitDamage", "its parameters are branch and split, its arguments selectedBranch and branchSplit; it returns branch.total times split.fraction plus split.offset, at least 0; 'compute' and 'Damage' are inferred"],
+    "239": ["buildInitialBranches", "its result is stored as branches in projectPlayerAttack and it returns its local initialBranches; 'build' is inferred"]
+  },
+  "roll.js": {
+    "178": ["rollSelectedBranch", "its result is stored as selectedBranch in rollAttackPlan and it draws random() against attempt.chance; 'roll' is from rollAttackPlan"],
+    "239": ["isHitGatePassed", "its result is stored as gatePassed and its argument is rollContext.plannedHit.gate; 'Hit' is from plannedHit"],
+    "277": ["rollAccuracySpec", "its parameter is accuracySpec and it draws random() < accuracySpec.chance; named beside rollDamageSpec of the same module"]
+  }
+}

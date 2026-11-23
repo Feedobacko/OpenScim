@@ -1,0 +1,221 @@
+{
+  "encounters/yama/cacheArena.js": {
+    "ql": {
+      "e": ["arenaConfig","stored in arenaConfigFromCache; client/assets/player.js passes the result of CacheManager.buildArenaConfig ({ bounds, walkableTiles, collisionMap }); YamaEncounter.getArenaConfig reads it as arenaConfig"]
+    }
+  },
+  "encounters/yama/sceneConstants.js": {
+    "isYamaSealedRow": {
+      "e": ["y","callers: isYamaSealedRow(a.y) on wave tiles in rendering.js; YamaEncounter.getArenaConfig passes the y part of a tileKey"]
+    }
+  },
+  "encounters/yama/fireballGeometry.js": {
+    "getFireballBurstStartTicks": {
+      "e#1": ["attackPattern","caller: getFireballBurstStartTicks(attackPattern) in yama/fireballWaves.js"],
+      "a": ["beatStartTick","read from attackPattern.beatStartTick"],
+      "t": ["beatIntervalTicks","read from attackPattern.beatIntervalTicks"],
+      "e#2": ["beatIndex","element of attackPattern.fireballBeats; YamaEncounter: fireballBeats.filter((beatIndex) => ...)"]
+    },
+    "vN": {
+      "e#1": ["center","stored as { center }; callers pass center (yama/fireballs.js) or centerPosition"],
+      "a": ["angle","callers pass fireball.angle; compared with \"vertical\", \"horizontal\", \"diagonal\", \"diagonal-alt\""],
+      "t": ["x","first coordinate of center; yama/fireballWaves.js: const [x, y] = center"],
+      "n": ["y","second coordinate of center; yama/fireballWaves.js: const [x, y] = center"],
+      "s": ["dx","destructured key dx"],
+      "r": ["dy","destructured key dy"],
+      "e#2": ["angle","the outer angle passed straight in; switch over the angle strings"]
+    },
+    "getFireballPhase": {
+      "e": ["startTick","caller: getFireballPhase(fireball.startTick, resolution.ctx.tick) in yama/fireballs.js"],
+      "a": ["tick","caller: getFireballPhase(fireball.startTick, resolution.ctx.tick) in yama/fireballs.js"],
+      "t": ["ticksIntoPhase","yama/fireballs.js stores the same difference as ticksIntoPhase: snapshotRequest.tick - fireball.startTick"]
+    },
+    "kN": {
+      "e": ["center","passed on from getFireballExplosionTiles(center, fireball.angle)"],
+      "a": ["angle","compared with \"horizontal\", \"vertical\", \"diagonal\"; callers pass fireball.angle"],
+      "t": ["x","first coordinate of center; yama/fireballWaves.js: const [x, y] = center"],
+      "n": ["y","second coordinate of center; yama/fireballWaves.js: const [x, y] = center"]
+    },
+    "SN": {
+      "e": ["center","passed on from getFireballExplosionTiles(center, fireball.angle)"],
+      "a": ["angle","compared with \"horizontal\", \"vertical\", \"diagonal\"; callers pass fireball.angle"],
+      "t": ["x","first coordinate of center; yama/fireballWaves.js: const [x, y] = center"],
+      "n": ["y","second coordinate of center; yama/fireballWaves.js: const [x, y] = center"]
+    },
+    "getFireballImpactTiles": {
+      "e": ["center","caller: getFireballImpactTiles(center, fireball.angle) in yama/fireballs.js"],
+      "a": ["angle","caller: getFireballImpactTiles(center, fireball.angle) in yama/fireballs.js"],
+      "t": ["impactLine","inferred: the { center, side1, side2 } tiles the fireball lands on, listed as the impact tiles"]
+    },
+    "getFireballExplosionTiles": {
+      "e": ["center","caller: getFireballExplosionTiles(center, fireball.angle) in yama/fireballs.js"],
+      "a": ["angle","caller: getFireballExplosionTiles(center, fireball.angle) in yama/fireballs.js"]
+    }
+  },
+  "encounters/yama/shadowWaves.js": {
+    "getYamaWaveCyclePosition": {
+      "e": ["tick","caller: getYamaWaveCyclePosition(tick, deltas[waveIndex], periodTicks, startDelay) in YamaEncounter.js"],
+      "a": ["delta","caller passes deltas[waveIndex]"],
+      "t": ["periodTicks","caller passes periodTicks (waveConfig.periodTicks)"],
+      "n": ["startDelay","caller passes startDelay (waveConfig.startDelay)"],
+      "s": ["ticksSinceFirstCycle","inferred: ticks since this wave's cycle 0 began; its quotient by the period is cycleNum, its remainder tp"]
+    },
+    "isYamaWaveActiveInCycle": {
+      "e": ["delta","caller: isYamaWaveActiveInCycle(deltas[waveIndex], cycleNum, firstCycleDeltas) in YamaEncounter.js"],
+      "a": ["cycleNum","caller passes cycleNum, the key getYamaWaveCyclePosition returns"],
+      "t": ["firstCycleDeltas","caller passes firstCycleDeltas (waveConfig.firstCycleDeltas)"]
+    },
+    "isInsideYamaWaveDiamond": {
+      "e": ["diagonalDifference","caller: isInsideYamaWaveDiamond(diagonalDifference, diagonalSum) in YamaEncounter.js (playerY - playerX)"],
+      "a": ["diagonalSum","caller: isInsideYamaWaveDiamond(diagonalDifference, diagonalSum) in YamaEncounter.js (playerX + playerY)"]
+    },
+    "getYamaWaveRandomOffset": {
+      "e#1": ["seed","caller: getYamaWaveRandomOffset(seed, waveIndex, deltas[waveIndex], cycleNum) in YamaEncounter.js"],
+      "a#1": ["waveIndex","caller: getYamaWaveRandomOffset(seed, waveIndex, deltas[waveIndex], cycleNum) in YamaEncounter.js"],
+      "t#1": ["delta","caller passes deltas[waveIndex]"],
+      "n#1": ["cycleNum","caller passes cycleNum"],
+      "s": ["offsetHash","inferred: the hash of seed, wave and cycle that picks the entry of the offset table"],
+      "e#2": ["seed","the outer seed passed straight in"],
+      "a#2": ["waveIndex","the outer waveIndex passed straight in"],
+      "t#2": ["cycleNum","the outer cycleNum passed straight in"],
+      "n#2": ["hash","inferred: integer mixed with Math.imul and xor-shifts, returned as unsigned"]
+    },
+    "getYamaWaveTiles": {
+      "e#1": ["tick","caller: getYamaWaveTiles(context.tick, bounds.minX, bounds.maxX, bounds.minY, bounds.maxY, this.state.run.waveConfig)"],
+      "a#1": ["minX","caller passes bounds.minX"],
+      "t#1": ["maxX","caller passes bounds.maxX"],
+      "n": ["minY","caller passes bounds.minY"],
+      "s": ["maxY","caller passes bounds.maxY"],
+      "r#1": ["waveConfig","caller passes this.state.run.waveConfig"],
+      "i": ["waveTiles","caller: const waveTiles = getYamaWaveTiles(...) in YamaEncounter.js"],
+      "l": ["periodTicks","read from waveConfig.periodTicks"],
+      "o": ["deltas","read from waveConfig.deltas"],
+      "d": ["speedTilesPerTick","read from waveConfig.speedTilesPerTick"],
+      "g": ["startDelay","read from waveConfig.startDelay"],
+      "c": ["firstCycleDeltas","read from waveConfig.firstCycleDeltas"],
+      "m": ["seed","read from waveConfig.seed"],
+      "h": ["useRandomOffsets","YamaEncounter.resolveHazards names the same expression useRandomOffsets (waveConfig.randomOffsets === true && seed !== undefined)"],
+      "r#2": ["waveIndex","stored as { waveIndex }"],
+      "f": ["ticksIntoPeriod","YamaEncounter.resolveHazards destructures the same key as { tp: ticksIntoPeriod }"],
+      "v": ["tilesTravelled","YamaEncounter.resolveHazards names the same product tilesTravelled (speedTilesPerTick * ticksIntoPeriod)"],
+      "p": ["leftWaveStart","YamaEncounter.resolveHazards: let leftWaveStart = -40; waveType \"L\""],
+      "k": ["rightWaveStart","YamaEncounter.resolveHazards: let rightWaveStart = 20; waveType \"R\""],
+      "e#2": ["randomOffset","YamaEncounter.resolveHazards: const randomOffset = getYamaWaveRandomOffset(...)"],
+      "S": ["leftDiagonalDifference","inferred: the y - x value of the left wave's lower row this tick (callers call y - x diagonalDifference)"],
+      "e#3": ["x","stored as { x }"],
+      "a#2": ["lowerY","inferred: stored as { y } with layer 0, the lower of the wave's two rows"],
+      "t#2": ["upperY","inferred: stored as { y } with layer 1, one tile above the lower row"],
+      "b": ["rightDiagonalSum","inferred: the x + y value of the right wave's lower row this tick (callers call x + y diagonalSum)"],
+      "e#4": ["x","stored as { x }"],
+      "a#3": ["lowerY","inferred: stored as { y } with layer 0, the lower of the wave's two rows"],
+      "t#3": ["upperY","inferred: stored as { y } with layer 1, one tile above the lower row"]
+    }
+  },
+  "encounters/inferno/startTile.js": {
+    "canChooseInfernoStartTile": {
+      "e": ["wave","callers: canChooseInfernoStartTile(this.wave) and (setup.startWave) in InfernoEncounter.js"]
+    },
+    "parseTileString": {
+      "e": ["rawTile","caller: parseTileString(rawStartTile) in inferno/controls.js; may be any value, only strings parse"],
+      "a": ["match","inferred: result of the \"x,y\" pattern's exec"]
+    },
+    "formatTileString": {
+      "e": ["tile","callers pass this.setup.startTile, a [x, y] tile"]
+    },
+    "validateInfernoStartTile": {
+      "e#1": ["startTile","callers: validateInfernoStartTile(startTile, setup) in inferno/controls.js, (setup.startTile, setup, ...) in InfernoEncounter.js; messages say \"The start tile\""],
+      "a#1": ["setup","callers pass setup ({ startWave, destroyedPillars })"],
+      "t#1": ["isOpenFloor","message \"The start tile ... is not open floor.\" when it returns false; InfernoEncounter passes (x, y) => walkable and free of obstacle flags"],
+      "n#1": ["x","first coordinate of startTile; the caller's callback takes (x, y)"],
+      "s": ["y","second coordinate of startTile; the caller's callback takes (x, y)"],
+      "d": ["tileLabel","inferred: the \"[x,y]\" text put into the messages"],
+      "e#2": ["x","first coordinate of the startTile passed in"],
+      "a#2": ["y","second coordinate of the startTile passed in"],
+      "t#2": ["setup","the outer setup passed straight in; reads .startWave and .destroyedPillars"],
+      "n#2": ["pillar","element of infernoPillars; getInfernoPillarTiles(pillar) in inferno/pillars.js"],
+      "t#3": ["pillarX","inferred: first coordinate of a tile from getInfernoPillarTiles"],
+      "n#3": ["pillarY","inferred: second coordinate of a tile from getInfernoPillarTiles"],
+      "g": ["isPillarTile","inferred: the tile is in some pillar's footprint (a standing pillar was refused above, so the pillar is gone)"],
+      "e#3": ["pillar","element of infernoPillars; getInfernoPillarTiles(pillar) in inferno/pillars.js"],
+      "e#4": ["pillarX","inferred: first coordinate of a tile from getInfernoPillarTiles"],
+      "a#3": ["pillarY","inferred: second coordinate of a tile from getInfernoPillarTiles"]
+    },
+    "clampInfernoWave": {
+      "e": ["wave","callers: clampInfernoWave(startWave) and clampInfernoWave(command.wave) in InfernoEncounter.js"]
+    },
+    "canPinInfernoWave": {
+      "e": ["wave","callers: canPinInfernoWave(pinnedWave) in inferno/controls.js, canPinInfernoWave(wave) in rendering.js"]
+    }
+  },
+  "encounters/inferno/spawnLayout.js": {
+    "isInfernoSlotNpcKind": {
+      "e": ["kind","caller: isInfernoSlotNpcKind(kind) in inferno/waves.js; compared with \"nibbler\" and \"jad\""]
+    },
+    "getInfernoWaveSlotNpcs": {
+      "e": ["wave","caller: getInfernoWaveSlotNpcs(wave) in inferno/waves.js"]
+    },
+    "SI": {
+      "e#1": ["kinds","inferred: list of monster kinds; rendering.js passes the kinds it pushed while reading a link, and getInfernoWaveSlotNpcs(wave)"],
+      "a": ["monsterKind","element of infernoWaveMonsterKinds"],
+      "e#2": ["kind","element of kinds"]
+    },
+    "bI": {
+      "e#1": ["kinds","inferred: list of monster kinds; validateInfernoSpawnLayout passes getInfernoWaveSlotNpcs(wave)"],
+      "a#1": ["countPhrases","inferred: one \"2 magers\" text per kind present, joined with commas and \"and\""],
+      "a#2": ["monsterKind","element of infernoWaveMonsterKinds"],
+      "length11": ["count","rendering.js writes the same text from { kind, count }: `${count} ${count === 1 ? ....one : ....many}`"],
+      "e#2": ["kind","element of kinds"],
+      "n": ["displayNames","inferred: the { one, many, game } names of that kind"]
+    },
+    "validateInfernoSpawnLayout": {
+      "e#1": ["wave","stored as { wave }; caller: validateInfernoSpawnLayout(wave, slots) in inferno/waves.js"],
+      "a#1": ["slots","stored as { slots }; caller: validateInfernoSpawnLayout(wave, slots) in inferno/waves.js"],
+      "t": ["waveSlotKinds","inferred: result of getInfernoWaveSlotNpcs(wave), the kinds that wave puts on spawn tiles"],
+      "n": ["placedKinds","message \"Place at least one monster.\" when it is empty; inferred otherwise"],
+      "e#2": ["slotKind","element of slots: a kind or null (inferno/waves.js: slots[slotIndex] = kind)"],
+      "e#3": ["monsterKind","element of infernoWaveMonsterKinds"],
+      "a#2": ["placedKind","element of placedKinds"],
+      "a#3": ["waveSlotKind","element of waveSlotKinds"]
+    },
+    "wI": {
+      "e": ["kind","key of the kind-to-code table (bat, blob, meleer, ranger, mager)"],
+      "a": ["code","inferred: the one-letter value of the kind-to-code table"]
+    },
+    "formatInfernoSpawnLayout": {
+      "e#1": ["spawnLayout","callers: formatInfernoSpawnLayout(this.setup.spawnLayout) and (spawnLayout) in InfernoEncounter.js"],
+      "e#2": ["slotKind","element of spawnLayout.slots: a kind or null"]
+    },
+    "parseInfernoSpawnLayout": {
+      "e#1": ["rawSpawnLayout","inferred: unchecked value, callers pass mechanics[infernoSpawnLayoutKey]; named like rawStartTile in inferno/controls.js"],
+      "a": ["match","inferred: result of the layout pattern's exec"],
+      "t": ["slots","passed as validateInfernoSpawnLayout's slots"],
+      "e#2": ["code","inferred: one character of the layout string, looked up in the code-to-kind table"],
+      "n": ["validation","inferno/waves.js: const validation = validateInfernoSpawnLayout(wave, slots)"]
+    }
+  },
+  "encounters/inferno/events.js": {
+    "copyTilePosition": {
+      "e": ["position","callers: copyTilePosition(event.position), copyTilePosition(event.sourcePosition)"]
+    },
+    "emitZukAttack": {
+      "e": ["context","callers: emitZukAttack(context, { ... }); reads .tickEvents"],
+      "a": ["event","inferno/monsterHelpers.js: emitZukDeath(context, event) and emitInfernoAbility(context, event) spread their event the same way"]
+    },
+    "emitInfernoVisual": {
+      "e": ["tickEvents","callers: emitInfernoVisual(context.tickEvents, ...)"],
+      "a": ["visual","event type \"inferno_visual\"; inferno/zukFight.js: emitInfernoVisual(context.tickEvents, visual)"]
+    },
+    "isOutsideZukShieldCoverage": {
+      "e": ["shieldX","inferred: inferno/zuk.js passes liveGlyph.position[0], the x of Zuk's shield"],
+      "a": ["playerPosition","inferno/zuk.js passes player.position; handed out as targetsPlayer"],
+      "t": ["playerX","first coordinate of playerPosition"],
+      "n": ["playerY","second coordinate of playerPosition"]
+    },
+    "emitInfernoNpcAttack": {
+      "e": ["context","callers: emitInfernoNpcAttack(context, { ... }); reads .tick and .tickEvents"],
+      "a": ["attack","inferred: what to show for one NPC attack ({ actor, target, clipId, kind, impactDelayTicks, projectiles })"],
+      "s": ["projectiles","destructured key projectiles; stored as { projectiles }"],
+      "r": ["projectileArrivalCycles","stored as { projectileArrivalCycles }"]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "engine/occupancy.js": {
+    "OccupancyMap": {
+      "ly": ["syncActors", "SimulationEngine: `this.worldState.occupancy.ly(this.worldState.actors.values())` before the NPC and player steps; inferred otherwise: re-adds the actors whose position or size changed and removes those no longer in the list. Census: defined by this class only; every access (SimulationEngine.js, three; the shared scenarios, three) has the occupancy map as receiver"]
+    }
+  },
+  "encounters/shared/npcDefinitions.js": {
+    "NpcDefinitionRegistry": {
+      "uy": ["assertDefinitionMatches", "throws NpcDefinitionMismatchError (\"NPC '...' has no matching registered definition '...'\"); SimulationEngine calls `this.npcDefinitions.uy(npc)` before it registers a spawned NPC. Census: defined by this class only; every access (SimulationEngine.js, three; the shared scenarios, one) has the registry as receiver"]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "client/encounters/sol-heredit/boundaryLocs.js": ["xE", "BE"],
+  "client/encounters/registry.js": ["IV", "CV", "xV", "BV", "WV", "RV", "PV", "_V", "NV", "GV", "UV", "cK", "mK", "encounterRegistry"],
+  "+setup": ["encounterRegistry"]
+}

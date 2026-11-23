@@ -1,0 +1,10 @@
+{
+  "about": "Keys of objects that live for one call and are never stored: an argument object built at the call and read in the callee. Renamed by exact text replacement (not by a tool: rename-members refuses an object key), proved by .scratch/tokens-diff.mjs (identifiers only) and the harness. Keys of the encounter's state, of an actor, of a snapshot or of an event are data: the determinism digest covers them and they keep their names.",
+  "YamaEncounter.js, fireballs.js, voidFlares.js": {
+    "didMeleeThisTick": ["didPlanMelee", "the value handed over is bossState?.didPlanMelee === true: Yama queued the melee in this post-tick and launches it in his next turn"]
+  },
+  "fireballs.js": {
+    "activePhases": ["activeFireballs", "the key of the argument of resolveFireballHazards; its value is the list of fireballs in the air, looped over as fireball"],
+    "shape": ["shapeForBurst", "the key of the query handed to getActiveFireballs and recordStartPositions; its value is createBurstShapeLookup(...), a function from a burst index to a shape, which getScheduledFireballs stores as shapeForBurst"]
+  }
+}

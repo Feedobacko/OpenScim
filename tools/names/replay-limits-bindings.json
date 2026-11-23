@@ -1,0 +1,12 @@
+{
+  "engine/replayLimits.js": {
+    "$R": ["projectileWorkLimit", "the `limit` in the details of the error \"projectile-work-limit\", in rendering.js and in Grid.js"],
+    "VR": ["projectileGeometryLimit", "Grid.js rejects a projectile's `slope`, `startOffset`, `startHeight`, `endHeight` or `height` beyond this number (written out there) with \"invalid-geometry\"; nothing reads the binding itself"],
+    "qR": ["snapshotGroundItemLimit", "Grid.js pairs it with the key \"groundItems\" of a frame's state, next to [\"npcs\", snapshotNpcLimit], and reports \"snapshot-work-limit\""],
+    "YR": ["snapshotFootprintLimit", "the `limit` of \"snapshot-work-limit\" in Grid.js for one frame's sum of every NPC's `size ** 2` plus one per ground item; \"footprint\" is inferred"],
+    "XR": ["totalSnapshotFootprintLimit", "the `limit` of \"snapshot-work-limit\" in Grid.js for that sum over all frames; \"footprint\" is inferred"],
+    "JR": ["isSafeReplayCycle", "rendering.js and Grid.js throw \"invalid-clock\" when it fails for a `startCycle`, an `endCycleExclusive` or 30 times a tick; \"safe\" from ReplaySafetyError"],
+    "QR": ["isSafeReplayPosition", "Grid.js throws \"invalid-geometry\" when it fails for a `position`, `sourcePosition` or `targetPosition`; \"safe\" from ReplaySafetyError"],
+    "eP": ["isSafeReplaySize", "Grid.js throws \"invalid-geometry\" when it fails for a `size`, `primaryNpcSize` or `targetSize`; \"safe\" from ReplaySafetyError"]
+  }
+}

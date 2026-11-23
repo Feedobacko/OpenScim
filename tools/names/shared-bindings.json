@@ -1,0 +1,105 @@
+{
+  "engine/arena.js": {
+    "xl": ["isPackableTileCoordinate","inferred: integer in [-8192, 57344), tested before a coordinate goes into the Set field `packed`"],
+    "Bl": ["packTileCoordinates","result is added to and looked up in the Set field `packed`: `(x + 8192) * 65536 + (y + 8192)`; inferred otherwise"],
+    "Wl": ["WalkableTileLookup","held in the field `lookup` of the cache the scene stores as `walkableLookup` (`walkableLookup.get(walkableTiles).has(x, y)`); built from `walkableTiles`"],
+    "Rl": ["WalkableTileLookupCache","scene field `walkableLookup: new Rl()`; fields `lookup`, `source`, `size`, `rebuilds`; rebuilds its `lookup` when the source set changes: \"Cache\" is inferred"],
+    "Pl": ["currentArenaConfig","assigned in `setArenaConfig` with the keys `bounds`, `walkableTiles`, `collisionMap`; read by `getArenaBounds` and `getArenaCollisionMap`"],
+    "_l": ["arenaDefaultWalkable","returned by `getArenaDefaultWalkable`; second argument of `setArenaConfig`"],
+    "Fl": ["arenaWalkableLookup","`Fl.get(walkableTiles).has(x, y)` in `isArenaTileWalkable`; the same class the scene keeps under `walkableLookup`"],
+    "Gl": ["getArenaWalkableTiles","returns `Pl.walkableTiles`"],
+    "$l": ["getCurrentArenaConfig","engine/replay.js: `const savedArenaConfig = aU()`, restored with `setArenaConfig(savedArenaConfig, savedArenaDefaultWalkable)`; returns a copy `{ bounds, walkableTiles, collisionMap }` of the current config"],
+    "Zl": ["registeredArenaConfigs","Map written by `oe(kind, arena)` and read by `Yl(kind)`, whose result the engine names `registeredArenaConfig`"],
+    "oe": ["registerArenaConfig","tools/determinism/harness.mjs: \"register it under the encounter's kind, where the engine looks for it\" (`rendering.oe(descriptor.kind, arena)`); `Zl.set(kind, arena)`"],
+    "Yl": ["getRegisteredArenaConfig","SimulationEngine.applyArenaConfig: `const registeredArenaConfig = aN(baseEncounterKind)`"]
+  },
+  "engine/attackRange.js": {
+    "fM": ["hasLineOfSight","inferred: walks the tiles between two points and fails on `CollisionFlag.BLOCK_*_PROJECTILE` flags; playerAttack/launch.js: `withinRicochetRange && X(fromX, fromY, toX, toY)`"],
+    "uM": ["clampToInterval","inferred: returns the value limited to [min, max]; `vM` uses it to pick the nearest tile of each rectangle for the line-of-sight test"],
+    "vM": ["areBoundsInAttackRange","inferred: the test behind `isFootprintInAttackRange`, on two rectangles given as min/max coordinates, with the `attackRange`, `checkCollision` and `meleeReach` options"],
+    "pM": ["isInAttackRangeWithCollision","inferred: `vM` from one tile (x, y) to a square footprint with `checkCollision` fixed to true; playerMovement.js stops pathing towards an NPC when it holds"],
+    "SM": ["isTileInAttackRange","inferred: SimulationEngine and playerAttack/launch.js: `aT(player.position, targetNpc.position, targetNpc.size, effectiveRange, true, effectiveReach)`; sibling of `isFootprintInAttackRange`"],
+    "bM": ["isTileInsideFootprint","SimulationEngine: `const isUnderTarget = l(player.position, targetNpc.position, targetNpc.size)`; inferred otherwise"],
+    "yM": ["isPointInsideFootprint","inferred: the test of isTileInsideFootprint on plain coordinates (x, y, footprintX, footprintY, size); the name says point so that it is not mistaken for isTileInFootprint of npcRoutes.js, a third copy of the test with another argument order"],
+    "zM": ["isWallBetweenAdjacentTiles","inferred: for two tiles one cardinal step apart, tests `CollisionFlag.WALL_EAST` on one and `WALL_WEST` on the other (and so on per direction)"]
+  },
+  "engine/npcState.js": {
+    "EH": ["isNpcBindImmuneAtTick","inferred: `tick < debuffs.boundUntilTick + 5`; specialAttacks.js skips the \"freeze\" and on-hit \"bind\" effects when it holds"],
+    "NH": ["isNpcTargetableAtTick","reads `untargetable` and `targetableFromTick`"],
+    "GH": ["canNpcShowHealthBarAtTick","reads `healthBarWhenUntargetable`, else `NH` (targetable); the overlay that draws health bars and hitsplats skips an NPC when it is false"],
+    "UH": ["isNpcAttackableAtTick","inferred: targetable and past `attackBlockedUntilTick`; playerAttack/launch.js filters area targets and drops the player's attack target with it"],
+    "OH": ["setNpcDefenceDrain","writes `debuffs.defenceDrain`, limited by `defenceDrainFloor`"],
+    "$H": ["clearNpcBurn","resets `burnStacks` and `burnNextPulseTick`; called from CombatSystem.applyBurnPulse"],
+    "VH": ["clearNpcPoison","sets `poison = undefined`; called from CombatSystem.applyPoisonPulse"],
+    "KH": ["getNpcDeathPolicy","returns `deathPolicy ?? \"immediate\"`"],
+    "qH": ["isActorInWorld","inferred: `world.actors.get(actor.id) === actor`; the engine returns from an NPC's turn when it is false (`if (!H(this.worldState, npc)) return`)"],
+    "XH": ["isActorAliveOrDeathPending","`isActorAlive(e) || death?.status === \"pending\"`; CombatSystem.tryAttack: `attackOptions.acceptKillTickTarget === true ? a3 : isActorAlive`"],
+    "eM": ["getActorLifeGeneration","returns `lifeGeneration ?? 0` for an NPC, 0 otherwise; CombatSystem stores it as `sourceLife` and `targetLife`"],
+    "aM": ["recordNpcDeath","error string \"NPC '...' already has a death record for this life\"; creates `{ status: \"pending\", killTick, processTick, causeStage }` under `death`"],
+    "tM": ["expediteQueuedNpcDeath","inferred: moves `death.processTick` of a pending \"hit-queue\" death back to its `killTick`; CombatSystem calls it when another hit landed, or is still queued, on the NPC after the lethal one"],
+    "nM": ["isNpcDeathAnimationDueAtTick","`deathAnimationTick <= tick` with `death.animationNotified !== true`; SimulationEngine: `if (N(npc, tick)) this.npcDefinitions.notifyDeathAnimation(...)`"],
+    "sM": ["markNpcDeathAnimationNotified","sets `death.animationNotified = true` when the animation is due and returns whether it did; guards `onDeathAnimation` in npcDefinitions.js"],
+    "rM": ["isNpcDeathAnimationTick","`death.status === \"started\"` and `deathAnimationTick === tick`; SimulationEngine then asks `npcDefinitions.releaseOnDeathAnimation`, CombatSystem.tryLaunchDeathAnimationAttack requires it"],
+    "iM": ["isNpcDeathDueAtTick","`death.status === \"pending\" && death.processTick <= tick`; SimulationEngine: `if (a9(npc, tick)) this.startPendingNpcDeath(npc)`"],
+    "lM": ["markNpcDeathStarted","sets `death.status = \"started\"`; SimulationEngine.startPendingNpcDeath calls it, then `npcDefinitions.notifyDeathStarted`"],
+    "oM": ["recordNpcStepTick","writes `lastStepTick`; SimulationEngine.applyNpcMovementRequest calls it when the NPC moved"],
+    "dM": ["updateNpcDeathAnimationTick","assigns `deathAnimationTick` from `death.processTick` and `lastStepTick`"],
+    "mM": ["getNpcDespawnTick","SimulationEngine.removeDeadNpcs: `const despawnTick = ai(npc)`; returns `despawnTick`, held back to `deathAnimationTick` for a queued death"],
+    "SG": ["applyNpcHitpointRegen","reads and advances `hitpointRegenNextTick`, then `vitals.hp++`; sibling of `scheduleNpcHitpointRegen`; the engine calls it after applyBurnPulse and applyPoisonPulse"]
+  },
+  "engine/occupancy.js": {
+    "MM": ["getOccupancyTileKey","inferred: packs (x, y) into the number kept in the Set field `flags` of the occupancy class"],
+    "TM": ["doesActorBlockNpcMovement","reads `blocksNpcMovement !== false`"],
+    "IM": ["OccupancyMap","WorldState: `this.occupancy = new bf()`; argument of `createOccupancyStepCheck`; \"Map\" is inferred (methods isBlocked, add, remove, step)"]
+  },
+  "engine/combatFormulas.js": {
+    "hf": ["prayerMultipliersByPrayer","keyed by prayer name (Piety, Rigour, Augury, ...), each entry a partial of `neutralPrayerMultipliers`; read by `getPrayerMultipliers`"],
+    "BM": ["getEffectiveMeleeAttackLevel","inferred: floor(levels.attack x prayer attack multiplier) + stance bonus + 8, x 1.1 for `voidSet === \"melee\"`; multiplied by (attack bonus + 64) to give `attackRoll`"],
+    "WM": ["getStanceDefenceBonus","inferred: 3 for stance \"Defensive\" or \"Longrange\", 1 for \"Controlled\", added to the defence level in `getPlayerDefenceRoll`"],
+    "_M": ["getDoubleRollHitChance","playerAttack/plan.js: `case \"double_roll\": return bh(attackRoll, defenceRoll)` and `case \"doubleRoll\"`; sibling of `getSingleRollHitChance`"],
+    "FM": ["getSteadyStateHitChance","playerAttack/plan.js: `case \"steady_state\": return q(singleRollChance, bh(attackRoll, defenceRoll))`"],
+    "EM": ["getPlayerAccuracyRolls","playerAttack/plan.js: `const accuracyRolls = az(attackSetup.attacker, attackSetup.target, ...)`; returns `{ attackRoll, defenceRoll, chance }`; the attack roll uses the player's `stance` and `voidSet`"],
+    "jM": ["getNpcDefenceRoll","stored under `defenceRoll`; reads the NPC's `defensive` bonuses and `toaRaidLevel`; sibling of `getPlayerDefenceRoll` and `getNpcAttackRoll`"],
+    "VM": ["getMaxHitFromEffectiveLevel","inferred: floor((effective level x (strength bonus + 64) + 320) / 640), the value `getFormulaMaxHit` returns"],
+    "vT": ["getPlayerStance","stored under `stance` in `getPlayerFormulaStats` and in playerAttack/plan.js; reads the selected style's `combatStyle`"]
+  },
+  "engine/projectiles.js": {
+    "KM": ["getHitDelayTicks","playerAttack/launch.js stores the result in `impactDelayTicks`, SimulationEngine in `delay`, beside `spell.fixedHitDelay` and `hitDelayTicks`; cases \"melee\", \"bow\", \"thrown\", \"magic\", \"magic_slow\" by distance"],
+    "qM": ["projectileTimings","entries `{ delay, lengthAdjustment, stepMultiplier, progress }` are what `getProjectileFlightCycles` takes; playerAttack/launch.js names the same shape `weaponProjectileTiming`, npcHelpers.js reads it from `timing`"],
+    "YM": ["getHitDelayTicksFromCycles","playerAttack/launch.js: `impactDelayTicks = av(getProjectileFlightCycles(...))`; 1 + floor(cycles / 30), one more than `getTicksFromCycles`"]
+  },
+  "encounters/shared/npcAttack.js": {
+    "uT": ["rollNpcAccuracyAndDamage","decision sites \"npc.attack.accuracy\" and \"npc.attack.damage\"; returns `{ accuracy, accuracySucceeded, maxHit, rolledDamage }`"],
+    "kT": ["getNpcProjectileFlightTicks","inferred: `getTicksFromCycles(getProjectileFlightCycles(timing, distance))`, added to `impactDelayTicks` when the plan has a `projectile`"]
+  },
+  "encounters/shared/npcMovement.js": {
+    "LT": ["westStepCollisionMasks","chosen for the step (-1, 0) in `BT`; `single: CollisionFlag.BLOCK_WEST`"],
+    "DT": ["eastStepCollisionMasks","chosen for the step (1, 0) in `BT`; `single: CollisionFlag.BLOCK_EAST`"],
+    "HT": ["southStepCollisionMasks","chosen for the step (0, -1) in `BT`; `single: CollisionFlag.BLOCK_SOUTH`"],
+    "MT": ["northStepCollisionMasks","chosen for the step (0, 1) in `BT`; `single: CollisionFlag.BLOCK_NORTH`"],
+    "TT": ["southWestStepCollisionMasks","chosen for the step (-1, -1) in `WT`; `corner: CollisionFlag.BLOCK_SOUTH_WEST`"],
+    "IT": ["northWestStepCollisionMasks","chosen for the step (-1, 1) in `WT`; `corner: CollisionFlag.BLOCK_NORTH_WEST`"],
+    "CT": ["southEastStepCollisionMasks","chosen for the step (1, -1) in `WT`; `corner: CollisionFlag.BLOCK_SOUTH_EAST`"],
+    "xT": ["northEastStepCollisionMasks","chosen for the step (1, 1) in `WT`; `corner: CollisionFlag.BLOCK_NORTH_EAST`"],
+    "BT": ["canFootprintStepCardinally","inferred: the cardinal half of `canFootprintStepInArena`: walkable tiles and collision flags along the leading edge of the destination footprint"],
+    "WT": ["canFootprintStepDiagonally","inferred: the diagonal half of `canFootprintStepInArena` (`corner`, `horizontalStrip`, `verticalStrip`, `xIntermediate`, `yIntermediate` masks)"]
+  },
+  "encounters/shared/npcDefinitions.js": {
+    "GT": ["DuplicateNpcDefinitionError","`this.name = \"DuplicateNpcDefinitionError\"`"],
+    "UT": ["NpcDefinitionMismatchError","`this.name = \"NpcDefinitionMismatchError\"`"]
+  },
+  "encounters/shared/npcRoutes.js": {
+    "MO": ["routeGridSize","inferred: 128, the side of the search grid centred on the route's `source`; playerMovement.js has the same value as `gridSize`"],
+    "TO": ["routeGridTileCount","inferred: 16384 = 128 x 128, the length of the `parents`, distance and queue arrays"],
+    "IO": ["routeStepDeltas","entries `{ deltaX, deltaY }`: the four cardinal steps, then the four diagonal ones"],
+    "CO": ["getDistanceToInterval","inferred: how far a coordinate lies outside [min, max], 0 when inside"],
+    "BO": ["isTileCardinallyAdjacentToFootprint","inferred: the x and y distances from the tile to the footprint add up to 1; the goal test of the \"melee\" route"],
+    "WO": ["getRouteGridIndex","inferred: `x * 128 + y`; the result is stored as `startIndex` and indexes `parents`"],
+    "RO": ["buildRouteSteps","result is returned under `steps`; walks `parents` back to `startIndex`"],
+    "NO": ["moveNearByUnreachablePolicy","`moveNear: NO[unreachable]`; keys \"nearest-reachable\" and \"hold\""],
+    "UO": ["throwUnhandledNpcRouteResult","error string \"Unhandled NPC route result: ...\""]
+  },
+  "assets/rendering.js": {
+    "VL": ["getWeaponCategoryDefinition","inferred: returns the `{ name, styles }` entry of the table keyed by weapon category (`_L[getWeaponCategory(id)]`, falling back to `_L.unarmed`); callers read `.styles[selectedAttackStyleIndex]`, and Grid.js shows its `.name` after the label \"Category: \""]
+  }
+}

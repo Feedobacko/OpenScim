@@ -1,0 +1,3128 @@
+{
+  "parseItemRef": {
+    "bo": ["input","inferred: Zod safeParse input"]
+  },
+  "throwUnexpectedRunePouchKind": {
+    "bo": ["runePouchKind","error string \"Unexpected rune pouch kind\""]
+  },
+  "parseRunePouch": {
+    "bo": ["input","inferred: Zod safeParse input"],
+    "br": ["firstSlot","read from data.slots[0], stored as slots[0]"],
+    "bs": ["secondSlot","read from data.slots[1], stored as slots[1]"],
+    "bt": ["thirdSlot","read from data.slots[2], stored as slots[2]"]
+  },
+  "parseCombatSupplies": {
+    "bo": ["input","inferred: Zod safeParse input"],
+    "br": ["blowpipeAmmo","stored as { blowpipe }, read from the wrapper's .ammo"],
+    "bv": ["blowpipeInput","inferred: Zod safeParse input, passed data.blowpipe"],
+    "bt": ["spellbook","stored as { spellbook }"],
+    "bu": ["selectedSpell","stored as { selectedSpell }"]
+  },
+  "cloneItemRef": {
+    "bo": ["itemRef","function name cloneItemRef; passed equippedAmmo, slots[n]"]
+  },
+  "cloneRunePouch": {
+    "bo": ["runePouch","passed combatSupplies.runePouch"]
+  },
+  "cloneCombatSupplies": {
+    "bo": ["combatSupplies","passed player.combatSupplies (L8913)"]
+  },
+  "isSameItemRef": {
+    "bo": ["itemRef","inferred: function name isSameItemRef"],
+    "bp": ["otherItemRef","inferred: the item ref compared against"]
+  },
+  "withRunePouchSlot": {
+    "bo": ["runePouch","passed supplies.runePouch (application.js L15842)"],
+    "bp": ["slotIndex","inferred: pouch slot to replace, from onChooseRune(slot, rune)"],
+    "bq": ["runeItemRef","inferred: { id } of the chosen rune or null"],
+    "bs": ["slotItemAt","inferred: pouch slot content after the replacement"],
+    "bt": ["index","inferred: index into runePouch.slots"]
+  },
+  "areCombatSuppliesEqual": {
+    "bo": ["combatSupplies","inferred: function name areCombatSuppliesEqual"],
+    "bp": ["otherCombatSupplies","inferred: the supplies compared against"],
+    "br": ["runePouch","passed combatSupplies.runePouch"],
+    "bs": ["otherRunePouch","passed otherCombatSupplies.runePouch"],
+    "bt": ["slots","read from runePouch.slots"],
+    "bu": ["otherSlots","read from otherRunePouch.slots"],
+    "bv": ["slotIndex","inferred: index into both pouches' slots"]
+  },
+  "isItemStackable": {
+    "bo": ["itemId","passed item.id / pickup.itemId (L11394, L11449)"],
+    "bp": ["quantity","passed item.quantity (L11449)"],
+    "bq": ["objTypeLoader","passed this.objTypeLoader"],
+    "br": ["stackableByQuantity","inferred: fallback guess, more than one in a slot means stackable"]
+  },
+  "normalizeInventory": {
+    "bo": ["inventory","inferred: function name normalizeInventory"],
+    "bp": ["normalizedInventory","inferred: 28-slot copy that is returned"],
+    "bq": ["slotIndex","inferred: inventory slot index"],
+    "br": ["itemRef","inferred: slot content, only its id is kept"]
+  },
+  "clearInventorySlot": {
+    "bo": ["inventory","passed player.inventory (L11396)"],
+    "bp": ["inventoryIndex","passed action.inventoryIndex (L11396)"],
+    "bq": ["nextInventory","inferred: copy returned with the slot emptied"],
+    "br": ["itemRef","inferred: slot content of the inventory"]
+  },
+  "encounterDefinitionByKind": {
+    "bo": ["encounterDefinition","element of encounterDefinitions"],
+    "bp": ["kind","element of [definition.kind, ...variantKinds]"]
+  },
+  "encounterKindByRetiredKind": {
+    "bo": ["encounterDefinition","element of encounterDefinitions"],
+    "bp": ["retired","element of retiredKinds, stored as { retired } on L399"]
+  },
+  "retiredEncounterKindEntries": {
+    "bo": ["encounterDefinition","element of encounterDefinitions"],
+    "bp": ["retired","stored as { retired }"]
+  },
+  "resolveRetiredEncounterKind": {
+    "bo": ["encounterKind","passed encounter.kind via resolveBaseEncounterKind (L8586)"]
+  },
+  "consolidateRetiredEncounterKinds": {
+    "bo": ["valuesByEncounterKind","inferred: record keyed by encounter kind (linesByEncounter, markersByEncounter in application.js)"],
+    "bp": ["mergeValues","inferred: called with (current value, retired kind's value)"],
+    "br": ["mergedByEncounterKind","inferred: copy returned as { map }"],
+    "bs": ["consolidated","stored as { consolidated }"],
+    "bv": ["retiredValue","inferred: value stored under retired.kind"]
+  },
+  "resolveBaseEncounterKind": {
+    "bo": ["encounterKind","passed encounter.kind (L8586, L12228)"],
+    "bq": ["currentKind","inferred: kind after replacing a retired kind"]
+  },
+  "isEncounterKind": {
+    "bo": ["candidateKind","inferred: unknown value tested for being an encounter kind"]
+  },
+  "(statement 1)": {
+    "bo#1": ["encounterDefinition","element of encounterDefinitions"],
+    "bo#2": ["encounterDefinition","element of encounterDefinitions"]
+  },
+  "COMBINATION_RUNES_BY_RUNE": {
+    "bo": ["combinationRunesByRune","assigned to COMBINATION_RUNES_BY_RUNE"],
+    "bp": ["combinationRuneId","key of RUNES_BY_COMBINATION_RUNE (COMBINATION_RUNE_ITEM_IDS)"],
+    "bq": ["componentRuneIds","inferred: value of RUNES_BY_COMBINATION_RUNE, the runes a combination rune stands for"],
+    "br": ["runeId","element of RUNE_ITEM_IDS values"],
+    "bs": ["combinationRuneIds","inferred: combination runes that provide runeId"]
+  },
+  "getSpellRuneTypes": {
+    "bo": ["spellId","stored as { spellId } in resolveAttackResources (L1503)"]
+  },
+  "createFourDosePotionEntries": {
+    "bo": ["doseItemIds","inferred: item ids of the 4, 3, 2 and 1 dose potion"],
+    "bp": ["createEffects","called, stored as { effects }"],
+    "br": ["fourDoseItemId","inferred: e.g. 22461 Bastion potion(4)"],
+    "bs": ["threeDoseItemId","inferred: stored as the four dose's consume.withId"],
+    "bt": ["twoDoseItemId","inferred: stored as the three dose's consume.withId"],
+    "bu": ["oneDoseItemId","inferred: stored as the two dose's consume.withId"]
+  },
+  "createSuperCombatBoostEffects": {
+    "bp": ["stat","stored as { stat }"]
+  },
+  "createDosedConsumableEntries": {
+    "bo": ["doseItemIds","inferred: item ids of the 4, 3, 2 and 1 dose"],
+    "bp": ["emptyContainerItemId","inferred: last dose's consume.withId, 229 vial or 1980 empty cup"],
+    "bq": ["track","stored as { track }"],
+    "br": ["delayTicks","stored as { delayTicks }"],
+    "bs": ["createEffects","called, stored as { effects }"],
+    "bu": ["fourDoseItemId","inferred: e.g. 2444 Ranging potion(4)"],
+    "bv": ["threeDoseItemId","inferred: stored as the four dose's consume.withId"],
+    "bw": ["twoDoseItemId","inferred: stored as the three dose's consume.withId"],
+    "bx": ["oneDoseItemId","inferred: stored as the two dose's consume.withId"]
+  },
+  "createSteppedDoseConsumableEntries": {
+    "bo": ["fourDoseItemId","inferred: first of four ids spaced by a fixed step"],
+    "bp": ["itemIdStep","inferred: id distance between consecutive doses"],
+    "bq": ["emptyContainerItemId","passed as createDosedConsumableEntries param 1"],
+    "br": ["track","passed as createDosedConsumableEntries param 2, stored as { track }"],
+    "bs": ["delayTicks","passed as createDosedConsumableEntries param 3, stored as { delayTicks }"],
+    "bt": ["createEffects","passed as createDosedConsumableEntries param 4"]
+  },
+  "withMinHpToUse": {
+    "bo": ["consumableEntries","inferred: result of createDosedConsumableEntries"],
+    "bp": ["minHpToUse","stored as { minHpToUse }"],
+    "bq": ["itemId","inferred: key of consumableDefinitionByItemId entries"],
+    "br": ["consumableDefinition","inferred: value of consumableDefinitionByItemId entries"]
+  },
+  "consumableDefinitionByItemId": {
+    "bo": ["itemId","key of consumableDefinitionByItemId"],
+    "bp": ["consumableDefinition","value of consumableDefinitionByItemId"]
+  },
+  "getConsumableDefinition": {
+    "bo": ["itemId","index into consumableDefinitionByItemId, passed item.id"],
+    "bp": ["option","passed action.option (L7565, L11304)"]
+  },
+  "filterPrepotEffects": {
+    "bo": ["effects","passed definition.effects (L12152)"],
+    "bp": ["effect","element of effects"]
+  },
+  "hasPrepotEffect": {
+    "bo": ["consumableDefinition","passed consumableDefinitionByItemId[id] (L12147)"],
+    "bp": ["effect","element of definition.effects"]
+  },
+  "hasRuneAvailable": {
+    "bo": ["runeId","element of SPELL_RUNE_REQUIREMENTS (RUNE_ITEM_IDS)"],
+    "bp": ["caster","inferred: { equipment, inventory, runePouch, magicLevel } of whoever casts"],
+    "bs#1": ["neededRuneId","inferred: rune looked up in RUNES_PROVIDED_BY_STAFF"],
+    "bt#1": ["equipment","passed caster.equipment"],
+    "bu": ["equippedItemId","element of [equipment.weapon, equipment.shield]"],
+    "br": ["acceptedRuneIds","inferred: the rune plus the combination runes that count as it"],
+    "bs#2": ["baseRuneId","inferred: key into COMBINATION_RUNES_BY_RUNE"],
+    "bt#2": ["combinationRuneIds","read from COMBINATION_RUNES_BY_RUNE"],
+    "bs#3": ["itemRef","element of caster.inventory"],
+    "bt#3": ["pouchItemRef","element of caster.runePouch.slots"]
+  },
+  "checkSpellRequirements": {
+    "bo": ["spellId","stored as { spellId } in resolveAttackResources (L1503)"],
+    "bp": ["caster","inferred: { equipment, inventory, runePouch, magicLevel } of whoever casts"],
+    "br": ["requiredRuneIds","read from SPELL_RUNE_REQUIREMENTS"],
+    "bs": ["runeId","passed as hasRuneAvailable param 0"]
+  },
+  "hasMagicLevelForSpell": {
+    "bo": ["spellId","passed from checkSpellRequirements param 0"],
+    "bp": ["magicLevel","passed caster.magicLevel"],
+    "br": ["requiredMagicLevel","read from SPELL_MAGIC_LEVEL_REQUIREMENTS"],
+    "bs": ["spellKey","inferred: key into SPELL_MAGIC_LEVEL_REQUIREMENTS"]
+  },
+  "canCastSpell": {
+    "bo": ["spellId","passed as checkSpellRequirements param 0"],
+    "bp": ["caster","passed as checkSpellRequirements param 1"]
+  },
+  "isSoulreaperAxe": {
+    "bo": ["weaponId","passed player.equipment.weapon (L5777, L6963)"]
+  },
+  "getSoulreaperStackCount": {
+    "bo": ["soulreaper","passed player.soulreaper (L5770)"]
+  },
+  "getSoulreaperStacksForWeapon": {
+    "bo": ["weaponId","passed playerEquipment.weapon (Grid.js L55209)"],
+    "bp": ["soulreaperStacks","passed simulationState.soulreaperStacks, stored as { soulreaperStacks }"]
+  },
+  "groupPrayersBySlot": {
+    "bo": ["prayers","inferred: passed action.selections (L1388)"],
+    "bq": ["protectionPrayer","stored as { protection }"],
+    "br": ["offensivePrayer","stored as { offensive }"],
+    "bs": ["independentPrayers","stored as { independent }"],
+    "bt": ["prayer","element of prayers"],
+    "bu": ["prayerSlot","inferred: \"protection\" / \"offensive\" / \"independent\", same values as transition { slot }"]
+  },
+  "applyPrayerActionEntries": {
+    "bo": ["startingPrayers","passed ops.start (L7587)"],
+    "bp": ["actionEntries","inferred: { action, hasPrayerPoints } entries, function name"],
+    "br": ["protectionPrayer","read from .protection, stored as { protection }"],
+    "bs": ["offensivePrayer","read from .offensive; player.offensivePrayer (L10990)"],
+    "bt": ["independentPrayers","read from .independent; player.independentPrayers (L10991)"],
+    "bu": ["quickPrayersActive","read from .quickPrayersActive, stored as { quickPrayersActive }"],
+    "bv": ["protectionTouched","stored as { protectionTouched }"],
+    "bw": ["offensiveTouched","stored as { offensiveTouched }"],
+    "bx": ["independentTouched","stored as { independentTouched }"],
+    "by": ["activatedPrayers","stored (filtered) as { activated }"],
+    "bz": ["rejectedPrayers","stored as { rejected }"],
+    "bA": ["transitions","stored as { transitions }"],
+    "bB": ["markActivated","inferred: records a newly switched-on prayer"],
+    "bF#1": ["currentPrayer","inferred: prayer active in the slot before the action"],
+    "bG#1": ["nextPrayer","inferred: prayer the action switches the slot to"],
+    "bC": ["setProtectionPrayer","inferred: assigns the protection slot and logs the transition"],
+    "bF#2": ["nextPrayer","stored as transition { to }"],
+    "bD": ["setOffensivePrayer","inferred: assigns the offensive slot and logs the transition"],
+    "bF#3": ["nextPrayer","stored as transition { to }"],
+    "bE": ["setIndependentPrayers","inferred: assigns the independent prayers and logs the transitions"],
+    "bF#4": ["nextPrayers","inferred: new list of independent prayers"],
+    "bG#2": ["currentPrayer","element of independentPrayers, stored as transition { from }"],
+    "bH#1": ["nextPrayer","stored as transition { to }"],
+    "bI#1": ["prayer","element of independentPrayers"],
+    "bH#2": ["quickPrayers","inferred: action.selections of a quickPrayers action grouped by slot"],
+    "bI#2": ["prayer","element of quickPrayers.independent"],
+    "bK": ["prayer","element of activatedPrayers"]
+  },
+  "applyPrayerActions": {
+    "bo": ["startingPrayers","passed as applyPrayerActionEntries param 0"],
+    "bp": ["actions","stored as { action } per element"],
+    "bq": ["hasPrayerPoints","stored as { hasPrayerPoints }"],
+    "bs": ["action","stored as { action }"]
+  },
+  "isPrayerRestoreCape": {
+    "bo": ["itemId","passed equipment.cape and inventory item.id"],
+    "bp": ["capeId","element of PRAYER_RESTORE_CAPE_IDS"]
+  },
+  "hasEnhancedPrayerRestoration": {
+    "br#1": ["ringId","element of RING_OF_THE_GODS_IMBUED_IDS, compared with equipment.ring"],
+    "br#2": ["itemRef","element of inventory"]
+  },
+  "computePrayerRestoreAmount": {
+    "bo": ["formula","passed effect.formula (L7365, L7601)"],
+    "bp": ["prayerLevel","passed .prayerLevel (L7601)"],
+    "bq": ["enhancedPrayerRestoration","passed .enhancedPrayerRestoration (L7366)"],
+    "bs": ["restoreCoefficients","inferred: PRAYER_RESTORE_FORMULAS entry { basePercent, enhancedPercent, flat }"],
+    "bt": ["restorePercent","read from .enhancedPercent / .basePercent"]
+  },
+  "isAmmoUsableWithWeapon": {
+    "bo": ["weaponId","passed attackSetup.weaponId (L1535)"],
+    "bp": ["ammo","passed supplies.equippedAmmo / supplies.quiverAmmo"]
+  },
+  "resolveAttackResources": {
+    "bo": ["attackSetup","inferred: { weaponId, equipment, inventory, formulaStyle, supplies, magicLevel, manualCastSpell, activeSpell }"],
+    "bq": ["activeSpell","read from .activeSpell, else supplies.selectedSpell"],
+    "br": ["spellId","stored as { spellId }"]
+  },
+  "canApplyBurn": {
+    "bo": ["target","passed burn.target (L2695), destructured target (L1587)"],
+    "bp": ["severity","passed destructured severity (L1587)"],
+    "br": ["burnTarget","inferred: same target, inside the immunity check"],
+    "bs": ["burnSeverity","inferred: same severity, index into BURN_SEVERITY_RANK"],
+    "bt": ["burnImmunity","read from formulaStats.burnImmunity"]
+  },
+  "applyBurnStack": {
+    "bo": ["burnRequest","inferred: { target, sourceId, origin, severity, pulses, tick, firstPulseDelayTicks }"],
+    "bt": ["burnStacks","read from target.burnStacks"]
+  },
+  "decrementTickCounter": {
+    "bo": ["ticksRemaining","inferred: passed the combatTimers *Ticks counters (L9831-9835)"]
+  },
+  "updateRunEnergy": {
+    "bo": ["runEnergy","passed player.runEnergy (L9275)"],
+    "bp": ["runFactors","inferred: { isRunning, agility, weight, gracefulBonusPercent, staminaActive, ringOfEnduranceEquipped }"],
+    "br": ["baseEnergyDrain","inferred: drain per tick from weight and agility, before stamina"],
+    "bu#1": ["weight","passed runFactors.weight"],
+    "bv#1": ["agility","passed runFactors.agility"],
+    "bw#1": ["weightDrain","inferred: 60 + 67 * clamp(weight, 0, 64) / 64"],
+    "bs": ["drainPercent","inferred: 30 with stamina, 85 with ring of endurance, else 100"],
+    "bt": ["energyDrain","inferred: subtracted from runEnergy.energy"],
+    "bu#2": ["energyRecovery","inferred: added to runEnergy.energy while not running"],
+    "bv#2": ["agility","passed runFactors.agility"],
+    "bw#2": ["gracefulBonusPercent","passed runFactors.gracefulBonusPercent"],
+    "bx": ["baseRecovery","inferred: floor(agility / 10) + 15, before the graceful bonus"]
+  },
+  "getPoisonDamage": {
+    "bo": ["poisonSeverity","passed poison.severity (L2505) and poisonState.poisonVarp (L11580)"]
+  },
+  "tickDeathChargeTimers": {
+    "bo": ["combatTimers","passed player.combatTimers (L9828-9836)"],
+    "bq": ["deathChargeActiveTicks","stored as { deathChargeActiveTicks }"]
+  },
+  "activateMarkOfDarkness": {
+    "bo": ["magicLevel","passed player.stats.magic.max (L10283)"],
+    "bp": ["hasPurgingStaff","inferred: passed equipment.weapon === 29594 (purging staff) at L10282, L12184"],
+    "bq": ["combatTimers","passed player.combatTimers (L10283)"],
+    "bs": ["baseActiveTicks","inferred: 3 ticks per magic level"],
+    "bt": ["markOfDarknessActiveTicks","stored as { markOfDarknessActiveTicks }"]
+  },
+  "spendSpecialAttackEnergy": {
+    "bo": ["specialAttack","passed player.specialAttack (L6625), named specialAttack in previewInstantSpecial"],
+    "bp": ["energyCost","derived from spec.energyCost in previewInstantSpecial (L1698)"]
+  },
+  "applyPoisonToTarget": {
+    "bo": ["poisonRequest","inferred: { target, sourceId, severity, tick }"],
+    "bu": ["poisonTarget","inferred: same target, inside the can-be-poisoned check"],
+    "bv": ["actor","inferred: same target, inside the poison immunity check"]
+  },
+  "normalizeOptionalItemId": {
+    "bo": ["itemId","passed equipment.weapon / head / body / legs (L6071-6074)"]
+  },
+  "hasPowerOfDeathWeapon": {
+    "bo": ["player","reads .equipment.weapon; callers guard with kind === \"player\""]
+  },
+  "getPowerOfDeathDamageMultiplier": {
+    "bo": ["player","reads .powerOfDeathUntilTick set on player in activateInstantSpecial (L1726)"],
+    "bp": ["tick","compared with player.powerOfDeathUntilTick"]
+  },
+  "clearPowerOfDeathIfWeaponRemoved": {
+    "bo": ["player","writes .powerOfDeathUntilTick set on player in activateInstantSpecial (L1726)"],
+    "bp": ["damageTaken","inferred: damage about to be subtracted from player.vitals.hp"]
+  },
+  "applyOnHitSpecialEffects": {
+    "bo": ["attacker","passed as applySpecialAttackEffects param 0"],
+    "bp": ["target","passed as applySpecialAttackEffects param 1"],
+    "bq": ["damage","passed .effectiveDamage (L2680)"],
+    "br": ["specialEffects","passed postHitEffects (L2676, L2234)"],
+    "bs": ["tick","passed .tick (L2680)"]
+  },
+  "isDamageIndependentSpecialEffect": {
+    "bo": ["specialEffect","error string \"Unhandled special attack effect\"; element of postHitEffects"]
+  },
+  "applySpecialAttackEffects": {
+    "bo": ["attacker","inferred: source of the hit, passed plan.player (L6188); its id is stored as sourceId"],
+    "bp": ["target","stored as { target }, passed plan.target (L6189)"],
+    "bq": ["damage","passed .effectiveDamage via applyOnHitSpecialEffects (L2680); scaled by percentOfDamage"],
+    "br": ["specialEffects","passed postHitEffects / onLaunchEffects"],
+    "bs": ["tick","stored as { tick }, passed deps.world.tick (L6191)"],
+    "bt": ["trigger","inferred: \"on-hit\" or \"on-fire\""],
+    "bv": ["specialEffect","error string \"Unhandled special attack effect\""],
+    "bw": ["weakenPercent","inferred: 15 against demons, else 5"],
+    "bx": ["targetLevels","read from target.formulaStats.levels"],
+    "by": ["healAmount","inferred: added to attacker.vitals.hp, floor is specialEffect.minimumHeal"],
+    "bz": ["prayerRestoreAmount","inferred: added to attacker.prayerState.points"],
+    "bA": ["extraDefenceDrain","added to target.debuffs.defenceDrain"],
+    "bB": ["extraMagicDrain","added to target.debuffs.magicDrain"],
+    "bC": ["freezeResistance","read from target.formulaStats.freezeResistance"],
+    "bD": ["freezeTicks","inferred: durationTicks reduced by freeze resistance"],
+    "bE": ["bindFromTick","stored as debuffs.boundFromTick"],
+    "bF": ["bindUntilTick","stored as debuffs.boundUntilTick"],
+    "bI": ["overlapsExistingBind","inferred: new bind interval intersects the stored one"]
+  },
+  "computePercentLevelDrain": {
+    "bo": ["baseLevel","callers pass formulaStats.levels.defence / .attack"],
+    "bp": ["currentDrain","callers pass debuffs.defenceDrain"],
+    "bq": ["percent","callers pass effect.percent"]
+  },
+  "throwUnhandledSpecialAttackEffect": {
+    "bo": ["effect","error string \"Unhandled special attack effect\""]
+  },
+  "CombatSystem.constructor": {
+    "bo": ["options","inferred: { enablePendingHits, defaultAttackSpeedTicks, random }"]
+  },
+  "CombatSystem.tP": {
+    "bo": ["actorId","key of nextAttackTickByActor; callers pass actor.id"]
+  },
+  "CombatSystem.eP": {
+    "bo": ["actorId","key of nextAttackTickByActor; caller passes player.id"],
+    "bp": ["reduceAttackDelayTicks","caller passes effect.reduceAttackDelayTicks"],
+    "bq": ["tick","inferred: current tick, the attack cannot move before tick + 1"],
+    "bs": ["nextAttackTick","read from nextAttackTickByActor"],
+    "bt": ["earliestAttackTick","inferred: tick + 1, lower bound for the reduced cooldown"]
+  },
+  "CombatSystem.nP": {
+    "bo": ["actorId","key of nextAttackTickByActor; caller passes player.id"],
+    "bp": ["tick","caller passes worldState.tick"],
+    "bq": ["attackDelayTicks","caller passes ATTACK_DELAY_TICKS_BY_CONSUMABLE_TRACK[track]"],
+    "bs": ["nextAttackTick","read from nextAttackTickByActor"]
+  },
+  "CombatSystem.iP": {
+    "bo": ["actorId","key of scheduledAttackCycleByActor"]
+  },
+  "CombatSystem.rP": {
+    "bo": ["actorId","key of nextAttackTickByActor"],
+    "bp": ["speedupTicks","inferred: ticks requested through grantNextAttackSpeedup"],
+    "bq": ["tick","log string \"no active attack cooldown at tick\""],
+    "bs": ["nextAttackTick","read from nextAttackTickByActor; log \"next attack stays at tick\""],
+    "bt": ["alreadyAppliedSpeedup","read from appliedAttackSpeedupByActor"],
+    "bu": ["attackCycleTicks","read from scheduledAttackCycleByActor; log \"cycle\""],
+    "bv": ["grantedSpeedupTicks","log string \"next attack sped up by N tick(s)\""],
+    "bw": ["spedUpAttackTick","stored in nextAttackTickByActor; log \"cooldown now ends at tick\""]
+  },
+  "CombatSystem.aP": {
+    "bo": ["actorId","key of appliedAttackSpeedupByActor"]
+  },
+  "CombatSystem.oP": {
+    "bo": ["worldState","caller passes deps.world; .tick read"],
+    "bp": ["attacker","stored as { attacker }"],
+    "bq": ["target","stored as { target }"],
+    "br": ["combatContext","inferred: events, damage multipliers and hooks built by the engine's KI()"],
+    "bs": ["attackOptions","inferred: { acceptKillTickTarget }"],
+    "bt": ["isAttackableTarget","inferred: predicate chosen by acceptKillTickTarget"]
+  },
+  "CombatSystem.lP": {
+    "bo": ["worldState","caller passes this.worldState"],
+    "bp": ["attackRequest","inferred: { attacker, target, attack }"],
+    "bq": ["combatContext","inferred: caller passes KI() result"]
+  },
+  "CombatSystem.dP": {
+    "bo": ["worldState","caller passes this.worldState / deps.world"],
+    "bp": ["attackRequest","inferred: { attacker, target, attack }"],
+    "bq": ["combatContext","inferred: caller passes KI() result"]
+  },
+  "CombatSystem.fP": {
+    "bo": ["worldState","caller passes this.worldState"],
+    "bp": ["attackRequest","inferred: { attacker, target, attack }"],
+    "bq": ["combatContext","inferred: caller passes KI() result"]
+  },
+  "CombatSystem.mP": {
+    "bo": ["worldState","caller passes this.worldState"],
+    "bp": ["attackRequest","inferred: { attacker, target, attack }"],
+    "bq": ["combatContext","inferred: caller passes KI() result"]
+  },
+  "CombatSystem.uP": {
+    "bo": ["worldState","callers pass the WorldState; .tick and .FM read"],
+    "bp": ["attackRequest","inferred: { attacker, target, attack }"],
+    "bq": ["combatContext","inferred: events, damage multipliers and hooks built by the engine's KI()"],
+    "br": ["launchOptions","inferred: { emitAttackStarted, queueImmediateHit }"],
+    "bv": ["isNpcAttackingPlayer","inferred: attacker.kind npc and target.kind player"],
+    "bw": ["damageCapAtCalculation","stored as { damageCapAtCalculation }"],
+    "bx": ["attack","read from attackRequest.attack"],
+    "bC": ["rolledDamage","roll of attack.rolledDamage"],
+    "bD": ["landedDamage","inferred: rolled damage, 0 when the accuracy roll failed"],
+    "bE": ["boostedDamage","inferred: after damageBonusPercent"],
+    "bF": ["scaledDamage","inferred: after incomingDamageMultiplier; stored as { rolledDamage }"],
+    "by": ["hitContext","inferred: combat context without the incoming multiplier once it is applied at launch"],
+    "bG": ["attackStartedEvent","type \"attack_started\""],
+    "bH": ["spellTargetedEvent","type \"spell_targeted\""],
+    "bA": ["shouldQueueHit","inferred: pending hits enabled and the hit is delayed or forced into the queue"],
+    "bB": ["targetNpc","worldState.FM(target.id), the NPC lookup"],
+    "bI": ["rolledDamage","roll of attack.rolledDamage; stored as { rolledDamage }"],
+    "bK": ["hit","passed as queuePendingHit's hit (error string \"does not match hit\")"]
+  },
+  "CombatSystem.kP": {
+    "bo": ["attacker","caller passes attacker"],
+    "bp": ["target","caller passes target"],
+    "bq": ["attack","caller passes attack; .postHitEffects .accuracySucceeded"],
+    "br": ["tick","caller passes worldState.tick"],
+    "bv#1": ["postHitEffect","element of attack.postHitEffects"],
+    "bv#2": ["postHitEffect","element of attack.postHitEffects"],
+    "bu": ["remainingEffects","stored as { postHitEffects }; inferred: without the freeze applied at launch"],
+    "bv#3": ["postHitEffect","element of attack.postHitEffects"]
+  },
+  "CombatSystem.MP": {
+    "bo": ["worldState",".nextHitSequence .pendingHits"],
+    "bp": ["hit","error string \"does not match hit\""],
+    "bq": ["runtime","error string \"queuePendingHit: runtime\"; stored in pendingHitRuntime"],
+    "bs": ["pendingHit","pushed to worldState.pendingHits"]
+  },
+  "CombatSystem.PP": {
+    "bo": ["worldState","caller passes this.worldState"],
+    "bp": ["combatContext","inferred: caller passes KI() result"],
+    "bq": ["targetKind","caller passes \"player\"; compared with actor.kind"],
+    "bs#1": ["pendingHit","element of worldState.pendingHits"],
+    "br": ["processedTargets","inferred: targets whose hits were already resolved this call"],
+    "bs#2": ["target","actor of pendingHit.targetId"]
+  },
+  "CombatSystem.AP": {
+    "bo": ["worldState","caller passes this.worldState"],
+    "bp": ["combatContext","inferred: caller passes KI() result"],
+    "bq": ["target","compared with runtime.target"],
+    "bs": ["targetNpc","inferred: the target when it is an NPC"],
+    "bt": ["deathBeforeHits","read from targetNpc.death before the hits land"],
+    "bu": ["diedFromHit","inferred: a hit of this pass created the death record"],
+    "bv": ["hitLandedAfterDeath","inferred: another hit landed after the killing one"],
+    "bw": ["lastEnqueueSequence","assigned pendingHit.enqueueSequence"],
+    "bx": ["pendingHit","element of worldState.pendingHits"],
+    "by": ["runtime","read from pendingHitRuntime"]
+  },
+  "CombatSystem.EP": {
+    "bo": ["worldState",".pendingHits read"],
+    "bp": ["targetNpc","inferred: caller passes the NPC target; id compared with pendingHit.targetId"],
+    "br": ["pendingHit","element of worldState.pendingHits"],
+    "bs": ["runtime","read from pendingHitRuntime"]
+  },
+  "CombatSystem.xP": {
+    "bo": ["pendingHit","error string \"pending hit #\""],
+    "bp": ["runtime","read from pendingHitRuntime"]
+  },
+  "CombatSystem.IP": {
+    "bo": ["worldState",".actors read"],
+    "bp": ["pendingHit","element of worldState.pendingHits"],
+    "br": ["runtime","read from pendingHitRuntime"]
+  },
+  "CombatSystem.hP": {
+    "bo": ["target","callers pass attackRequest.target and the hit target"]
+  },
+  "CombatSystem.sP": {
+    "bo": ["worldState",".tick read"],
+    "bp": ["attacker","callers pass attackRequest.attacker"]
+  },
+  "CombatSystem._P": {
+    "bo": ["worldState",".pendingHits .actors"],
+    "bp": ["targetKind","compared with actor.kind"],
+    "bq": ["processedTargets","inferred: targets to skip"],
+    "bs": ["pendingHit","element of worldState.pendingHits"],
+    "bt": ["target","actor of pendingHit.targetId"]
+  },
+  "CombatSystem.TP": {
+    "bo": ["worldState",".pendingHits read"],
+    "bp": ["targetId","compared with pendingHit.targetId"],
+    "bq": ["lastEnqueueSequence","compared with pendingHit.enqueueSequence"],
+    "bs": ["nextPendingHit","inferred: lowest enqueueSequence after the last one"],
+    "bt": ["pendingHit","element of worldState.pendingHits"]
+  },
+  "CombatSystem.HP": {
+    "bo": ["worldState",".pendingHits read"],
+    "bp": ["pendingHit","element of worldState.pendingHits"],
+    "bq": ["index","indexOf in worldState.pendingHits"]
+  },
+  "CombatSystem.CP": {
+    "bo": ["worldState","caller passes this.worldState"],
+    "bp": ["combatContext","inferred: caller passes KI() result"],
+    "bq": ["target","inferred: the burning actor, passed as the hit's target"],
+    "bs": ["burnPulse","inferred: { sourceId, stackCount } of the burn pulse due this tick"],
+    "bu": ["actor","inferred: the burning actor"],
+    "bv": ["tick","caller passes worldState.tick"],
+    "bx": ["pulse","inferred: { sourceId, stackCount } returned as the due pulse"],
+    "by": ["remainingStacks","stored as actor.burnStacks"],
+    "bz": ["burnStack","element of actor.burnStacks"],
+    "bt": ["attacker","actor of burnPulse.sourceId"]
+  },
+  "CombatSystem.qP": {
+    "bo": ["worldState","caller passes this.worldState"],
+    "bp": ["combatContext","inferred: caller passes KI() result"],
+    "bq": ["target","inferred: the poisoned actor, passed as the hit's target"],
+    "bs": ["poisonPulse","inferred: { sourceId, damage } of the poison pulse due this tick"],
+    "bu": ["actor","inferred: the poisoned actor"],
+    "bv": ["tick","caller passes worldState.tick"],
+    "bx": ["pulse","inferred: { sourceId, damage } returned as the due pulse"],
+    "by": ["nextSeverity","stored as { severity }"],
+    "bt": ["attacker","actor of poisonPulse.sourceId"]
+  },
+  "CombatSystem.DP": {
+    "bo": ["pendingHit","caller passes a pending hit; .launchTick .impactTick"],
+    "bq": ["prayerCheckAt","read from pendingHit.prayerCheckAt"]
+  },
+  "CombatSystem.cP": {
+    "bo": ["tick","caller passes worldState.tick"],
+    "bp": ["attacker","caller passes attacker"],
+    "bq": ["combatContext","inferred: caller passes the combat context"],
+    "bt": ["attackCycleTicks","stored in scheduledAttackCycleByActor"]
+  },
+  "CombatSystem.resolveAttack": {
+    "bo": ["worldState","caller passes the WorldState"],
+    "bp": ["attacker","caller passes attacker"],
+    "bq": ["target","caller passes target"],
+    "br": ["combatContext","inferred: caller passes the combat context; .resolveAttack"],
+    "bs": ["attackStyle","read from attacker.combat.attackStyle; stored as { style }"],
+    "bt": ["defaultAttack","inferred: used when the context resolves no attack"],
+    "bu": ["resolvedAttack","returned by combatContext.resolveAttack"]
+  },
+  "CombatSystem.bP": {
+    "bo": ["worldState","callers pass the WorldState; .tick read"],
+    "bp": ["attacker","callers pass attacker / runtime.source"],
+    "bq": ["target","stored as { target }"],
+    "br": ["attack","caller passes attack"],
+    "bs": ["combatContext","inferred: events, damage multipliers and hooks"],
+    "bt": ["judgedProtectionPrayer","caller passes pendingHit.judgedProtectionPrayer"],
+    "bu": ["damageCapAtCalculation","caller passes pendingHit.damageCapAtCalculation"],
+    "bv": ["damageMode","inferred: \"standard\", or \"fixed\" for burn and poison, which skip the outgoing multipliers"],
+    "bx": ["rolledDamage","roll of attack.rolledDamage"],
+    "by": ["minimumDamage","inferred: a player's successful hit deals at least 1"],
+    "bz": ["baseDamage","returned by OP as { baseDamage }"],
+    "bA": ["appliedDamage","passed to combatContext.onDamageApplied"],
+    "bB": ["hitAppliedEvent","type \"hit_applied\""],
+    "bC": ["hitsplatEvent","type \"hitsplat_spawned\""],
+    "bE": ["applicableEffects","inferred: attack.postHitEffects that apply for this damage"],
+    "bD": ["equipmentHitParams","inferred: arguments of an inlined equipment hit effect check"],
+    "bG": ["selfDamage","from attack.sourceSelfDamageRatio; emitted as hitsplat amount on the attacker"],
+    "bH": ["actorDiedEvent","type \"actor_died\""]
+  },
+  "CombatSystem.NP": {
+    "bo": ["worldState","caller passes the WorldState; .tick read"],
+    "bp": ["attacker","caller passes attacker; stored as sourceId"],
+    "bq": ["target","caller passes target; stored as targetId"],
+    "br": ["attack","caller passes attack"],
+    "bs": ["combatContext","inferred: events and onDamageApplied hook"],
+    "bu": ["activePrayer","stored as { activePrayer }"],
+    "bv": ["prayedCorrectly","stored as { prayedCorrectly }"]
+  },
+  "CombatSystem.getAttackSpeed": {
+    "bo": ["attacker","caller passes attacker"],
+    "bp": ["combatContext","inferred: caller passes the combat context; .getAttackSpeed"],
+    "br": ["contextAttackSpeed","returned by combatContext.getAttackSpeed"]
+  },
+  "CombatSystem.vP": {
+    "bo": ["combatContext","inferred: caller passes the combat context; .enablePendingHits"]
+  },
+  "CombatSystem.RP": {
+    "bo": ["attacker","caller passes attacker"]
+  },
+  "CombatSystem.BP": {
+    "bo": ["attackStyle","caller passes attacker.combat.attackStyle"]
+  },
+  "CombatSystem.wP": {
+    "bo": ["target","callers pass the hit target; .activePrayer"]
+  },
+  "CombatSystem.gP": {
+    "bo": ["amount","inferred: damage or tick count clamped to a non-negative integer"]
+  },
+  "CombatSystem.WP": {
+    "bo": ["baseDamage","caller passes baseDamage"],
+    "bp": ["attackType","caller passes attackType"],
+    "bq": ["activePrayer","caller passes activePrayer"],
+    "br": ["prayerReduction","caller passes attack.prayerReduction"]
+  },
+  "CombatSystem.OP": {
+    "bo": ["attacker","caller passes attacker; stored as sourceId"],
+    "bp": ["target","caller passes target; stored as targetId"],
+    "bq": ["baseDamage","stored as { baseDamage }"],
+    "br": ["attackType","stored as { attackType }"],
+    "bs": ["tick","stored as { tick }"],
+    "bt": ["combatContext","inferred: .incomingDamageMultiplier .infiniteHealth"],
+    "bu": ["prayerReduction","caller passes attack.prayerReduction"],
+    "bv": ["applyPoison","stored as { applyPoison }"],
+    "bw": ["onKillEffect","stored as { onKillEffect }"],
+    "bx": ["expectedHit","stored as { expectedHit }"],
+    "by": ["judgedProtectionPrayer","caller passes pendingHit.judgedProtectionPrayer"],
+    "bz": ["damageCapAtCalculation","caller passes pendingHit.damageCapAtCalculation"],
+    "bA": ["deathCauseStage","stored as death.causeStage by the NPC death helper"],
+    "bC": ["hpBefore","stored as { hpBefore }"],
+    "bD": ["activePrayer","stored as { activePrayer }"],
+    "bE": ["prayerReducedDamage","inferred: after the protection prayer"],
+    "bF": ["cappedDamage","inferred: limited to damageCapAtCalculation"],
+    "bG": ["shieldReducedDamage","inferred: after the Elysian spirit shield (12817) roll"],
+    "bH": ["unreducedDamage","inferred: damage before the Elysian reduction"],
+    "bI": ["effectiveDamage","stored as { effectiveDamage }"],
+    "bK": ["targetHasInfiniteHealth","read from combatContext.infiniteHealth, player targets only"],
+    "bN": ["prayedCorrectly","stored as { prayedCorrectly }"]
+  },
+  "CombatSystem.$P": {
+    "bo": ["attackType","caller passes attackType"],
+    "bp": ["activePrayer","caller passes activePrayer"]
+  },
+  "CombatSystem.pP": {
+    "bo": ["actor","inferred: .kind compared with \"npc\""]
+  },
+  "CombatSystem.SP": {
+    "bo": ["actor","inferred: .kind compared with \"player\""]
+  },
+  "CombatSystem.KP": {
+    "bo": ["actor","inferred: tested for an activePrayer property"]
+  },
+  "isConflictionGauntletsAttack": {
+    "bo": ["attackSetup","inferred: { equipment, formulaStyle, attackResources }"],
+    "br": ["weaponDefinition","inferred: item definition of equipment.weapon (.isTwoHanded .version)"]
+  },
+  "isSameConflictionAttack": {
+    "bo": ["pendingConflictionAttack","caller passes player.pendingConflictionAttack"],
+    "bp": ["currentConflictionAttack","inferred: the confliction attack of the current swing"]
+  },
+  "resolveBranchedSplatDamage": {
+    "bo": ["damageSpec","caller's error string \"Unhandled damage spec\" for the same value"],
+    "bp": ["selectedBranch","error string \"the swing's selected branch\""],
+    "bs": ["allMissDamage","error string \"Missing all-miss damage\""],
+    "br": ["branchSplit","error string \"Missing branch split\""],
+    "bt": ["branch","caller passes selectedBranch"],
+    "bu": ["split","caller passes branchSplit"]
+  },
+  "sumOutcomeWeights": {
+    "bo": ["outcomes","callers pass damageSpec.outcomes"],
+    "bp": ["total","inferred: running sum of weights"],
+    "bq": ["outcome","element of outcomes"]
+  },
+  "forEachDamageOutcome": {
+    "bo": ["damageSpec","passed hit.damage; error string \"Unhandled damage spec\""],
+    "bp": ["priorDamage","passed branch.priorDamage"],
+    "bq": ["selectedBranch","passed branch.selectedBranch"],
+    "br": ["visitOutcome","inferred: callback called once per (damage, probability) outcome"],
+    "bs": ["damage","key of the buildDamageDistribution map; callers store it as { rolledDamage }"],
+    "bt": ["probability","callers multiply it into { probability }"]
+  },
+  "buildDamageDistribution": {
+    "bo": ["damageSpec","error string \"Unhandled damage spec\"; passed hit.damage"],
+    "bp": ["priorDamage","passed branch.priorDamage"],
+    "bq": ["selectedBranch","passed branch.selectedBranch"],
+    "bs": ["buildBaseDistribution","inferred: only ever called with damageSpec.base"],
+    "bt#1": ["baseSpec","passed damageSpec.base"],
+    "bt#2": ["distribution","function name buildDamageDistribution"],
+    "bu": ["uniformProbability","inferred: 1 / number of values, kind \"uniform\""],
+    "bv": ["damage","inferred: each value from minimumInclusive to maximumInclusive"],
+    "bw#1": ["damage","compared with damageSpec.minimumDamage"],
+    "bw#2": ["damage","inferred: damage value of the base distribution"],
+    "bw#3": ["distribution","function name buildDamageDistribution"],
+    "bx": ["baseDamage","key of the distribution of damageSpec.base"],
+    "by": ["probability","passed as addProbabilityMass probability"],
+    "bz#1": ["baseDamage","damage value of the distribution of damageSpec.base"],
+    "bA#1": ["scaledCopy","kind \"addFloorScaledCopy\""],
+    "bB#1": ["stageRatio","element of damageSpec.stages, passed as floorScaleByRatio ratio"],
+    "bz#2": ["distribution","function name buildDamageDistribution"],
+    "bA#2": ["totalWeight","result of sumOutcomeWeights"],
+    "bB#2": ["outcome","element of damageSpec.outcomes"],
+    "bC": ["unhandledSpec","error string \"Unhandled damage spec\""]
+  },
+  "mapDistributionDamage": {
+    "bo": ["distribution","receives a buildDamageDistribution result"],
+    "bp": ["mapDamage","inferred: function name mapDistributionDamage"],
+    "br": ["mappedDistribution","inferred"],
+    "bs": ["damage","key of the damage distribution"],
+    "bt": ["probability","passed as addProbabilityMass probability"]
+  },
+  "addProbabilityMass": {
+    "bo": ["distribution","receives the damage distribution map"],
+    "bp": ["damage","key of the damage distribution"],
+    "bq": ["probability","function name addProbabilityMass"]
+  },
+  "floorScaleByRatio": {
+    "bo": ["damage","inferred: damage value being scaled"],
+    "bp": ["ratio","passed damageSpec.ratio"]
+  },
+  "getPriorHitDamage": {
+    "bo": ["priorDamage","passed branch.priorDamage"],
+    "bp": ["priorHitIndex","passed damageSpec.priorHitIndex"],
+    "br": ["resolvedDamage","error string \"Missing resolved damage for prior hit\""]
+  },
+  "collectFutureHitDependencies": {
+    "bo": ["plannedHits","passed attackPlan.hits; each is resolvePlannedHitRoll's { plannedHit }"],
+    "bp": ["firstFutureIndex","inferred: plan index of the first hit still to be projected"],
+    "br": ["accuracyDependencyIndices","filtered into { accuracyIndices }"],
+    "bs": ["damageDependencies","inferred: passed to collectDamageDependencies"],
+    "bt": ["futureHit","function name collectFutureHitDependencies"],
+    "bu#1": ["priorHitIndex","values added from gate.priorHitIndex / accuracy.priorHitIndices"],
+    "bu#2": ["priorHitIndex","element of damageDependencies.priorHitIndices"]
+  },
+  "buildBranchDependencyKey": {
+    "bo": ["priorAccuracy","passed nextBranch.priorAccuracy"],
+    "bp": ["priorDamage","passed nextBranch.priorDamage"],
+    "bq": ["selectedBranch","passed nextBranch.selectedBranch"],
+    "br": ["futureDependencies","passed .futureDependencies"],
+    "bs": ["accuracyResults","error string \"Missing accuracy result for prior hit\""],
+    "bv#1": ["accuracyIndex","element of futureDependencies.accuracyIndices"],
+    "bw#1": ["priorAccuracy","called with the priorAccuracy parameter"],
+    "bx#1": ["priorHitIndex","error string \"... for prior hit \" + index"],
+    "by#1": ["accuracyResult","error string \"Missing accuracy result for prior hit\""],
+    "bt": ["resolvedDamages","error string \"Missing resolved damage for prior hit\""],
+    "bv#2": ["damageIndex","element of futureDependencies.damageIndices"],
+    "bw#2": ["priorDamage","called with the priorDamage parameter"],
+    "bx#2": ["priorHitIndex","error string \"... for prior hit \" + index"],
+    "by#2": ["resolvedDamage","error string \"Missing resolved damage for prior hit\""],
+    "bu": ["selectedBranchDependency","inferred: selected branch only when futureDependencies.usesSelectedBranch"]
+  },
+  "collectGateDependencies": {
+    "bo": ["gate","passed futureHit.gate"],
+    "bp": ["accuracyDependencyIndices","same set as in collectFutureHitDependencies"]
+  },
+  "collectAccuracyDependencies": {
+    "bo": ["accuracySpec","passed futureHit.accuracy; function name resolveAccuracySpec"],
+    "bp": ["accuracyDependencyIndices","same set as in collectFutureHitDependencies"],
+    "br": ["priorHitIndex","element of accuracySpec.priorHitIndices"]
+  },
+  "collectDamageDependencies": {
+    "bo": ["damageSpec","passed futureHit.damage; error string \"Unhandled damage spec\""],
+    "bp": ["damageDependencies","same object as in collectFutureHitDependencies"]
+  },
+  "throwUnhandledProjectionDependency": {
+    "bo": ["unhandledSpec","inferred: gate, accuracy or damage spec of an unknown kind"]
+  },
+  "projectPlayerAttack": {
+    "bo": ["attackPlan","function names rollAttackPlan, buildAttackPlanFromProfile"],
+    "bq": ["firstPlannedHit","first of attackPlan.hits; resolvePlannedHitRoll's { plannedHit }"],
+    "br": ["remainingPlannedHits","rest of attackPlan.hits"],
+    "bs": ["branches","stored as { branches }"],
+    "by#1": ["branchSelection","passed attackPlan.branchSelection"],
+    "bz#1": ["emptyBranch","inferred: branch fields before any hit is projected"],
+    "bA#1": ["initialBranches","inferred: returned as the starting branches"],
+    "bB#1": ["remainingProbability","inferred: probability that no earlier attempt landed"],
+    "bC": ["attemptIndex","index into branchSelection.attempts"],
+    "bD": ["attempt","element of branchSelection.attempts"],
+    "bG": ["possibleTotalCount","inferred: number of values in attempt.total's range"],
+    "bH": ["probabilityPerTotal","stored as { probability }"],
+    "bI": ["total","stored as selectedBranch { total }"],
+    "bK": ["totalAllMissWeight","sum of branchSelection.allMissWeights"],
+    "bN#1": ["weightSum","inferred: reducer accumulator"],
+    "bO#1": ["weight","element of branchSelection.allMissWeights"],
+    "bN#2": ["outcomeIndex","index into allMissWeights, stored as selectedBranch { outcome }"],
+    "bO#2": ["weight","element of branchSelection.allMissWeights"],
+    "bt": ["firstHitProjection","inferred: result of projectPlannedHitOverBranches"],
+    "bu": ["projectedHits","returned as { hits }"],
+    "bv": ["planIndex","stored as { planIndex }"],
+    "by#2": ["plannedHit","element of attackPlan.hits; resolvePlannedHitRoll's { plannedHit }"],
+    "bz#2": ["hitProjection","inferred: result of projectPlannedHitOverBranches"],
+    "bw": ["expectedRolledDamagePerAttack","stored as { expectedRolledDamagePerAttack }"],
+    "bA#2": ["total","inferred: reducer accumulator"],
+    "bB#2": ["projectedHit","element of the returned { hits }"],
+    "bx": ["expectedAppliedDamagePerAttack","stored as { expectedAppliedDamagePerAttack }"],
+    "bA#3": ["total","inferred: reducer accumulator"],
+    "bB#3": ["projectedHit","element of the returned { hits }"],
+    "bA#4": ["maximum","inferred: reducer accumulator of Math.max"],
+    "bB#4": ["branch","element of branches"],
+    "bA#5": ["maximum","inferred: reducer accumulator of Math.max"],
+    "bB#5": ["branch","element of branches"]
+  },
+  "projectPlannedHitOverBranches": {
+    "bo": ["projectionStep","inferred: named arguments for projecting one planned hit"],
+    "bq": ["branchesByDependencyKey","inferred: keyed by buildBranchDependencyKey, values returned as { branches }"],
+    "br": ["gateProbability","stored as { gateProbability }"],
+    "bs": ["accuracyProbability","stored as { accuracyProbability }"],
+    "bt": ["expectedRolledDamage","stored as { expectedRolledDamage }"],
+    "bu": ["expectedAppliedDamage","stored as { expectedAppliedDamage }"],
+    "bv": ["maximumRolledDamage","stored as { maximumRolledDamage }"],
+    "bw": ["maximumAppliedDamage","stored as { maximumAppliedDamage }"],
+    "bx": ["recordOutcome","inferred: adds one outcome of the hit to the totals and the branch map"],
+    "by#1": ["branch","element of projectionStep.branches"],
+    "bz#1": ["outcome","inferred: { accuracySucceeded, rolledDamage, probability } of one way the hit can go"],
+    "bA#1": ["appliedDamage","summed into expectedAppliedDamage and maximumAppliedTotal"],
+    "bB#1": ["landedDamage","inferred: rolled damage with an accurate 0 raised to 1"],
+    "bC#1": ["application","read from projectionStep.application"],
+    "bD": ["nextBranch","inferred: the branch extended by this hit's outcome"],
+    "bE": ["dependencyKey","result of buildBranchDependencyKey"],
+    "bF": ["existingBranch","inferred: branch already stored under the same key"],
+    "by#2": ["branch","element of projectionStep.branches"],
+    "bB#2": ["rolledDamage","stored as { rolledDamage }"],
+    "bC#2": ["damageProbability","inferred: probability of that damage within the distribution"],
+    "bz#2": ["procChance","read from hit.proc.chance"],
+    "bB#3": ["procDamage","outcome of forEachProcDamageOutcome"],
+    "bC#3": ["damageProbability","inferred: probability of that damage within the proc's range"],
+    "bA#2": ["accuracyChance","result of projectedAccuracyChance"],
+    "bB#4": ["rolledDamage","stored as { rolledDamage }"],
+    "bC#4": ["damageProbability","inferred: probability of that damage within the distribution"]
+  },
+  "forEachProcDamageOutcome": {
+    "bo": ["proc","passed hit.proc"],
+    "bp": ["visitOutcome","inferred: callback called once per (damage, probability) outcome"],
+    "br": ["uniformProbability","inferred: 1 / number of values, kind \"uniformDamage\""],
+    "bs": ["damage","inferred: each value from minimumInclusive to maximumInclusive"]
+  },
+  "isHitGatePassedForPriorAccuracy": {
+    "bo": ["gate","passed hit.gate"],
+    "bp": ["priorAccuracy","passed branch.priorAccuracy"]
+  },
+  "projectedAccuracyChance": {
+    "bo": ["accuracySpec","passed hit.accuracy; function name resolveAccuracySpec"],
+    "bp": ["priorAccuracy","passed branch.priorAccuracy"],
+    "br": ["priorHitIndex","element of accuracySpec.priorHitIndices"]
+  },
+  "requirePriorAccuracyResult": {
+    "bo": ["priorAccuracy","passed branch.priorAccuracy"],
+    "bp": ["priorHitIndex","passed gate.priorHitIndex"],
+    "bq": ["accuracyResult","error string \"Missing accuracy result for prior hit\""]
+  },
+  "throwUnhandledProjectionValue": {
+    "bo": ["unhandledValue","error string \"Unhandled player attack projection value\""]
+  },
+  "applyGuaranteedHitOverrides": {
+    "bo": ["attackPlan","function names rollAttackPlan, mapAttackPlanHits"],
+    "bp": ["overrides","function name applyGuaranteedHitOverrides"],
+    "br": ["adjustedPlan","inferred: the plan with the overrides applied so far"],
+    "bt#1": ["plannedHit","element of attackPlan.hits; resolvePlannedHitRoll's { plannedHit }"],
+    "bt#2": ["firstAttempt","first of branchSelection.attempts"],
+    "bu": ["remainingAttempts","rest of branchSelection.attempts"],
+    "bw": ["plannedHit","element of attackPlan.hits; resolvePlannedHitRoll's { plannedHit }"],
+    "bx#1": ["planIndex","index into the projected hits, which carry { planIndex }"],
+    "bx#2": ["plannedHit","element of attackPlan.hits; resolvePlannedHitRoll's { plannedHit }"],
+    "by": ["planIndex","index into the projected hits, which carry { planIndex }"],
+    "bz": ["damageSpec","read from plannedHit.damage; error string \"Unhandled damage spec\""],
+    "bA": ["hitMinimumDamage","stored as { minimumDamage } or { minimumWhenSelected }"]
+  },
+  "lowerDamageSpecMaximum": {
+    "bo": ["damageSpec","function name lowerDamageSpecMaximum"],
+    "bp": ["ratio","inferred: { numerator, denominator } like damageSpec.ratio"],
+    "br": ["loweredMaximum","stored as { maximumInclusive }; function name lowerDamageSpecMaximum"]
+  },
+  "mapAttackPlanHits": {
+    "bo": ["attackPlan","function name mapAttackPlanHits"],
+    "bp": ["mapHit","inferred: function name mapAttackPlanHits"],
+    "br": ["firstPlannedHit","first of attackPlan.hits"],
+    "bs": ["remainingPlannedHits","rest of attackPlan.hits"],
+    "bt": ["plannedHit","element of attackPlan.hits; resolvePlannedHitRoll's { plannedHit }"],
+    "bu": ["index","inferred: position in the remaining hits"]
+  },
+  "rollDamageSpec": {
+    "bo": ["damageSpec","function name rollDamageSpec; error string \"Unhandled damage spec\""],
+    "bp": ["priorDamage","inferred: rolledDamage of each prior hit, as branch.priorDamage in the projection"],
+    "bq": ["random","passed .random"],
+    "br": ["selectedBranch","passed .selectedBranch"],
+    "bt": ["rollBase","inferred: only ever called with damageSpec.base"],
+    "bu#1": ["baseSpec","passed damageSpec.base"],
+    "bu#2": ["priorDamage","called with the priorDamage parameter"],
+    "bv#1": ["priorHitIndex","passed damageSpec.priorHitIndex"],
+    "bw#1": ["resolvedDamage","error string \"Missing resolved damage for prior hit\""],
+    "bu#3": ["baseDamage","roll of damageSpec.base"],
+    "bv#2": ["baseDamage","roll of damageSpec.base"],
+    "bw#2": ["scaledCopy","kind \"addFloorScaledCopy\""],
+    "bx": ["stageRatio","element of damageSpec.stages, passed as floorScaleDamageByRatio ratio"],
+    "by#1": ["outcomes","passed damageSpec.outcomes"],
+    "bz": ["randomRoll","inferred: called with random()"],
+    "bA": ["firstOutcome","error string \"Expected at least one weighted damage outcome\""],
+    "bB": ["remainingOutcomes","rest of damageSpec.outcomes"],
+    "bC": ["remainingWeight","inferred: roll scaled by total weight, reduced by each outcome.weight"],
+    "bD": ["lastOutcome","inferred: fallback when the weights run out"],
+    "bE": ["outcome","element of damageSpec.outcomes"],
+    "by#2": ["unhandledSpec","error string \"Unhandled damage spec\""]
+  },
+  "floorScaleDamageByRatio": {
+    "bo": ["damage","function name floorScaleDamageByRatio"],
+    "bp": ["ratio","passed damageSpec.ratio"]
+  },
+  "rollAttackPlan": {
+    "bo": ["attackPlan","function name rollAttackPlan"],
+    "bp": ["random","stored as { random }"],
+    "br": ["selectedBranch","stored as { selectedBranch }"],
+    "bv#1": ["branchSelection","passed attackPlan.branchSelection"],
+    "bw#1": ["random","called with the random parameter"],
+    "bx": ["attemptIndex","index into branchSelection.attempts"],
+    "by": ["attempt","element of branchSelection.attempts"],
+    "bs": ["firstPlannedHit","stored as { plannedHit }"],
+    "bt": ["remainingPlannedHits","rest of attackPlan.hits"],
+    "bu": ["resolvedHits","stored as { hits } and { priorHits }; error string \"Missing resolved prior hit\""],
+    "bv#2": ["index","inferred: position in the remaining hits"],
+    "bw#2": ["plannedHit","stored as { plannedHit }"]
+  },
+  "pickWeightedIndex": {
+    "bo": ["weights","passed branchSelection.allMissWeights"],
+    "bp": ["randomRoll","inferred: called with random()"],
+    "br": ["remainingWeight","inferred: roll scaled by total weight, reduced by each weight"],
+    "bs#1": ["total","inferred: reducer accumulator"],
+    "bt#1": ["weight","element of the weights"],
+    "bs#2": ["index","function name pickWeightedIndex"],
+    "bt#2": ["weight","element of the weights"]
+  },
+  "resolvePlannedHitRoll": {
+    "bo": ["rollContext","inferred: named arguments for rolling one planned hit"],
+    "bq": ["gatePassed","stored as { gatePassed }"],
+    "bw#1": ["gate","passed plannedHit.gate"],
+    "bx#1": ["priorHits","passed .priorHits"],
+    "br": ["priorDamage","passed as rollDamageSpec priorDamage"],
+    "bw#2": ["priorHit","element of .priorHits"],
+    "bs": ["resolvedHitBase","inferred: fields spread into every returned hit"],
+    "bw#3": ["rolledDamage","stored as { rolledDamage }"],
+    "bt": ["procActivated","stored as { procActivated }; error string \"Expected an activated hit proc\""],
+    "bu": ["accuracySucceeded","stored as { accuracySucceeded }"],
+    "bx#2": ["accuracySpec","passed plannedHit.accuracy; function name resolveAccuracySpec"],
+    "by#1": ["priorHits","passed .priorHits"],
+    "bz": ["random","passed .random"],
+    "bA": ["priorHitIndex","element of accuracySpec.priorHitIndices"],
+    "bv": ["rolledDamage","stored as { rolledDamage }"],
+    "bx#3": ["proc","passed plannedHit.proc"],
+    "by#2": ["random","passed .random"]
+  },
+  "requireResolvedPriorHit": {
+    "bo": ["priorHits","passed .priorHits"],
+    "bp": ["priorHitIndex","passed gate.priorHitIndex"],
+    "br": ["priorHit","error string \"Missing resolved prior hit\""]
+  },
+  "throwUnhandledAttackVariant": {
+    "bo": ["unhandledVariant","error string \"Unhandled player attack variant\""]
+  },
+  "buildAttackPlanFromProfile": {
+    "bo": ["attackSetup","inferred: attacker, target, stats and profile the plan is built from"],
+    "bq": ["attackSetup","called with the attackSetup parameter"],
+    "br": ["profile","passed .profile"],
+    "bs": ["accuracyRolls","stored as { accuracyRolls }"],
+    "bt": ["baseMaxHit","stored as diagnostics { baseMaxHit }"],
+    "bu": ["attackContext","inferred: formula style, delivery, max hit and accuracy rolls shared by the profile's hits; same object as the attackContext parameter of buildPlannedHitsForProfile"]
+  },
+  "buildAccuracyBranchSelection": {
+    "bo": ["branches","passed profile.branches"],
+    "bp": ["allMissOutcomes","passed profile.allMiss; the tables are named ...AllMissOutcomes"],
+    "bq": ["accuracySpec","passed profile.accuracy; argument 0 of resolveAccuracySpec"],
+    "br": ["attackContext","inferred: { formulaStyle, delivery, maxHit, accuracyRolls, standardAccuracyMode } built in buildAttackPlanFromProfile"],
+    "bt": ["hitChance","stored as { chance }"],
+    "bz#1": ["resolvedAccuracy","inferred: result of resolveAccuracySpec"],
+    "bu": ["firstBranch","inferred: first element of branches"],
+    "bv": ["otherBranches","inferred: rest of branches"],
+    "bw": ["buildAttempt","its results are stored as { attempts }"],
+    "bz#2": ["branch","element of profile.branches"],
+    "bx": ["firstAllMissOutcome","inferred: first element of profile.allMiss"],
+    "by": ["otherAllMissOutcomes","inferred: rest of profile.allMiss"],
+    "bz#3": ["allMissOutcome","element of profile.allMiss"]
+  },
+  "buildPlannedHitsForProfile": {
+    "bo": ["profile","passed input.profile by buildAttackPlanFromProfile"],
+    "bp": ["attackContext","inferred: { formulaStyle, delivery, maxHit, accuracyRolls, standardAccuracyMode } built in buildAttackPlanFromProfile"],
+    "br": ["firstMaximumFraction","first element of profile.maximumFractions"],
+    "bs": ["otherMaximumFractions","rest of profile.maximumFractions"],
+    "bt#1": ["maximumFraction","element of profile.maximumFractions"],
+    "bt#2": ["firstFollowUp","first element of profile.followUps"],
+    "bu": ["otherFollowUps","rest of profile.followUps"],
+    "bv#1": ["followUp","element of profile.followUps"],
+    "bv#2": ["firstBranch","first element of profile.branches"],
+    "bw": ["otherBranches","rest of profile.branches"],
+    "by": ["branch","element of profile.branches"],
+    "bz#1": ["allMissOutcome","element of profile.allMiss"],
+    "bz#2": ["share","element of branch.shares"],
+    "bA": ["index","inferred: position in branch.shares"]
+  },
+  "buildBranchedSplitHitsplat": {
+    "bo": ["profile","passed the profile of buildPlannedHitsForProfile"],
+    "bp": ["hitsplatIndex","error string \"Missing branch share for hitsplat \""],
+    "bq": ["attackContext","inferred: same value as in buildPlannedHitsForProfile"],
+    "bs": ["firstBranch","first element of profile.branches"],
+    "bt": ["otherBranches","rest of profile.branches"],
+    "bu": ["getBranchShare","inferred: reads branch.shares[hitsplatIndex]"],
+    "by#1": ["branch","element of profile.branches"],
+    "bz#1": ["share","read from branch.shares"],
+    "bv": ["getAllMissDamage","inferred: reads allMissOutcome.damages[hitsplatIndex]"],
+    "by#2": ["allMissOutcome","element of profile.allMiss"],
+    "bz#2": ["damage","read from allMissOutcome.damages"],
+    "bw": ["firstAllMissOutcome","first element of profile.allMiss"],
+    "bx": ["otherAllMissOutcomes","rest of profile.allMiss"]
+  },
+  "buildPlannedHit": {
+    "bo": ["hitSpec","inferred: passed profile.hit, profile.first or profile.second"],
+    "bp": ["gate","stored as { gate }"],
+    "bq": ["attackContext","inferred: same value as in buildPlannedHitsForProfile"]
+  },
+  "resolveBoltProcSpec": {
+    "bo": ["procSpec","passed hitSpec.proc; stored as { proc }"],
+    "bp": ["maxHit","passed attackContext.maxHit"]
+  },
+  "buildMaxHitFractionHit": {
+    "bo": ["maximumFraction","element of profile.maximumFractions"],
+    "bp": ["accuracySpec","passed profile.accuracy; argument 0 of resolveAccuracySpec"],
+    "bq": ["attackContext","inferred: same value as in buildPlannedHitsForProfile"]
+  },
+  "buildPriorDamageFollowUpHit": {
+    "bo": ["followUp","element of profile.followUps"],
+    "bp": ["attackContext","inferred: same value as in buildPlannedHitsForProfile"]
+  },
+  "addImpactDelayOffset": {
+    "bo": ["delivery","passed attackContext.delivery"],
+    "bp": ["impactDelayOffsetTicks","error string; passed hitSpec.impactDelayOffsetTicks"]
+  },
+  "resolveAccuracySpec": {
+    "bo": ["accuracySpec","inferred: passed hitSpec.accuracy or profile.accuracy; the function name"],
+    "bp": ["accuracyRolls","passed attackContext.accuracyRolls"],
+    "bq": ["standardAccuracyMode","passed attackContext.standardAccuracyMode"]
+  },
+  "hitChanceForAccuracyMode": {
+    "bo": ["attackRoll","passed accuracyRolls.attackRoll after its stages"],
+    "bp": ["defenceRoll","passed accuracyRolls.defenceRoll"],
+    "bq": ["standardAccuracyMode","passed standardAccuracyMode by resolveAccuracySpec"],
+    "bs": ["singleRollChance","returned for case \"single_roll\""]
+  },
+  "resolveDamageSpecForMaxHit": {
+    "bo": ["damageSpec","inferred: passed hitSpec.damage; the function name"],
+    "bp": ["attackContext","inferred: same value as in buildPlannedHit"],
+    "br": ["uniformDamage","inferred: { kind: \"uniform\" } from 0 to the max hit"],
+    "bs": ["trimAmount","inferred: max hit times damageSpec.trim, cut from both ends of the range"]
+  },
+  "resolveProfileMaxHit": {
+    "bo": ["baseMaxHit","the caller stores the same value as diagnostics.baseMaxHit"],
+    "bp": ["maxHitSpec","passed profile.maxHit; the value maxHitSpecFromStages builds"]
+  },
+  "applyRatioStages": {
+    "bo": ["baseAmount","inferred: attack roll or max hit before the stages"],
+    "bp": ["ratioStages","passed maxHitSpec.stages and accuracySpec.attackRollStages"],
+    "bq": ["amount","inferred: accumulator, passed as amount to floorMultiplyByRatio"],
+    "br": ["ratio","inferred: { numerator, denominator } stage"]
+  },
+  "floorMultiplyByRatio": {
+    "bo": ["amount","inferred: number scaled by the ratio"],
+    "bp": ["ratio","the function name; .numerator .denominator"]
+  },
+  "resolveMaxHitFractionBound": {
+    "bo": ["maxHit","passed attackContext.maxHit"],
+    "bp": ["fractionBound","inferred: passed damageSpec.minimum / .maximum and branch.totalMinimum / .totalMaximum"],
+    "br": ["scaledMaxHit","inferred: max hit times fractionBound.ratio, not yet rounded"],
+    "bs": ["unroundedBound","inferred: value rounded by fractionBound.rounding"],
+    "bt": ["rounding","passed fractionBound.rounding"]
+  },
+  "buildPlayerAttackPlan": {
+    "bo": ["planInput","inferred: { player, target, formulaStyle, resources, profile, ... } assembled by planPlayerAttack"],
+    "bq": ["formulaTarget","stored as { target } for buildAttackPlanFromProfile; built from target.formulaStats"],
+    "bu#1": ["target","passed planInput.target"],
+    "br": ["equipmentStats","stored as { equipmentStats }"],
+    "bu#2": ["planInput","inferred: the planInput of buildPlayerAttackPlan, passed in"],
+    "bx#1": ["ammoStats","inferred: lookupItemStats(resources.ammoId)"],
+    "bv": ["wornEquipmentStats","assigned player.equipmentStats"],
+    "bw#1": ["addedAmmoStats","inferred: ammo stats summed onto the worn equipment stats"],
+    "bs": ["magicBaseMaxHit","stored as { magicBaseMaxHit }"],
+    "bu#3": ["planInput","inferred: the planInput of buildPlayerAttackPlan, passed in"],
+    "bw#2": ["selectedSpell","inferred: spell definition whose name is resources.spellId"],
+    "bx#2": ["spell","inferred: element of the imported spell list"],
+    "bt": ["attackPlan","returned by buildAttackPlanFromProfile; passed to applyGuaranteedHitOverrides"]
+  },
+  "adjustEquipmentStatsForAttack": {
+    "bo": ["planInput","passed the planInput of buildPlayerAttackPlan"],
+    "bp": ["equipmentStats","passed player.equipmentStats"],
+    "bs": ["quiverAdjustedStats","inferred: equipment stats with the Dizana's quiver ammo bonus"]
+  },
+  "isStrengthScaledRangedWeapon": {
+    "bo": ["weaponId","passed player.equipment.weapon; looked up in strengthScaledRangedWeaponIdSet"]
+  },
+  "detectVoidSetKind": {
+    "bo": ["equipment","passed player.equipment"],
+    "bq": ["headId","read from equipment.head"],
+    "br": ["bodyId","read from equipment.body"],
+    "bs": ["legsId","read from equipment.legs"],
+    "bt": ["handsId","read from equipment.hands"],
+    "bv": ["itemId","inferred: item id worn in a slot"],
+    "bu": ["hasEliteVoid","inferred: top and robe both in the elite void sets"]
+  },
+  "throwUnhandledAttackRuntimeValue": {
+    "bo": ["runtimeValue","error string \"Unhandled attack runtime value\""]
+  },
+  "getChinchompaAreaConfig": {
+    "bo": ["weaponId","passed equipment.weapon; key of chinchompaAreaConfigByWeaponId"]
+  },
+  "percentToRatio": {
+    "bo": ["percent","the function name"]
+  },
+  "scalePercentByDemonbaneVulnerability": {
+    "bo": ["percent","the function name"],
+    "bp": ["demonbaneVulnerability","passed input.demonbaneVulnerability"]
+  },
+  "computeFormulaStages": {
+    "bo": ["formulaStageInput","the value toFormulaStageInput builds"],
+    "bq": ["demonbaneSpellStages","inferred: stages of a demonbane spell against a demon"],
+    "bt#1": ["formulaStageInput","the formulaStageInput of computeFormulaStages, passed in"],
+    "bw#1": ["toDemonbaneRatio","inferred: calls scalePercentByDemonbaneVulnerability"],
+    "bx#1": ["percent","passed as percent to scalePercentByDemonbaneVulnerability"],
+    "br": ["twistedBowStages","inferred: stages when the weapon is in twistedBowIdSet"],
+    "bt#2": ["formulaStageInput","the formulaStageInput of computeFormulaStages, passed in"],
+    "bu#1": ["targetMagic","inferred: higher of targetMagicLevel and targetMagicAttackBonus, capped at 250"],
+    "bv#1": ["accuracyPercent","stored in attackRollStages"],
+    "bw#2": ["damagePercent","stored in maxHitStages"],
+    "bs": ["crystalBowStages","inferred: stages when the weapon is in crystalBowIdSet"],
+    "bt#3": ["formulaStageInput","the formulaStageInput of computeFormulaStages, passed in"],
+    "bu#2": ["wornArmourIds","read from headId, bodyId, legsId"],
+    "bx#2": ["itemId","inferred: item id worn in a slot"],
+    "bv#2": ["accuracyBonusPercent","inferred: crystal armour bonus added to 100 in attackRollStages"],
+    "bw#3": ["damageBonusHalfPercents","inferred: crystal armour bonus added to 200 over 200 in maxHitStages"],
+    "bt#4": ["formulaStageInput","the formulaStageInput of computeFormulaStages, passed in"],
+    "bv#3": ["toDemonbaneRatio","inferred: calls scalePercentByDemonbaneVulnerability"],
+    "bx#3": ["percent","passed as percent to scalePercentByDemonbaneVulnerability"],
+    "bw#4": ["demonbanePercent","read from demonbanePercentByWeaponId"]
+  },
+  "twistedBowScalingPercent": {
+    "bo": ["targetMagic","inferred: capped target magic level or magic attack bonus"],
+    "bp": ["forAccuracy","inferred: true for the attack roll stage, false for the max hit stage"],
+    "br": ["curveOffset","inferred: 10 for accuracy, 14 for damage in the twisted bow formula"],
+    "bs": ["basePercent","inferred: 140 for accuracy, 250 for damage"],
+    "bt": ["linearTerm","inferred: term added in the twisted bow formula"],
+    "bu": ["quadraticTerm","inferred: squared term subtracted in the twisted bow formula"],
+    "bv": ["uncappedPercent","inferred: value clamped between the minimum and maximum"],
+    "bw": ["minimumPercent","inferred: lower clamp, 0"],
+    "bx": ["maximumPercent","inferred: upper clamp, the base percent"]
+  },
+  "selectPlayerAttackProfile": {
+    "bo": ["profileInput","inferred: { weaponId, headId, formulaStyle, isSpecialAttack, ... } assembled by planPlayerAttack"],
+    "bq": ["canonicalInput","inferred: profileInput with the canonical weaponId"],
+    "br": ["baseProfile","inferred: profile before the slayer helmet, inquisitor and chinchompa stages"],
+    "bu#1": ["canonicalInput","the canonicalInput of selectPlayerAttackProfile, passed in"],
+    "by#1": ["soulreaperStacks","passed input.soulreaperStacks"],
+    "bz#1": ["cappedStacks","inferred: soulreaper stacks floored and clamped to 0-5"],
+    "bx#1": ["specialAttackProfile","read from specialAttackProfileByWeaponId"],
+    "bw#1": ["missingPrayerPoints","assigned input.playerMissingPrayerPoints"],
+    "by#2": ["canonicalInput","the canonicalInput of selectPlayerAttackProfile, passed in"],
+    "bz#2": ["targetAttributes","read from input.targetAttributes"],
+    "by#3": ["canonicalInput","the canonicalInput of selectPlayerAttackProfile, passed in"],
+    "bz#3": ["formulaStages","returned by computeFormulaStages"],
+    "bs": ["slayerAdjustedProfile","inferred: base profile with the slayer helmet stage"],
+    "bu#2": ["profile","inferred: passed baseProfile"],
+    "bv#1": ["canonicalInput","the canonicalInput of selectPlayerAttackProfile, passed in"],
+    "bx#2": ["slayerHelmRatio","one of SLAYER_HELM_MELEE_RATIO, SLAYER_HELM_IMBUED_RATIO"],
+    "by#4": ["headId","passed input.headId"],
+    "bz#4": ["formulaStyle","passed input.formulaStyle"],
+    "bA#1": ["weaponId","passed input.weaponId"],
+    "bB#1": ["canonicalHeadId","inferred: headId mapped to its base item id"],
+    "by#5": ["profile","inferred: the profile being adjusted, passed in"],
+    "bz#5": ["slayerHelmRatio","the slayerHelmRatio of the enclosing function, passed in"],
+    "bA#2": ["additiveMaxHitRatio","inferred: the two ratios added minus one, stored as the only maxHit stage"],
+    "bB#2": ["existingRatio","passed profile.maxHit.stages[0]"],
+    "bC": ["addedRatio","inferred: passed the slayer helmet ratio"],
+    "bE": ["commonDenominator","inferred: product of the two denominators"],
+    "bF": ["combinedNumerator","inferred: numerator of existing + added - 1 over the common denominator"],
+    "bG": ["greatestCommonDivisor","inferred: Euclid's algorithm on numerator and denominator"],
+    "bH": ["numerator","passed the combined numerator"],
+    "bI": ["denominator","passed the common denominator"],
+    "bK": ["divisor","inferred: running value of Euclid's algorithm, returned as the divisor"],
+    "bN": ["remainder","inferred: running remainder of Euclid's algorithm"],
+    "bt": ["inquisitorCrushRatio","inferred: built from inquisitorCrushBonusByItemId"],
+    "bu#3": ["canonicalInput","the canonicalInput of selectPlayerAttackProfile, passed in"],
+    "bv#2": ["inquisitorCrushBonus","summed from inquisitorCrushBonusByItemId"],
+    "bw#2": ["total","reducer accumulator"],
+    "bx#3": ["itemId","key of inquisitorCrushBonusByItemId"],
+    "bu#4": ["profile","inferred: the profile being adjusted, passed in"],
+    "bv#3": ["canonicalInput","the canonicalInput of selectPlayerAttackProfile, passed in"],
+    "bw#3": ["chinchompaAccuracyRatio","inferred: built from CHINCHOMPA_ACCURACY_PERCENT_BY_STYLE"],
+    "bx#4": ["weaponId","passed input.weaponId"],
+    "by#6": ["combatStyle","passed input.combatStyle"],
+    "bz#6": ["targetDistance","passed input.targetDistance"],
+    "bA#3": ["accuracyPercentByDistance","read from CHINCHOMPA_ACCURACY_PERCENT_BY_STYLE"],
+    "bB#3": ["accuracyPercent","element of CHINCHOMPA_ACCURACY_PERCENT_BY_STYLE[combatStyle]"]
+  },
+  "prependProfileMultiplierStage": {
+    "bo": ["profile","error string \"Unhandled player attack profile\"; .kind .maxHit .hit"],
+    "bp": ["stageRatio","inferred: ratio added to maxHit.stages and attackRollStages"]
+  },
+  "appendProfileMultiplierStage": {
+    "bo": ["profile","error string \"Unhandled player attack profile\"; .kind .maxHit .hit"],
+    "bp": ["stageRatio","inferred: ratio added to maxHit.stages and attackRollStages"]
+  },
+  "prependMaxHitStage": {
+    "bo": ["maxHitSpec","passed profile.maxHit; the value maxHitSpecFromStages builds"],
+    "bp": ["stageRatio","stored in { stages }"]
+  },
+  "appendMaxHitStage": {
+    "bo": ["maxHitSpec","passed profile.maxHit; the value maxHitSpecFromStages builds"],
+    "bp": ["stageRatio","stored in { stages }"]
+  },
+  "prependAttackRollStage": {
+    "bo": ["accuracySpec","inferred: passed profile.hit.accuracy or profile.accuracy"],
+    "bp": ["stageRatio","stored in { attackRollStages }"]
+  },
+  "appendAttackRollStage": {
+    "bo": ["accuracySpec","inferred: passed profile.hit.accuracy or profile.accuracy"],
+    "bp": ["stageRatio","stored in { attackRollStages }"]
+  },
+  "toFormulaStageInput": {
+    "bo": ["profileInput","inferred: the profileInput of selectPlayerAttackProfile"]
+  },
+  "buildStandardSingleHitProfile": {
+    "bo": ["profileInput","inferred: the profileInput of selectPlayerAttackProfile"],
+    "bq": ["formulaStages","returned by computeFormulaStages"]
+  },
+  "getEnchantedBoltProc": {
+    "bo": ["profileInput","inferred: the profileInput of selectPlayerAttackProfile"],
+    "bq": ["canonicalAmmoId","inferred: resources.ammoId mapped to its base item id"]
+  },
+  "maxHitSpecFromStages": {
+    "bo": ["maxHitStages","passed formulaStages.maxHitStages"],
+    "bq": ["firstStage","inferred: first of the stages"],
+    "br": ["otherStages","inferred: rest of the stages"]
+  },
+  "standardAccuracyFromStages": {
+    "bo": ["attackRollStages","stored as { attackRollStages }"]
+  },
+  "buildBranchedSplitProfile": {
+    "bo": ["profileInput","inferred: the profileInput of selectPlayerAttackProfile"],
+    "bp": ["branches","stored as { branches }"],
+    "bq": ["allMissOutcomes","stored as { allMiss }; passed the ...AllMissOutcomes tables"],
+    "bs": ["formulaStages","returned by computeFormulaStages"]
+  },
+  "buildDoubleHitSpecialProfile": {
+    "bo": ["attackRollRatio","stored in { attackRollStages }"],
+    "bp": ["maxHitRatio","stored in maxHit { stages }"]
+  },
+  "buildBoostedSingleHitProfile": {
+    "bo": ["attackRollRatio","stored in { attackRollStages }"],
+    "bp": ["maxHitRatio","stored in maxHit { stages }"]
+  },
+  "throwUnhandledAttackProfile": {
+    "bo": ["unhandledProfile","error string \"Unhandled player attack profile\""]
+  },
+  "scytheHitFractionsForTargetSize": {
+    "bo": ["targetSize","the function name; passed input.targetSize"]
+  },
+  "planPlayerAttack": {
+    "bo": ["attackInput","inferred: { player, target, formulaStyle, resources, delivery, isSpecialAttack, ... } assembled by the attack executor"],
+    "bp": ["consumeGuaranteedMaximum","passed options.consumeGuaranteedMaximum"],
+    "bq": ["forceGuaranteedMaximum","passed options.guaranteedMaximum"],
+    "br": ["maximumHitScale","passed options.maximumHitScale"],
+    "bt": ["profile","stored as { profile }"],
+    "bu": ["meleeStrengthBonusPercent","stored as { meleeStrengthBonusPercent }"],
+    "bv": ["weaponId","assigned player.equipment.weapon"],
+    "bw": ["soulreaper","assigned player.soulreaper"],
+    "bx": ["attackPlan","returned by buildPlayerAttackPlan; argument of mapAttackPlanHits"],
+    "by": ["scaledAttackPlan","inferred: attack plan with maximumHitScale applied to each hit"],
+    "bE#1": ["attackPlan","the attackPlan of planPlayerAttack, passed in"],
+    "bF": ["maximumHitScale","the maximumHitScale of planPlayerAttack, passed in"],
+    "bG": ["plannedHit","inferred: element of attackPlan.hits, built by buildPlannedHit"],
+    "bA": ["playerMinimumHit","read from encounterRules.playerMinimumHit"],
+    "bD": ["guaranteedMaximum","stored as { guaranteedMaximum }"],
+    "bE#2": ["maximumRolledDamage","applyGuaranteedHitOverrides passes hits[index].maximumRolledDamage"]
+  },
+  "summarizePrimaryHitAccuracy": {
+    "bo": ["attackPlan","inferred: result of planPlayerAttack, passed to projectPlayerAttack"],
+    "bp": ["attackOutcome","inferred: result of rollAttackPlanOutcome"],
+    "br": ["primaryHit","the function name; first of attackOutcome.hits"]
+  },
+  "rollAttackPlanOutcome": {
+    "bo": ["attackPlan","inferred: plan returned by planPlayerAttack, passed on to rollAttackPlan and projectPlayerAttack"],
+    "bp": ["random","passed deps.random and ricochetOptions.random at the call sites; stored as { random } by rollAttackPlan"],
+    "bq": ["primaryHitAccuracy","inferred: result of summarizePrimaryHitAccuracy ({ accurate, chance }) for the primary target"],
+    "bu#1": ["attackPlan","inferred: the outer attackPlan passed straight in"],
+    "bv": ["random","the outer random passed straight in"],
+    "bw": ["primaryHitAccuracy","inferred: the outer primaryHitAccuracy passed straight in"],
+    "bx": ["guaranteedAccuracyPlan","inferred: plan after applyGuaranteedHitOverrides with guaranteedAccuracy: true"],
+    "by": ["guaranteedProjection","inferred: projectPlayerAttack of the guaranteed-accuracy plan"],
+    "bz": ["accurateOutcome","inferred: outcome rolled only when the primary hit was accurate"],
+    "bA#1": ["plannedHit","element of plan.hits, stored as { plannedHit } in rollAttackPlan"],
+    "bA#2": ["projectedHit","inferred: element of projectPlayerAttack().hits"],
+    "bs": ["planRoll","inferred: result of rollAttackPlan ({ selectedBranch, hits })"],
+    "bt": ["projection","inferred: result of projectPlayerAttack"],
+    "bu#2": ["rolledHit","inferred: element of rollAttackPlan().hits, carries .rolledDamage"],
+    "bu#3": ["projectedHit","inferred: element of projectPlayerAttack().hits"]
+  },
+  "getSelectedCombatStyle": {
+    "bo": ["player","called with request.player in planPlayerAttack; reads .equipment.weapon"]
+  },
+  "getSpecialDefenceStyleOverride": {
+    "bo": ["attackInput","inferred: planPlayerAttack's argument object ({ player, isSpecialAttack, ... }), passed on unchanged"],
+    "br": ["defenceStyle","read from the special attack definition's .defenceStyle; stored as { defenceStyle }"]
+  },
+  "resolveValueOrCallback": {
+    "bo": ["valueOrCallback","inferred: from the function name; a value or a function of the context"],
+    "bp": ["encounterContext","passed the object stored as { encounterContext } in performPlayerAutoAttack"]
+  },
+  "canPlayerTargetActor": {
+    "bo": ["player","called with the player in performPlayerAutoAttack; reads .manualCastSpell"],
+    "bp": ["actor","value of world.actors.get(...) at the call site"]
+  },
+  "clearPlayerAttackTarget": {
+    "bo": ["player","called with attack.player; writes .attackTarget .attackInteractionActive .manualCastSpell"]
+  },
+  "setPlayerAttackTarget": {
+    "bo": ["player","called with this.player()"],
+    "bp": ["worldState","called with this.worldState"],
+    "bq": ["inputOp","inferred: the attack_target input op ({ targetId, manualCastSpell }); callers pass an element of pendingInputOps"],
+    "bs": ["targetNpc","inferred: NPC looked up by action.targetId (worldState.FM returns only npc actors)"]
+  },
+  "clearInvalidPlayerAttackTarget": {
+    "bo": ["player","called with the player; reads .attackTarget"],
+    "bp": ["worldState","called with this.worldState and deps.world"],
+    "br": ["targetNpc","inferred: NPC looked up by player.attackTarget"]
+  },
+  "rollBloodFuryHeal": {
+    "bo": ["landedHit","inferred: { amuletId, attackType, damage, roll } describing one landed hit"]
+  },
+  "applyAncientSceptreBonus": {
+    "bo": ["effectMagnitude","inferred: severity, percent or durationTicks of a spell's secondary effect"]
+  },
+  "rollSpellSecondaryEffects": {
+    "bo": ["spellId","called with attack.spellId"],
+    "bp": ["random","called with the attack's random (deps.random ?? Math.random)"],
+    "bq": ["equipment","called with attack.player.equipment"],
+    "bs": ["secondaryEffect","read from the spell's .secondaryEffect (getSpellSecondaryEffect)"],
+    "bt": ["hasAncientSceptre","inferred: weapon is in ancientSceptreIdSet"],
+    "bu": ["equipment","the outer equipment passed straight in; reads .weapon"]
+  },
+  "getSpellSecondaryEffect": {
+    "bo": ["spellId","called with attack.spellId"]
+  },
+  "filterPostHitEffectsByChance": {
+    "bo": ["postHitEffects","called with specialAttackDef.postHitEffects"],
+    "bp": ["selectedBranchIndex","called with attack.selectedBranchIndex"],
+    "bq": ["random","called with the attack's random"],
+    "bs": ["postHitEffect","element of postHitEffects"],
+    "bt": ["branchChancePercent","read from postHitEffect.chancePercentByBranch[selectedBranchIndex]"]
+  },
+  "launchPlayerAttack": {
+    "bo": ["attack","inferred: the launch description built by performPlayerAutoAttack ({ player, target, deps, hits, ... })"],
+    "bq": ["primaryHit","inferred: first of attack.hits; stored as { hit }"],
+    "br": ["followUpHits","inferred: the rest of attack.hits, queued as pending hits on the same target"],
+    "bs": ["random","read from attack.deps.random"],
+    "bt": ["specialPostHitEffects","read from attack.specialAttackDef.postHitEffects"],
+    "bu": ["rollPostHitEffects","inferred: its result is stored as { postHitEffects }"],
+    "bv": ["forcedMiss","stored as { forcedMiss }"],
+    "bw": ["supplementalTargets","read from attack.supplementalTargets"],
+    "bD#1": ["supplementalTarget","element of attack.supplementalTargets"],
+    "bE#1": ["hit","element of supplementalTarget.hits"],
+    "bx": ["onKillEffect","stored as { onKillEffect }; read from specialAttackDef.onKillEffect"],
+    "by": ["hpAtLaunch","stored as { hpAtLaunch }"],
+    "bz": ["equipmentHitEffects","stored as { equipmentHitEffects }"],
+    "bA": ["equipment","read from attack.player.equipment"],
+    "bB": ["primaryLanded","stored as { landed } and { accuracySucceeded } for the primary hit"],
+    "bC": ["attackOptions","inferred: options and hooks passed to combatSystem.oP (resolveAttack, onAttackStarted, ...)"],
+    "bD#2": ["damageApplication","inferred: argument of the onDamageApplied hook"],
+    "bE#2": ["launchHeal","read from attack.specialAttackDef.launchHeal"],
+    "bK#1": ["spellId","called with attack.spellId"],
+    "bN#1": ["secondaryEffect","returned by getSpellSecondaryEffect"],
+    "bK#2": ["supplementalTarget","element of supplementalTargets"],
+    "bN#2": ["hitIndex","inferred: index into supplementalTarget.hits and .forcedMisses"],
+    "bO#1": ["hit","element of supplementalTarget.hits"],
+    "bF#1": ["player","read from attack.player"],
+    "bG#1": ["target","read from attack.target"],
+    "bH#1": ["launchEffects","inferred: attack.onLaunchEffects that passed their chance roll"],
+    "bI#1": ["tick","read from attack.deps.world.tick"],
+    "bP#1": ["attack","inferred: the outer attack passed straight in"],
+    "bR": ["launchedHits","inferred: { hit, landed } for the primary and follow-up hits"],
+    "bS#1": ["random","read from attack.deps.random; stored as { roll }"],
+    "bT#1": ["bloodFuryTriggered","inferred: some hit rolled a blood fury heal"],
+    "bU#1": ["bloodFuryHealTotal","inferred: sum of rollBloodFuryHeal results"],
+    "bV#1": ["hit","destructured key { hit }"],
+    "bY#1": ["bloodFuryHeal","returned by rollBloodFuryHeal"],
+    "bP#2": ["followUpHit","inferred: element of followUpHits"],
+    "bD#3": ["supplementalTarget","element of supplementalTargets"],
+    "bE#3": ["hitIndex","inferred: index into supplementalTarget.hits and .forcedMisses"],
+    "bF#2": ["hit","element of supplementalTarget.hits"],
+    "bG#2": ["damageApplication","inferred: argument of the onDamageApplied hook"],
+    "bG#3": ["pendingConflictionAttack","read from attack.player.pendingConflictionAttack"],
+    "bH#2": ["conflictionAttack","read from attack.conflictionAttack"],
+    "bI#2": ["primaryLanded","the outer primaryLanded passed straight in"],
+    "bG#4": ["followUpHit","inferred: element of followUpHits"],
+    "bH#3": ["pendingHit","returned by combatSystem.MP, whose error string names it queuePendingHit"],
+    "bI#3": ["attack","inferred: the outer attack passed straight in"],
+    "bK#3": ["hitGroups","inferred: per target { hits, forcedMiss, hpAtLaunch }"],
+    "bO#2": ["predictedHit","stored as { predictedHit } of the xp_drop event"],
+    "bT#2": ["total","reducer accumulator"],
+    "bU#2": ["hitGroup","inferred: element of hitGroups"],
+    "bW#1": ["damageToTarget","inferred: damage already counted against this target's hpAtLaunch"],
+    "bY#2": ["groupTotal","inferred: reducer accumulator for one target's hits"],
+    "bZ#1": ["hit","element of hitGroup.hits"],
+    "c3#1": ["rolledDamage","inferred: hit.damage floored, at least 1 for an accurate hit"],
+    "c4": ["scaledDamage","inferred: after attack.outgoingDamageMultiplier"],
+    "c5": ["finalDamage","inferred: after attack.specialAttackDamageMultiplier"],
+    "c6": ["remainingHp","inferred: hitGroup.hpAtLaunch minus damage already counted"],
+    "c7": ["appliedDamage","inferred: finalDamage capped at the target's remaining hp"],
+    "bS#2": ["xpDrops","stored as { skills } of the xp_drop event"],
+    "bT#3": ["xpCounters","read from attack.player.xpCounters"],
+    "bU#3": ["xpGains","inferred: list of { skill, xp }"],
+    "bV#2": ["skillDrops","inferred: whole-xp { skill, amount } entries, returned as the xp_drop skills"],
+    "bW#2": ["xpGain","inferred: element of xpGains"],
+    "bY#3": ["previousXp","read from xpCounters[skill]"],
+    "bZ#2": ["updatedXp","stored to xpCounters[skill]"],
+    "c3#2": ["amount","stored as { amount }"],
+    "bT#4": ["finalStyle","read from attack.finalStyle"],
+    "bU#4": ["combatStyle","passed combatStyle2, read from the weapon style's .combatStyle"],
+    "bV#3": ["predictedHit","the outer predictedHit passed straight in"],
+    "bW#3": ["xpGains","inferred: list of { skill, xp }"],
+    "bI#4": ["supplementalTarget","element of supplementalTargets"]
+  },
+  "applyOutgoingDamageMultipliers": {
+    "bo": ["attack","inferred: called with launchPlayerAttack's attack; reads .outgoingDamageMultiplier"],
+    "bp": ["damage","called with hit.damage"],
+    "br": ["scaledDamage","inferred: after attack.outgoingDamageMultiplier"]
+  },
+  "healPlayerFromDamageDealt": {
+    "bo": ["attack","inferred: called with launchPlayerAttack's attack"],
+    "bp": ["launchHeal","called with specialAttackDef.launchHeal ({ minimumHeal, percentOfDamage })"],
+    "bq": ["damage","called with hit.damage"],
+    "bs": ["appliedDamage","inferred: damage after the outgoing multipliers"],
+    "bt": ["healAmount","inferred: hp added to player.vitals.hp"]
+  },
+  "isAttackRejectedByEncounter": {
+    "bo": ["attack","inferred: called with launchPlayerAttack's attack"],
+    "bp": ["target","called with attack.target and supplementalTarget.target"],
+    "bq": ["hit","called with elements of attack.hits; reads .attackKind"]
+  },
+  "getActorCenterTile": {
+    "bo": ["actor","inferred: reads .position .size"],
+    "bq": ["centerOffset","inferred: tiles from the south-west tile to the centre"]
+  },
+  "canRicochetBetweenActors": {
+    "bo": ["fromActor","inferred: actor the ricochet leaves"],
+    "bp": ["toActor","inferred: actor the ricochet would hit"],
+    "br": ["toX","inferred: x of toActor's centre tile"],
+    "bs": ["toY","inferred: y of toActor's centre tile"],
+    "bt": ["withinRicochetRange","inferred: a centre tile of fromActor is within 2 tiles of toActor's centre"],
+    "bw#1": ["fromActor","the outer fromActor passed straight in"],
+    "bx#1": ["centerX","inferred: x of the south-west of the four centre tiles of an even-sized actor"],
+    "by": ["centerY","inferred: y of the south-west of the four centre tiles of an even-sized actor"],
+    "bw#2": ["x","inferred: x of a centre tile"],
+    "bx#2": ["y","inferred: y of a centre tile"],
+    "bu": ["fromX","inferred: x of fromActor's centre tile"],
+    "bv": ["fromY","inferred: y of fromActor's centre tile"]
+  },
+  "pickLatestSpawnedActor": {
+    "bo": ["actors","inferred: called with filtered world NPC actors"],
+    "bq": ["latestActor","inferred: actor with the greatest .spawnTick so far"],
+    "br": ["actor","element of actors"]
+  },
+  "ricochetHopStartCycles": {
+    "bo": ["primaryFlightCycles","inferred: flight cycles of the projectile to the primary target"],
+    "bp": ["hopIndex","inferred: index of the ricochet hop"]
+  },
+  "collectAreaTargetsAround": {
+    "bo": ["target","called with the attack's target"],
+    "bp": ["candidates","inferred: attackable world NPCs"],
+    "bq": ["areaConfig","inferred: { radius, maxTargets } from the spell's multiTarget or getChinchompaAreaConfig"],
+    "br": ["canTarget","inferred: predicate deciding whether a candidate may be hit"],
+    "bt": ["targetX","read from target.position[0]"],
+    "bu": ["targetY","read from target.position[1]"],
+    "bv": ["areaTargets","inferred: candidates within the radius"],
+    "bw": ["candidate","element of candidates"]
+  },
+  "resolvePlayerCombatParams": {
+    "bo": ["player","stored as { player }"],
+    "bp": ["deps","called with performPlayerAutoAttack's deps; reads .world .encounterRules"],
+    "br": ["combatParams","passed to encounterRules.modifyPlayerCombatParams"]
+  },
+  "performPlayerAutoAttack": {
+    "bo": ["player","stored as { player }"],
+    "bp": ["deps","stored as { deps }"],
+    "br": ["targetActor","read from deps.world.actors by player.attackTarget"],
+    "bs": ["target","stored as { target }"],
+    "cp#1": ["player","the outer player passed straight in"],
+    "cq#1": ["target","the outer target passed straight in"],
+    "cr#1": ["targetCenterX","inferred: target.position[0] + size / 2"],
+    "cs#1": ["targetCenterY","inferred: target.position[1] + size / 2"],
+    "ct#1": ["dx","inferred: x offset from the player's tile centre to the target's centre"],
+    "cu#1": ["dy","inferred: y offset from the player's tile centre to the target's centre"],
+    "cv#1": ["facingRadians","inferred: angle stored (in 2048 units) to player.facing"],
+    "bz": ["nextAttackTick","returned by combatSystem.tP, which reads nextAttackTickByActor"],
+    "bB": ["specialAttackDef","stored as { specialAttackDef }"],
+    "bC": ["specialAttackAfterSpend","inferred: result of spendSpecialAttackEnergy, stored to player.specialAttack"],
+    "cp#2": ["energyCost","read from specialAttackDef.energyCost"],
+    "cq#2": ["energyCostMultiplier","read from encounterRules.specialAttacks.energyCostMultiplier"],
+    "bD": ["isSpecialAttack","stored as { isSpecialAttack }"],
+    "bE": ["isPoweredSpellSpecial","inferred: special attack whose definition has poweredSpellWeaponId"],
+    "bF": ["activeSpell","its name is passed as { activeSpell }"],
+    "bG": ["weaponFormulaStyle","inferred: formula style of the weapon's selected attack style"],
+    "bH": ["formulaStyle","stored as { formulaStyle }"],
+    "bI": ["resources","stored as { resources }"],
+    "bK": ["baseStyle","inferred: hit style derived from formulaStyle, before a special attack override"],
+    "bN": ["baseAttackKind","inferred: attack kind derived from formulaStyle, before a special attack override"],
+    "bO": ["spellId","stored as { spellId }"],
+    "bP": ["conflictionAttack","stored as { conflictionAttack }"],
+    "cr#2": ["attackCandidate","inferred: { equipment, formulaStyle, attackResources, targetId } tested for Confliction gauntlets"],
+    "bR": ["standardAccuracyMode","stored as { standardAccuracyMode }"],
+    "bS": ["pendingConflictionAttack","read from player.pendingConflictionAttack"],
+    "bT": ["currentConflictionAttack","inferred: copy of conflictionAttack compared with the pending one"],
+    "bU": ["finalStyle","stored as { finalStyle }"],
+    "bV": ["attackKind","stored as { attackKind }"],
+    "bW": ["finalSpeed","stored as { finalSpeed }"],
+    "bY": ["targetDistance","stored as { targetDistance }"],
+    "bZ": ["impactDelayTicks","stored as { impactDelayTicks }"],
+    "c3": ["projectileFlightCycles","inferred: client cycles the weapon's projectile flies; converted to ticks for the hit delay"],
+    "c4": ["castSpell","inferred: spell this attack casts (manual cast or autocast); reads .fixedHitDelay"],
+    "cs#2": ["weaponProjectileTiming","inferred: projectile timing entry for the weapon, like the table's magic_spell entry"],
+    "c5": ["encounterContext","stored as { encounterContext }"],
+    "c6": ["outgoingDamageMultiplier","stored as { outgoingDamageMultiplier }"],
+    "c7": ["specialAttackDamageMultiplier","stored as { specialAttackDamageMultiplier }"],
+    "c8": ["spellAreaConfig","read from the spell's .multiTarget"],
+    "c9": ["chinchompaAreaConfig","returned by getChinchompaAreaConfig"],
+    "ca": ["areaConfig","inferred: whichever of the spell and chinchompa area configs applies"],
+    "cb": ["attackTargets","inferred: the target followed by the area targets around it"],
+    "ct#2": ["npc","element of deps.world.PM(), the world's NPC actors"],
+    "cc": ["guaranteedMaximum","stored as { guaranteedMaximum }"],
+    "cd": ["planTarget","stored as { planTarget }"],
+    "ct#3": ["targetNpc","stored as { target } of the plan request"],
+    "cu#2": ["targetImpactDelayTicks","stored as { impactDelayTicks } of the plan request's delivery"],
+    "cv#2": ["planOptions","inferred: { consumeGuaranteedMaximum, guaranteedMaximum, maximumHitScale }"],
+    "cw#1": ["attackInput","inferred: argument object of planPlayerAttack, whose parameter has this name"],
+    "cx#1": ["planOptions","inferred: the outer planOptions passed straight in"],
+    "cg": ["random","read from deps.random; stored as { random }"],
+    "ch": ["targetOutcomes","inferred: per target { target, hits, expectedHit }"],
+    "ci": ["primaryHitAccuracy","returned by summarizePrimaryHitAccuracy"],
+    "cj": ["selectedBranchIndex","stored as { selectedBranchIndex }"],
+    "ct#4": ["targetNpc","element of attackTargets; stored as { target }"],
+    "cu#3": ["isPrimaryTarget","inferred: targetNpc is the attack's own target"],
+    "cv#3": ["attackPlan","inferred: returned by planTarget (planPlayerAttack)"],
+    "cw#2": ["attackOutcome","inferred: returned by rollAttackPlanOutcome"],
+    "ck": ["venatorRicochet","inferred: venator bow ricochet { hops, flights }; flights stored as { ricochets }"],
+    "cx#2": ["primaryTarget","inferred: the attack's target, which the options call primary (primaryKilled)"],
+    "cy#1": ["primaryFlightCycles","inferred: projectileFlightCycles passed in, flight time to the primary target"],
+    "cz#1": ["ricochetOptions","inferred: { candidates, primaryKilled, random, planTarget }"],
+    "cA#1": ["hops","stored as { hops }"],
+    "cC#1": ["flights","stored as { flights }"],
+    "cD": ["hopSource","inferred: actor the next ricochet flies from; its centre is stored as sourcePosition"],
+    "cE": ["hopIndex","inferred: index of the ricochet hop"],
+    "cF": ["hopTarget","stored as { target } of the hop"],
+    "cG#1": ["primaryTarget","the outer primaryTarget passed straight in"],
+    "cH#1": ["candidates","read from ricochetOptions.candidates"],
+    "cI#1": ["primaryKilled","read from ricochetOptions.primaryKilled"],
+    "cK": ["hopTargets","inferred: ricochet targets in hop order"],
+    "cN": ["lastTarget","inferred: actor most recently hit in the chain, starting at the primary target"],
+    "cO": ["hopNumber","inferred: loop counter over the two possible hops"],
+    "cP": ["fromActor","passed as canRicochetBetweenActors' first parameter"],
+    "cR": ["nextTarget","inferred: candidate picked for this hop"],
+    "cS": ["candidate","element of candidates"],
+    "cG#2": ["startCycles","stored as { startCycles }"],
+    "cH#2": ["hopPlan","inferred: attack plan for the hop target"],
+    "cI#2": ["hopOutcome","inferred: returned by rollAttackPlanOutcome for the hop"],
+    "cx#3": ["npc","element of deps.world.PM(), the world's NPC actors"],
+    "cl": ["weaponId","read from player.equipment.weapon"],
+    "cx#4": ["hop","element of venatorRicochet.hops"],
+    "cy#2": ["existingOutcome","inferred: entry of targetOutcomes for the same target"],
+    "cz#2": ["targetOutcome","inferred: element of targetOutcomes"],
+    "cm": ["primaryOutcome","inferred: first of targetOutcomes; its hits are stored as { hits }"],
+    "cn": ["supplementalTargets","stored as { supplementalTargets }"],
+    "cz#3": ["soulreaper","read from player.soulreaper"],
+    "cA#2": ["tick","read from deps.world.tick"],
+    "cC#2": ["isSpecialAttack","the outer isSpecialAttack passed straight in"],
+    "co": ["onLaunchEffects","stored as { onLaunchEffects }"]
+  },
+  "isPrimaryTargetKilledByHits": {
+    "bo": ["primaryTarget","inferred: result stored as { primaryKilled }; compared with targetHits.target.id"],
+    "bp": ["targetHits","inferred: first { target, hits } entry of the planned attack"],
+    "bq": ["damageModifiers","inferred: { forcedMiss, outgoingDamageMultiplier, specialAttackDamageMultiplier }"],
+    "bs": ["totalDamage","inferred: reducer accumulator compared with vitals.hp"],
+    "bt": ["hit","element of targetHits.hits"],
+    "bu": ["scaledDamage","inferred: hit.damage times outgoingDamageMultiplier"]
+  },
+  "assertBootstrapWithinWorkLimits": {
+    "bo": ["input","same value parseEngineBootstrap passes to engineBootstrapSchema.safeParse"]
+  },
+  "parseEngineBootstrap": {
+    "bo": ["recording","inferred: passed by rebuildRecordedEngine; holds { bootstrap }"],
+    "bq": ["input","passed to engineBootstrapSchema.safeParse"],
+    "bs": ["error","catch binding"]
+  },
+  "TickEventBuffer.yP": {
+    "bo": ["tick","stored as this.currentTick; callers pass worldState.tick"]
+  },
+  "TickEventBuffer.emit": {
+    "bo": ["event","pushed to this.eventBuffer"],
+    "bp": ["stampedEvent","inferred: the event with tick and eventId added"]
+  },
+  "TickEventBuffer.UP": {
+    "bo": ["lastEventId","inferred: this.nextEventId is raised to one past it"]
+  },
+  "TickEventBuffer.flush": {
+    "bo": ["flushedEvents","copy of this.eventBuffer"]
+  },
+  "boostStatLevel": {
+    "bo": ["maxLevel","passed stats[stat].max"],
+    "bp": ["currentLevel","passed stats[stat].current"],
+    "bq": ["boostAmount","inferred: added to the level, capped at maxLevel + boostAmount"]
+  },
+  "drainStatLevel": {
+    "bo": ["currentLevel","passed stats[stat].current"],
+    "bp": ["drainAmount","inferred: subtracted from the level, floor 0"]
+  },
+  "restoreStatLevel": {
+    "bo": ["maxLevel","passed the destructured max of stats[stat]"],
+    "bp": ["currentLevel","passed the destructured current of stats[stat]"],
+    "bq": ["restoreAmount","inferred: added to the level, capped at maxLevel"]
+  },
+  "withStatCurrentLevel": {
+    "bo": ["stats","passed playerState.stats"],
+    "bp": ["statName","inferred: key into stats; passed effect.stat"],
+    "bq": ["newLevel","stored as { current }"],
+    "br": ["updatedStats","inferred: clone of stats that receives the new level"]
+  },
+  "withStatDecayLocks": {
+    "bo": ["statDecayLocks","passed combatTimers.statDecayLocks"],
+    "bp": ["statNames","inferred: passed effect.stats, the keys to lock"],
+    "bq": ["decayLock","inferred: { ticksRemaining, source } stored per stat"],
+    "br": ["updatedLocks","inferred: copy of statDecayLocks that is returned"],
+    "bs": ["statName","element of statNames"]
+  },
+  "isDecayLockableStat": {
+    "bo": ["statName","inferred: looked up in the combat stat name list; used as key of statDecayLocks"]
+  },
+  "getHpRegenIntervalTicks": {
+    "bo": ["rapidHealActive","passed independentPrayers.includes(RapidHeal)"]
+  },
+  "applyItemConsumption": {
+    "bo": ["inventory","passed player.inventory"],
+    "bp": ["inventoryIndex","passed action.inventoryIndex"],
+    "bq": ["consumeRule","inferred: passed the .consume of a consumable definition"],
+    "br": ["updatedInventory","inferred: copy of inventory that is returned"],
+    "bs": ["itemRef","element of inventory, { id, quantity }"],
+    "bt": ["quantity","read from itemRef.quantity"]
+  },
+  "isCooldownTrackReady": {
+    "bo": ["cooldownTracks","passed player.cooldownTracks"],
+    "bp": ["track","passed the destructured track of the consumable"],
+    "bq": ["tick","passed worldState.tick"],
+    "bs": ["blockingTrack","element of consumableTrackBlockers[track]"]
+  },
+  "withCooldownTrackDelay": {
+    "bo": ["cooldownTracks","passed player.cooldownTracks"],
+    "bp": ["track","passed the destructured track of the consumable"],
+    "bq": ["tick","passed worldState.tick"],
+    "br": ["delayTicks","passed the destructured delayTicks of the consumable"],
+    "bt": ["readyTick","inferred: tick the track is usable again"],
+    "bu": ["currentReadyTick","read from cooldownTracks[track]"]
+  },
+  "isSurgeEffectBlocked": {
+    "bo": ["effects","passed consumable.effects"],
+    "bp": ["playerState","inferred: snapshot { playerHP, maxHP, stats, combatTimers, ... } built by SimulationEngine.Jx; its result is stored as newState"],
+    "bq": ["effect","element of effects"]
+  },
+  "venomVarpToPoisonVarp": {
+    "bo": ["poisonVarp","passed poisonState.poisonVarp"],
+    "bp": ["venomVarp","inferred: varp at or above VENOM_VARP_BASE, turned into venom damage"]
+  },
+  "addPlayerHpCapped": {
+    "bo": ["playerState","inferred: same snapshot as applyConsumableEffect's"],
+    "bp": ["healAmount","inferred: added to playerHP"],
+    "bq": ["hpCap","inferred: upper bound, maxHP or maxHP + healAmount"]
+  },
+  "scalePercentPlusFlat": {
+    "bo": ["baseAmount","inferred: a stat level or playerHP the percentage is taken of"],
+    "bp": ["percent","passed effect.percent"],
+    "bq": ["flat","passed effect.flat"]
+  },
+  "scaleByOptionalMultiplier": {
+    "bo": ["amount","passed effect.amount"],
+    "bp": ["multiplier","inferred: passed effectModifiers.healing or .prayerRestore, may be undefined"]
+  },
+  "applyNonLethalSelfDamage": {
+    "bo": ["playerState","inferred: same snapshot as applyConsumableEffect's"],
+    "bp": ["damage","inferred: passed effect.amount of a self_damage effect"],
+    "bq": ["remainingHp","stored as { playerHP }"]
+  },
+  "applyConsumableEffect": {
+    "bo": ["effect","element of consumable.effects; switch on effect.op"],
+    "bp": ["playerState","inferred: snapshot { playerHP, maxHP, stats, ... } built by SimulationEngine.Jx; result stored as newState"],
+    "bq": ["effectModifiers","inferred: { healing, prayerRestore, blockOverheal, enhancedPrayerRestoration, ringOfEnduranceEquipped }"],
+    "bs#1": ["playerState","inferred: the outer playerState"],
+    "bt#1": ["healAmount","inferred: effect.amount scaled by the healing multiplier"],
+    "bu#1": ["healedHp","inferred: playerHP + healAmount capped at maxHP"],
+    "bs#2": ["playerState","inferred: the outer playerState"],
+    "bt#2": ["baseAmount","passed effect.baseAmount"],
+    "bu#2": ["scaleStat","passed effect.scaleStat"],
+    "bv#1": ["healingMultiplier","passed effectModifiers.healing, set from itemRestrictions.healingMultiplier"],
+    "bw#1": ["blockOverheal","passed effectModifiers.blockOverheal"],
+    "bx#1": ["scaleStatName","inferred: scaleStat or the default hitpoints"],
+    "by#1": ["maxLevel","read from stats[scaleStatName].max"],
+    "bz#1": ["formulaAmount","inferred: level based heal amount (anglerfish formula)"],
+    "bA#1": ["healAmount","inferred: larger of formula and base amount, scaled by healingMultiplier"],
+    "bB#1": ["hpCap","inferred: maxHP, or maxHP + healAmount when overheal is allowed"],
+    "bC": ["healedHp","stored as { playerHP }"],
+    "bs#3": ["healAmount","inferred: effect.amount scaled by the healing multiplier"],
+    "bt#3": ["healAmount","inferred: percent of stat max plus flat, scaled by the healing multiplier"],
+    "bu#3": ["playerState","inferred: the outer playerState"],
+    "bv#2": ["healAmount","stored as data.amount of the delayed_heal effect"],
+    "bw#2": ["delayTicks","passed effect.delayTicks"],
+    "bx#2": ["group","passed effect.group; stored as data.group"],
+    "by#2": ["keptEffects","inferred: activeEffects without the same group"],
+    "bA#2": ["activeEffect","element of playerState.activeEffects"],
+    "bz#2": ["delayedHealEffect","inferred: object of type delayed_heal appended to activeEffects"],
+    "bu#4": ["playerState","inferred: the outer playerState"],
+    "bv#3": ["statName","passed effect.stat"],
+    "bw#3": ["boostAmount","inferred: passed on to boostStatLevel"],
+    "bx#3": ["stat","read from playerState.stats[statName]"],
+    "bu#5": ["playerState","inferred: the outer playerState"],
+    "bv#4": ["statName","passed effect.stat"],
+    "bw#4": ["drainAmount","inferred: passed on to drainStatLevel"],
+    "bu#6": ["playerState","inferred: the outer playerState"],
+    "bv#5": ["restoreAmount","inferred: result of computePrayerRestoreAmount, scaled"],
+    "bw#5": ["restoredPoints","stored as prayerState.points"],
+    "bu#7": ["playerState","inferred: the outer playerState"],
+    "bv#6": ["formula","passed effect.formula"],
+    "by#3": ["stats","read from playerState.stats; stored as { stats }"],
+    "bz#3": ["statName","inferred: element of the restorable stat name list"],
+    "bB#2": ["maxLevel","destructured key max of stats[statName]"],
+    "bu#8": ["playerState","inferred: the outer playerState"],
+    "bv#7": ["runEnergyAmount","inferred: effect.amount added to runEnergy.energy"],
+    "bu#9": ["playerState","inferred: the outer playerState, venom already turned into poison"],
+    "bv#8": ["immunityTicks","passed effect.immunityTicks"],
+    "bw#6": ["immunityCycles","inferred: immunity in 30 tick poison cycles, stored negated as poisonVarp"],
+    "bu#10": ["playerState","inferred: the outer playerState"],
+    "bv#9": ["reduceAmount","inferred: effect.amount of a reduce_poison effect"],
+    "bx#4": ["reducedPoisonVarp","stored as poisonState.poisonVarp"],
+    "bu#11": ["playerState","inferred: the outer playerState"],
+    "bu#12": ["staminaExtendedByRing","inferred: stamina effect with ringOfEnduranceEquipped; doubles the duration"],
+    "bv#10": ["playerState","inferred: the outer playerState"],
+    "bw#7": ["effectType","passed effect.effectType"],
+    "bx#5": ["durationTicks","passed effect.durationTicks, doubled when ring extended"],
+    "by#4": ["ringExtended","stored as { ringExtended: true }"],
+    "bz#4": ["timedEffect","inferred: op is apply_timed_effect; appended to activeEffects"],
+    "bA#3": ["keptEffects","inferred: activeEffects of other types"],
+    "bB#3": ["activeEffect","element of playerState.activeEffects"]
+  },
+  "applyConsumableEffects": {
+    "bo": ["effects","passed filteredEffects of consumable.effects"],
+    "bp": ["playerState","inferred: same snapshot as applyConsumableEffect's"],
+    "bq": ["effectModifiers","inferred: passed on to applyConsumableEffect"],
+    "bs": ["newState","result stored as newState by SimulationEngine.Xx"],
+    "bt": ["doublesRunRestore","inferred: ring of endurance worn and a stamina effect in the list"],
+    "bu#1": ["effect","element of effects"],
+    "bu#2": ["effect","element of effects"],
+    "bv": ["playerState","inferred: the state after all effects"],
+    "bw": ["updatedStats","inferred: clone of stats whose hitpoints.current follows playerHP"]
+  },
+  "isPrayerInputOp": {
+    "bo": ["inputOp","element of pendingInputOps; function name isPrayerInputOp"]
+  },
+  "projectPendingPrayerOps": {
+    "bo": ["projectionInput","result of buildPrayerProjectionInput"],
+    "bq": ["hasPrayerPoints","read from projectionInput.hasPrayerPoints; stored as { hasPrayerPoints }"],
+    "br": ["inventory","read from projectionInput.inventory"],
+    "bs": ["cooldownTracks","read from projectionInput.cooldownTracks"],
+    "bt": ["usedUntrackedItem","inferred: set once a consumable without a cooldown track was used"],
+    "bu": ["prayerActionEntries","passed to applyPrayerActionEntries"],
+    "bv": ["inputOp","element of projectionInput.ops, the pending input ops"],
+    "bw": ["itemRef","element of inventory, read .id"],
+    "bx": ["consumable","result of getConsumableDefinition"],
+    "bA": ["hasCooldown","inferred: the consumable has a track and a positive delayTicks"]
+  },
+  "canEffectsRestorePrayer": {
+    "bo": ["effects","passed consumable.effects"],
+    "bp": ["projectionInput","passed the result of buildPrayerProjectionInput"],
+    "br": ["enhancedPrayerRestoration","result of hasEnhancedPrayerRestoration; same value as effectModifiers.enhancedPrayerRestoration"],
+    "bs": ["restoreMultiplier","read from restoreRules.multiplier"],
+    "bt": ["effect","element of effects"],
+    "bu": ["restoreAmount","inferred: result of computePrayerRestoreAmount"]
+  },
+  "buildPrayerProjectionInput": {
+    "bo": ["player","passed this.player()"],
+    "bp": ["tick","passed worldState.tick"],
+    "bq": ["restoreRules","stored as { restoreRules }"]
+  },
+  "reconstructBfsPath": {
+    "bo": ["backtrackGrid","inferred: per tile direction flags from pathfindBacktrackFlags"],
+    "bp": ["gridOriginX","inferred: world x of grid column 0"],
+    "bq": ["gridOriginY","inferred: world y of grid row 0"],
+    "br": ["startX","inferred: x of the tile the search started from"],
+    "bs": ["startY","inferred: y of the tile the search started from"],
+    "bt": ["endX","inferred: x of the tile the path ends on"],
+    "bu": ["endY","inferred: y of the tile the path ends on"],
+    "bw": ["path","inferred: tiles from start to end, returned"],
+    "bx": ["x","inferred: coordinate walked back from endX"],
+    "by": ["y","inferred: coordinate walked back from endY"],
+    "bz": ["backtrackFlag","element of backtrackGrid"]
+  },
+  "nextPowerOfTwoAtLeast16": {
+    "bo": ["minimumSize","inferred"],
+    "bq": ["roundedSize","inferred: rounded up to a power of two"]
+  },
+  "takeStepsAlongPath": {
+    "bo": ["fromTile","inferred: passed player.position; copied as { position } when no step is taken"],
+    "bp": ["path","inferred: result of reconstructBfsPath"],
+    "bq": ["isRunning","inferred: two steps when set, one otherwise; from player.isRunEnabled and run energy"],
+    "br": ["npcBounds","inferred: { minX, minY, maxX, maxY } built from the NPC position and size in computePlayerStepToNpc"],
+    "bt": ["maxSteps","inferred: 2 running, 1 walking"],
+    "bu": ["stepTiles","stored as { stepTiles }"],
+    "bv": ["i","loop counter"],
+    "bw": ["x","first element of a path tile"],
+    "bx": ["y","second element of a path tile"]
+  },
+  "computePlayerStepToTile": {
+    "bo": ["fromTile","inferred: start of the step; passed player.position"],
+    "bp": ["targetTile","inferred: tile the player walks to"],
+    "bq": ["isRunning","inferred: passed on to takeStepsAlongPath, two steps when set"],
+    "bs#1": ["fromTile","inferred: the outer fromTile"],
+    "bt#1": ["targetTile","inferred: the outer targetTile"],
+    "bu#1": ["isRunning","inferred: the outer isRunning"],
+    "bw#1": ["fromTile","inferred: the outer fromTile"],
+    "bx#1": ["targetTile","inferred: the outer targetTile"],
+    "by#1": ["startX","inferred: first element of fromTile; reconstructBfsPath stops there"],
+    "bz#1": ["startY","inferred: second element of fromTile; reconstructBfsPath stops there"],
+    "bA#1": ["targetX","inferred: first element of targetTile"],
+    "bB#1": ["targetY","inferred: second element of targetTile"],
+    "bC#1": ["gridSize","inferred: side of the square search grid"],
+    "bD#1": ["gridOriginX","inferred: world x of grid column 0, startX - 64"],
+    "bE#1": ["gridOriginY","inferred: world y of grid row 0, startY - 64"],
+    "bF#1": ["costGrid","inferred: steps from start per tile, filled with PATHFIND_UNVISITED_COST"],
+    "bG#1": ["backtrackGrid","inferred: per tile direction flags from pathfindBacktrackFlags"],
+    "bV#1": ["i","loop counter"],
+    "bH#1": ["queueCapacity","inferred: length of the ring buffers"],
+    "bI#1": ["queueMask","inferred: queueCapacity - 1, wraps the indices"],
+    "bK#1": ["queueX","inferred: ring buffer of x coordinates to expand"],
+    "bN#1": ["queueY","inferred: ring buffer of y coordinates to expand"],
+    "bO#1": ["queueTail","inferred: write index of the queue"],
+    "bP#1": ["queueHead","inferred: read index of the queue"],
+    "bR#1": ["reachedTarget","inferred: set when the target tile is dequeued"],
+    "bS#1": ["endX","inferred: x of the tile the path ends on"],
+    "bT#1": ["endY","inferred: y of the tile the path ends on"],
+    "bU#1": ["collisionMap","returned by the import that reads collisionMap in rendering.js"],
+    "bW#1": ["x","inferred: tile the path search expands next"],
+    "bY#1": ["y","inferred: tile the path search expands next"],
+    "bZ#1": ["gridX","inferred: x relative to gridOriginX"],
+    "c3#1": ["gridY","inferred: y relative to gridOriginY"],
+    "c4#1": ["neighborCost","inferred: cost of the expanded tile plus one"],
+    "c5#1": ["direction","inferred: index into pathfindNeighborOffsets"],
+    "c6": ["dx","first element of pathfindNeighborOffsets[direction]"],
+    "c7": ["dy","second element of pathfindNeighborOffsets[direction]"],
+    "c8": ["neighborX","inferred: x + dx"],
+    "c9": ["neighborY","inferred: y + dy"],
+    "ca": ["neighborGridX","inferred: neighborX relative to gridOriginX"],
+    "cb": ["neighborGridY","inferred: neighborY relative to gridOriginY"],
+    "cc": ["isBlocked","inferred: collisionMap.hasFlag result for the step"],
+    "cd": ["diagonalIndex","index into diagonalBlockFlagSets"],
+    "cg": ["diagonalBlockFlag","inferred: first of a diagonalBlockFlagSets entry, checked on the neighbor"],
+    "ch": ["horizontalBlockFlag","inferred: BLOCK_WEST or BLOCK_EAST, checked on the tile at x + dx"],
+    "ci": ["verticalBlockFlag","inferred: BLOCK_SOUTH or BLOCK_NORTH, checked on the tile at y + dy"],
+    "cj": ["closestDistanceSquared","inferred: best squared distance to the target among reached tiles"],
+    "ck": ["closestCost","inferred: path cost of the closest reached tile"],
+    "cl": ["candidateX","inferred: tile within 10 of the target considered as path end"],
+    "cm": ["candidateY","inferred: tile within 10 of the target considered as path end"],
+    "cn": ["candidateGridX","inferred: candidateX relative to gridOriginX"],
+    "co": ["candidateGridY","inferred: candidateY relative to gridOriginY"],
+    "cp": ["distanceX","inferred: absolute x distance to the target"],
+    "cq": ["distanceY","inferred: absolute y distance to the target"],
+    "cr": ["distanceSquared","inferred"],
+    "bs#2": ["fromTile","inferred: the outer fromTile"],
+    "bt#2": ["targetTile","inferred: the outer targetTile"],
+    "bu#2": ["isRunning","inferred: the outer isRunning"],
+    "bw#2": ["stepTiles","stored as { stepTiles }"],
+    "bx#2": ["x","first element of fromTile, advanced per step"],
+    "by#2": ["y","second element of fromTile, advanced per step"],
+    "bz#2": ["targetX","inferred: first element of targetTile"],
+    "bA#2": ["targetY","inferred: second element of targetTile"],
+    "bB#2": ["dx","inferred: targetX - x"],
+    "bC#2": ["dy","inferred: targetY - y"],
+    "bD#2": ["runDx","inferred: x offset covered this tick when running, at most 2"],
+    "bE#2": ["runDy","inferred: y offset covered this tick when running, at most 2"],
+    "bG#2": ["targetOffset","inferred: [dx, dy] to the target"],
+    "bH#2": ["dx","inferred: first element of targetOffset"],
+    "bI#2": ["dy","inferred: second element of targetOffset"],
+    "bK#2": ["absDx","inferred: Math.abs(dx)"],
+    "bN#2": ["absDy","inferred: Math.abs(dy)"],
+    "bO#2": ["distance","inferred: Chebyshev distance to the target"],
+    "bP#2": ["signX","inferred: sign of dx"],
+    "bR#2": ["signY","inferred: sign of dy"],
+    "bT#2": ["majorSteps","inferred: tiles moved along the longer axis"],
+    "bU#2": ["minorSteps","inferred: tiles moved along the shorter axis"],
+    "bV#2": ["majorDistance","inferred: larger of absDx and absDy"],
+    "bW#2": ["minorDistance","inferred: smaller of absDx and absDy"],
+    "bY#2": ["majorSign","inferred: sign along the longer axis"],
+    "bZ#2": ["minorSign","inferred: sign along the shorter axis"],
+    "c3#2": ["axesSwapped","inferred: set when y is the longer axis"],
+    "c4#2": ["stepDx","inferred: returned x offset"],
+    "c5#2": ["stepDy","inferred: returned y offset"],
+    "bS#2": ["axisDifference","inferred: Math.abs(absDx - absDy)"],
+    "bF#2": ["stepOffsets","inferred: unit [dx, dy] steps that make up the run offset"],
+    "bG#3": ["runDx","inferred: the outer runDx"],
+    "bH#3": ["runDy","inferred: the outer runDy"],
+    "bI#3": ["offsets","inferred: list of unit steps, returned"],
+    "bK#3": ["absDx","inferred: Math.abs(runDx)"],
+    "bN#3": ["absDy","inferred: Math.abs(runDy)"],
+    "bO#3": ["signX","inferred: sign of runDx"],
+    "bP#3": ["signY","inferred: sign of runDy"],
+    "bR#3": ["straightSteps","inferred: steps along one axis only"],
+    "bS#3": ["diagonalSteps","inferred: steps along both axes"],
+    "bT#3": ["i","loop counter"],
+    "bU#3": ["i","loop counter"],
+    "bV#3": ["i","loop counter"],
+    "bG#4": ["stepDx","inferred: first element of a stepOffsets entry"],
+    "bH#4": ["stepDy","inferred: second element of a stepOffsets entry"],
+    "bI#4": ["nextX","inferred: x after the step, tested for walkability"],
+    "bK#4": ["nextY","inferred: y after the step, tested for walkability"],
+    "bN#4": ["nextX","inferred: x after one walking step, tested for walkability"],
+    "bO#4": ["nextY","inferred: y after one walking step, tested for walkability"]
+  },
+  "computePlayerStepToNpc": {
+    "bo": ["playerTile","inferred: caller passes player.position (L9209)"],
+    "bp": ["npcTile","inferred: caller passes the target NPC's position, its south-west tile"],
+    "bq": ["npcSize","inferred: caller passes the target NPC's size"],
+    "br": ["isRunning","inferred: takeStepsAlongPath takes two steps when set; caller passes run enabled and run energy > 0"],
+    "bt": ["npcBounds","inferred: { minX, minY, maxX, maxY } of the tiles the NPC covers"],
+    "bz#1": ["startTile","inferred: tile the breadth-first search starts from"],
+    "bA#1": ["targetTile","inferred: south-west tile of the NPC the search must get in range of"],
+    "bB#1": ["targetSize","inferred: size argument of the in-range test s (pM) and of the footprint test aK (yM)"],
+    "bC#1": ["attackRange","inferred: range argument of the in-range test s (pM); kM fills the same argument from attackRange"],
+    "bD#1": ["mustBeOutsideTarget","inferred: when set a tile inside the NPC's footprint (aK) is not accepted"],
+    "bE#1": ["startX","inferred: x of startTile"],
+    "bF#1": ["startY","inferred: y of startTile"],
+    "bG": ["gridSize","inferred: side of the square search grid (128)"],
+    "bH": ["gridOriginX","inferred: world x of grid column 0"],
+    "bI": ["gridOriginY","inferred: world y of grid row 0"],
+    "bK": ["costGrid","filled with PATHFIND_UNVISITED_COST"],
+    "bN": ["backtrackGrid","stores pathfindBacktrackFlags, read back by reconstructBfsPath"],
+    "c3": ["i","inferred: loop counter over grid columns"],
+    "bO": ["queueCapacity","inferred: size of the ring buffer of tiles to expand"],
+    "bP": ["queueMask","inferred: capacity - 1, wraps the ring buffer indices"],
+    "bR": ["queueX","inferred: x of queued tiles"],
+    "bS": ["queueY","inferred: y of queued tiles"],
+    "bT": ["queueTail","inferred: write index of the ring buffer"],
+    "bU": ["queueHead","inferred: read index of the ring buffer"],
+    "bV": ["reachedTarget","inferred: set when a tile in range of the NPC is dequeued"],
+    "bW": ["endX","inferred: x of the tile the path ends on"],
+    "bY": ["endY","inferred: y of the tile the path ends on"],
+    "bZ": ["collisionMap","m is Ol in rendering.js, which returns the arena's collisionMap"],
+    "c4": ["currentX","inferred: x of the tile being expanded"],
+    "c5": ["currentY","inferred: y of the tile being expanded"],
+    "c6": ["currentGridX","inferred: grid column of the tile being expanded"],
+    "c7": ["currentGridY","inferred: grid row of the tile being expanded"],
+    "c8": ["neighborCost","inferred: cost stored in costGrid for each neighbour"],
+    "c9": ["directionIndex","inferred: index into pathfindNeighborOffsets"],
+    "ca": ["dx","element of pathfindNeighborOffsets"],
+    "cb": ["dy","element of pathfindNeighborOffsets"],
+    "cc": ["neighborX","inferred: x of the neighbouring tile"],
+    "cd": ["neighborY","inferred: y of the neighbouring tile"],
+    "cg": ["neighborGridX","inferred: grid column of the neighbouring tile"],
+    "ch": ["neighborGridY","inferred: grid row of the neighbouring tile"],
+    "ci": ["isBlocked","inferred: collision flag forbids the step"],
+    "cj": ["diagonalIndex","inferred: index into diagonalBlockFlagSets"],
+    "ck": ["diagonalBlockFlag","element of diagonalBlockFlagSets, e.g. BLOCK_SOUTH_WEST"],
+    "cl": ["horizontalBlockFlag","element of diagonalBlockFlagSets, BLOCK_WEST or BLOCK_EAST"],
+    "cm": ["verticalBlockFlag","element of diagonalBlockFlagSets, BLOCK_SOUTH or BLOCK_NORTH"],
+    "cn": ["targetMaxX","inferred: east edge of the NPC"],
+    "co": ["targetMaxY","inferred: north edge of the NPC"],
+    "cp": ["bestDistanceSquared","inferred: smallest squared distance to the NPC among reached tiles"],
+    "cq": ["bestCost","inferred: path cost of the best fallback tile, the tie-break"],
+    "cr": ["searchRadius","inferred: how far around the NPC the fallback looks"],
+    "cs": ["candidateX","inferred: x of a fallback tile"],
+    "ct": ["candidateY","inferred: y of a fallback tile"],
+    "cu": ["candidateGridX","inferred: grid column of a fallback tile"],
+    "cv": ["candidateGridY","inferred: grid row of a fallback tile"],
+    "cw": ["gapX","inferred: x distance from the fallback tile to the NPC's edge"],
+    "cx": ["gapY","inferred: y distance from the fallback tile to the NPC's edge"],
+    "cy": ["distanceSquared","inferred: gapX squared plus gapY squared"],
+    "bu": ["npcX","inferred: npcTile[0]"],
+    "bv": ["npcY","inferred: npcTile[1]"],
+    "bw": ["footprintSize","inferred: alias of npcSize"],
+    "bx": ["destinationX","inferred: x of the tile next to the NPC the player walks to"],
+    "by": ["destinationY","inferred: y of the tile next to the NPC the player walks to"],
+    "bz#2": ["distanceToWestEdge","inferred: steps from under the NPC to its minX edge"],
+    "bA#2": ["distanceToEastEdge","inferred: steps from under the NPC to its maxX edge"],
+    "bB#2": ["distanceToSouthEdge","inferred: steps from under the NPC to its minY edge"],
+    "bC#2": ["distanceToNorthEdge","inferred: steps from under the NPC to its maxY edge"],
+    "bD#2": ["nearestEdgeDistance","inferred: minimum of the four edge distances"],
+    "bE#2": ["eastWestSideTile","inferred: tile beside the corner on the NPC's west or east side"],
+    "bF#2": ["northSouthSideTile","inferred: tile beside the corner on the NPC's south or north side"]
+  },
+  "countPendingInputOps": {
+    "bo": ["player","read from player.pendingInputOps; caller passes worldState's player (L12059)"],
+    "bp": ["opType","compared to inputOp.type"],
+    "bq": ["inputOp","element of player.pendingInputOps"]
+  },
+  "WorldState.jP": {
+    "bo": ["npc","inferred: given nextNpcProcessingOrder; the engine passes spawned NPCs"]
+  },
+  "WorldState.oM": {
+    "bo": ["actorId","key of this.actors"],
+    "bp": ["actor","element of this.actors"]
+  },
+  "WorldState.gy": {
+    "bp": ["actor","element of this.actors"]
+  },
+  "WorldState._M": {
+    "bo": ["players","inferred: actors of kind \"player\""],
+    "bp": ["actor","element of this.actors"]
+  },
+  "WorldState.FM": {
+    "bo": ["actorId","key of this.actors"],
+    "bq": ["actor","element of this.actors"]
+  },
+  "WorldState.PM": {
+    "bp": ["npcs","inferred: actors of kind \"npc\""],
+    "bq": ["actor","element of this.actors"]
+  },
+  "WorldState.NM": {
+    "bo": ["sourceId","compared to pendingHit.sourceId"],
+    "bp": ["pendingHit","element of this.pendingHits"]
+  },
+  "getVisibleCombatTargetId": {
+    "bo": ["npc","inferred: caller passes an element of worldState's NPC list (L11953)"],
+    "bp": ["combatTargetId","stored as { combatTargetId } by the caller (L11953)"]
+  },
+  "resolveCombatSeed": {
+    "bo": ["combatSeed","read from options.combatSeed (L8342), stored as this.combatSeed"]
+  },
+  "SimulationEngine.constructor": {
+    "bo": ["startPosOrOptions","inferred: an array is stored as { startPos }, otherwise spread as the options object"],
+    "bp": ["initialInventory","stored as { initialInventory }"],
+    "bq": ["objTypeLoader","stored as { objTypeLoader }"],
+    "br": ["encounter","stored as { encounter }"],
+    "bt": ["options","inferred: normalized constructor options"],
+    "bu": ["startPosition","read from options.startPos, stored as this.runStartPosition"]
+  },
+  "SimulationEngine.YP": {
+    "bo": ["tick","stored as { tick }"],
+    "bp": ["playerPosition","stored as { playerPos }; caller passes player.position"],
+    "bq": ["inputs","stored as { inputs }"],
+    "br": ["npcMovements","stored as { npcMovements }"],
+    "bs": ["setProtectionPrayer","stored as { setProtectionPrayer }"],
+    "bt#1": ["event","inferred: entry pushed to this.eventLog by logEvent"],
+    "bt#2": ["actorId","inferred: key of combatSystem.nextAttackTickByActor in rP"],
+    "bu#1": ["speedupTicks","inferred: rP logs \"next attack sped up by\" this many ticks"],
+    "bt#3": ["npc","inferred: argument of spawnNpc"],
+    "bt#4": ["npcId","inferred: argument of despawnNpc, looked up as an NPC"],
+    "bt#5": ["attack","stored as { attack } in queueNpcHit"],
+    "bt#6": ["untilTick","stored as this.protectionPrayersDisabledUntilTick"],
+    "bt#7": ["position","named position in the moveDisplacedPlayer callback (L9213)"],
+    "bu#2": ["facing","named facing in the moveDisplacedPlayer callback (L9213)"]
+  },
+  "SimulationEngine.teleportPlayer": {
+    "bo": ["position","stored as player.position; named position at the call on L9215"],
+    "bp": ["facing","stored as player.facing"],
+    "bq": ["player","result of this.player()"]
+  },
+  "SimulationEngine.EI": {
+    "bo#1": ["npc","inferred: argument of spawnNpc"],
+    "bo#2": ["npcId","inferred: argument of despawnNpc, looked up as an NPC"],
+    "bo#3": ["attack","stored as { attack } in queueNpcHit"],
+    "bo#4": ["event","inferred: entry pushed to this.eventLog by logEvent"],
+    "bo#5": ["protectionPrayer","inferred: argument of setProtectionPrayer, stored as player.activePrayer by CI"],
+    "bo#6": ["untilTick","stored as this.protectionPrayersDisabledUntilTick"]
+  },
+  "SimulationEngine.disableProtectionPrayersUntil": {
+    "bo": ["untilTick","stored as this.protectionPrayersDisabledUntilTick"]
+  },
+  "SimulationEngine.ZP": {
+    "bo": ["npc","inferred: the spawnNpc callback's argument; error string \"spawnNpc: duplicate actor id\""]
+  },
+  "SimulationEngine.BI": {
+    "bo": ["npc","inferred: has formulaStats and npcTypeId; called for each spawned NPC"]
+  },
+  "SimulationEngine._I": {
+    "bo": ["npcId","inferred: the despawnNpc callback's argument, looked up as an NPC; emitted as { actorId }"],
+    "bp": ["npc","inferred: worldState.FM returns only actors of kind \"npc\""]
+  },
+  "SimulationEngine.OI": {
+    "bo": ["ruleOutcome","inferred: return value of an encounterRules hook (onTickStart, onPlayerDamageTaken)"],
+    "br": ["player","result of this.player()"],
+    "bs": ["player","result of this.player()"],
+    "bu": ["player","result of this.player()"],
+    "bv": ["drainedStats","read from player.stats, written back after the drains"],
+    "bw": ["statName","inferred: key of player.stats and of playerStatDrains"],
+    "bx": ["drainAmount","read from ruleOutcome.playerStatDrains"],
+    "by": ["hitsplat","element of ruleOutcome.playerHitsplats"],
+    "bq": ["failCondition","read from ruleOutcome.fail"]
+  },
+  "SimulationEngine.FI": {
+    "bo": ["player","inferred: caller passes this.player() (L10611)"],
+    "bq": ["combatParams","passed to encounterRules.modifyPlayerCombatParams"],
+    "br": ["encounterRules","this.QP() returns this.encounterRules"]
+  },
+  "SimulationEngine.lookupItemStats": {
+    "bo": ["itemId","inferred: called with resources.ammoId (L4222)"]
+  },
+  "SimulationEngine.KI": {
+    "bo": ["overrides","inferred: fields spread last over the damage context (callers pass { enablePendingHits })"],
+    "bq": ["encounterRules","this.QP() returns this.encounterRules"],
+    "br": ["encounterContext","the same this.XP() value is stored as { encounterContext } on L10696"],
+    "bs": ["appliedDamage","inferred: argument of onDamageApplied"]
+  },
+  "SimulationEngine.GP": {
+    "bo": ["encounter","called with this.encounter"],
+    "bq": ["baseEncounterKind","result of resolveBaseEncounterKind"],
+    "br": ["registeredArenaConfig","inferred: arena config registered for the encounter kind (aN is Yl in rendering.js), same shape as arenaConfig"],
+    "bt": ["hasArenaGeometry","inferred: the arena config has bounds, walkable tiles or a collision map"]
+  },
+  "SimulationEngine.VP": {
+    "bo": ["encounter","called with this.encounter"]
+  },
+  "SimulationEngine.VI": {
+    "bo#1": ["npc","inferred: argument of spawnNpc"],
+    "bo#2": ["npcId","inferred: argument of despawnNpc, looked up as an NPC"],
+    "bp#1": ["npc","inferred: worldState.FM returns only actors of kind \"npc\""],
+    "bo#3": ["startPosition","stored as this.runStartPosition"],
+    "bp#2": ["player","result of this.player()"],
+    "br": ["actor","element of worldState.actors"]
+  },
+  "SimulationEngine.JI": {
+    "bo": ["npc","inferred: the spawnNpc callback's argument; error string \"spawnNpc: duplicate actor id\""]
+  },
+  "SimulationEngine.JP": {
+    "bo": ["startPosition","the constructor passes options.startPos; passed on to YI"],
+    "bp": ["inventory","stored as { inventory } on the player actor by YI"],
+    "br": ["openingIntro","stored as this.openingIntro"],
+    "bs": ["player","inferred: the player actor created by YI"],
+    "bt": ["npcs","result of encounter.createNpcs"],
+    "bv": ["npc","element of the encounter.createNpcs result"],
+    "bu": ["playerMaxHpReduction","read from encounterRules.playerMaxHpReduction"]
+  },
+  "SimulationEngine.YI": {
+    "bo": ["startPosition","stored as { position, previousPosition }; JP passes its startPosition"],
+    "bp": ["inventory","stored as { inventory }"],
+    "br": ["stats","stored as { stats }"],
+    "bs": ["prayerState","stored as { prayerState }"]
+  },
+  "SimulationEngine.t_": {
+    "bo": ["stats","passed as playerConfig.stats by Grid.js; stored as this.configuredStats"],
+    "bq": ["player","this.player()"]
+  },
+  "SimulationEngine.player": {
+    "bo": ["player","error string \"Player actor missing from world state\""]
+  },
+  "SimulationEngine.logEvent": {
+    "bo": ["event","pushed to this.eventLog"]
+  },
+  "SimulationEngine.e_": {
+    "bo": ["history","passed as actor.history"],
+    "bp": ["tick","inferred: key of the position history, callers pass the tick"],
+    "bq": ["position","passed as actor.position"]
+  },
+  "SimulationEngine.n_": {
+    "bo": ["tick","inferred: P_ passes the new tick"],
+    "bq": ["npcsDueForRemoval","inferred: dead NPCs 10 ticks past their despawn tick"],
+    "br": ["actor","element of worldState.actors"],
+    "bs": ["npc","actor with kind \"npc\""],
+    "bt": ["despawnTick","ai() reads npc.despawnTick"],
+    "bu": ["deadNpc","inferred: collected NPC that is not alive"],
+    "bv": ["despawnTick","ai() reads npc.despawnTick"]
+  },
+  "SimulationEngine.i_": {
+    "bo": ["playerMechanicsConfig","stored as this.playerMechanicsConfig"],
+    "bq": ["offensivePrayer","read from player.offensivePrayer"]
+  },
+  "SimulationEngine.o_": {
+    "bp": ["introConfig","returned by encounter.getIntroConfig"],
+    "br": ["openingIntro","stored as this.openingIntro"]
+  },
+  "SimulationEngine.c_": {
+    "bo": ["runStartMechanics","inferred: current values of encounter.runStartMechanicsKeys"],
+    "bp": ["mechanicsKey","element of encounter.runStartMechanicsKeys"]
+  },
+  "SimulationEngine.u_": {
+    "bo": ["groundItems","stored as worldState.groundItems"],
+    "bp#1": ["groundItem","element of the ground items stored as worldState.groundItems"],
+    "bp#2": ["groundItem","element of worldState.groundItems"],
+    "bq": ["groundItemSeq","stored as worldState.groundItemSeq"]
+  },
+  "SimulationEngine.setInventory": {
+    "bo": ["inventory","stored as player.inventory"]
+  },
+  "SimulationEngine.d_": {
+    "bo": ["combatSupplies","stored as player.combatSupplies"],
+    "bp": ["player","this.player()"]
+  },
+  "SimulationEngine.p_": {
+    "bo": ["spellName","passed as action.spellName; stored as { selectedSpell }"],
+    "bp": ["player","this.player()"]
+  },
+  "SimulationEngine.m_": {
+    "bo": ["fromIndex","passed as action.from of a swapInventory action"],
+    "bp": ["toIndex","passed as action.to of a swapInventory action"],
+    "br": ["player","this.player()"],
+    "bs": ["updatedInventory","stored as player.inventory"],
+    "bt": ["fromItem","inferred: item in the slot being swapped from"]
+  },
+  "SimulationEngine.g_": {
+    "bo": ["inventoryIndex","passed on as y_'s inventory index"],
+    "bp": ["slot","passed on as y_'s equipment slot"]
+  },
+  "SimulationEngine.y_": {
+    "bo": ["inventory","callers pass player.inventory; returned as { inventory }"],
+    "bp": ["equipment","callers pass player.equipment; returned as { equipment }"],
+    "bq": ["inventoryIndex","Grid.js passes the equip action's inventoryIndex"],
+    "br": ["slot","passed as action.slot; compared with \"weapon\" and \"shield\""],
+    "bt": ["itemRef","element of inventory, read .id"],
+    "bu": ["updatedInventory","returned as { inventory }"],
+    "bv": ["equipsTwoHandedWeapon","inferred: weapon slot and this.isTwoHanded(item)"],
+    "bw": ["equipsShieldOverTwoHander","inferred: shield slot while a two-handed weapon is equipped"],
+    "bA": ["freeIndex","inferred: first empty inventory slot"],
+    "bD": ["freeIndex","inferred: first empty inventory slot"],
+    "bx": ["replacedItemId","inferred: id equipped in the slot before, put back as { id }"]
+  },
+  "SimulationEngine.v_": {
+    "bo": ["slot","passed on as w_'s equipment slot"]
+  },
+  "SimulationEngine.w_": {
+    "bo": ["inventory","callers pass player.inventory; returned as { inventory }"],
+    "bp": ["equipment","callers pass player.equipment; returned as { equipment }"],
+    "bq": ["slot","passed as action.slot of an unequip action"],
+    "bs": ["equippedItemId","read from equipment[slot]; stored as { id }"],
+    "bt": ["freeIndex","inferred: first empty inventory slot"],
+    "bu": ["updatedInventory","returned as { inventory }"]
+  },
+  "SimulationEngine.M_": {
+    "bo": ["inventory","callers pass player.inventory"],
+    "bp": ["combatSupplies","callers pass player.combatSupplies; read .equippedAmmo"],
+    "bq": ["inventoryIndex","Grid.js passes the equip-ammo action's inventoryIndex"],
+    "bs": ["itemRef","element of inventory, read .id"],
+    "bu": ["updatedInventory","caller stores it as { inventory }"]
+  },
+  "SimulationEngine.b_": {
+    "bo": ["inventory","callers pass player.inventory"],
+    "bp": ["combatSupplies","callers pass player.combatSupplies; read .equippedAmmo"],
+    "bs": ["freeIndex","inferred: first empty inventory slot"],
+    "bt": ["updatedInventory","caller stores it as { inventory }"]
+  },
+  "SimulationEngine.nd": {
+    "bo": ["targetTile","inferred: named after docs/ARCHITECTURE.md: engine.nd(targetTile)"]
+  },
+  "SimulationEngine.A_": {
+    "bo": ["lastEventId","inferred: caller passes the highest event.eventId already issued"]
+  },
+  "SimulationEngine.P_": {
+    "bo": ["targetTile","inferred: named after docs/ARCHITECTURE.md: engine.nd(targetTile) passes it on"],
+    "bq": ["player","this.player()"],
+    "bs": ["tick","stored as worldState.tick"],
+    "bu": ["introMessage","read from openingIntro.message"],
+    "bv": ["encounterRules","QP() returns this.encounterRules"],
+    "bN": ["tickStartOutcome","inferred: what encounterRules.onTickStart returned"],
+    "bO": ["failedCondition","x_ stores it as this.failedCondition"],
+    "bw": ["inputLocked","stored as this.lastTickInputLocked"],
+    "bx": ["mechanics","inferred: named after docs/ARCHITECTURE.md: resolveHazards(context, mechanics)"],
+    "by": ["equipmentSlotClicks","stored as { equipmentSlotClicks }"],
+    "bz": ["inputs","YP stores it as { inputs }"],
+    "bA": ["npcMovements","YP stores it as { npcMovements }"],
+    "bB": ["setProtectionPrayer","YP stores it as { setProtectionPrayer }"],
+    "bP#1": ["prayer","inferred: CI compares it with player.activePrayer"],
+    "bC": ["tickContext","inferred: named after docs/ARCHITECTURE.md: the tick context"],
+    "bP#2": ["hazardDamage","element of encounter.resolveHazards(), damage to apply"],
+    "bE": ["shouldRun","inferred: run enabled (after ctrl-click) and run energy left"],
+    "bF": ["playerStep","inferred: { position, stepTiles } the player takes this tick"],
+    "bG": ["attackTargetActor","looked up from player.attackTarget"],
+    "bR": ["targetNpc","attack target with kind \"npc\""],
+    "bU": ["isUnderTarget","inferred: player tile inside the NPC's footprint"],
+    "bV": ["effectiveRange","inferred: encounter.approachRange, else attack range or 1"],
+    "bW": ["effectiveReach","inferred: meleeReach or \"cardinal\""],
+    "bH": ["playerMoved","inferred: O_ returns whether the player changed tile"],
+    "bY#1": ["itemId","lookupItemStats is called with an ammo id"],
+    "bY#2": ["startedAttack","argument of onPlayerAttackStarted"],
+    "bZ#1": ["npc","stored as { spawnNpc }"],
+    "bZ#2": ["npcId","stored as { despawnNpc }; _I looks it up with worldState.FM"],
+    "bY#3": ["appliedDamage","argument of onDamageApplied"],
+    "bY#4": ["soulreaper","passed as player.soulreaper"],
+    "bZ#3": ["tick","compared with soulreaper.decayTick"],
+    "c3": ["remainingStacks","stored as { stacks }"],
+    "bI": ["postTickContext","inferred: named after docs/ARCHITECTURE.md: the tick context, passed to processPostTick"],
+    "bY#5": ["postTickDamage","element of encounter.processPostTick(), damage to apply"],
+    "bK": ["staminaActive","stored as { staminaActive }"],
+    "bZ#4": ["activeEffect","element of player.activeEffects"]
+  },
+  "SimulationEngine.O_": {
+    "bo": ["player","both callers pass this.player()"],
+    "bp": ["playerStep","inferred: { position, stepTiles } from computePlayerStepToTile/Npc"],
+    "bu": ["destination","inferred: playerStep.position being validated"],
+    "bv#1": ["x","coordinate of the tile"],
+    "bw#1": ["y","coordinate of the tile"],
+    "bx#1": ["tile","destructured as [x, y]"],
+    "by#1": ["tileX","coordinate checked against the 64-tile region"],
+    "bz": ["tileY","coordinate checked against the 64-tile region"],
+    "bw#2": ["x","coordinate of an element of playerStep.stepTiles"],
+    "bx#2": ["y","coordinate of an element of playerStep.stepTiles"],
+    "bv#2": ["fromTile","inferred: tile the occupancy step starts from"],
+    "bw#3": ["stepTile","element of player.movementPath"],
+    "bt": ["moved","stored as player.isMoving"],
+    "bx#3": ["finalTile","inferred: last tile of movementPath"],
+    "by#2": ["previousTile","inferred: tile before the last, for the facing"]
+  },
+  "SimulationEngine.prepareStartPosition": {
+    "bo": ["targetTile","inferred: passed to computePlayerStepToTile like P_'s target tile"],
+    "bq": ["player","this.player()"],
+    "bv#1": ["inputOp","element of player.pendingInputOps"],
+    "bs": ["runEnabledAfterToggles","inferred: player.isRunEnabled after the queued run_toggle ops"],
+    "bt": ["shouldRun","inferred: run enabled (after ctrl-click) and run energy left"],
+    "bv#2": ["x","coordinate of an element of player.movementPath"],
+    "bw": ["y","coordinate of an element of player.movementPath"]
+  },
+  "SimulationEngine.finalizeStartPosition": {
+    "bp": ["player","this.player()"],
+    "bq": ["startPosition","stored as this.runStartPosition"],
+    "bt": ["actor","element of worldState.actors"],
+    "bs": ["firstEvent","read from this.eventLog[0]"]
+  },
+  "SimulationEngine.U_": {
+    "bo": ["methodName","callers pass \"prepareStartPosition\" / \"finalizeStartPosition\" for the error text"]
+  },
+  "SimulationEngine.C_": {
+    "bo": ["tickContext","inferred: named after docs/ARCHITECTURE.md: prepareNpcBand(context, mechanics)"],
+    "bp": ["mechanics","inferred: named after docs/ARCHITECTURE.md: prepareNpcBand(context, mechanics)"],
+    "bq": ["npcMovements","P_ passes the map stored as { npcMovements }"],
+    "bs": ["combatContext","inferred: KI() bag of events, damage multipliers and callbacks for the combat system"],
+    "bt": ["processedNpcs","inferred: NPCs that already took their turn"],
+    "bu": ["lastProcessingOrder","read from npc.processingOrder"],
+    "bv": ["nextNpc","inferred: next NPC in processing order"],
+    "bw": ["bandDamage","element of encounter.completeNpcBand(), damage to apply"]
+  },
+  "SimulationEngine.L_": {
+    "bo": ["lastProcessingOrder","compared with npc.processingOrder"],
+    "bq": ["nextNpc","inferred: NPC with the lowest processing order above the last one"],
+    "br": ["npc","element of worldState.PM()"]
+  },
+  "SimulationEngine.j_": {
+    "bo": ["npc","inferred: named after docs/ARCHITECTURE.md: moveNpc(npc, context, mechanics)"],
+    "bp": ["tickContext","inferred: named after docs/ARCHITECTURE.md: moveNpc(npc, context, mechanics)"],
+    "bq": ["mechanics","inferred: named after docs/ARCHITECTURE.md: moveNpc(npc, context, mechanics)"],
+    "br": ["npcMovements","P_ passes the map stored as { npcMovements }"],
+    "bs": ["combatContext","inferred: KI() bag passed to the combat system"],
+    "bv": ["target","looked up from npc.combat.targetId"],
+    "by": ["releasedAttack","element of npcDefinitions.releaseOnDeathAnimation(); error string \"released an attack\""],
+    "bw": ["movementRequests","error string \"returned a movement request\""],
+    "bz": ["movementRequest","error string \"returned a movement request\""],
+    "bA": ["localEffectDamage","element of encounter.resolveNpcLocalEffects()"],
+    "bx": ["npcTurn","inferred: { npcAttacks, environmentalDamages } of processNpcTick"],
+    "bB": ["npcAttack","element of npcTurn.npcAttacks"],
+    "bC": ["environmentalDamage","element of npcTurn.environmentalDamages"]
+  },
+  "SimulationEngine.z_": {
+    "bo": ["npc","j_ passes its npc"],
+    "bp": ["tick","compared with crawlMovement.startTick"]
+  },
+  "SimulationEngine.J_": {
+    "bo": ["npc","error string \"NPC '...' returned a movement request\""],
+    "bp": ["movementRequest","error string \"returned a movement request\""],
+    "bq": ["npcMovements","P_ passes the map stored as { npcMovements }"],
+    "bt": ["startTile","stored as { from } of the movement"],
+    "bu": ["path","read from movementRequest.path"],
+    "bx": ["firstTile","inferred: first tile of the path"],
+    "by": ["dx","x offset of the crawl step"],
+    "bz": ["dy","y offset of the crawl step"],
+    "bv": ["finalTile","stored as crawlMovement.to"],
+    "bw": ["moved","stored as { moved }"],
+    "bA": ["fromTile","inferred: tile the occupancy step starts from"],
+    "bC": ["stepTile","element of path"],
+    "bD": ["x","coordinate of an element of path"],
+    "bE": ["y","coordinate of an element of path"],
+    "bB": ["previousTile","inferred: tile before the last, for the facing"]
+  },
+  "SimulationEngine.queueNpcHit": {
+    "bo": ["attack","stored as { attack }"],
+    "bp": ["attacker","stored as { attacker }"],
+    "bq": ["target","stored as { target }"]
+  },
+  "SimulationEngine.X_": {
+    "bo": ["npc","error string \"NPC '...' returned an attack\"; j_ passes its npc"],
+    "bp": ["attack","stored as { attack }"],
+    "bq": ["tick","stored as npc.combat.lastAttackTick"],
+    "br": ["target","stored as { target }"],
+    "bs": ["attackRequest","inferred: { attacker, target, attack } handed to the combat system"],
+    "bt": ["combatContext","inferred: KI() bag passed to the combat system"]
+  },
+  "SimulationEngine.V_": {
+    "bo": ["npc","error string \"NPC '...' released an attack\"; j_ passes its npc"],
+    "bp": ["attack","stored as { attack }"],
+    "bq": ["target","stored as { target }"]
+  },
+  "SimulationEngine.G_": {
+    "bo": ["npc","passed to npcDefinitions.notifyDeathStarted; j_ passes its npc"]
+  },
+  "SimulationEngine.B_": {
+    "bo": ["tick","P_ passes the new tick"],
+    "bp": ["previousTick","inferred: P_ passes worldState.tick from before the increment"],
+    "bq": ["specialAttackEnergyAtTickStart","inferred: P_ passes player.specialAttack.energy read at tick start"],
+    "bs": ["player","this.player()"],
+    "bt": ["prayerDrainRule","read from encounterRules.prayerDrain"],
+    "bu": ["prayerDrainModifiers","inferred: { drainMultiplier, modifyDrainResistance }"],
+    "bH#1": ["drainParams","inferred: { totalDrainEffect, drainResistance, prayerBonus }"],
+    "bv": ["prayerDrainOutcome","inferred: { state, drained }"],
+    "bH#2": ["prayerState","passed as player.prayerState"],
+    "bI#1": ["prayerBonus","stored as { prayerBonus }"],
+    "bK#1": ["tick","compared with prayerActivationTicks"],
+    "bN#1": ["drainModifiers","inferred: { drainMultiplier, modifyDrainResistance }"],
+    "bO#1": ["totalDrainEffect","stored as { totalDrainEffect }"],
+    "bT#1": ["prayer","element of prayerState.activePrayers"],
+    "bU#1": ["activationTick","read from prayerState.prayerActivationTicks"],
+    "bP#1": ["drainResistance","the default is stored as { drainResistance }"],
+    "bR#1": ["drainCounter","stored as { drainCounter }"],
+    "bS#1": ["prayerPoints","stored as { points } of the prayer state"],
+    "bw": ["currentSpecialAttack","read from player.specialAttack"],
+    "bH#3": ["specialAttack","passed as player.specialAttack"],
+    "bI#2": ["lightbearerEquipped","compared with specialAttack.lightbearerEquipped"],
+    "bK#2": ["counterExceedsLightbearerInterval","inferred: regenTickCounter above the 25-tick Lightbearer interval"],
+    "bH#4": ["specialAttack","passed as player.specialAttack"],
+    "bI#3": ["energyAtTickStart","defaults to specialAttack.energy; B_ passes the energy read at tick start"],
+    "bK#3": ["regenIntervalTicks","inferred: 25 ticks with Lightbearer, else 50; stored as { regenTickCounter }"],
+    "bO#2": ["specialAttackState","read .lightbearerEquipped; same object as specialAttack"],
+    "bN#2": ["regenTickCounter","stored as { regenTickCounter }"],
+    "bO#3": ["restoredEnergy","stored as { energy }"],
+    "by": ["deathChargeWasActive","inferred: deathChargeActiveTicks and procs remaining before the timers tick"],
+    "bz": ["combatTimers","read from player.combatTimers"],
+    "bA": ["decayLockOutcome","inferred: { stats, timers, expired } after ticking stat decay locks"],
+    "bH#5": ["stats","passed as player.stats; returned as { stats }"],
+    "bI#4": ["timers","returned as { timers }"],
+    "bK#4": ["updatedStats","returned as { stats }"],
+    "bN#3": ["remainingDecayLocks","stored as { statDecayLocks }"],
+    "bO#4": ["expiredSources","returned as { expired }; holds decayLock.source"],
+    "bP#2": ["anyDecayLock","inferred: set once a stat decay lock is found"],
+    "bR#2": ["statName","key of stats and of timers.statDecayLocks"],
+    "bS#2": ["decayLock","read from timers.statDecayLocks"],
+    "bT#2": ["ticksRemaining","stored as { ticksRemaining }"],
+    "bU#2": ["stat","read from stats[statName], has .current and .max"],
+    "bB": ["statRestoreOutcome","inferred: { stats, timers } after boost decay and stat recovery"],
+    "bH#6": ["stats","passed as player.stats"],
+    "bI#5": ["timers","returned as { timers }"],
+    "bK#5": ["tick","inferred: compared with timers.statBoostDecayTick; B_ passes the previous tick"],
+    "bN#4": ["preserveActive","inferred: Preserve prayer active for 25 ticks or more"],
+    "bO#5": ["rapidRestoreDue","inferred: Rapid Restore's extra recovery, every 100 ticks of activation"],
+    "bR#3": ["decayDue","inferred: tick reached timers.statBoostDecayTick"],
+    "bS#3": ["preserveExtendsDecay","stored as statBoostDecayExtended"],
+    "bT#3": ["applyDecay","inferred: boosted stats lose a level this tick"],
+    "bU#3": ["recoveryDue","inferred: tick reached timers.statRecoveryTick"],
+    "bV": ["updatedStats","returned as { stats }"],
+    "bW": ["statName","key of stats and of timers.statDecayLocks"],
+    "bY": ["stat","read from stats[statName], has .current and .max"],
+    "bZ": ["decayLocked","inferred: stat has an entry in timers.statDecayLocks"],
+    "c3": ["statName","key of stats"],
+    "c4": ["stat","read from stats[statName], has .current and .max"],
+    "bH#7": ["prayerState","passed as player.prayerState"],
+    "bI#6": ["tick","B_ passes its tick"],
+    "bK#6": ["activationTick","read from prayerState.prayerActivationTicks"],
+    "bH#8": ["prayerState","passed as player.prayerState"],
+    "bI#7": ["tick","B_ passes its tick"],
+    "bK#7": ["activationTick","read from prayerState.prayerActivationTicks"],
+    "bN#5": ["ticksActive","inferred: ticks since Rapid Restore was activated"],
+    "bH#9": ["hpRegen","inferred: { hp, regenTick } after the hitpoints regeneration step"],
+    "bC": ["currentHp","read from player.vitals.hp"],
+    "bD": ["maxHp","read from player.vitals.maxHp"],
+    "bE": ["hpRegenTick","read from player.combatTimers.hpRegenTick"],
+    "bF": ["currentTick","inferred: copy of the tick parameter"],
+    "bG": ["rapidHealActive","inferred: independentPrayers includes Rapid Heal"]
+  },
+  "SimulationEngine.pausePlayerAutoAttack": {
+    "bo": ["targetId","stored as { targetId }"],
+    "bp": ["resumeTick","stored as { resumeTick }"],
+    "br": ["player","this.player()"]
+  },
+  "SimulationEngine.WI": {
+    "bo": ["hit","inferred: named after passed as onPlayerAttackResolved(hit, context) in docs/ARCHITECTURE.md; argument of onDamageApplied"],
+    "bq": ["player","this.player()"],
+    "br": ["sourceLabel","returned by encounter.getNpcDamageSourceLabel; stored as { source }"],
+    "bs": ["targetNpc","worldState NPC with id hit.targetId; error string \"NPC '...' reached 0 HP\""],
+    "bv#1": ["npc","element of worldState.PM() (actors of kind \"npc\")"],
+    "bt": ["expectedHit","read from hit.expectedHit, stored as { expectedHit }"],
+    "bv#2": ["npc","argument of spawnNpc"],
+    "bv#3": ["actorId","passed to _I, which emits { actorId }"],
+    "bv#4": ["targetId","passed as pausePlayerAutoAttack's targetId"],
+    "bw#1": ["resumeTick","passed as pausePlayerAutoAttack's resumeTick"],
+    "bu": ["isLethal","error string \"reached 0 HP without its lethal transition\"; hpBefore > 0 and hpAfter === 0"],
+    "bv#5": ["deathChargeProc","event type \"death_charge_proc\""],
+    "bw#2": ["specialAttack","passed player.specialAttack"],
+    "bx": ["combatTimers","passed player.combatTimers"],
+    "by": ["procsRemaining","stored as { deathChargeProcsRemaining }"]
+  },
+  "SimulationEngine.F_": {
+    "bo": ["tickContext","inferred: named after passed as onNpcDefeated(defeat, context, owner) in client/toa/zebak/native.js; \"the tick context\" in docs/ARCHITECTURE.md"]
+  },
+  "SimulationEngine.ux": {
+    "bo": ["targetNpc","called with WI's targetNpc; emitted as { targetId: .id }"],
+    "bp": ["onKillEffect","called with hit.onKillEffect"],
+    "br": ["spotAnimId","stored as { spotAnimId }"]
+  },
+  "SimulationEngine.ix": {
+    "bo": ["player","called with this.player()"],
+    "bp": ["onKillEffect","called with hit.onKillEffect"],
+    "bq": ["tick","called with hit.tick"],
+    "br": ["maxSpecialEnergy","inferred: cap of specialAttack.energy, same value as MAX_SPECIAL_ATTACK_ENERGY"]
+  },
+  "SimulationEngine.W_": {
+    "bo": ["dx","inferred: x difference toward the faced tile"],
+    "bp": ["dy","inferred: y difference toward the faced tile"],
+    "bq": ["fallbackFacing","inferred: returned when both differences are 0; callers pass actor.facing"]
+  },
+  "SimulationEngine.Q_": {
+    "bo": ["npc","inferred: actor with .combat.targetId, called in the NPC turn"],
+    "bq": ["target","worldState.actors.get(npc.combat.targetId)"]
+  },
+  "SimulationEngine.mx": {
+    "bo": ["npc","called with Q_'s npc"],
+    "bp": ["target","called with Q_'s target"],
+    "br": ["targetCenterX","inferred: x of the middle of the target's footprint"],
+    "bs": ["targetCenterY","inferred: y of the middle of the target's footprint"],
+    "bt": ["npcMaxX","inferred: last x of the NPC's footprint"],
+    "bu": ["npcMaxY","inferred: last y of the NPC's footprint"],
+    "bv": ["nearestX","inferred: x of the NPC's own tile closest to the target's centre"],
+    "bw": ["nearestY","inferred: y of the NPC's own tile closest to the target's centre"]
+  },
+  "SimulationEngine.gx": {
+    "bo": ["ctrlClickOverride","stored as player.ctrlClickOverride"]
+  },
+  "SimulationEngine.kx": {
+    "bo": ["spellName","inferred: called with \"Mark of Darkness\" and \"Death Charge\""],
+    "bq": ["player","this.player()"]
+  },
+  "SimulationEngine.castMarkOfDarkness": {
+    "bp": ["player","this.player()"],
+    "bq": ["hasPurgingStaff","inferred: weapon is item 29594 (Purging staff), which makes the mark last five times longer"],
+    "br": ["activatedTimers","inferred: returned by activateMarkOfDarkness, stored as player.combatTimers"]
+  },
+  "SimulationEngine.castDeathCharge": {
+    "bp": ["player","this.player()"],
+    "bq": ["doubleDeathCharge","read from mechanicsConfig.doubleDeathCharge"],
+    "br": ["activatedTimers","inferred: stored as player.combatTimers, null while on cooldown"],
+    "bs": ["combatTimers","passed player.combatTimers"],
+    "bt": ["isDoubled","inferred: passed doubleDeathCharge; gives two procs instead of one"]
+  },
+  "SimulationEngine.Sx": {
+    "bo": ["action","switch on .type; Grid.js passes the same object to recordAction"]
+  },
+  "SimulationEngine.Lx": {
+    "bo": ["objTypeLoader","stored as this.objTypeLoader"]
+  },
+  "SimulationEngine.setEquipment": {
+    "bo": ["equipment","stored as player.equipment"],
+    "bp": ["player","this.player()"]
+  },
+  "SimulationEngine.jx": {
+    "bo": ["inputOp","pushed to player.pendingInputOps"]
+  },
+  "SimulationEngine.Cx": {
+    "bo": ["slot","stored as { slot }"]
+  },
+  "SimulationEngine.Tx": {
+    "bo": ["inventoryIndex","stored as { inventoryIndex }"],
+    "bp": ["itemId","stored as { itemId }"],
+    "bq": ["slot","stored as { slot }"]
+  },
+  "SimulationEngine.Dx": {
+    "bo": ["inventoryIndex","stored as { inventoryIndex }"],
+    "bp": ["itemId","stored as { itemId }"]
+  },
+  "SimulationEngine.Ex": {
+    "bo": ["inventoryIndex","stored as { inventoryIndex }"],
+    "bp": ["option","stored as { option }"]
+  },
+  "SimulationEngine.Kx": {
+    "bo": ["inventoryIndex","stored as { inventoryIndex }"]
+  },
+  "SimulationEngine.Wx": {
+    "bo": ["groundItemId","stored as { groundItemId }"]
+  },
+  "SimulationEngine.Gx": {
+    "bo": ["inputOp","element of player.pendingInputOps"]
+  },
+  "SimulationEngine.Vx": {
+    "bo": ["extraInputOps","inferred: ops applied after player.pendingInputOps; Grid.js passes the ones it has not queued yet"],
+    "bq": ["player","this.player()"],
+    "br": ["specialAttackActive","read from player.isSpecialAttackActive; result stored as pendingSpecialAttackActive"],
+    "bs": ["loadout","inferred: { inventory, equipment, combatSupplies } as the queued ops leave it"],
+    "bt": ["playerState","inferred: snapshot built by Jx that applyConsumableEffects takes as its playerState parameter and returns as newState"],
+    "bu": ["untrackedItemUsed","inferred: a consumable without a cooldown track was already used; blocks a second one"],
+    "bv": ["inputOps","player.pendingInputOps, then the extra ops"],
+    "bw": ["inputOp","element of player.pendingInputOps"],
+    "bx": ["updatedLoadout","inferred: loadout after the equipment op, null when it cannot be done"],
+    "by": ["projectedPlayer","stored as { player }; inferred: player with the projected loadout and special attack"],
+    "bz": ["instantSpecial","returned by previewInstantSpecial"],
+    "bA": ["itemRef","element of loadout.inventory"],
+    "bB": ["consumable","returned by getConsumableDefinition"]
+  },
+  "SimulationEngine.NI": {
+    "bo": ["npcTypeId","called with npc.npcTypeId"]
+  },
+  "SimulationEngine.getAdjustedTheoreticalDps": {
+    "bp": ["player","this.player(), stored as { player }"],
+    "bq": ["targetId","read from player.attackTarget ?? player.lastAttackTarget"],
+    "br": ["target","stored as { target }"],
+    "bA#1": ["npc","element of worldState.PM() (actors of kind \"npc\")"],
+    "bA#2": ["npc","element of worldState.PM() (actors of kind \"npc\")"],
+    "bA#3": ["npc","element of worldState.PM() (actors of kind \"npc\")"],
+    "bs": ["combatParams","returned by FI, which passes it through encounterRules.modifyPlayerCombatParams"],
+    "bt": ["formulaStyle","stored as { formulaStyle }; same call named formulaStyle on line 8388"],
+    "bu": ["spell","same call named spell on line 8386"],
+    "bv": ["attackResources","returned by resolveAttackResources, stored as { attackResources }"],
+    "bw": ["encounterContext","stored as { encounterContext }"],
+    "bx": ["encounterRules","stored as { encounterRules }"],
+    "by": ["outgoingDamageMultiplier","stored as { outgoingDamageMultiplier }"],
+    "bz": ["standardAccuracyMode","stored as { standardAccuracyMode }"],
+    "bA#4": ["attackInput","inferred: argument object of planPlayerAttack, whose parameter has this name"],
+    "bB": ["attackPlan","returned by planPlayerAttack; its hits are indexed by planIndex"],
+    "bC": ["projection","returned by projectPlayerAttack"],
+    "bD": ["projectedHit","element of projection.hits"],
+    "bE": ["index","position in projection.hits"],
+    "bA#5": ["itemId","inferred: argument of lookupItemStats"]
+  },
+  "SimulationEngine.Zx": {
+    "bo": ["targetId","stored as { targetId }"]
+  },
+  "SimulationEngine.Ox": {
+    "bo": ["targetId","stored as { targetId }"],
+    "bp": ["manualCastSpell","stored as { manualCastSpell }"]
+  },
+  "SimulationEngine.tE": {
+    "bo": ["input","passed to encounter.acceptsInput"]
+  },
+  "SimulationEngine.$x": {
+    "bo": ["slot","called with action.slot; pushed to pendingEquipmentSlotClicks"]
+  },
+  "SimulationEngine.CI": {
+    "bo": ["protectionPrayer","exposed as setProtectionPrayer; stored as player.activePrayer"],
+    "bq": ["player","this.player()"]
+  },
+  "SimulationEngine.Fx": {
+    "bo": ["styleIndex","stored as player.selectedAttackStyleIndex, which line 8385 reads as styleIndex"],
+    "bq": ["player","this.player()"],
+    "br": ["weaponCategory","key of this._attackStylePerCategory"]
+  },
+  "SimulationEngine.aE": {
+    "bo": ["attackStylePerCategory","called with .attackStylePerCategory; stored as this._attackStylePerCategory"]
+  },
+  "SimulationEngine.h_": {
+    "bp": ["player","this.player()"],
+    "bq": ["weaponCategory","key of this._attackStylePerCategory"],
+    "br": ["savedStyleIndex","inferred: style index remembered in this._attackStylePerCategory for the weapon's category"]
+  },
+  "SimulationEngine.isTwoHanded": {
+    "bo": ["itemId","inferred: called with an inventory item's .id and equipment.weapon"]
+  },
+  "SimulationEngine.k_": {
+    "bo": ["inventory","called with the inventory array of y_"],
+    "bp": ["vacatedIndex","inferred: slot of the item being equipped, counted as free"],
+    "br": ["freeSlots","inferred: number of empty inventory slots"],
+    "bs": ["index","loop position in the inventory"]
+  },
+  "SimulationEngine.D_": {
+    "bo": ["tick","stored as { tick }"],
+    "bq": ["player","this.player(), stored as { player }"],
+    "bv": ["attackTargetSetThisTick","inferred: set by an \"attack_target\" op earlier in the same tick; keeps the target when a later op would drop it"],
+    "bw": ["untrackedItemUsed","inferred: a consumable without a cooldown track was already used this tick"],
+    "bx": ["prayerFailureReported","inferred: \"prayer_activation_failed\" was already emitted this tick"],
+    "by": ["inputOp","element of player.pendingInputOps"],
+    "bz": ["previousPrayer","inferred: independent prayer active before the ops; logged as { from }"],
+    "bA": ["currentPrayer","inferred: independent prayer active after the ops; logged as { to }"]
+  },
+  "SimulationEngine.K_": {
+    "bo": ["tick","called with the tick of the engine step; passed to eE"],
+    "bq": ["protectionRestriction","read from encounterRules.prayerRestrictions.protection"],
+    "br": ["maxActiveTicks","inferred: expiresAfterTicks - 1, ticks the prayer may stay on after its activation tick"]
+  },
+  "SimulationEngine.eE": {
+    "bo": ["tick","stored as { tick }"],
+    "bq": ["player","this.player()"]
+  },
+  "SimulationEngine.sE": {
+    "bo": ["tick","called with D_'s tick"],
+    "bq": ["encounterRules","this.QP() returns this.encounterRules"]
+  },
+  "SimulationEngine.s_": {
+    "bo": ["tick","stored as { tick }"],
+    "bp": ["player","this.player()"]
+  },
+  "SimulationEngine.cE": {
+    "bo": ["inputOp","element of player.pendingInputOps"],
+    "bp": ["tick","called with D_'s tick; stored as protectionPrayerActivatedTick"],
+    "bq": ["prayerFailureReported","called with D_'s prayerFailureReported"],
+    "bs": ["isPrayerUnlocked","inferred: rendering.js gf checks the mechanics flag a prayer needs (upgradedPrayers, zealPrayer)"],
+    "bI#1": ["prayer","called with inputOp.prayer and elements of inputOp.selections"],
+    "bt": ["filteredInputOp","inferred: the op with locked prayers removed from its quick-prayer selections"],
+    "bu": ["player","this.player()"],
+    "bv": ["encounterRules","this.QP() returns this.encounterRules"],
+    "bw": ["protectionRestriction","read from encounterRules.prayerRestrictions.protection"],
+    "bx": ["offensiveRestriction","read from encounterRules.prayerRestrictions.offensive"],
+    "by": ["prayerUpdate","inferred: returned by applyPrayerActions"],
+    "bz": ["protectionDisabled","compared with this.protectionPrayersDisabledUntilTick"],
+    "bA": ["disabledProtectionPrayer","inferred: protection prayer the op turned on while protection prayers are disabled"],
+    "bB": ["protectionBlocked","inferred: restriction is \"blocked\" or protection prayers are disabled"],
+    "bC": ["attemptedPrayer","stored as { attemptedPrayer }"],
+    "bD": ["failureReportedAfter","inferred: prayerFailureReported once this op's failure is emitted; returned"],
+    "bE": ["protectionPrayer","prayerUpdate.protection, stored as player.activePrayer"],
+    "bF": ["offensivePrayer","prayerUpdate.offensive, stored as player.offensivePrayer"],
+    "bI#2": ["transition","element of prayerUpdate.transitions"],
+    "bG": ["activatedPrayers","filtered from prayerUpdate.activated"],
+    "bK#1": ["prayer","element of prayerUpdate.activated"],
+    "bK#2": ["prayerActivationTicks","stored as { prayerActivationTicks }"],
+    "bN": ["prayer","element of activatedPrayers"],
+    "bH": ["prayersChanged","inferred: a prayer slot of the player changed, so the active prayer list is rebuilt"],
+    "bR": ["prayer","element of prayerUpdate.independent"],
+    "bS": ["index","position in prayerUpdate.independent"]
+  },
+  "SimulationEngine.Qx": {
+    "bo": ["loadout","inferred: { inventory, equipment, combatSupplies }"],
+    "bp": ["inputOp","called with elements of player.pendingInputOps"],
+    "bq": ["unequipped","inferred: { inventory, equipment } after the unequip, or null"],
+    "br": ["inventoryIndex","resolved from inputOp.inventoryIndex by fE"],
+    "bs": ["equipped","inferred: { inventory, equipment } after the equip, or null"],
+    "bt": ["ammoInventoryIndex","resolved from inputOp.inventoryIndex by fE, for an \"equip_ammo\" op"],
+    "bu": ["inventoryAfterEquip","stored as { inventory }"],
+    "bv": ["inventoryAfterUnequip","stored as { inventory }"]
+  },
+  "SimulationEngine.uE": {
+    "bo": ["inputOp","called with elements of player.pendingInputOps"],
+    "bp": ["attackTargetSetThisTick","called with D_'s attackTargetSetThisTick"],
+    "br": ["player","this.player()"],
+    "bt": ["updatedLoadout","inferred: loadout after the equipment op, null when it cannot be done"]
+  },
+  "SimulationEngine.fE": {
+    "bo": ["inventory","called with loadout.inventory"],
+    "bp": ["inventoryIndex","called with inputOp.inventoryIndex"],
+    "bq": ["itemId","called with inputOp.itemId"],
+    "br": ["itemRef","element of the inventory"]
+  },
+  "SimulationEngine.pE": {
+    "bo": ["slot","called with inputOp.slot"],
+    "bp": ["itemId","called with inputOp.itemId"],
+    "br": ["weaponCategory","inferred: compared with \"staff\" and \"powered_staff\"; same call as in Fx"]
+  },
+  "SimulationEngine.mE": {
+    "bo": ["itemId","called with pE's itemId"],
+    "bp": ["itemName","read from objTypeLoader.load(itemId).name"],
+    "bq#1": ["keyword","element of softBodyNameKeywords"],
+    "bq#2": ["keyword","element of metalBodyNameKeywords"]
+  },
+  "SimulationEngine.Jx": {
+    "bo": ["currentTick","stored as { currentTick }"],
+    "bp": ["player","this.player()"]
+  },
+  "SimulationEngine.Xx": {
+    "bo": ["consumable","returned by getConsumableDefinition in both callers"],
+    "bp": ["playerState","inferred: snapshot built by Jx; returned updated as newState"],
+    "bq": ["loadout","inferred: read for .equipment and .inventory; callers pass the projected loadout or the player"],
+    "bs": ["itemRestrictions","read from encounterRules.itemRestrictions"],
+    "bt": ["filteredEffects","stored as { filteredEffects }"],
+    "bu": ["effect","element of consumable.effects"]
+  },
+  "SimulationEngine.Yx": {
+    "bo": ["inventory","called with .inventory"],
+    "bp": ["inventoryIndex","called with inputOp.inventoryIndex"],
+    "bq": ["consumable","returned by getConsumableDefinition in both callers"]
+  },
+  "SimulationEngine.lE": {
+    "bo": ["inputOp","called with elements of player.pendingInputOps"],
+    "bp": ["attackTargetSetThisTick","called with D_'s attackTargetSetThisTick"],
+    "bq": ["untrackedItemUsed","called with D_'s untrackedItemUsed"],
+    "bs": ["player","this.player()"],
+    "bt": ["itemRef","element of player.inventory"],
+    "bu": ["consumable","returned by getConsumableDefinition"],
+    "bx": ["hasCooldown","inferred: the consumable has a cooldown track and a delay on it"],
+    "by": ["playerState","inferred: snapshot built by Jx, compared with newState"],
+    "bB": ["stateChanged","inferred: the effects produced a new state"],
+    "bC": ["hasSelfDamage","inferred: an effect has op \"self_damage\" or \"self_damage_formula\""],
+    "bD#1": ["effect","element of filteredEffects"],
+    "bD#2": ["selfDamage","inferred: hitpoints lost to the consumable; emitted as the hitsplat's { amount }"],
+    "bE": ["consumableTrack","key of ATTACK_DELAY_TICKS_BY_CONSUMABLE_TRACK"]
+  },
+  "SimulationEngine.dE": {
+    "bo": ["inputOp","element of player.pendingInputOps (the queued drop_item op)"],
+    "bp": ["droppedTick","stored as { droppedTick }"],
+    "br": ["player","this.player()"],
+    "bs": ["itemRef","element of player.inventory ({ id, quantity })"],
+    "bt": ["quantity","read from itemRef.quantity, stored as { quantity }"],
+    "bu": ["isStackable","returned by isItemStackable"],
+    "bv": ["dropTile","inferred: the player's tile, stored as the ground item's { position }"],
+    "bw": ["existingGroundItemIndex","inferred: index into worldState.groundItems of the same item on the same tile"],
+    "by": ["groundItem","element of worldState.groundItems"],
+    "bx": ["existingGroundItem","inferred: element of worldState.groundItems the dropped stack merges into"]
+  },
+  "SimulationEngine.N_": {
+    "bp": ["player","this.player()"],
+    "br": ["groundItemIndex","inferred: index into worldState.groundItems of pendingItemPickup.groundItemId"],
+    "bv#1": ["groundItem","element of worldState.groundItems"],
+    "bs": ["targetGroundItem","inferred: the worldState.groundItems entry that player.pendingItemPickup points at"],
+    "bt": ["isStackable","returned by isItemStackable"],
+    "bu": ["updatedInventory","inferred: assigned to player.inventory, null when the inventory is full"],
+    "bv#2": ["inventory","passed player.inventory"],
+    "bw": ["itemId","passed groundItem.itemId"],
+    "bx": ["quantity","passed groundItem.quantity, stored as { quantity }"],
+    "by": ["stackable","inferred: passed the isItemStackable result"],
+    "bz": ["nextInventory","inferred: copy of the inventory that receives the item"],
+    "bB#1": ["itemRef","element of player.inventory"],
+    "bB#2": ["existingStackIndex","inferred: inventory index already holding this item id"],
+    "bD": ["itemRef","element of player.inventory"],
+    "bC": ["existingStack","inferred: inventory entry with the same id, its quantity is increased"],
+    "bA": ["emptySlotIndex","inferred: first null inventory slot"]
+  },
+  "SimulationEngine.Y_": {
+    "bo": ["tick","inferred: compared with effect.startedTick; the caller passes the tick"],
+    "bq": ["player","this.player()"],
+    "br": ["remainingEffects","inferred: assigned to player.activeEffects"],
+    "bs": ["effect","element of player.activeEffects"],
+    "bt": ["ticksRemaining","stored as { ticksRemaining }"],
+    "bu": ["healedHp","inferred: hp after the delayed_heal amount, capped at maxHp"]
+  },
+  "SimulationEngine.Z_": {
+    "bo": ["tick","inferred: compared with poisonState.startedTick; the caller passes the tick"],
+    "bq": ["player","this.player()"],
+    "br": ["poisonTickCounter","stored as { poisonTickCounter }"],
+    "bs": ["poisonPulse","inferred: { state, damage } of the poison or venom hit due now; NPC poison calls it a pulse (nextPulseTick)"],
+    "bu": ["poisonState","passed player.poisonState"],
+    "bw": ["venomDamage","inferred: stored as { damage } in the venom branch (poisonVarp >= 1000000)"],
+    "bv": ["poisonDamage","returned by getPoisonDamage, stored as { damage }"],
+    "bt": ["damageOverTime","passed to OP as the value it stores as { damageOverTime }"]
+  },
+  "SimulationEngine.gE": {
+    "bo": ["itemId","inferred: passed to objTypeLoader.load; yE's error string calls it an item"],
+    "bp": ["objType","returned by objTypeLoader.load"]
+  },
+  "SimulationEngine.yE": {
+    "bo": ["itemId","error string \"Unknown item \" + itemId"],
+    "bq": ["objType","returned by objTypeLoader.load"],
+    "br": ["error","catch"]
+  },
+  "SimulationEngine.l_": {
+    "bp": ["player","this.player()"],
+    "bq": ["effect","element of player.activeEffects"],
+    "br": ["halvedTicksRemaining","inferred: half of effect.ticksRemaining, stored as { ticksRemaining }"]
+  },
+  "SimulationEngine.Px": {
+    "bo": ["prayer","stored as { prayer }"]
+  },
+  "SimulationEngine.Ix": {
+    "bo": ["prayer","stored as { prayer }"]
+  },
+  "SimulationEngine.Ax": {
+    "bo": ["prayer","stored as { prayer }"]
+  },
+  "SimulationEngine.Nx": {
+    "bo": ["selections","stored as { selections }"]
+  },
+  "SimulationEngine.getPrayerRestoreProjectionRules": {
+    "bp": ["itemRestrictions","read from encounterRules.itemRestrictions"]
+  },
+  "SimulationEngine.ME": {
+    "bp": ["player","this.player()"],
+    "bq": ["itemRef","element of player.inventory"]
+  },
+  "SimulationEngine.bE": {
+    "bo": ["combatSeed","stored as this.combatSeed"]
+  },
+  "SimulationEngine.PE": {
+    "bo": ["bootstrap","passed the parseEngineBootstrap result (the recording's .bootstrap)"]
+  },
+  "SimulationEngine.iE": {
+    "bp": ["player","this.player()"],
+    "bq": ["activePrayers","stored as { activePrayers }"],
+    "br": ["independentPrayer","element of player.independentPrayers"]
+  },
+  "SimulationEngine.nE": {
+    "bp": ["player","this.player()"]
+  },
+  "SimulationEngine.hE": {
+    "bo": ["tick","inferred: hpRegenTick is this plus the interval; callers pass the tick"],
+    "bp": ["rapidHealActive","inferred: callers pass (prayer === RapidHeal); halves getHpRegenIntervalTicks"],
+    "bq": ["player","this.player()"]
+  },
+  "SimulationEngine.$I": {
+    "bo": ["tick","inferred: callers pass worldState.tick; passed to tickEvents.yP which stores currentTick"],
+    "bq": ["player","this.player()"]
+  },
+  "SimulationEngine.jI": {
+    "bo": ["tick","inferred: callers pass worldState.tick; passed to tickEvents.yP which stores currentTick"],
+    "bq": ["player","this.player()"],
+    "br": ["currentHp","destructured key hp of player.vitals"],
+    "bt": ["redemptionHeal","inferred: hitpoints the Redemption prayer restores (25% of the prayer level)"]
+  },
+  "SimulationEngine.getState": {
+    "bp": ["player","this.player()"],
+    "bq": ["state","returned by getState; replay frames store it as { state }"],
+    "br": ["worldState","passed this.worldState"],
+    "bs": ["engine","passed this"],
+    "bt": ["player","inferred: worldState.gy(), the player actor (error string \"missing required player actor\")"],
+    "bu": ["npcs","inferred: worldState.PM(), the NPC actors"],
+    "bv": ["primaryNpc","its snapshot is stored as primaryNpcPosition, primaryNpcSize, primaryNpcHistory"],
+    "bC#1": ["npc","element of the NPC actor list"],
+    "bw": ["npcSnapshots","inferred: stored as { npcs }; named apart from the NPC actors"],
+    "bC#2": ["npc","element of the NPC actor list"],
+    "bC#3": ["npc","element of the NPC actor list"],
+    "bE": ["role","stored as { role }"],
+    "bF": ["aliveTargetId","inferred: npc.combat.targetId, or null unless that actor is alive"],
+    "bK#1": ["worldState","passed the WorldState; reads .actors"],
+    "bN#1": ["npc","passed the NPC actor"],
+    "bG": ["attackTimer","stored as { attackTimer }"],
+    "bK#2": ["npc","passed the NPC actor"],
+    "bN#2": ["engine","passed the engine; calls getNpcAttackTimer"],
+    "bO": ["aliveTargetId","inferred: passed the NPC's alive target id"],
+    "bI": ["crawlMovementActive","inferred: decides whether { crawlMovement } is included (within 2 ticks of its startTick, NPC on its end tile)"],
+    "bx": ["primaryNpcPosition","stored as { primaryNpcPosition }"],
+    "by": ["primaryNpcPreviousPosition","stored as { primaryNpcPreviousPosition }"],
+    "bz": ["primaryNpcFacingAngle","stored as { primaryNpcFacingAngle }"],
+    "bA": ["primaryNpcSize","stored as { primaryNpcSize }"],
+    "bB": ["prayerProjection","inferred: returned by projectPendingPrayerOps(buildPrayerProjectionInput(...))"],
+    "bC#4": ["groundItem","element of worldState.groundItems"]
+  },
+  "SimulationEngine.reset": {
+    "bo": ["startPosition","falls back to bootstrap.startPosition"],
+    "bp": ["recording","tools/determinism/harness.mjs names this shape (engine.ME() output: encounter, completionOwnership, bootstrap) recording"],
+    "bq": ["runMechanicsOverride","stored as this.runMechanicsOverride"],
+    "bs": ["bootstrap","returned by parseEngineBootstrap (the recording's .bootstrap)"],
+    "bt": ["combatSeed","read from bootstrap.combatSeed"],
+    "bu": ["runStartPosition","stored as this.runStartPosition"],
+    "bw": ["combatSupplies","read from player.combatSupplies, written back after the reset"]
+  },
+  "SimulationEngine.IE": {
+    "bp": ["player","this.player()"],
+    "bq": ["prepottedItemIds","inferred: item ids whose pre-pot effects were already applied"],
+    "bt": ["inventoryIndex","inferred: index into player.inventory; input ops call it inventoryIndex"],
+    "bu": ["itemRef","element of player.inventory"],
+    "bv": ["consumableDefinition","read from consumableDefinitionByItemId"],
+    "bw": ["prepotEffects","returned by filterPrepotEffects"],
+    "bx": ["stateAfterEffects","inferred: player state returned by applyConsumableEffects"],
+    "br": ["purgingStaffEquipped","inferred: weapon is item 29594, the staff that extends Mark of Darkness"],
+    "bs": ["purgingStaffInInventory","inferred: inventory holds item 29594"],
+    "by#1": ["itemRef","element of player.inventory"],
+    "by#2": ["combatTimersWithMark","inferred: returned by activateMarkOfDarkness, assigned to player.combatTimers"]
+  },
+  "SimulationEngine.setTutorialPaused": {
+    "bo": ["tutorialPaused","stored as this._tutorialPaused"]
+  },
+  "SimulationEngine.setCompletionOwnership": {
+    "bo": ["completionOwnership","stored as this.completionOwnership"]
+  },
+  "SimulationEngine.TE": {
+    "bo": ["command","passed action.command by Sx via Ux; client/toa/zebak/native.js executeCommand(command, context)"]
+  },
+  "SimulationEngine.planPracticeRestart": {
+    "bo": ["command","inferred: Grid.js passes the same value to Ux, which queues it as an encounter command"]
+  },
+  "SimulationEngine.Ux": {
+    "bo": ["command","passed action.command by Sx; pushed to this.pendingEncounterCommands"]
+  },
+  "SimulationEngine.executeEncounterCommand": {
+    "bo": ["command","method name; passed to encounter.executeCommand"],
+    "bq": ["gameEvents","read from the command result's .gameEvents (returned by HE)"],
+    "br": ["gameEvent","element of gameEvents"],
+    "bs": ["flushedEvents","inferred: returned by tickEvents.flush()"]
+  },
+  "SimulationEngine.T_": {
+    "bp": ["command","element of this.pendingEncounterCommands"],
+    "bq": ["gameEvent","element of the command result's .gameEvents"]
+  },
+  "SimulationEngine.HE": {
+    "bo": ["command","passed to encounter.executeCommand; native.js executeCommand(command, context)"],
+    "bq": ["commandResult","inferred: returned by encounter.executeCommand"],
+    "br#1": ["npc","argument of the context's spawnNpc"],
+    "br#2": ["npcId","argument of the context's despawnNpc (native.js passes \"zebak-tail\")"]
+  },
+  "SimulationEngine.setBossHp": {
+    "bo": ["requestedHp","inferred: Sx passes action.hp; clamped to the boss maxHp before use"],
+    "bq": ["npcs","inferred: worldState.PM(), the NPC actors"],
+    "br": ["bossNpc","found by role === \"boss\"; method setBossHp"],
+    "bu#1": ["npc","element of the NPC actor list"],
+    "bu#2": ["pendingDefeat","element of this.pendingNpcDefeats"],
+    "bt": ["bossHp","passed to encounter.syncBossHp; method setBossHp"],
+    "bu#3": ["pendingDefeat","element of this.pendingNpcDefeats"]
+  },
+  "SimulationEngine.applyBossHpPreset": {
+    "bo": ["requestedHp","inferred: Sx passes action.hp; passed on to setBossHp"],
+    "bq": ["bossHp","returned by setBossHp, passed to encounter.enterBossHpPhase"],
+    "br#1": ["npc","argument of the context's spawnNpc"],
+    "br#2": ["npcId","argument of the context's despawnNpc"]
+  },
+  "SimulationEngine.WP": {
+    "bo": ["damage","inferred: damage before the protection prayer is applied"],
+    "bp": ["attackType","OP passes the value it stores as { attackType }"],
+    "bq": ["prayerReduction","OP passes hit.prayerReduction"]
+  },
+  "SimulationEngine.E_": {
+    "bo": ["hit","caller's callback: hit => this.E_(hit, tick); native.js pushes these onto hits"],
+    "bp": ["tick","passed to OP, which stores it as { tick }"]
+  },
+  "SimulationEngine.OP": {
+    "bo": ["baseDamage","E_ passes hit.baseDamage"],
+    "bp": ["attackType","stored as { attackType }"],
+    "bq": ["source","stored as { source }"],
+    "br": ["tick","stored as { tick }"],
+    "bs": ["prayerReduction","E_ passes hit.prayerReduction"],
+    "bt": ["playerPosition","stored as { playerPosition }"],
+    "bu": ["damageOverTime","stored as { damageOverTime }"],
+    "bw": ["player","this.player()"],
+    "bx": ["rolledDamage","inferred: baseDamage after the roll and multipliers; stored as { baseDamage }"],
+    "by": ["encounterRules","this.QP() returns this.encounterRules"],
+    "bz": ["incomingDamageMultiplier","read from encounterRules.incomingDamageMultiplier"],
+    "bA": ["hpBefore","stored as { hpBefore }"],
+    "bB": ["effectiveDamage","stored as { effectiveDamage }"],
+    "bC": ["hpAfter","stored as { hpAfter }"],
+    "bD": ["prayedCorrectly","stored as { prayedCorrectly }"]
+  },
+  "SimulationEngine.hx": {
+    "bo": ["hit","client/toa/zebak/native.js: onPlayerDamageTaken: (hit) => ..."],
+    "bp": ["encounterRules","this.QP() returns this.encounterRules"],
+    "bq": ["ruleOutcome","inferred: returned by encounterRules.onPlayerDamageTaken"],
+    "br": ["failedCondition","passed to x_, which stores it as this.failedCondition"]
+  },
+  "SimulationEngine.$P": {
+    "bo": ["attackType","OP passes the value it stores as { attackType }"]
+  },
+  "SimulationEngine.x_": {
+    "bo": ["failedCondition","stored as this.failedCondition"],
+    "bp": ["tick","stored as { tick }"]
+  },
+  "SimulationEngine.ZI": {
+    "bo": ["player","this.player()"]
+  },
+  "SimulationEngine.lx": {
+    "bo": ["poisonSeverity","inferred: callers pass hit.applyPoison; applyPoisonToTarget calls the NPC counterpart severity"],
+    "bq": ["player","this.player()"],
+    "bs": ["wasUnpoisoned","inferred: poisonVarp was 0 before this hit, so the poison timer starts"]
+  },
+  "SimulationEngine.getNpcHistory": {
+    "bo": ["npcId","getState passes npc.id"]
+  },
+  "SimulationEngine.getPlayerAttackCooldown": {
+    "bo": ["actorId","callers pass player.id; key of combatSystem.nextAttackTickByActor"],
+    "bp": ["tick","inferred: callers pass the current tick"],
+    "br": ["nextAttackTick","read from combatSystem.nextAttackTickByActor"]
+  },
+  "SimulationEngine.getPlayerNextAttackTick": {
+    "bo": ["actorId","getState passes player.id; key of combatSystem.nextAttackTickByActor"]
+  },
+  "SimulationEngine.getNpcAttackTimer": {
+    "bo": ["npcId","getState passes npc.id"],
+    "bp": ["npc","inferred: worldState.FM(npcId), the NPC actor"]
+  },
+  "SimulationEngine.getPlayerAttackSpeed": {
+    "bo": ["actorId","getState passes player.id; key of combatSystem.scheduledAttackCycleByActor"],
+    "bq": ["scheduledAttackCycle","read from combatSystem.scheduledAttackCycleByActor"]
+  },
+  "SimulationEngine.get pendingProtectionPrayer": {
+    "bo": ["prayerProjection","inferred: returned by projectPendingPrayerOps(buildPrayerProjectionInput(...))"]
+  },
+  "SimulationEngine.get pendingOffensivePrayer": {
+    "bo": ["prayerProjection","inferred: returned by projectPendingPrayerOps(buildPrayerProjectionInput(...))"]
+  },
+  "SimulationEngine.get pendingIndependentPrayers": {
+    "bo": ["prayerProjection","inferred: returned by projectPendingPrayerOps(buildPrayerProjectionInput(...))"]
+  },
+  "ReplayTakeoverWorkTracker.constructor": {
+    "bo": ["limitOverrides","inferred: spread over defaultReplayTakeoverLimits into this.limits"],
+    "bq": ["limit","element of Object.values(this.limits)"]
+  },
+  "ReplayTakeoverWorkTracker.check": {
+    "bo": ["actual","stored as { actual }"],
+    "bp": ["limit","stored as { limit }"]
+  },
+  "ReplayTakeoverWorkTracker.EE": {
+    "bo": ["frames","tools/determinism/harness.mjs passes frames; rebuildEngineAtReplayFrame passes its frames"],
+    "bp": ["targetFrameIndex","inferred: last frame replayed; Grid.js passes restoreFrameIndex, the harness rebuildAt"],
+    "br": ["actionCount","inferred: running sum of frame.actions.length, checked against limits.maxActions"],
+    "bs": ["frameIndex","stored as this.frameIndex"]
+  },
+  "ReplayTakeoverWorkTracker.qI": {
+    "bo": ["npcCount","inferred: callers pass engine.RI() (actors.size - 1); checked against limits.maxNpcs"],
+    "bp": ["spawnCount","inferred: added to this.spawns"]
+  },
+  "ReplayTakeoverWorkTracker.S_": {
+    "bo": ["npcCount","inferred: callers pass engine.RI() (actors.size - 1); added to this.npcTicks"]
+  },
+  "buildSimulationEngine": {
+    "bo": ["engineConfig","inferred: what createSimulationEngine is given (encounterConfig, stats, inventory, equipment, startPosition, combatSeed...)"],
+    "bp": ["encounterSeeds","rebuildRecordedEngine passes recording.encounter.seeds; passed to encounter.reset(seeds)"],
+    "bq": ["replayTakeoverWork","stored as { replayTakeoverWork }"],
+    "bv": ["encounter","stored as { encounter }"],
+    "bw": ["engine","new SimulationEngine(...)"]
+  },
+  "createSimulationEngine": {
+    "bo": ["engineConfig","inferred: passed on as buildSimulationEngine's first parameter"]
+  },
+  "rebuildRecordedEngine": {
+    "bo": ["recording","tools/determinism/harness.mjs: recording = engine.ME(); reads .bootstrap"],
+    "bp": ["objTypeLoader","stored as { objTypeLoader }"],
+    "bq": ["replayTakeoverWork","passed to buildSimulationEngine, which stores it as { replayTakeoverWork }"],
+    "bs": ["bootstrap","returned by parseEngineBootstrap (recording.bootstrap)"],
+    "bt#1": ["recording","passed the recording; reads .encounter .completionOwnership"],
+    "bu": ["bootstrap","passed the parsed bootstrap"],
+    "bv": ["objTypeLoader","stored as { objTypeLoader }"],
+    "bw": ["replayTakeoverWork","passed to buildSimulationEngine, which stores it as { replayTakeoverWork }"],
+    "bx": ["engine","returned by buildSimulationEngine"],
+    "bt#2": ["error","catch; logged as { error }"]
+  },
+  "rebuildEngineAtReplayFrame": {
+    "bo": ["recording","tools/determinism/harness.mjs passes recording"],
+    "bp": ["frames","tools/determinism/harness.mjs passes frames"],
+    "bq": ["targetFrameIndex","inferred: last frame replayed; Grid.js passes restoreFrameIndex, the harness rebuildAt"],
+    "br": ["objTypeLoader","tools/determinism/harness.mjs and Grid.js pass objTypeLoader"],
+    "bs": ["replayTakeoverWork","a ReplayTakeoverWorkTracker; the engine stores it as this.replayTakeoverWork"],
+    "bu": ["savedArenaConfig","inferred: global arena config (bounds, walkableTiles, collisionMap) read before the rebuild, restored in finally"],
+    "bv": ["savedArenaDefaultWalkable","inferred: the arena's walkable-when-unconstrained flag, restored with the arena config in finally"],
+    "bw": ["engine","returned by rebuildRecordedEngine"],
+    "by": ["frameIndex","stored as replayTakeoverWork.frameIndex"],
+    "bz": ["frame","element of frames"],
+    "bA": ["action","element of frame.actions, passed to engine.Sx(action)"],
+    "bx": ["maxEventId","inferred: highest event.eventId of the replayed frames"],
+    "bB": ["frameIndex","index into frames"],
+    "bC": ["event","element of frame.events"]
+  }
+}

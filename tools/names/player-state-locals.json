@@ -1,0 +1,39 @@
+{
+  "engine/playerState.js": {
+    "isSpellbook": {
+      "e": ["value", "inferred: anything, tested for being a string among the spellbook names; engine/supplies.js passes `parseResult.data.spellbook`"]
+    },
+    "nL": {
+      "e": ["stat", "application.js passes the stat names (\"attack\", \"strength\", ...) and stores the result per stat"],
+      "a": ["level", "application.js passes `skills.attack.level`"],
+      "t": ["bounds", "inferred: the stat's entry of the table of level bounds, read for `min` and `max`"]
+    },
+    "iL": {
+      "e": ["stat", "application.js passes each element of the stat names"],
+      "a": ["level", "inferred: application.js passes the value stored for that stat; tested against the stat's `min` and `max` like the level in the function above"],
+      "t": ["bounds", "inferred: the stat's entry of the table of level bounds, read for `min` and `max`"]
+    },
+    "lL": {
+      "e": ["stats", "Grid.js passes its `stats` prop"],
+      "a": ["baseLevel", "inferred: the base of the game's combat level, a quarter of defence + hitpoints + half of prayer"],
+      "t": ["meleeLevel", "inferred: 0.325 times attack + strength"],
+      "n": ["rangedLevel", "inferred: 0.325 times one and a half of `ranged`"],
+      "s": ["magicLevel", "inferred: 0.325 times one and a half of `magic`"]
+    },
+    "decayingStatNames": {
+      "e": ["stat", "an element of the stat names, compared with \"hitpoints\" and \"prayer\""]
+    },
+    "createDefaultStats": {
+      "e": ["maxedLevel", "inferred: `{ current: 99, max: 99 }`, spread as the value of every stat"]
+    },
+    "vL": {
+      "e": ["levels", "application.js passes what it stores as `baseLevels`"]
+    },
+    "cloneStats": {
+      "e": ["stats", "engine: called with `stats` and `playerState.stats`"]
+    },
+    "resetStatsToMax": {
+      "e": ["stats", "engine: called with `this.configuredStats`, `options.stats`, `bootstrap.baseStats`"]
+    }
+  }
+}

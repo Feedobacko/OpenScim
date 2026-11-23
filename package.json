@@ -1,0 +1,32 @@
+{
+  "name": "openscim",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Community continuation of Scim.gg, an Old School RuneScape combat simulator",
+  "license": "(MIT OR Apache-2.0)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node tools/run-tests.mjs",
+    "assets": "node tools/fetch-assets.mjs"
+  },
+  "devDependencies": {
+    "@babel/parser": "^8.1.3",
+    "@babel/traverse": "^8.1.3",
+    "playwright-core": "^1.65.1",
+    "prettier": "^3.10.1",
+    "vite": "^8.3.8"
+  },
+  "dependencies": {
+    "driver.js": "^1.14.0",
+    "gl-matrix": "^3.4.4",
+    "jszip": "^3.10.1",
+    "pako": "^2.2.0",
+    "picogl": "^0.17.9",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zod": "^4.4.3"
+  },
+  "type": "module"
+}

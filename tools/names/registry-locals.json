@@ -1,0 +1,89 @@
+{
+  "registry.js": {
+    "IV": {
+      "e#1": ["options", "what `encounterRegistry.create(kind, options)` hands the factory; Sol Heredit's factory parses it with `solHereditOptionsSchema`"],
+      "a#1": ["parsedOptions", "the result of `solHereditOptionsSchema.parse(options ?? {})`, whose `modifiers` go to the encounter; \"parsed\" is inferred"],
+      "e#2": ["options", "what `encounterRegistry.create(kind, options)` hands the factory; the error text says \"accepts no constructor options\""],
+      "a#2": ["optionKeys", "`Object.keys(options ?? {})`, joined into the error text after \"got:\""],
+      "e#3": ["mechanics", "`getInfernoSetup(mechanics)` reads the start wave from it (the parameter's name in inferno/controls.js); Grid.js calls the lookup with an engine's mechanics config"]
+    },
+    "CV": {
+      "e": ["definition", "an entry of the definitions table: its `kind` and `variantFactories` are read"]
+    },
+    "xV": {
+      "e": ["definition", "an entry of the definitions table"],
+      "a": ["kind", "one of the kinds of the definition (its own and its variants'); the key of the Map"]
+    },
+    "BV": {
+      "e": ["kind", "the key the Map of definitions is read with"]
+    },
+    "PV": {
+      "e": ["definition", "an entry of the definitions table"],
+      "a": ["kind", "one of the kinds of the definition; the key of the Map"],
+      "t": ["controls", "the definition's `variantControls[kind]` or its `controls`"]
+    },
+    "_V": {
+      "e": ["kind", "the key the Map of controls is read with"]
+    },
+    "NV": {
+      "e": ["kind", "the key the definition is looked up by"]
+    },
+    "GV": {
+      "e": ["kind", "the key the definition is looked up by; Grid.js passes `getEncounterKind()`"],
+      "a": ["mechanics", "handed to the definition's `countdownMovement`; Grid.js passes a mechanics config"]
+    },
+    "UV": {
+      "e": ["kind", "the key the definition is looked up by, returned under the key `kind`; also the name looked up in `retiredEntries`"],
+      "a": ["definition", "an entry of the definitions table"],
+      "t": ["retiredMechanics", "the value of `retiredEntries[kind]`, returned under the key `mechanics`; \"retired\" from the key"]
+    },
+    "cK.constructor": {
+      "e": ["kind", "assigned to `this.kind`"]
+    },
+    "mK.constructor": {
+      "e": ["kind", "assigned to `this.kind`"],
+      "a": ["descriptorKind", "assigned to `this.descriptorKind`"]
+    },
+    "encounterRegistry.register": {
+      "e": ["kind", "the key of both Maps; compared with the descriptor's `kind`"],
+      "a": ["factory", "stored in `this.factories`"],
+      "t": ["descriptor", "stored in `this.descriptors`"]
+    },
+    "encounterRegistry.create": {
+      "e": ["kind", "the key `this.factories` is read with; the error text calls it an \"encounter kind\""],
+      "a#1": ["options", "handed to the factory; engine/createSimulationEngine.js passes `encounterConfig.options`"],
+      "t#1": ["factory", "read from `this.factories` and called"],
+      "a#2": ["registeredKinds", "the error text prints it after \"Registered kinds:\""],
+      "t#2": ["registeredKindsText", "the kinds joined with commas, or \"(none)\"; printed after \"Registered kinds:\""]
+    },
+    "encounterRegistry.SI": {
+      "e": ["kind", "the key `this.factories` is asked for"]
+    },
+    "encounterRegistry.getDescriptor": {
+      "e": ["kind", "the key `this.descriptors` is read with"]
+    },
+    "encounterRegistry.rd": {
+      "e": ["kind", "the key `this.descriptors` is read with, and compared with a variant's `encounterKind`"],
+      "a#1": ["descriptor", "read from `this.descriptors` and returned"],
+      "a#2": ["descriptor", "a value of `this.descriptors`, returned when one of its variants has the kind"],
+      "a#3": ["variant", "an entry of the descriptor's `variants`"]
+    },
+    "(statement 1)": {
+      "e": ["definition", "an entry of the definitions table: its kind, factory and descriptor are registered"],
+      "a": ["variantKind", "a key of the definition's `variantFactories`, registered as a kind"],
+      "t": ["variantFactory", "a value of the definition's `variantFactories`, registered as that kind's factory"]
+    }
+  },
+  "sol-heredit/boundaryLocs.js": {
+    "BE": {
+      "e#1": ["locNumber", "inferred: a number from 1 to 6 that picks the loc id (`solBoundaryLocIds[locNumber - 1]`)"],
+      "a#1": ["index", "the position in the run of twelve: added to the first tile's coordinate"],
+      "e#2": ["locNumber", "inferred: a number from 1 to 6 that picks the loc id"],
+      "a#2": ["index", "the position in the run of twelve: added to the first tile's coordinate"],
+      "e#3": ["locNumber", "inferred: a number from 1 to 6 that picks the loc id"],
+      "a#3": ["index", "the position in the run of twelve: added to the first tile's coordinate"],
+      "e#4": ["locNumber", "inferred: a number from 1 to 6 that picks the loc id"],
+      "a#4": ["index", "the position in the run of twelve: added to the first tile's coordinate"]
+    }
+  }
+}

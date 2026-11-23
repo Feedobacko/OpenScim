@@ -1,0 +1,203 @@
+// The strangle's overlay: interface 833 as the game builds it (OBS: its
+// widgets as the Vardorvis Observer wrote them down, four strangles).
+//
+//   833:2  model 48284, the dark background, over the whole game view
+//   833:4  model 48281, the tendrils, over the whole game view, above the rest
+//   833:5  a box of 240 x 144 in the middle of the view, holding
+//   833:6-11 the spores: model 48285, 48 x 48, at the places the encounter
+//          drew (strangle.js has none of its own), "Destroy" on a click
+//
+// All three are models, zoom 220 for the two that fill the view and 1400 for
+// a spore, each with its animations for coming, staying and going (CACHE:
+// ui_vardorvis_qte_background_*, ui_vardorvis_qte_tentacles_*,
+// ui_vardorvis_qte_spore_*). The application draws them with
+// widgetModelView, which draws an interface's model as the game client does.
+//
+// A click on a spore is a command of the encounter, queued for the tick and
+// recorded for a replay (Grid.js listens for "vardorvis-command").
+
+export const vardorvisCommandEvent = "vardorvis-command";
+
+// CACHE (interface 833): the two that fill the view are orthographic, with a
+// reference size of 512 x 512; a spore is in perspective. OBS: in a 1920 x
+// 1080 screenshot of the game the spiral's innermost loop is 1.77 times as
+// tall and 1.53 as wide as ours drawn at 512 (a different frame of its
+// animation, perhaps); 1.65, the mean, is taken: 512 / 1.65 = 310.
+const orthoBaseHeight = 310;
+const interfaceModels = {
+  background: { modelId: 48284, zoom: 220, orthographic: true, baseHeight: orthoBaseHeight, seqs: { spawn: 10370, idle: 10371, despawn: 10372 } },
+  tendrils: { modelId: 48281, zoom: 220, orthographic: true, baseHeight: orthoBaseHeight, seqs: { spawn: 10367, idle: 10368, despawn: 10369 } },
+  spore: { modelId: 48285, zoom: 1400, orthographic: false, seqs: { spawn: 10373, idle: 10374, despawn: 10375 } },
+};
+export const strangleModelIds = Object.values(interfaceModels).map((model) => model.modelId);
+export const strangleSeqIds = Object.values(interfaceModels).flatMap((model) => Object.values(model.seqs));
+const box = { width: 240, height: 144 }; // OBS
+const sporeSize = 48; // OBS
+// OBS: a spore that is destroyed fades out as it plays its going animation
+// (opacity 15 and 150 of 255 seen during it); then it is hidden.
+const sporeFadeMs = 600;
+export const sporeClickSound = 7104; // OBS: on every click on a spore
+// How long a clicked spore waits for the fight to take the click: two ticks and a little.
+const clickConfirmMs = 1400;
+
+
+let tools = null; // { widgetModelView, npcModelLoader, animationSystem, playSound }
+let shown = null;
+
+/** What the overlay needs from the application: handed over by the presentation and the scene. */
+export function setStrangleTools(next) {
+  tools = { ...tools, ...next };
+}
+
+// How big a pixel of the game's interface is on the page, across and down.
+// The chatbox's bar of tabs is 519 x 23 of them in every layout (Grid.js), so
+// its size on the page is the scale however the application applies it: the
+// UI scale of the resizable layouts, the Fixed layout's multiple, Fit, and
+// Stretch to Window (which scales across and down differently).
+function interfaceScale() {
+  const bar = document.querySelector(".chatbox__controls")?.getBoundingClientRect();
+  if (bar && bar.width > 0 && bar.height > 0) return { x: bar.width / 519, y: bar.height / 23 };
+  return { x: 1, y: 1 };
+}
+
+// A layer that plays spawn, then idle; and despawn when it is told to go.
+function layer(view) {
+  let seq = "spawn";
+  let startMs = performance.now();
+  return {
+    view,
+    play(name) {
+      seq = name;
+      startMs = performance.now();
+      view.setSequence(interfaceModels[view.kind].seqs[name]);
+    },
+    draw(now) {
+      if (seq === "spawn" && now - startMs >= view.cycleMs) this.play("idle");
+      // Spawn and despawn play once: hold their last frame.
+      view.draw(seq === "idle" ? now - startMs : Math.min(now - startMs, view.cycleMs - 20));
+    },
+  };
+}
+
+function open(strangle) {
+  const viewport = document.querySelector(".scene-viewport");
+  if (!viewport || !tools?.widgetModelView || !tools.npcModelLoader || !tools.animationSystem) return null;
+  const rect = viewport.getBoundingClientRect();
+  // Laid out in the interface's pixels and scaled onto the view, as the game draws it.
+  const scale = interfaceScale();
+  const width = Math.round(rect.width / scale.x), height = Math.round(rect.height / scale.y);
+  const element = document.createElement("div");
+  element.className = "vardorvis-strangle";
+  element.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${width}px;height:${height}px;transform:scale(${scale.x},${scale.y});transform-origin:0 0;z-index:1000;`;
+  // A transform does not reach a canvas's own pixels: they are sized for it.
+  const dpr = (window.devicePixelRatio || 1) * Math.max(scale.x, scale.y);
+  const canvasOf = (w, h, css) => {
+    const canvas = document.createElement("canvas");
+    canvas.style.cssText = `position:absolute;width:${w}px;height:${h}px;pointer-events:none;${css}`;
+    return canvas;
+  };
+  const viewOf = (kind, canvas, w, h) => {
+    const model = interfaceModels[kind];
+    const view = tools.widgetModelView({ canvas, width: w, height: h, dpr, npcModelLoader: tools.npcModelLoader, animationSystem: tools.animationSystem, modelId: model.modelId, seqId: model.seqs.spawn, zoom: model.zoom, orthographic: model.orthographic, baseHeight: model.baseHeight ?? h });
+    view.kind = kind;
+    return view;
+  };
+  const backgroundCanvas = canvasOf(width, height, "left:0;top:0;");
+  const boxElement = document.createElement("div");
+  boxElement.style.cssText = `position:absolute;left:${Math.round((width - box.width) / 2)}px;top:${Math.round((height - box.height) / 2)}px;width:${box.width}px;height:${box.height}px;`;
+  const tendrilsCanvas = canvasOf(width, height, "left:0;top:0;");
+  element.append(backgroundCanvas, boxElement, tendrilsCanvas);
+  // One view draws every spore in turn; each spore's own canvas takes a copy of its frame.
+  const sporeGl = document.createElement("canvas");
+  const layers = [layer(viewOf("background", backgroundCanvas, width, height)), layer(viewOf("tendrils", tendrilsCanvas, width, height))];
+  const sporeView = viewOf("spore", sporeGl, sporeSize, sporeSize);
+  const spores = strangle.spores.map((spore, index) => {
+    const canvas = canvasOf(sporeSize, sporeSize, `left:${spore.x}px;top:${spore.y}px;pointer-events:auto;cursor:pointer;`);
+    canvas.width = Math.round(sporeSize * dpr);
+    canvas.height = Math.round(sporeSize * dpr);
+    canvas.title = "Destroy";
+    // The fight takes the click on its next tick. The spore goes at once, so
+    // that a click shows when it is made; one that the fight does not take
+    // (the strangle was already over) brings it back (syncStrangle).
+    canvas.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const spore = shown?.spores[index];
+      if (!spore || spore.goneMs !== null) return;
+      const now = performance.now();
+      Object.assign(spore, { seq: "despawn", startMs: now, goneMs: now, clickedMs: now });
+      tools.playSound?.(sporeClickSound);
+      window.dispatchEvent(new CustomEvent(vardorvisCommandEvent, { detail: { encounter: "vardorvis", type: "destroy-spore", spore: index } }));
+    });
+    boxElement.append(canvas);
+    return { canvas, seq: "spawn", startMs: performance.now(), goneMs: null, clickedMs: null };
+  });
+  document.body.append(element);
+  const state = { element, layers, sporeView, spores, closing: false, frame: 0 };
+  const tick = () => {
+    if (shown !== state) return;
+    const now = performance.now();
+    for (const each of layers) each.draw(now);
+    for (const spore of spores) {
+      if (spore.goneMs !== null && now - spore.goneMs > sporeFadeMs) {
+        spore.canvas.style.display = "none";
+        continue;
+      }
+      if (spore.seq === "spawn" && now - spore.startMs >= sporeView.cycleMs) Object.assign(spore, { seq: "idle", startMs: now });
+      sporeView.setSequence(interfaceModels.spore.seqs[spore.seq]);
+      sporeView.draw(spore.seq === "idle" ? now - spore.startMs : Math.min(now - spore.startMs, sporeView.cycleMs - 20));
+      const context = spore.canvas.getContext("2d");
+      context.clearRect(0, 0, spore.canvas.width, spore.canvas.height);
+      context.drawImage(sporeGl, 0, 0, spore.canvas.width, spore.canvas.height);
+      if (spore.goneMs !== null) spore.canvas.style.opacity = String(Math.max(0, 1 - (now - spore.goneMs) / sporeFadeMs));
+    }
+    state.frame = requestAnimationFrame(tick);
+  };
+  state.frame = requestAnimationFrame(tick);
+  return state;
+}
+
+function close() {
+  if (!shown) return;
+  cancelAnimationFrame(shown.frame);
+  for (const each of shown.layers) each.view.dispose();
+  shown.sporeView.dispose();
+  shown.element.remove();
+  shown = null;
+}
+
+/**
+ * Brings the overlay in step with the encounter's snapshot, every frame.
+ * `strangle` is the snapshot's (null when there is none), `tick` the
+ * simulation's. Open from the hold to a tick after the player is let go.
+ */
+export function syncStrangle(strangle, tick) {
+  const open_ = strangle && tick >= strangle.holdTick && (strangle.endTick === null || tick <= strangle.endTick + 1);
+  if (!open_) {
+    close();
+    return;
+  }
+  if (shown && shown.holdTick !== strangle.holdTick) close();
+  if (!shown) {
+    shown = open(strangle);
+    if (!shown) return;
+    shown.holdTick = strangle.holdTick;
+  }
+  const now = performance.now();
+  strangle.spores.forEach((spore, index) => {
+    const mine = shown.spores[index];
+    if (spore.destroyedTick !== null) {
+      if (mine.goneMs === null) Object.assign(mine, { seq: "despawn", startMs: now, goneMs: now });
+      mine.clickedMs = null;
+    } else if (mine.clickedMs !== null && now - mine.clickedMs > clickConfirmMs) {
+      // Not taken: the spore is back, to be clicked again.
+      Object.assign(mine, { seq: "idle", startMs: now, goneMs: null, clickedMs: null });
+      mine.canvas.style.display = "";
+      mine.canvas.style.opacity = "1";
+    }
+  });
+  if (strangle.endTick !== null && !shown.closing) {
+    shown.closing = true;
+    for (const each of shown.layers) each.play("despawn");
+  }
+}

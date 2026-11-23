@@ -1,0 +1,47 @@
+{
+  "SolHereditEncounter.js": {
+    "74": ["createSolActor", "its result is stored as this.boss; it starts from createColosseumActor(\"sol\", ...) and ends in solNpcDefinition.createActor"],
+    "166": ["consumeSolGuaranteedMaxHit", "it is the engine rule consumePlayerGuaranteedMaxHit and clears bossState.guaranteedMaxHitUntilTick"],
+    "664": ["createBeamCrystalActor", "its result is stored as spawnedCrystal; it starts from createColosseumActor(\"beam_crystal\", ...) and ends in beamCrystalNpcDefinition.createActor"]
+  },
+  "boss.js": {
+    "38": ["createSolPursuitMovement", "it is the fourth argument of getBossPursuitMoves, the object Yama's module calls yamaPursuitMovement; 'create' is inferred"],
+    "68": ["takeDueGroundAttack", "its result is stored as groundAttack; it answers only when scheduler.pendingGround.resolveTick is this tick, and clears pendingGround; 'take' is inferred"],
+    "114": ["takeDueTripleHit", "its result is stored as hitThisTick; it removes that hit from scheduler.pendingTriple; 'take' is inferred"],
+    "191": ["startGrapple", "it is the launch case \"grapple\": it sets grapple.pending with a target and startTick; 'start' is inferred"]
+  },
+  "bossAttacks.js": {
+    "30": ["isDiagonalDirection", "inferred: a direction with a hyphen is one of the four `${northOrSouth}-${eastOrWest}`, and the branch it guards uses diagonalSpearShiftsByVariant"],
+    "34": ["getDiagonalSpearAttackTiles", "it is the branch of getSpearAttackTiles for such a direction and reads diagonalSpearShiftsByVariant"],
+    "83": ["getShieldAttackTiles", "it is the branch of getGroundAttackTiles for a style that is not \"spear\"; the other style is \"shield\" (scheduleSolAttack)"],
+    "85": ["getShieldSafeDistance", "its result is stored as safeDistance, in the shield's tiles"],
+    "141": ["getDirectionFromCentre", "it is what getSolAttackDirection answers from getSolCentreTile(bossPosition) when the target is not straight in front of the footprint; its first parameter is centre"],
+    "212": ["areSpecialAttacksUnlocked", "inferred: where it is false the chance of a special attack is 0"],
+    "216": ["getSpecialAttackChance", "its result is stored as specialChance"],
+    "229": ["isGrappleUnlocked", "inferred: one of the three conditions under which the special is \"grapple\" and not \"triple\""],
+    "241": ["getNextAttackVariant", "its result is stored as variant; it reads memory.lastAction and memory.lastVariant; 'next' is inferred"],
+    "256": ["getRegularAttackIntervalTicks", "its result is added to tick to give scheduler.nextAttackTick of a regular attack (kind \"regular\")"],
+    "285": ["isLongTriplePhase", "its result is stored as longTriple"]
+  },
+  "grapple.js": {
+    "126": ["resolvePendingGrapple", "its result is stored as resolution; it reads and clears grapple.pending"]
+  },
+  "minions.js": {
+    "62": ["getUsableRemainingSteps", "it answers route.remainingSteps when their first step can still be taken, and nothing otherwise; 'usable' is inferred"],
+    "181": ["isAtExactMinionSlot", "it asks findMinionSlotRoute for a path of kind \"exact\" with no steps; it is half of isWarbanderInAttackSlot"],
+    "198": ["getMinionRouteMoves", "inferred: it wraps the path of takeMinionRouteSteps as the moves [{ npcId, path }] the definition's move returns"],
+    "226": ["isWarbanderAttackTick", "inferred: it is true every sixth tick from the warbander's first attack (ticksSinceFirstAttack % 6 == 0), and the attack is skipped where it is false"],
+    "368": ["pickBeeSwarmDestination", "its result is stored as state.destination; it tests tiles with canBeeSwarmOccupy and draws one with random; 'pick' is inferred"],
+    "395": ["findDirectMinionPath", "its result is stored as pathToDestination; it walks from source to destination by Math.sign steps and answers like findMinionSlotRoute ({ kind, steps }); 'direct' is inferred"]
+  },
+  "modifierEffects.js": {
+    "148": ["createHealingTotemActor", "its result is handed to context.spawnNpc; it starts from createColosseumActor(\"healing_totem\", ...) and ends in healingTotemNpcDefinition.createActor"],
+    "230": ["createBeeSwarmActors", "the loop over its result names each element swarm; it ends in beeSwarmNpcDefinition.createActor, one per tier"],
+    "279": ["createWarbanderActor", "its result is handed to context.spawnNpc with the id \"sol_quartet_warbander\"; it reads warbanderRoleConfigs"],
+    "385": ["getExplosionCenter", "its result is stored as explosionCenter"],
+    "405": ["getVolatilityExplosionDamages", "its result is spread into environmentalDamages; the damage it builds has source \"Volatility\" and it reads getVolatilityExplosionTiles"]
+  },
+  "modifiers.js": {
+    "226": ["buildDoomMessage", "its result is stored as ruleOutcome.gameMessage; its text ends in \"doom!\""]
+  }
+}

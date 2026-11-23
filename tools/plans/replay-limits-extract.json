@@ -1,0 +1,4 @@
+{
+  "client/engine/logEventTypes.js": ["LogEventType"],
+  "client/engine/replayLimits.js": ["ReplaySafetyError", "$R", "VR", "snapshotNpcLimit", "qR", "snapshotWorkLimit", "YR", "XR", "JR", "QR", "eP"]
+}

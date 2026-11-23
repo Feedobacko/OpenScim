@@ -1,0 +1,252 @@
+{
+  "attackResources.js": {
+    "resolveAttackResources": {
+      "weaponId2": ["weaponId","read from attackSetup.weaponId"]
+    }
+  },
+  "bootstrap.js": {
+    "assertBootstrapWithinWorkLimits": {
+      "length3": ["attackStyleCount","inferred: the number of keys of input.attackStylePerCategory"]
+    },
+    "parseEngineBootstrap": {
+      "parseResult6": ["parseResult","inferred: the value of engineBootstrapSchema.safeParse(input)"]
+    }
+  },
+  "CombatSystem.js": {
+    "CombatSystem.tryAttack": {
+      "tick2": ["tick","read from worldState.tick"]
+    },
+    "CombatSystem.launchAttack": {
+      "tick3": ["tick","read from worldState.tick"]
+    },
+    "CombatSystem.applyFreezeOnLaunch": {
+      "postHitEffects2": ["postHitEffects","read from attack.postHitEffects"]
+    },
+    "CombatSystem.applyBurnPulse": {
+      "burnStacks2": ["burnStacks","read from actor.burnStacks"]
+    },
+    "CombatSystem.applyPoisonPulse": {
+      "poison3": ["poison","read from actor.poison"]
+    },
+    "CombatSystem.tryStartAttackCooldown": {
+      "attackSpeed2": ["attackSpeed","inferred: the value of this.getAttackSpeed(attacker, combatContext)"]
+    },
+    "CombatSystem.applyHit": {
+      "sourceSelfDamageRatio2": ["sourceSelfDamageRatio","read from attack.sourceSelfDamageRatio"]
+    },
+    "CombatSystem.getAttackSpeed": {
+      "combatTimers2": ["combatTimers","read from attacker.combatTimers"]
+    }
+  },
+  "consumables.js": {
+    "applyConsumableEffect": {
+      "magic2": ["magic","read from playerState.stats.magic"]
+    }
+  },
+  "SimulationEngine.js": {
+    "SimulationEngine.applyRuleOutcome": {
+      "points2": ["points","read from player.prayerState.points"]
+    },
+    "SimulationEngine.buildRunStartContext": {
+      "occupancy2": ["occupancy","read from this.worldState.occupancy"]
+    },
+    "SimulationEngine.syncOpeningIntro": {
+      "startedIntro2": ["startedIntro","read from this.startedIntro"]
+    },
+    "SimulationEngine.setCombatSupplies": {
+      "spellbook2": ["spellbook","read from player.combatSupplies.spellbook"]
+    },
+    "SimulationEngine.computeEquipResult": {
+      "weapon7": ["weapon","read from equipment.weapon"],
+      "shield2": ["shield","read from equipment.shield"],
+      "weapon8": ["weapon","read from equipment.weapon"],
+      "shield3": ["shield","read from equipment.shield"]
+    },
+    "SimulationEngine.computeInventoryAfterEquipAmmo": {
+      "equippedAmmo2": ["equippedAmmo","read from combatSupplies.equippedAmmo"]
+    },
+    "SimulationEngine.computeInventoryAfterUnequipAmmo": {
+      "equippedAmmo3": ["equippedAmmo","read from combatSupplies.equippedAmmo"]
+    },
+    "SimulationEngine.advanceTick": {
+      "replayTakeoverWork2": ["replayTakeoverWork","read from this.replayTakeoverWork"]
+    },
+    "SimulationEngine.runTick": {
+      "tick4": ["previousTick","inferred: this.worldState.tick before the tick is advanced (tick = previousTick + 1)"],
+      "energy2": ["energy","read from player.specialAttack.energy"],
+      "position2": ["position","read from player.position"]
+    },
+    "SimulationEngine.applyPlayerStep": {
+      "position3": ["fromPosition","inferred: player.position before the step; stored as player.previousPosition"],
+      "position4": ["toPosition","inferred: playerStep.position, which becomes player.position"],
+      "occupancy3": ["occupancy","read from this.worldState.occupancy"]
+    },
+    "SimulationEngine.prepareStartPosition": {
+      "length4": ["queuedRunToggleCount","inferred: the number of pending input ops of type \"run_toggle\""],
+      "position5": ["position","read from player.position"]
+    },
+    "SimulationEngine.finalizeStartPosition": {
+      "occupancy4": ["occupancy","read from this.worldState.occupancy"]
+    },
+    "SimulationEngine.findNextNpcByProcessingOrder": {
+      "processingOrder2": ["processingOrder","read from npc.processingOrder"]
+    },
+    "SimulationEngine.runNpcTurn": {
+      "tick5": ["tick","read from tickContext.tick"]
+    },
+    "SimulationEngine.clearStaleCrawlMovement": {
+      "crawlMovement2": ["crawlMovement","read from npc.crawlMovement"]
+    },
+    "SimulationEngine.applyNpcMovementRequest": {
+      "tick6": ["tick","read from this.worldState.tick"]
+    },
+    "SimulationEngine.runPlayerUpkeep": {
+      "markOfDarknessActiveTicks2": ["markOfDarknessActiveTicks","read from player.combatTimers.markOfDarknessActiveTicks"],
+      "statBoostDecayTick2": ["statBoostDecayTick","read from timers.statBoostDecayTick"]
+    },
+    "SimulationEngine.pausePlayerAutoAttack": {
+      "autoAttackPause3": ["autoAttackPause","read from player.autoAttackPause"]
+    },
+    "SimulationEngine.flushPendingNpcDefeats": {
+      "pendingNpcDefeats2": ["pendingNpcDefeats","read from this.pendingNpcDefeats"]
+    },
+    "SimulationEngine.emitOnKillTargetGraphic": {
+      "targetGraphicBySize2": ["targetGraphicBySize","read from onKillEffect.targetGraphicBySize"]
+    },
+    "SimulationEngine.faceNpcTowardTarget": {
+      "targetId2": ["targetId","read from npc.combat.targetId"]
+    },
+    "SimulationEngine.setEquipment": {
+      "weapon9": ["weapon","read from player.equipment.weapon"]
+    },
+    "SimulationEngine.setProtectionPrayer": {
+      "activePrayer2": ["activePrayer","read from player.activePrayer"]
+    },
+    "SimulationEngine.processPendingInputOps": {
+      "pendingInputOps2": ["pendingInputOps","read from player.pendingInputOps"],
+      "activePrayer3": ["activePrayer","read from player.activePrayer"],
+      "offensivePrayer2": ["offensivePrayer","read from player.offensivePrayer"],
+      "independentPrayers2": ["independentPrayers","read from player.independentPrayers"]
+    },
+    "SimulationEngine.deactivateProtectionPrayer": {
+      "activePrayer4": ["activePrayer","read from player.activePrayer"]
+    },
+    "SimulationEngine.deactivateOffensivePrayer": {
+      "offensivePrayer3": ["offensivePrayer","read from player.offensivePrayer"]
+    },
+    "SimulationEngine.executePrayerOp": {
+      "independent2": ["independent","read from prayerUpdate.independent"],
+      "independentPrayers3": ["independentPrayers","read from player.independentPrayers"]
+    },
+    "SimulationEngine.executeEquipmentOp": {
+      "weapon10": ["weapon","read from player.equipment.weapon"]
+    },
+    "SimulationEngine.processPendingItemPickup": {
+      "pendingItemPickup2": ["pendingItemPickup","read from player.pendingItemPickup"]
+    },
+    "SimulationEngine.getState": {
+      "targetId3": ["targetId","read from npc.combat.targetId"],
+      "crawlMovement3": ["crawlMovement","read from npc.crawlMovement"]
+    },
+    "SimulationEngine.reset": {
+      "inventory2": ["inventory","read from this.player().inventory"]
+    },
+    "SimulationEngine.processPendingEncounterCommands": {
+      "pendingEncounterCommands2": ["pendingEncounterCommands","read from this.pendingEncounterCommands"]
+    },
+    "SimulationEngine.setBossHp": {
+      "alive2": ["alive","read from bossNpc.alive"]
+    },
+    "SimulationEngine.applyEnvironmentalDamage": {
+      "disablesProtectionPrayersForTicks2": ["disablesProtectionPrayersForTicks","read from hit.disablesProtectionPrayersForTicks"]
+    },
+    "SimulationEngine.applyPoisonToPlayer": {
+      "poisonVarp2": ["poisonVarp","read from player.poisonState.poisonVarp"]
+    }
+  },
+  "specialAttacks.js": {
+    "applyPoisonToTarget": {
+      "poison2": ["poison","read from target.poison"]
+    },
+    "applySpecialAttackEffects": {
+      "boundFromTick2": ["boundFromTick","read from target.debuffs.boundFromTick"],
+      "boundUntilTick2": ["boundUntilTick","read from target.debuffs.boundUntilTick"]
+    }
+  },
+  "supplies.js": {
+    "parseRunePouch": {
+      "parseResult2": ["parseResult","inferred: the value of runePouchSchema.safeParse(input)"]
+    },
+    "parseCombatSupplies": {
+      "parseResult3": ["parseResult","the result of combatSuppliesSchema.safeParse(input); the name the other parsers of this module use"],
+      "parseResult4": ["ammoWrapperParseResult","inferred: the result of blowpipeAmmoWrapperSchema.safeParse(blowpipeInput)"],
+      "parseResult5": ["selectedSpellParseResult","inferred: the result of parsing parseResult.data.selectedSpell"]
+    }
+  },
+  "playerAttack/formula.js": {
+    "computeFormulaStages": {
+      "resources2": ["resources","read from formulaStageInput.resources"],
+      "demonbaneVulnerability2": ["demonbaneVulnerability","read from formulaStageInput.demonbaneVulnerability"],
+      "weaponId3": ["weaponId","read from formulaStageInput.weaponId"]
+    }
+  },
+  "playerAttack/launch.js": {
+    "rollSpellSecondaryEffects": {
+      "weapon5": ["weapon","read from equipment.weapon"]
+    },
+    "launchPlayerAttack": {
+      "styles3": ["styles","read from bi(attack.player.equipment.weapon).styles"],
+      "combatStyle2": ["combatStyle","read from (styles3[attack.styleIndex] ?? styles3[0]).combatStyle"]
+    },
+    "performPlayerAutoAttack": {
+      "autoAttackPause2": ["autoAttackPause","read from player.autoAttackPause"],
+      "selectedAttackStyleIndex2": ["selectedAttackStyleIndex","read from player.selectedAttackStyleIndex"],
+      "manualCastSpell2": ["manualCastSpell","read from player.manualCastSpell"],
+      "isSpecialAttackActive2": ["isSpecialAttackActive","read from player.isSpecialAttackActive"],
+      "weapon6": ["weapon","read from attackCandidate.equipment.weapon"],
+      "magic_spell2": ["magicSpellHitDelay","inferred: the entry magic_spell of the hit-delay table, applied to the target distance"]
+    }
+  },
+  "playerAttack/plan.js": {
+    "buildPlannedHitsForProfile": {
+      "length2": ["shareCount","inferred: firstBranch.shares.length, compared with every other branch's"]
+    },
+    "buildPlayerAttackPlan": {
+      "formulaStats2": ["formulaStats","read from target.formulaStats"],
+      "spellId2": ["spellId","read from planInput.resources.spellId"]
+    },
+    "adjustEquipmentStatsForAttack": {
+      "weapon3": ["weapon","read from planInput.player.equipment.weapon"]
+    }
+  },
+  "playerAttack/planPlayerAttack.js": {
+    "planPlayerAttack": {
+      "encounterContext2": ["encounterContext","read from attackInput.encounterContext"],
+      "formulaStats3": ["formulaStats","read from attackInput.target.formulaStats"],
+      "style2": ["style","read from attackInput.delivery.style"]
+    },
+    "getSelectedCombatStyle": {
+      "styles2": ["styles","read from bi(player.equipment.weapon).styles"]
+    },
+    "getSpecialDefenceStyleOverride": {
+      "weapon4": ["weapon","read from attackInput.player.equipment.weapon"]
+    }
+  },
+  "playerAttack/profiles.js": {
+    "selectPlayerAttackProfile": {
+      "attackRollStages2": ["attackRollStages","read from formulaStages.attackRollStages"]
+    }
+  },
+  "playerAttack/projection.js": {
+    "isConflictionGauntletsAttack": {
+      "weapon2": ["weapon","read from attackSetup.equipment.weapon"]
+    }
+  },
+  "playerAttack/roll.js": {
+    "applyGuaranteedHitOverrides": {
+      "hits2": ["hits","read from projectPlayerAttack(adjustedPlan).hits"],
+      "minimumDamage2": ["minimumDamage","read from overrides.minimumDamage"],
+      "hits3": ["hits","read from projectPlayerAttack(adjustedPlan).hits"]
+    }
+  }
+}

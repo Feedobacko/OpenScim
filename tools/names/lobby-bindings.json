@@ -1,0 +1,8 @@
+{
+  "Ij": { "name": "LobbyEncounter", "evidence": "its kind is \"lobby\" and the registry's lobby entry constructs it (factory: () => new Ij())" },
+  "Cj": { "name": "lobbyCenterX", "evidence": "inferred: subtracted from x + 0.5 before the distance test that makes the walkable disc; the 8 ring obstacles are placed around it" },
+  "xj": { "name": "lobbyCenterY", "evidence": "inferred: the y counterpart of lobbyCenterX" },
+  "Bj": { "name": "lobbyRadius", "evidence": "inferred: a tile is walkable when its centre is at most this far from the centre" },
+  "Wj": { "name": "lobbyGridSize", "evidence": "returned as sizeX and sizeY of the collision map; the flags array has 4096 = 64 * 64 entries" },
+  "Rj": { "name": "lobbyArenaCache", "evidence": "inferred: getArenaConfig returns it when set and otherwise stores the arena it builds in it" }
+}

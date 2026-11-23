@@ -1,0 +1,8 @@
+{
+  "combatSpells.js": {
+    "427": ["isCombatSpellName", "inferred: it tests whether an entry of parsedCombatSpells has the name; isSupportedCombatSpell calls it with spellName"]
+  },
+  "weaponCategories.js": {
+    "789": ["isCastingStyleSelected", "it tests style.combatStyle === \"Casting\" || \"Defensive Casting\" for the style at styleIndex of the weapon's category, and its argument is selectedStyleIndex"]
+  }
+}

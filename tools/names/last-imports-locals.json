@@ -1,0 +1,85 @@
+{
+  "util/logger.js": {
+    "Xl": {
+      "e": ["levels", "inferred: the object the level names and numbers are set on, which becomes the enum"]
+    },
+    "ed": {
+      "e": ["value", "inferred: one value of a log call, described as text for a breadcrumb"]
+    },
+    "ad": {
+      "e": ["values", "inferred: the logger passes the rest arguments of a log call"],
+      "a": ["message", "the result is stored under the key `message` of a breadcrumb"],
+      "t": ["value", "inferred: one of the values, passed to the function that describes a value"]
+    },
+    "logger.init": {
+      "e#1": ["level", "the help text: `__log.setLevel(\"debug\")` sets the global log level; passed to `this.setLevel`"],
+      "e#2": ["category", "the help text: `__log.enable(\"Cache\")` enables a category; added to `enabledCategories`"],
+      "e#3": ["category", "the help text: `__log.disable(\"Perf\")` disables a category; added to `disabledCategories`"]
+    },
+    "logger.setLevel": {
+      "e": ["level", "assigned to `this.level` when it is not a string"],
+      "a": ["levelNumber", "assigned to `this.level`; \"number\" is inferred: what the table of level names gives for the name"]
+    },
+    "logger.error": {
+      "e": ["category", "stored under the key `category` of the breadcrumb; printed as `[category]`"],
+      "a": ["values", "inferred: the rest of the arguments, spread into the console call and handed to the error sink"]
+    },
+    "logger.warn": {
+      "e": ["category", "stored under the key `category` of the breadcrumb; printed as `[category]`"],
+      "a": ["values", "inferred: the rest of the arguments, spread into the console call"]
+    },
+    "logger.info": {
+      "e": ["category", "stored under the key `category` of the breadcrumb; printed as `[category]`"],
+      "a": ["values", "inferred: the rest of the arguments, spread into the console call"]
+    },
+    "logger.debug": {
+      "e": ["category", "tested against `disabledCategories` and `enabledCategories` by the filter; printed as `[category]`"],
+      "a": ["values", "inferred: the rest of the arguments, spread into the console call"]
+    },
+    "logger.trace": {
+      "e": ["category", "tested against `disabledCategories` and `enabledCategories` by the filter; printed as `[category]`"],
+      "a": ["values", "inferred: the rest of the arguments, spread into the console call"]
+    },
+    "logger.isEnabled": {
+      "e": ["level", "the filter compares it with `this.level`; callers pass `Xl.INFO` and `Xl.DEBUG`"],
+      "a": ["category", "the filter tests it against `disabledCategories`; callers pass \"Perf\" and \"Cache\""]
+    },
+    "logger.Id": {
+      "e": ["errorSink", "stored as `this.errorSink`"]
+    },
+    "logger.Hd": {
+      "e": ["level", "stored under the key `level` of the breadcrumb"],
+      "a": ["category", "stored under the key `category` of the breadcrumb"],
+      "t": ["values", "inferred: the values of the log call, made into the breadcrumb's `message`"]
+    },
+    "logger.Td": {
+      "e": ["level", "compared with `this.level`"],
+      "a": ["category", "tested against `disabledCategories` and `enabledCategories`"]
+    },
+    "logger.Ld": {
+      "e": ["name", "inferred: a key of the table of level names (none, error, warn, info, debug, trace); returned"],
+      "a": ["level", "compared with `this.level`"]
+    },
+    "logger.zd": {
+      "e#1": ["searchParams", "`new URLSearchParams(window.location.search)`"],
+      "a": ["logLevel", "the URL parameter \"logLevel\""],
+      "t": ["logCategories", "the URL parameter \"logCategories\""],
+      "e#2": ["category", "an entry of that list; the Set of them becomes `enabledCategories`"]
+    }
+  },
+  "util/packHsl.js": {
+    "packHsl": {
+      "e": ["hue", "rendering.js calls `packHsl(e.hue, e.saturation, e.lightness)`, Grid.js the same with `gM.hue, gM.saturation, gM.lightness`"],
+      "a": ["saturation", "the second argument of those calls"],
+      "t": ["lightness", "the third argument of those calls"]
+    }
+  },
+  "encounters/inferno/spawnCommandType.js": {
+    "_H": {
+      "e": ["encounterSnapshot", "inferno/controls.js passes `encounterSnapshot` to getInfernoSpawnCommandType, which hands it on; it has `kind` and `state` like what an encounter's `getSnapshot` returns"]
+    },
+    "getInfernoSpawnCommandType": {
+      "e": ["encounterSnapshot", "inferno/controls.js calls it with `encounterSnapshot`"]
+    }
+  }
+}

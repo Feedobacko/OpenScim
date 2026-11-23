@@ -1,0 +1,5 @@
+{
+  "am": { "name": "CollisionFlag", "evidence": "inferred: a class whose static fields are the collision flags (WALL_NORTH, OBJECT, FLOOR, BLOCK_NPCS, ...) that a collision map's flag, unflag and hasFlag take" },
+  "_F": { "name": "lobbyNpcs", "evidence": "its entries have the actor ids \"lobby-npc-0\", \"lobby-npc-1\", \"lobby-npc-2\"" },
+  "bG": { "name": "activeOutcome", "evidence": "the object { phase: \"active\" }; encounters return it from getOutcome()" }
+}

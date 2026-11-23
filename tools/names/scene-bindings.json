@@ -1,0 +1,5 @@
+{
+  "RF": { "name": "SceneCompositor", "evidence": "its methods are wrapped in the profiler labels \"SceneCompositor.loadTerrain\", \"SceneCompositor.loadPlayer\" and \"SceneCompositor.buildTerrainMesh3D\", and throw \"SceneCompositor: terrain mesh was not built\"; the lobby's scene and Yama's wrapper keep theirs in a field `compositor`" },
+  "pG": { "name": "InfernoScene", "evidence": "the presentation of the kind \"inferno\" builds its scene with `new pG()` and nothing else; its two resets are named \"inferno-visual-events\" and \"inferno-frame-audio\", and `getCutsceneFrame` answers only for an encounter of kind \"inferno\". It is also the class the presentations of client/toa/ are handed as their base scene" },
+  "F_": { "name": "NpcInstanceManager", "evidence": "the scene compositor's field `npcInstanceManager` is `new F_()`" }
+}

@@ -1,0 +1,39 @@
+{
+  "zukFight.js": {
+    "ZukFight": {
+      "UM": ["createNpcs","the encounter's createNpcs() returns its result; it builds the boss (id \"zuk\") into this.boss and the shield (id \"zuk_shield\") into this.glyph; shared name: InfernoEncounter.js lines 210 and 744 call it on this.zuk"],
+      "jM": ["setShieldStart","called with setup.zukShieldStart; it sets this.initialGlyphTargetEndpoint and the shield's state.targetEndpoint; shared name: InfernoEncounter.js line 218 calls it on this.zuk"],
+      "OM": ["bossAndGlyphIds","inferred: a getter for the ids of this.glyph and this.boss; configureRunStart() despawns them when the run leaves the fight; shared name: InfernoEncounter.js line 222 reads it on this.zuk"],
+      "VM": ["buildNpcDefinitionContext","the engine's buildNpcDefinitionContext() makes the same argument for the definitions' calls; this one adds random; shared name: InfernoEncounter.js line 641 calls it on this.zuk, and the encounter class has its own member of the same name; shared name: InfernoEncounter.js line 640 calls it on this.zuk, its other accesses there are the encounter's own",{"onlyIn":["client/encounters/inferno/zukFight.js"],"lines":{"client/encounters/inferno/InfernoEncounter.js":[640]}}],
+      "KM": ["getZukSnapshot","the encounter's getSnapshot() stores its result under the key zuk of state ({ setTimer, timerPaused, enraged, jadSpawned, shieldX, shieldMovingEast, shieldNextX }); shared name: InfernoEncounter.js line 406 calls it on this.zuk"],
+      "qM": ["isBossAliveInWorld","inferred: this.boss is alive and is the NPC the world holds under its id; it gates syncBossHp() and the encounter's enterBossHpPhase(); shared name: InfernoEncounter.js line 439 calls it on this.zuk"],
+      "GM": ["getGlyphTargetEndpoint","its result is assigned to this.initialGlyphTargetEndpoint; 0 for \"left\", 1 for \"right\", otherwise a bit of the hashed seed"],
+      "XM": ["syncCastClock","error string \"Cannot sync Zuk cast clock without a shield\"; it sets the boss state's lastCastTick to null and firstCastTick from the shield's spawnTick"],
+      "YM": ["allocateActorId","its result is passed as id of the spawned actors (`zuk_${kind}_${n}`); it counts this.nextActorId; the encounter class has its own member of the same name"],
+      "QM": ["spawnDemonstrationActor","the command cases \"demonstrate-jad\", \"demonstrate-set\" and \"demonstrate-heal\" pass its result to the visual builders; it spawns an actor without an NPC definition"],
+      "$M": ["spawnSet","the command case \"spawn-set\" calls it; a mager and a ranger"],
+      "JM": ["spawnSetMember","the command cases \"spawn-mager\" and \"spawn-ranger\" call it"],
+      "ZM": ["despawnMinions","the command case \"clear-spawns\" calls it and returns the game event \"inferno_clear_minions\"; it despawns the NPCs with role \"minion\", optionally only the given npcTypeIds"]
+    }
+  },
+  "InfernoEncounter.js": {
+    "InfernoEncounter": {
+      "iT": ["getIntactPillarKeys","inferred: the keys of the entries of this.pillars whose intact is true, as a Set; passed to the pillar refinement of the arena config"],
+      "rT": ["refreshArenaConfig","inferred: sets the arena config in force again from this.arenaBase and the intact pillars; called when the run start is configured and when a pillar collapses"],
+      "aT": ["getCombatSeed","inferred: runSeed, mixed with attemptSeed when there is one; it seeds the wave's \"npc\" decision stream and the Zuk fight's random, while the spawn layout and the nibbler pillar use runSeed alone"],
+      "YM": ["allocateActorId","its result is passed as id of a spawned wave monster (`inferno_${kind}_${n}`); it counts this.nextActorId; the Zuk fight class has its own member of the same name"],
+      "VM": ["buildNpcDefinitionContext","the engine's buildNpcDefinitionContext() makes the same argument for the definitions' calls; this one adds random and decisions, or forwards to the Zuk fight's member of the same name"],
+      "sT": ["getSetupFromMechanics","its result is assigned to this.setup ({ startWave, zukShieldStart, destroyedPillars, spawnLayout, startTile, pinnedWave })"],
+      "mT": ["getStartPlayerTile","getSnapshot() stores its result under the key startPlayerTile; the setup's startTile as \"x,y\", or \"\" when the start wave has a fixed start"],
+      "nT": ["getPlayerStartForSetup","getDefaultPlayerStart() returns its result for the setup read from the mechanics"],
+      "hT": ["getRestartStartPosition","planRestartStart() returns its result and planPracticeRestart() stores it under the key startPosition"],
+      "eT": ["requireZukFight","error string \"A wave-69 NPC acted before wave 69 began\"; returns this.zuk"],
+      "lT": ["advanceZukIntro","error string \"Wave 69's intro needs the engine's player teleport\"; by the tick's offset from this.zukControlTick it says the messages, teleports the player, spawns the Zuk fight's NPCs and starts wave 69"],
+      "oT": ["materializePillars","it sets this.pillarsMaterialized and spawns the NPCs \"inferno_pillar_<key>\" of the intact pillars"],
+      "tT": ["collapsePillar","registered with the \"inferno-rocky-support\" definition as collapse; emits \"inferno_pillar_collapse\"; error string \"A pillar collapse needs the engine hit queue\""],
+      "gT": ["spawnCombatant","it calls spawnNpc for a wave monster and records it in this.combatants ({ kind, origin })"],
+      "cT": ["beginWave","emits the message \"Wave: N\" (`Wave: ${this.wave}`), spawns the wave's layout and sets phase \"active\""],
+      "dT": ["completeWaveIfCleared","emits the message \"Wave completed!\" once this.combatants is empty, then raises this.wave and sets phase \"countdown\""]
+    }
+  }
+}

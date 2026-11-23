@@ -1,0 +1,54 @@
+{
+  "InfernoEncounter.js": {
+    "359": ["getCorpseSpecies", "its result is stored as species and it reads corpseSpeciesByNpcTypeId"],
+    "460": ["getBatHitDrains", "it is the engine rule onPlayerDamageTaken, answers only for a hit of infernoNpcTypeIds.bat, and returns runEnergyDelta and playerStatDrains"],
+    "498": ["isZukCommand", "it tests command.encounter === \"zuk\""],
+    "833": ["buildPillarCollapseHits", "its result is stored as collapseHits; 'build' is inferred"],
+    "840": ["isNpcAtPillar", "inferred: an overlap test of the NPC's footprint with the pillar's three tiles and the tiles around them, from its parameters npc and pillarPosition"],
+    "902": ["pickWaveNibblerPillar", "its result is stored as this.waveNibblerPillar and its decision site is \"inferno.nibbler.pillar\"; 'pick' is inferred"],
+    "1021": ["findJadHealerSpawnTiles", "it reads jadHealerSpawnDistanceRange and returns healerTiles, for a jad and a healerCount"]
+  },
+  "blob.js": {
+    "115": ["getAliveCombatTarget", "it looks up actor.combat.targetId among the players and the NPCs and answers only when isActorAlive"],
+    "240": ["processBlobTick", "it is the body of blobNpcDefinition's tick; mager.js has processMagerRangerTick for the same hook"],
+    "381": ["performBlobChildAttack", "it rolls and emits the attack of blobChildAttacksBySpecies for a blob child; 'perform' is inferred"]
+  },
+  "controls.js": {
+    "128": ["buildZukControls", "its result is stored as zukControls, in buildInfernoControls"]
+  },
+  "mager.js": {
+    "122": ["getFreeResurrectionTiles", "its result is stored as reviveTiles; it tests the tiles between magerResurrectionMinX and MaxX with isMagerResurrectionTileFree"],
+    "228": ["chooseWeightedAttack", "its result is stored as chosenAttack; it filters selection.choices by weight and by canNpcAttackWithPlan"]
+  },
+  "meleer.js": {
+    "48": ["findMeleerDigUpTile", "its result is stored as digUpTile and it reads meleerDigUpOffsets"],
+    "89": ["rollMeleerDigInterval", "its result is stored as digIntervalTicks and its decision site is \"inferno.meleer.dig_interval\""]
+  },
+  "pillars.js": {
+    "72": ["createCollisionMapOverlay", "its result is stored as collisionMap in place of createCollisionMap(64, 64); it answers from flagOverrides and then from baseCollisionMap; 'overlay' is inferred"]
+  },
+  "startTile.js": {
+    "39": ["findStandingPillarAt", "it returns the key of the pillar of infernoPillars that is not in setup.destroyedPillars and covers the tile, or null"]
+  },
+  "waveMonsters.js": {
+    "51": ["isBlob", "it tests npc.npcTypeId === infernoNpcTypeIds.blob and blobNpcDefinition.isActor(npc)"],
+    "74": ["createWaveMonsterActor", "its result is stored as npc in createWaveMonster; every branch ends in a definition's createActor"],
+    "89": ["createNibblerActor", "it starts from createInfernoActor(\"nibbler\", ...) and ends in nibblerNpcDefinition.createActor"],
+    "108": ["createBatActor", "it starts from createInfernoActor(\"bat\", ...) and ends in batNpcDefinition.createActor"],
+    "127": ["createBlobActor", "it starts from createInfernoActor(\"blob\", ...) and ends in blobNpcDefinition.createActor"],
+    "150": ["createBlobChildActor", "it is the case of blob_mage, blob_range and blob_melee and ends in blobChildNpcDefinition.createActor"],
+    "172": ["createMeleerActor", "it starts from createInfernoActor(\"meleer\", ...) and ends in meleerNpcDefinition.createActor"]
+  },
+  "waves.js": {
+    "459": ["createWaveLayoutRandom", "it is the random of the spawn layout: createSeededRandom(mixInfernoWaveSeed(runSeed, wave, 1279351119)), and 1279351119 is the bytes of \"LAYO\"; InfernoEncounter.js calls the same for the NPCs createWaveNpcRandom"],
+    "485": ["getLayoutSpawnTiles", "its result is stored as spawnTiles when the wave has a spawnLayout"]
+  },
+  "zuk.js": {
+    "215": ["rollZukBlast", "its result is stored as blastRoll"]
+  },
+  "zukFight.js": {
+    "72": ["createZukActor", "its result is stored as this.boss; it starts from createInfernoActor(\"zuk\", ...) and ends in zukNpcDefinition.createActor"],
+    "449": ["createZukHealerActor", "its result is stored as healer; it starts from createInfernoActor(\"healer\", ...) and ends in zukHealerNpcDefinition.createActor"],
+    "532": ["getZukFirstCastTick", "its result is stored as boss.state.firstCastTick"]
+  }
+}

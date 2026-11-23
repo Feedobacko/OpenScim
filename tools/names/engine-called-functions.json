@@ -1,0 +1,104 @@
+{
+  "CombatSystem.js": {
+    "544": ["takeBurnPulse", "its result is stored as burnPulse in applyBurnPulse; when actor.burnNextPulseTick has come it removes the spent burn stacks from actor.burnStacks and sets the next pulse tick; 'take' is inferred (it changes the actor)"],
+    "603": ["takePoisonPulse", "its result is stored as poisonPulse in applyPoisonPulse; when poison.nextPulseTick has come it returns the pulse and advances or clears actor.poison; 'take' is inferred (it changes the actor)"]
+  },
+  "SimulationEngine.js": {
+    "1176": ["decaySoulreaperStacks", "its result is assigned to player.soulreaper; once the tick has reached soulreaper.decayTick it takes one off soulreaper.stacks and sets the next decayTick"],
+    "1217": ["isStepDestinationInsideArena", "its parameter is destination, its argument is the step's toPosition in applyPlayerStep, and it ends in isInsideArenaBounds(x, y); 'Step' is from applyPlayerStep"],
+    "1220": ["isTileInsideMapSquare", "inferred: both coordinates of the tile are in 0..63; 'MapSquare' is the game's term for a square of 64 by 64 tiles, the code only has the number 64"],
+    "1623": ["drainPrayerPoints", "its result is stored as prayerDrainOutcome ({ state, drained }); it adds prayerDrainEffects of the active prayers to prayerState.drainCounter and takes one off prayerState.points for every drainResistance in it"],
+    "1686": ["applyLightbearerEquipped", "its result is assigned to player.specialAttack and its second argument is player.equipment.ring === lightbearerItemId; it sets specialAttack.lightbearerEquipped and adjusts regenTickCounter; 'apply' is inferred"],
+    "1710": ["regenerateSpecialAttackEnergy", "its result is assigned to player.specialAttack; it counts specialAttack.regenTickCounter down and adds energy when it reaches 0; 'regenerate' is from regenTickCounter and regenIntervalTicks"],
+    "1711": ["getSpecialAttackRegenIntervalTicks", "its result is stored as regenIntervalTicks and its parameter is specialAttackState"],
+    "1758": ["tickStatDecayLocks", "its result is stored as decayLockOutcome; it counts timers.statDecayLocks[statName].ticksRemaining down and lists the sources that expired; 'tick' is inferred (tickDeathChargeTimers is called three lines above it)"],
+    "1825": ["applyStatDecayAndRecovery", "its result is stored as statRestoreOutcome; its locals are decayDue, applyDecay and recoveryDue, and it moves the stats of decayingStatNames one level toward stat.max"],
+    "1867": ["isPreserveActive", "its result is the argument for the parameter preserveActive of the function it is passed to; it tests Prayer.Preserve in prayerState.activePrayers and 25 ticks since its activation"],
+    "1874": ["isRapidRestoreDue", "its result is the argument for the parameter rapidRestoreDue; true every 100 ticks since Prayer.RapidRestore was activated"],
+    "2003": ["consumeDeathChargeProc", "its result is stored as deathChargeProc; it takes one off combatTimers.deathChargeProcsRemaining and adds special attack energy; 'consume' is inferred"],
+    "2219": ["activateDeathChargeTimers", "its result is stored as activatedTimers in castDeathCharge; it sets deathChargeCooldownTicks, deathChargeActiveTicks and deathChargeProcsRemaining"],
+    "2558": ["computeTheoreticalDps", "it is what getAdjustedTheoreticalDps returns; it plans the attack (planPlayerAttack), projects it (projectPlayerAttack) and returns dps, maxHit and accuracy; 'compute' is inferred"],
+    "3290": ["getConsumableAttackDelayTicks", "its result is the delay handed to combatSystem.addAttackDelay; it reads ATTACK_DELAY_TICKS_BY_CONSUMABLE_TRACK[consumableTrack]"],
+    "3370": ["addItemToInventory", "its result is stored as updatedInventory in processPendingItemPickup; it puts itemId with quantity into a copy of inventory, onto a stack of the same id or into the first empty slot; 'add' is inferred"],
+    "3472": ["computePlayerPoisonPulse", "its result is stored as poisonPulse ({ state, damage }) in tickPoison and its argument is player.poisonState; 'compute' is inferred"],
+    "3799": ["buildEngineState", "its result is stored as state and returned by getState; its parameters are worldState and engine; 'build' is inferred"],
+    "3809": ["getAliveTargetId", "its result is stored as aliveTargetId; it is npc.combat.targetId when that actor is alive"],
+    "3819": ["resolveNpcAttackTimer", "its result is stored as attackTimer; it is engine.getNpcAttackTimer(npc.id) or, without one, the NPC's nextActionTick and attackSpeed; 'resolve' is inferred"]
+  },
+  "attackRange.js": {
+    "29": ["getProjectileBlockFlag", "it returns CollisionFlag.BLOCK_EAST_PROJECTILE, BLOCK_WEST_PROJECTILE, BLOCK_NORTH_PROJECTILE or BLOCK_SOUTH_PROJECTILE by directionX and directionY"],
+    "161": ["isInAttackRangeWithoutCollision", "it is the else of `if (checkCollision)` in isTileInAttackRange, whose other branch calls isInAttackRangeWithCollision with the same arguments"]
+  },
+  "bootstrap.js": {
+    "55": ["parseBootstrapInput", "its parameter is input, its argument is recording.bootstrap in parseEngineBootstrap, and it returns engineBootstrapSchema.safeParse(input).data or null"]
+  },
+  "combatFormulas.js": {
+    "89": ["getPlayerAttackRoll", "its result is stored as attackRoll in getPlayerAccuracyRolls, beside getNpcDefenceRoll for defenceRoll; 'Player' is from the function around it"],
+    "99": ["getEffectiveRangedAttackLevel", "the case \"ranged\" beside getEffectiveMeleeAttackLevel for the melee cases; it reads attacker.levels.ranged and prayerMultipliers.ranged"],
+    "110": ["getEffectiveMagicAttackLevel", "the case \"magic\" beside getEffectiveMeleeAttackLevel for the melee cases; it reads attacker.levels.magic and prayerMultipliers.magic"],
+    "160": ["getEffectiveMagicDefenceLevel", "its result is assigned to effectiveDefenceLevel in the case \"magic\" of getPlayerDefenceRoll"],
+    "170": ["getEffectiveMeleeOrRangedDefenceLevel", "its result is assigned to effectiveDefenceLevel in the cases \"melee_stab\", \"melee_slash\", \"melee_crush\" and \"ranged\" of getPlayerDefenceRoll"],
+    "179": ["getEquipmentDefenceBonus", "it returns targetEquipmentStats.defenceStab, defenceSlash, defenceCrush, defenceRanged or defenceMagic by formulaStyle; 'Bonus' is inferred"],
+    "215": ["getNpcDefensiveBonus", "it is called in getNpcDefenceRoll with target.defensive as defensiveBonuses and returns one of them by defenceStyle"],
+    "224": ["getRangedDefensiveBonus", "it returns defensiveBonuses.rangedLight, rangedStandard or rangedHeavy by rangedDefenceType"],
+    "247": ["combinePrayerMultipliers", "its local is combinedMultipliers and it is what getPrayerMultipliers returns for [activePrayer, offensivePrayer]"],
+    "275": ["getNpcMaxHit", "the case \"npc\" of attacker.kind in getFormulaMaxHit"],
+    "290": ["getPlayerMaxHit", "the case \"player\" of attacker.kind in getFormulaMaxHit"],
+    "296": ["getEffectiveMeleeStrengthLevel", "its result is the first argument of getMaxHitFromEffectiveLevel in the melee cases; it reads attacker.levels.strength and prayerMultipliers.strength"],
+    "319": ["getEffectiveRangedStrengthLevel", "its result is the first argument of getMaxHitFromEffectiveLevel in the case \"ranged\"; it reads attacker.rangedStrengthLevel and prayerMultipliers.rangedStrength"],
+    "361": ["getStanceForCombatStyle", "it is what getPlayerStance returns for selectedStyle.combatStyle; 'Stance' is from getPlayerStance"],
+    "376": ["throwUnhandledCombatStyle", "it only throws TypeError(`Unhandled combat style: ...`) and its parameter is unhandledCombatStyle"]
+  },
+  "consumables.js": {
+    "701": ["applyHeal", "the case \"heal\" of effect.op in applyConsumableEffect"],
+    "709": ["applyHealFormula", "the case \"heal_formula\" of effect.op in applyConsumableEffect"],
+    "737": ["applyDelayedHeal", "the case \"delayed_heal\" of effect.op in applyConsumableEffect"],
+    "758": ["applyBoostFormula", "the case \"boost_formula\" of effect.op in applyConsumableEffect"],
+    "777": ["applyDrainFormula", "the case \"drain_formula\" of effect.op in applyConsumableEffect"],
+    "784": ["applyRestorePrayerFormula", "the case \"restore_prayer_formula\" of effect.op in applyConsumableEffect"],
+    "808": ["applyRestoreAllStats", "the case \"restore_all_stats\" of effect.op in applyConsumableEffect"],
+    "821": ["applyRestoreRun", "the case \"restore_run\" of effect.op in applyConsumableEffect"],
+    "842": ["applyCurePoison", "the case \"cure_poison\" of effect.op in applyConsumableEffect"],
+    "866": ["applyReducePoison", "the case \"reduce_poison\" of effect.op in applyConsumableEffect"],
+    "884": ["applySaturatedHeart", "the case \"saturated_heart\" of effect.op in applyConsumableEffect"],
+    "909": ["applyTimedEffect", "the case \"apply_timed_effect\" of effect.op in applyConsumableEffect; its local is timedEffect"],
+    "956": ["syncHitpointsStat", "inferred: it copies playerState.playerHP into playerState.stats.hitpoints.current when they differ"]
+  },
+  "decisions.js": {
+    "7": ["chooseWeightedOption", "it is the `choose` of createRandomDecisions; it walks option.weight against a draw and its error says \"A weighted decision requires ...\"; 'Option' is from its parameter options"]
+  },
+  "npcRetaliation.js": {
+    "5": ["isAlreadyFightingSource", "inferred: it tests combat.targetId === sourceId && combat.nextActionTick + 8 >= tick, the condition under which delayNextActionForRetaliation leaves nextActionTick alone"],
+    "24": ["getStandardRetaliationTick", "its result is assigned to retaliationTick in the case \"standard\" of npc.combat.retaliation.mode"]
+  },
+  "playerMovement.js": {
+    "87": ["computeStepToTileInArena", "the branch of computePlayerStepToTile for getArenaCollisionMap() !== null || getArenaWalkableTiles() !== null; 'InArena' is from that condition"],
+    "90": ["findBfsPathToTile", "its result is the path handed to takeStepsAlongPath; it fills costGrid and backtrackGrid and ends in reconstructBfsPath(...); 'find' is inferred"],
+    "208": ["computeStepToTileWithoutArena", "the else of the same condition in computePlayerStepToTile: neither a collision map nor walkable tiles; 'WithoutArena' is from that condition"],
+    "216": ["getRunOffset", "its result is destructured as [runDx, runDy] and its parameter is targetOffset"],
+    "284": ["getRunStepOffsets", "its result is stored as stepOffsets and its parameters are runDx and runDy"],
+    "346": ["findBfsPathToAttackRange", "its result is the path handed to takeStepsAlongPath in computePlayerStepToNpc; its parameters are attackRange and mustBeOutsideTarget, it tests isInAttackRangeWithCollision and ends in reconstructBfsPath(...); 'find' is inferred"]
+  },
+  "replay.js": {
+    "101": ["buildEngineFromBootstrap", "it is what rebuildRecordedEngine returns inside its try; it calls buildSimulationEngine with the fields of bootstrap"]
+  },
+  "specialAttacks.js": {
+    "33": ["isImmuneToBurn", "it reads burnTarget.formulaStats?.burnImmunity and compares BURN_SEVERITY_RANK with BURN_IMMUNITY_RANK"],
+    "68": ["getBaseRunEnergyDrain", "its result is stored as baseEnergyDrain in updateRunEnergy; 'Run' is from updateRunEnergy"],
+    "79": ["getRunEnergyRecovery", "its result is stored as energyRecovery in updateRunEnergy; 'Run' is from updateRunEnergy"],
+    "124": ["canBePoisoned", "inferred: poisonTarget.alive and not immune; its negation makes applyPoisonToTarget return false"],
+    "127": ["isImmuneToPoison", "it tests actor.formulaStats?.poisonResistance >= 100; 'Immune' is inferred (cf. burnImmunity in the same module)"]
+  },
+  "spells.js": {
+    "190": ["isRuneProvidedByStaff", "it reads RUNES_PROVIDED_BY_STAFF for equipment.weapon and equipment.shield and tests includes(neededRuneId)"],
+    "201": ["getAcceptedRuneIds", "its result is stored as acceptedRuneIds"],
+    "252": ["getRequiredMagicLevel", "its result is stored as requiredMagicLevel; it reads SPELL_MAGIC_LEVEL_REQUIREMENTS"]
+  },
+  "supplies.js": {
+    "71": ["parseBlowpipeAmmo", "its result is stored as blowpipeAmmo; it uses blowpipeAmmoWrapperSchema.safeParse and parseItemRef"],
+    "161": ["areRunePouchesEqual", "its parameters are runePouch and otherRunePouch, it compares kind and slots with isSameItemRef, in areCombatSuppliesEqual"]
+  },
+  "weapons.js": {
+    "118": ["computeStyleCombatParams", "its result is stored as combatParams in computePlayerCombatParams; it changes attackSpeed and attackRange by the combatStyle of the selected style (Rapid, Casting, Longrange); 'Style' is from selectedStyleIndex"]
+  }
+}

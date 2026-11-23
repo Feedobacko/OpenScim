@@ -1,0 +1,21 @@
+{
+  "encounters/yama/cacheArena.js": {
+    "ql": ["setArenaConfigFromCache","assigns arenaConfigFromCache; client/assets/player.js calls it with the result of CacheManager.buildArenaConfig"]
+  },
+  "encounters/yama/fireballGeometry.js": {
+    "vN": ["getFireballImpactLine","inferred: returns { center, side1, side2 }, the three tiles in a line that getFireballImpactTiles lists"],
+    "kN": ["getFireballOuterExplosionTiles","inferred: the explosion tiles two or more tiles from the center; getFireballExplosionTiles joins them with the inner ones"],
+    "SN": ["getFireballInnerExplosionTiles","inferred: the explosion tiles on and next to the center; getFireballExplosionTiles joins them with the outer ones"]
+  },
+  "encounters/yama/shadowWaves.js": {
+    "PN": ["yamaWaveRandomOffsets","getYamaWaveRandomOffset returns one of its entries; config key waves.randomOffsets turns them on"]
+  },
+  "encounters/inferno/spawnLayout.js": {
+    "cI": ["infernoMonsterDisplayNames","inferred: per monster kind the words { one, many, game } used in messages (\"Could not read the ${...one} tiles in the link.\")"],
+    "SI": ["getInfernoMonsterCountsKey","inferred: joins the count of each monster kind into a string that rendering.js compares to find the wave with the same monsters"],
+    "bI": ["formatInfernoMonsterCounts","inferred: writes \"2 magers, 1 ranger and 3 bats\" for the messages \"which has ...\" and \"No wave spawns exactly ...\""],
+    "zI": ["infernoSpawnLayoutCodeByKind","inferred: kind to letter; formatInfernoSpawnLayout writes slots with it"],
+    "wI": ["infernoSpawnLayoutKindByCode","inferred: the kind-to-code table inverted; parseInfernoSpawnLayout reads slots with it"],
+    "AI": ["infernoSpawnLayoutPattern","inferred: the regular expression parseInfernoSpawnLayout matches a layout string against (\"wave:nine slot letters\")"]
+  }
+}

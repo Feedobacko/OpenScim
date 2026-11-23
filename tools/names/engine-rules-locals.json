@@ -1,0 +1,153 @@
+{
+  "engine/mechanicsConfig.js": {
+    "buildMechanicsConfig": {
+      "e": ["encounterDefaults", "engine: the first argument is `this.getDefaultMechanicsConfig()`, the encounter's defaults"],
+      "a": ["playerMechanics", "engine: the second argument is `this.playerMechanicsConfig`"]
+    }
+  },
+  "engine/prayerTables.js": {
+    "Prayer": {
+      "e": ["prayers", "inferred: the object the prayer names are set on, which becomes `Prayer`"]
+    },
+    "isPrayerUnlockedByMechanics": {
+      "e": ["prayer", "engine: called with `(prayer, this.mechanicsConfig)`"],
+      "a": ["mechanicsConfig", "engine: called with `(prayer, this.mechanicsConfig)`"],
+      "t": ["mechanicsKey", "inferred: a value of the prayer table (\"upgradedPrayers\", \"zealPrayer\") that is looked up in the mechanics config and in its defaults"]
+    }
+  },
+  "engine/npcRetaliation.js": {
+    "wG": {
+      "e#1": ["combat", "HG passes `e.combat`; read for `nextActionTick`, `attackSpeed`, `targetId`"],
+      "a#1": ["tick", "HG passes its tick, which it also stores as `lastIncomingAttackTick`"],
+      "t#1": ["sourceId", "HG passes the id it then assigns to `combat.targetId`; compared with `combat.targetId`"],
+      "e#2": ["combat", "the same three arguments handed on to a function called at once"],
+      "a#2": ["tick", "the same three arguments handed on to a function called at once"],
+      "t#2": ["sourceId", "the same three arguments handed on to a function called at once"],
+      "e#3": ["combat", "the same three arguments handed on to a function called at once"],
+      "a#3": ["tick", "the same three arguments handed on to a function called at once"],
+      "t#3": ["sourceId", "the same three arguments handed on to a function called at once"],
+      "n": ["attackSpeed", "assigned `combat.attackSpeed`"]
+    },
+    "scheduleNpcRetaliation": {
+      "e#1": ["npc", "engine: called with `targetNpc` and with `attack.target`; read for `alive` and `combat.retaliation`"],
+      "a": ["pendingHit", "engine: playerAttack/launch.js passes `pendingHit`; read for `style`, `accuracySucceeded`, `launchTick`, `impactTick`, `sourceId`"],
+      "t": ["retaliationTick", "pushed under the key `tick` of a pending retaliation"],
+      "e#2": ["pendingHit", "the same hit handed on to a function called at once"],
+      "mode2": ["mode", "`combat.retaliation.mode`"]
+    },
+    "resolvePendingRetaliations": {
+      "e": ["world", "engine: called with `this.worldState`; read for `tick`, `getNpcs()`, `actors`"],
+      "a": ["npc", "an element of `world.getNpcs()`"],
+      "s": ["entry", "inferred: an element of `retaliation.pending`, `{ tick, sourceId }`"],
+      "retaliation2": ["retaliation", "`npc.combat.retaliation`"],
+      "pending2": ["pending", "`retaliation.pending`"]
+    },
+    "HG": {
+      "e": ["npc", "read for `combat.retaliation`; the callers pass an NPC"],
+      "a": ["sourceId", "the callers pass `sourceId`; assigned to `combat.targetId`"],
+      "t": ["tick", "the callers pass a tick; assigned to `lastIncomingAttackTick`"],
+      "retaliation3": ["retaliation", "`npc.combat.retaliation`"],
+      "mode3": ["mode", "`retaliation.mode`"]
+    }
+  },
+  "engine/damage.js": {
+    "resolveRolledDamage": {
+      "e": ["damageOrRange", "inferred: a number, or a pair of numbers that is rolled between; engine passes `attack.rolledDamage`"],
+      "a": ["random", "engine: `this.random`, `this.rollCombat`; defaults to Math.random and is called for a number in [0, 1)"],
+      "t": ["minimum", "inferred: the first of the pair, the lowest result"],
+      "n": ["maximum", "inferred: the second of the pair, the highest result"]
+    },
+    "isCorrectProtectionPrayer": {
+      "e": ["attackType", "engine: CombatSystem.isCorrectProtectionPrayer(attackType, activePrayer)"],
+      "a": ["activePrayer", "engine: CombatSystem.isCorrectProtectionPrayer(attackType, activePrayer)"]
+    },
+    "applyPrayerReduction": {
+      "e": ["damage", "engine: called with (baseDamage, attackType, activePrayer, prayerReduction)"],
+      "a": ["attackType", "engine: called with (baseDamage, attackType, activePrayer, prayerReduction)"],
+      "t": ["activePrayer", "engine: called with (baseDamage, attackType, activePrayer, prayerReduction)"],
+      "n": ["prayerReduction", "engine: called with (baseDamage, attackType, activePrayer, prayerReduction)"],
+      "s": ["reduction", "inferred: the given reduction or `{ type: \"block\" }`"]
+    }
+  },
+  "engine/monsterStats.js": {
+    "getMonsterHitpoints": {
+      "e": ["npcTypeId", "encounters: called with `identity.npcTypeId`, `solHereditNpcTypeId`"]
+    },
+    "getMonsterFormulaStats": {
+      "e": ["npcTypeId", "encounters: called with `identity.npcTypeId`, `voidFlareNpcTypeId`"],
+      "a": ["version", "the lookup key is `${id}:${version}`, filled from an entry's `version`"],
+      "t": ["monster", "inferred: an entry of the monster table, read for `levels`, `offensive`, `defensive`, `immunities`, `attributes`"]
+    },
+    "applyMonsterStatOverride": {
+      "e": ["formulaStats", "engine: called with `npc.formulaStats`"],
+      "a": ["override", "engine: called with `this.getMonsterStatOverride(npc.npcTypeId)`"]
+    }
+  },
+  "engine/equipmentStats.js": {
+    "(statement 1)": {
+      "e#1": ["gracefulSet", "inferred: one of the twelve lists of six pairs, the pieces of one graceful outfit"],
+      "e#2": ["piecePair", "inferred: the two item ids of one piece"],
+      "a": ["pieceIndex", "the index of the pair in its set, stored as the value of the Map and used as the index into the per-piece bonuses"],
+      "t": ["itemId", "the key of the Map, which getGracefulBonusPercent looks up with the ids of the equipment"]
+    },
+    "(statement 2)": {
+      "e": ["capePair", "inferred: the two item ids of one cape; they are stored with index 1, the cape of a graceful set"],
+      "a": ["itemId", "the key of the Map"]
+    },
+    "sT": {
+      "e": ["itemId", "getCarriedWeight passes an id of the equipment"]
+    },
+    "getGracefulBonusPercent": {
+      "e#1": ["equipment", "engine: called with `player.equipment`"],
+      "a": ["wornPieces", "inferred: the set of piece indices found among the equipment"],
+      "t#1": ["itemId", "a value of the equipment"],
+      "e#2": ["pieceIndex", "a value of the Map the loops above fill"],
+      "t#2": ["bonusPercent", "returned; engine stores it as `gracefulBonusPercent`"],
+      "e#3": ["pieceIndex", "an element of the set, used as index into the per-piece bonuses"]
+    },
+    "iT": {
+      "e": ["params", "gT passes `objType.params`"],
+      "a": ["paramId", "inferred: the key looked up in the params Map"],
+      "t": ["fallback", "returned when the params hold no number under the key"],
+      "n": ["value", "inferred: what the params hold under the key"]
+    },
+    "dT": {
+      "e": ["itemId", "gT passes `objType.id`; the key of both tables"],
+      "a": ["stats", "spread into the result; gT passes the stats it read"],
+      "t": ["variantArrow", "an entry of `variantArrowsByItemId`"],
+      "n": ["baseItemOverride", "the override table's entry for `getBaseItemId(itemId)`"],
+      "s": ["itemOverride", "the override table's entry for the item itself; spread last"]
+    },
+    "gT": {
+      "e": ["objType", "what `objTypeLoader.load(itemId)` returns; read for `params` and `id`"],
+      "params2": ["params", "`objType.params`"]
+    },
+    "getItemEquipmentStats": {
+      "e#1": ["itemId", "engine: SimulationEngine.lookupItemStats(itemId)"],
+      "a": ["objTypeLoader", "engine: called with `this.objTypeLoader`"],
+      "t": ["objType", "`objTypeLoader.load(itemId)`"],
+      "n": ["baseItemId", "`getBaseItemId(itemId)`"],
+      "e#2": ["paramId", "an element of the list of param ids; tested with `params.has`"]
+    },
+    "computeEquipmentStats": {
+      "e": ["equipment", "engine: called with `player.equipment`"],
+      "a": ["objTypeLoader", "engine: called with `this.objTypeLoader`"],
+      "t": ["totals", "inferred: the stats the items' bonuses are added to; returned"],
+      "n": ["slot", "\"head\", \"cape\", ... \"ring\"; the key into the equipment"],
+      "s": ["itemId", "`equipment[slot]`, passed to getItemEquipmentStats"],
+      "r": ["itemStats", "the result of getItemEquipmentStats"]
+    },
+    "getCarriedWeight": {
+      "e#1": ["equipment", "engine: called with `player.equipment`"],
+      "a#1": ["inventory", "engine: called with `player.inventory`"],
+      "t": ["objTypeLoader", "engine: called with `this.objTypeLoader`"],
+      "n": ["totalGrams", "the sum of the items' `weight`; returned divided by 1000: \"grams\" is inferred"],
+      "a#2": ["slot", "\"head\", \"cape\", ... \"ring\"; the key into the equipment"],
+      "s#1": ["itemId", "`equipment[slot]`"],
+      "e#2": ["objType", "`objTypeLoader.load(...)`; read for `stackable` and `weight`"],
+      "e#3": ["inventoryItem", "an element of the inventory; read for `id` and `quantity`"],
+      "a#3": ["objType", "`objTypeLoader.load(inventoryItem.id)`"],
+      "s#2": ["quantity", "`inventoryItem.quantity ?? 1`"]
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "LobbyEncounter.createNpcs": {
+    "e": ["startPosition", "inferred: the engine passes the player's start tile; unused here"]
+  },
+  "LobbyEncounter.reset": {
+    "e": ["seeds", "engine call: this.encounter.reset(recording.encounter.seeds); the counterpart of getSeeds()"]
+  },
+  "LobbyEncounter.resolveHazards": {
+    "e": ["context", "inferred: the engine passes the tick context; unused here"],
+    "a": ["mechanics", "inferred: the engine passes the mechanics config (see getDefaultMechanicsConfig); unused here"]
+  },
+  "LobbyEncounter.processPostTick": {
+    "e": ["context", "inferred: as in resolveHazards"],
+    "a": ["mechanics", "inferred: as in resolveHazards"]
+  },
+  "LobbyEncounter.getArenaConfig": {
+    "e#1": ["walkableTiles", "returned under the key walkableTiles"],
+    "a#1": ["flags", "the collision map's key flags"],
+    "a#2": ["x", "inferred: coordinate: tested against the centre's x"],
+    "t#1": ["y", "inferred: coordinate: tested against the centre's y"],
+    "n#1": ["dx", "inferred: the tile centre's offset from lobbyCenterX"],
+    "s#1": ["dy", "inferred: the tile centre's offset from lobbyCenterY"],
+    "t#2": ["blockTile", "inferred: sets CollisionFlag.OBJECT on the tile and removes it from the walkable set"],
+    "t#3": ["x", "inferred: coordinate"],
+    "n#2": ["y", "inferred: coordinate"],
+    "s#2": ["tileX", "inferred: Math.floor(x)"],
+    "r#1": ["tileY", "inferred: Math.floor(y)"],
+    "n#3": ["blockDisc", "inferred: blocks every tile whose centre is within the radius of the point"],
+    "e#2": ["centerX", "inferred: the disc's centre"],
+    "a#3": ["centerY", "inferred: the disc's centre"],
+    "n#4": ["radius", "inferred: compared with dx * dx + dy * dy as radius * radius"],
+    "s#3": ["fromX", "inferred: Math.floor(centerX - radius), the first column scanned"],
+    "r#2": ["toX", "inferred: the last column scanned"],
+    "i#1": ["fromY", "inferred: the first row scanned"],
+    "l#1": ["toY", "inferred: the last row scanned"],
+    "o#1": ["x", "inferred: coordinate"],
+    "s#4": ["y", "inferred: coordinate"],
+    "r#3": ["dx", "inferred: the tile centre's offset from the disc's centre"],
+    "i#2": ["dy", "inferred: the tile centre's offset from the disc's centre"],
+    "e#3": ["index", "inferred: counts the 8 obstacles on the ring"],
+    "a#4": ["angle", "inferred: the argument of Math.cos and Math.sin"],
+    "e#4": ["lobbyNpc", "an entry of the list whose actor ids are \"lobby-npc-0\" ..."],
+    "s#5": ["collisionMap", "returned under the key collisionMap"],
+    "e#5": ["x", "inferred: coordinate"],
+    "t#4": ["y", "inferred: coordinate"],
+    "e#6": ["x", "inferred: coordinate"],
+    "a#5": ["y", "inferred: coordinate"],
+    "t#5": ["mask", "inferred: the bits tested with flag & mask"],
+    "flag6": ["flag", "the result of this.getFlag(x, y)"],
+    "e#7": ["x", "inferred: coordinate"],
+    "t#6": ["y", "inferred: coordinate"],
+    "n#5": ["mask", "inferred: the bits set with |="],
+    "e#8": ["x", "inferred: coordinate"],
+    "t#7": ["y", "inferred: coordinate"],
+    "n#6": ["mask", "inferred: the bits cleared with &= ~"],
+    "r#4": ["minX", "returned under the key minX of bounds"],
+    "i#3": ["maxX", "returned under the key maxX of bounds"],
+    "l#2": ["minY", "returned under the key minY of bounds"],
+    "o#2": ["maxY", "returned under the key maxY of bounds"],
+    "a#6": ["tileKey", "inferred: an entry of walkableTiles, the string `${x},${y}`"],
+    "e#9": ["x", "inferred: coordinate: first number of the tile key"],
+    "t#8": ["y", "inferred: coordinate: second number of the tile key"]
+  }
+}

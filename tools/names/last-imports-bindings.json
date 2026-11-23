@@ -1,0 +1,12 @@
+{
+  "util/logger.js": {
+    "Xl": ["LogLevel", "its keys are NONE, ERROR, WARN, INFO, DEBUG, TRACE; rendering.js, application.js and player.js pass `Xl.INFO` and `Xl.DEBUG` to `logger.isEnabled`; the logger's help text calls the number the \"global log level\""],
+    "Jl": ["logLevelByName", "maps none, error, warn, info, debug, trace to the level numbers; `setLevel` looks a name up in it (help text: \"set global log level (none/error/warn/info/debug/trace)\")"],
+    "Ql": ["logLevelLabels", "inferred: the text printed in brackets in front of a debug or trace line (`[DEBUG]`, `[TRACE]`), by level number"],
+    "ed": ["describeLogValue", "inferred from its last resort, the text \"[undescribable]\": a short text for one value of a log call"],
+    "ad": ["formatBreadcrumbMessage", "its result is stored under the key `message` of a breadcrumb; \"format\" is inferred"]
+  },
+  "encounters/inferno/spawnCommandType.js": {
+    "_H": ["isInfernoSnapshot", "tests `kind === \"inferno\"` on what inferno/controls.js calls `encounterSnapshot`; Grid.js calls it with `state.encounter` of a frame before it reads `state.wave` and `state.startSpawnLayout`"]
+  }
+}

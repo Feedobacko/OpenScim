@@ -1,0 +1,1129 @@
+{
+  "actors.js": {
+    "TC": {
+      "e": ["kindOrVariant","inferred: a kind string, or { kind, variant } for the kinds that differ between the waves and the Zuk fight"]
+    },
+    "IC": {
+      "e": ["kindOrVariant","passed to TC"],
+      "a": ["actorId","stored as { id }; client/encounters/sol-heredit/actors.js createColosseumActor(npcKey, actorId, position)"],
+      "t": ["position","stored as { position }"],
+      "n": ["kind","read from kindOrVariant.kind"],
+      "s": ["identity","LC holds the same { npcTypeId, size, archetypeId } records as { identity }"],
+      "r": ["maxHp","stored as { maxHp }"],
+      "i": ["formulaStats","stored as { formulaStats }"]
+    },
+    "AG": {
+      "e": ["mode","stored as { mode }"]
+    }
+  },
+  "monsterHelpers.js": {
+    "LM": {
+      "e": ["decisions","InfernoEncounter passes its destructured { decisions }; .choose"],
+      "a": ["decisionKey","InfernoEncounter passes its { key }, a { site, tick, actorId } label; each pick adds an ordinal"],
+      "t#1": ["candidates","inferred: the values to pick from; both callers pass tiles"],
+      "n#1": ["count","inferred: how many to pick; callers pass healersPerJad and 3"],
+      "s": ["remaining","inferred: copy of candidates that each pick is removed from"],
+      "r": ["picked","inferred: the values chosen so far, returned"],
+      "t#2": ["ordinal","stored as { ordinal }"],
+      "n#2": ["choice","result of decisions.choose"]
+    },
+    "HM": {
+      "e": ["context","callers pass the hook's context; read .tick, passed to DM"]
+    },
+    "bT": {
+      "e": ["attacker","mager.js calls it with its destructured attacker"],
+      "a": ["target","mager.js calls it with its destructured target"],
+      "t": ["plan","mager.js passes choice.plan; read .damageType"]
+    },
+    "xx": {
+      "e": ["context","callers pass the hook's context; read .tickEvents"],
+      "a": ["event","spread into the emitted zuk_death event"]
+    },
+    "Bx": {
+      "e": ["context","callers pass the hook's context; read .tickEvents"],
+      "a": ["event","spread into the emitted inferno_ability event"]
+    },
+    "yG": {
+      "e": ["combat","callers pass actor.combat; read .nextActionTick"],
+      "a": ["tick","callers pass context.tick"]
+    },
+    "MG": {
+      "n": ["npcKind","stored as { npcKind }"],
+      "s": ["eventContext","inferred: the context again, parameter of an inlined zuk_hit emitter"],
+      "r": ["event","spread into the emitted zuk_hit event"]
+    },
+    "xG": {
+      "e#1": ["actor","callers pass the hook's actor; read .combat.targetId"],
+      "a": ["world","callers pass context.world; .getPlayers() .getNpc() .getPlayer()"],
+      "targetId4": ["targetId","read from actor.combat.targetId"],
+      "n": ["target","inferred: the player or NPC with the actor's targetId; callers store the result as { target }"],
+      "e#2": ["player","element of world.getPlayers()"],
+      "s": ["fallbackPlayer","inferred: world.getPlayer(), who becomes the target when the current one is gone"]
+    },
+    "UG": {
+      "e": ["tile","inferred: south-west tile of the footprint, an [x, y] passed to isArenaFootprintWalkable"],
+      "a": ["size","mager.js passes the size it stores as { size }"],
+      "t": ["collisionMap","Ol returns Pl.collisionMap"],
+      "n": ["dx","inferred: x offset inside the footprint"],
+      "s": ["dy","inferred: y offset inside the footprint"]
+    }
+  },
+  "pillars.js": {
+    "OT": {
+      "e": ["pillar","element of the pillar table jT; InfernoEncounter stores the same elements as { pillar }"]
+    },
+    "ZT": {
+      "e": ["pillar","callers pass elements of jT and the { pillar } InfernoEncounter stores"],
+      "a": ["tiles","inferred: the 3x3 tiles under the pillar; callers destructure each as [x, y]"],
+      "t": ["dx","inferred: x offset inside the 3x3 footprint"],
+      "n": ["dy","inferred: y offset inside the 3x3 footprint"]
+    },
+    "YT": {
+      "e#1": ["arenaConfig","engine: encounter.refineArenaConfig(arenaConfig)"],
+      "a#1": ["intactPillarKeys","InfernoEncounter passes the set of pillar.key of the pillars with .intact"],
+      "t#1": ["collisionMap","stored as { collisionMap }"],
+      "e#2": ["baseCollisionMap","passed arenaConfig.collisionMap; the overlay reads through to it"],
+      "a#2": ["flagOverrides","inferred: the changed flags by \"x,y\" key, read before the base map"],
+      "t#2": ["getFlag","stored as { getFlag }"],
+      "t#3": ["x","client/encounters/lobby/LobbyEncounter.js getFlag: (x, y)"],
+      "n#1": ["y","client/encounters/lobby/LobbyEncounter.js getFlag: (x, y)"],
+      "n#2": ["updateFlag","inferred: writes a tile's changed flag into the overrides; flag and unflag call it"],
+      "e#3": ["x","passed to getFlag as x"],
+      "n#3": ["y","passed to getFlag as y"],
+      "s#1": ["update","inferred: maps the tile's current flag to the new one"],
+      "r#1": ["flag","client/encounters/lobby/LobbyEncounter.js: const flag = this.getFlag(x, y)"],
+      "e#4": ["x","client/encounters/lobby/LobbyEncounter.js hasFlag(x, y, mask)"],
+      "a#3": ["y","client/encounters/lobby/LobbyEncounter.js hasFlag(x, y, mask)"],
+      "n#4": ["mask","client/encounters/lobby/LobbyEncounter.js hasFlag(x, y, mask)"],
+      "s#2": ["flag","client/encounters/lobby/LobbyEncounter.js: const flag = this.getFlag(x, y)"],
+      "e#5": ["x","client/encounters/lobby/LobbyEncounter.js flag(x, y, mask)"],
+      "a#4": ["y","client/encounters/lobby/LobbyEncounter.js flag(x, y, mask)"],
+      "t#4": ["mask","client/encounters/lobby/LobbyEncounter.js flag(x, y, mask)"],
+      "e#6": ["flag","passed the value getFlag returns"],
+      "e#7": ["x","client/encounters/lobby/LobbyEncounter.js unflag(x, y, mask)"],
+      "a#5": ["y","client/encounters/lobby/LobbyEncounter.js unflag(x, y, mask)"],
+      "t#5": ["mask","client/encounters/lobby/LobbyEncounter.js unflag(x, y, mask)"],
+      "e#8": ["flag","passed the value getFlag returns"],
+      "n#5": ["walkableTiles","stored as { walkableTiles }"],
+      "e#9": ["pillar","element of the pillar table jT"],
+      "s#3": ["intact","inferred: the key is in intactPillarKeys; InfernoEncounter keeps the same fact as pillar .intact"],
+      "a#6": ["x","inferred: x of a tile under the pillar"],
+      "r#2": ["y","inferred: y of a tile under the pillar"]
+    },
+    "QT": {
+      "e": ["supportSpawn","inferred: the spawn fields of an 'inferno-rocky-support' NPC, the standing pillar or its collapse"]
+    },
+    "eI": {
+      "e": ["pillarSpawn","inferred: { pillar, id, spawnTick } of a standing pillar's NPC"]
+    }
+  },
+  "waves.js": {
+    "oI": {
+      "e": ["wave","dI passes the value its error string calls 'Inferno wave'"]
+    },
+    "dI": {
+      "e": ["wave","error string: Inferno wave out of range: ${wave}"]
+    },
+    "gI": {
+      "e#1": ["wave","passed to dI as its wave"],
+      "a": ["kindCounts","inferred: the wave's row of the wave table, a count per kind ({ bat: 1, nibbler: 3 })"],
+      "e#2": ["kind","element of the kind order iI; pj stores the returned elements as { kind }"]
+    },
+    "HI": {
+      "e#1": ["wave","InfernoEncounter passes this.wave; yI stores it as layout { wave }"],
+      "a#1": ["spawns","inferred: pj's result, one { kind, position } per monster of the wave"],
+      "t": ["slots","yI stores this argument as layout { slots }"],
+      "a#2": ["slotIndex","inferred: index of the spawn tile in zH; error strings of pj call these 'spawn slots'"],
+      "e#2": ["x","inferred: x of a spawn tile, compared with position[0]"],
+      "a#3": ["y","inferred: y of a spawn tile, compared with position[1]"],
+      "n": ["validation","inferred: yI's answer, { ok, layout } or { ok: false, error, message }"],
+      "s": ["spawnLayout","assigned validation.layout; InfernoEncounter stores the returned value as waveSpawnLayout"]
+    },
+    "fj": {
+      "e": ["seed","client/encounters/yama/constants.js mixSeed(seed, salt); callers pass the run seed or the attempt seed"],
+      "a": ["wave","uj and pj pass their wave"],
+      "t": ["salt","client/encounters/yama/constants.js mixSeed(seed, salt); callers pass four ASCII letters as an integer ('NPCS', 'LAYO', 'NIBT')"]
+    },
+    "uj": {
+      "e": ["seed","passed to fj as seed; InfernoEncounter passes the run seed mixed with the attempt seed"],
+      "a": ["wave","InfernoEncounter passes this.wave"]
+    },
+    "vj": {
+      "e#1": ["items","inferred: the list a shuffled copy is made of (Jad tiles, slot indexes)"],
+      "a": ["decisions","pj passes its decisions; engine: decisions: this.combatDecisions"],
+      "t": ["site","stored as { site }"],
+      "n": ["tick","stored as { tick }"],
+      "s": ["shuffled","inferred: the copy a Fisher-Yates shuffle reorders and returns"],
+      "e#2": ["index","inferred: position being filled, counted down from the end; stored as { ordinal }"],
+      "r": ["swapIndex","inferred: the drawn position 0..index that is swapped with index"]
+    },
+    "pj": {
+      "e#1": ["runSeed","InfernoEncounter passes this.runSeed"],
+      "a#1": ["wave","InfernoEncounter passes this.wave; error string: Wave ${wave} has more slot NPCs"],
+      "t#1": ["openStream","InfernoEncounter passes (random) => this.openStream(\"layout\", wave, random)"],
+      "n#1": ["tick","stored as { tick }; InfernoEncounter passes context.tick"],
+      "s#1": ["spawnLayout","InfernoEncounter passes this.setup.spawnLayout"],
+      "r#1": ["decisions","InfernoEncounter stores the result of the same openStream call as this.decisions"],
+      "e#2": ["runSeed","passed the outer runSeed"],
+      "a#2": ["wave","passed the outer wave"],
+      "i#1": ["waveKinds","inferred: gI(wave), the kind of every monster of the wave; elements are stored as { kind }"],
+      "e#3": ["jadWaveConfig","inferred: the entry of oU for wave 67 or 68 ({ openingDelayTicks, rangedMagicPeriod, healersPerJad })"],
+      "a#3": ["spawnTile","stored as { position }; element of the Jad spawn tiles HH / MH"],
+      "t#2": ["jadIndex","inferred: which Jad of the wave, index into openingDelayTicks"],
+      "l": ["slotOrder","inferred: the indexes of the nine spawn tiles in shuffled order (site 'inferno.layout.slot')"],
+      "e#4": ["spawnTile","inferred: element of the spawn tiles zH, unused"],
+      "a#4": ["index","inferred: position of the spawn tile in zH"],
+      "o": ["spawnTiles","inferred: the spawn tile of each non-nibbler monster in spawning order; elements are stored as { position }"],
+      "e#5": ["waveKinds","passed the outer waveKinds"],
+      "a#5": ["spawnLayout","passed the outer spawnLayout; .slots and .wave as yI builds them"],
+      "t#3": ["slotOrder","passed the outer slotOrder"],
+      "n#2": ["usedSlots","inferred: indexes of the spawn slots already given to a monster"],
+      "s#2": ["freeSlots","error string: more slot NPCs than free spawn slots"],
+      "e#6": ["slotIndex","inferred: element of slotOrder, index into spawnLayout.slots"],
+      "r#2": ["freeSlotsTaken","inferred: how many of freeSlots have been handed out"],
+      "i#2": ["spawnTiles","returned and held by the outer spawnTiles"],
+      "e#7": ["kind","element of waveKinds; compared with \"nibbler\""],
+      "e#8": ["kind","element of waveKinds"],
+      "t#4": ["layoutSlotIndex","inferred: the unused slot where the spawn layout places this kind, -1 when it places none"],
+      "a#6": ["slotKind","inferred: element of spawnLayout.slots, a kind or null"],
+      "t#5": ["index","position in spawnLayout.slots"],
+      "i#3": ["slotIndex","inferred: the spawn slot this monster takes, index into zH"],
+      "e#9": ["slotKind","inferred: element of spawnLayout.slots, a kind or null"],
+      "a#7": ["index","position in spawnLayout.slots"],
+      "e#10": ["slotIndex","element of slotOrder, index into zH"],
+      "d": ["slotNpcsPlaced","inferred: non-nibbler monsters given a spawn tile so far; error string calls them 'slot NPCs'"],
+      "g": ["nibblersPlaced","inferred: nibblers given a position so far"],
+      "e#11": ["kind","stored as { kind }"],
+      "a#8": ["nibblerOrdinal","stored as { ordinal } of the nibbler position rolls"],
+      "t#6": ["spawnTile","stored as { position }; element of spawnTiles"]
+    }
+  },
+  "controls.js": {
+    "rI": {
+      "e": ["rawStartTile","inferred: the mechanics value under \"infernoStartTile\", an \"x,y\" string when set"],
+      "a": ["setup","InfernoEncounter passes this.setup to the same check sI; here { startWave, destroyedPillars }"],
+      "t": ["startTile","YI stores the returned value as { startTile }"]
+    },
+    "ZI": {
+      "e": ["mechanicsValue","inferred: a value of the mechanics settings, a string of digits when it holds a number"]
+    },
+    "YI": {
+      "e": ["mechanics","inferred: the mechanics settings; read by the keys of defaultMechanicsConfig (zukShieldStart, infernoStartWave)"],
+      "a": ["requestedWave","inferred: the number under \"infernoStartWave\" before the range check"],
+      "t": ["startWave","stored as { startWave }"],
+      "n": ["pinnedWave","stored as { pinnedWave }"],
+      "s": ["destroyedPillars","stored as { destroyedPillars }"]
+    },
+    "aC": {
+      "e": ["toggle","element of mechanicsToggles"]
+    },
+    "tC": {
+      "e#1": ["zukControls","inferred: the controls of the Zuk fight alone, the shape buildSolHereditControls returns"],
+      "e#2": ["maxHp","client/encounters/sol-heredit/controls.js names the same call maxHp; error string: Missing Zuk monster HP"],
+      "e#3": ["unusedElement","inferred: Array.from's undefined element"],
+      "a#1": ["index","position in the list of 69 start wave choices"],
+      "t": ["wave","inferred: 1 + index; label \"69 · TzKal-Zuk\", key \"infernoStartWave\""],
+      "e#4": ["debugAction","element of the Inferno debug actions, spread into debugActions"],
+      "a#2": ["commandType","assigned debugAction.command.type"],
+      "e#5": ["debugAction","element of zukControls.debugActions"]
+    }
+  },
+  "bat.js": {
+    "jG": {
+      "t": ["noAttack","same value sol-heredit/minions.js calls noAttack"],
+      "n": ["target","passed as { target }; result of xG, the actor's current target"],
+      "s": ["distance","inferred: tiles between the bat's and the target's south-west tiles, the larger of the x and y differences"],
+      "r": ["endDelayCycles","NG stores its fourth argument as { endDelayCycles }"],
+      "i": ["plan","passed as { plan } to rollNpcAttack and as bT's plan"],
+      "l": ["npcAttack","stored under { npcAttacks }; same name in sol-heredit/minions.js"]
+    }
+  },
+  "blob.js": {
+    "OG": {
+      "e": ["projectile","stored as { projectile }"],
+      "a": ["maxHit","stored as { maxHit }"]
+    },
+    "$G": {
+      "e": ["projectile","stored as { projectile }"],
+      "a": ["maxHit","stored as { maxHit }"]
+    },
+    "VG": {
+      "e": ["maxHit","stored as { maxHit }"]
+    },
+    "qG": {
+      "e": ["actor","stored as { actorId: actor.id }; called with the tick hook's actor"],
+      "a": ["target","stored as { targetId: target.id }"],
+      "t": ["context","called with the tick hook's context"],
+      "n": ["activePrayer","read from target.activePrayer"],
+      "s": ["decisionKey","inferred: first argument of decisions.chance; InfernoEncounter.js passes the same shape as { decisions, key: { site, tick, actorId } }"]
+    },
+    "ZG": {
+      "e#1": ["actor","passed as { actor } and { attacker }; called with the hook's actor"],
+      "a#1": ["style","called with pendingRelease.style"],
+      "t": ["context","called with the hook's context"],
+      "n#1": ["duringDeathAnimation","inferred: true only when called from the releaseOnDeathAnimation hook"],
+      "s": ["noAttack","as noAttack in client/encounters/sol-heredit/minions.js tick"],
+      "r": ["target","passed as { target }"],
+      "e#2": ["actor","called with the outer actor"],
+      "a#2": ["context","called with the outer context"],
+      "targetId5": ["targetId","read from actor.combat.targetId"],
+      "n#2": ["target","inferred: the actor that combat.targetId names, returned as the target"],
+      "e#3": ["player","element of world.getPlayers()"],
+      "i": ["projectileSource","inferred: the blob's footprint at its previous position; NG passes it to getProjectileSourcePosition"],
+      "l": ["attackProfile","inferred: the KG entry of the style (clipId, sound, projectile, plan); jad.js calls the same thing execution.profiles[style]"],
+      "projectile2": ["projectile","read from attackProfile.projectile"],
+      "d": ["halfSize","inferred: Math.floor(size / 2), the offset pT uses for an actor's centre"],
+      "g": ["distance","inferred: tiles from the blob's centre at its previous position to the target, as pT computes"],
+      "c": ["projectileArrivalCycles","stored as { projectileArrivalCycles }"],
+      "projectile": ["projectileTiming","OG and $G store projectile.timing under plan.projectile; left out of the rolled plan"],
+      "h": ["planWithoutProjectile","inferred: attackProfile.plan without its projectile timing"],
+      "f": ["npcAttack","returned as { npcAttacks: [...] }; as npcAttack in sol-heredit minions.js"],
+      "u": ["projectileVisual","inferred: built by NG, element of the inferno_visual event's projectiles"]
+    },
+    "YG": {
+      "pendingRelease2": ["pendingRelease","read from actor.state.pendingRelease"],
+      "e": ["actor","called with the tick hook's actor"],
+      "a": ["context","called with the tick hook's context"],
+      "t#1": ["noAttack","as noAttack in client/encounters/sol-heredit/minions.js tick"],
+      "state3": ["state","read from actor.state"],
+      "pendingRelease3": ["pendingRelease","read from state.pendingRelease"],
+      "r": ["target","passed as { target }"],
+      "t#2": ["npcAttack","returned as { npcAttacks: [...] }; as npcAttack in sol-heredit minions.js"]
+    },
+    "JG": {
+      "t#1": ["noAttack","as noAttack in client/encounters/sol-heredit/minions.js tick"],
+      "n#1": ["target","passed on as the { target } of the attack"],
+      "s#1": ["attackProfile","inferred: the XG entry of the small blob's species (clipId, sound, projectile, plan)"],
+      "e": ["actor","called with the tick hook's actor; passed as { actor } and { attacker }"],
+      "a": ["target","passed as { target }"],
+      "t#2": ["attackProfile","called with the outer attackProfile"],
+      "n#2": ["context","called with the tick hook's context"],
+      "s#2": ["attackSpeed","jad.js passes actor.combat.attackSpeed in the same zG argument; waveMonsters.js sets combat.attackSpeed = 4 for these blobs"],
+      "r": ["npcAttack","returned as { npcAttacks: [...] }; as npcAttack in sol-heredit minions.js"],
+      "i": ["projectiles","passed as { projectiles }"]
+    }
+  },
+  "meleer.js": {
+    "jH": {
+      "e": ["actor","callers pass the hook's actor; its .targetableFromTick is deleted"]
+    },
+    "hU": {
+      "e#1": ["dy","second element of the [dx, dy] offset built"],
+      "a#1": ["dx","first element of the [dx, dy] offset built"],
+      "e#2": ["dx","first element of an offset; uU subtracts it from the target's x"],
+      "a#2": ["dy","second element of an offset; uU subtracts it from the target's y"]
+    },
+    "fU": {
+      "e": ["actor","stored as { actorId: actor.id }; callers pass the meleer actor"],
+      "a": ["clipId","stored as { clipId }"],
+      "t": ["context","read .tickEvents; callers pass the hook's context"]
+    },
+    "uU": {
+      "e#1": ["actor","the move hook passes its actor"],
+      "a#1": ["context","the move hook passes its context; .tick .world"],
+      "state5": ["state","read from actor.state"],
+      "n#1": ["dig","read from state.dig"],
+      "s#1": ["digUpTile","inferred: tile the meleer comes up at, stored as its position before the dig_up animation"],
+      "e#2": ["actor","same object as the outer actor"],
+      "a#2": ["targetTile","read from dig.target, the player's tile stored when the meleer dug down"],
+      "t#1": ["canDigUpAt","inferred: whether the size 4 meleer fits with its south-west corner on a tile"],
+      "e#3": ["tile","passed as UG's tile"],
+      "e#4": ["dx","first element of an hU offset"],
+      "n#2": ["dy","second element of an hU offset"],
+      "s#2": ["candidateTile","inferred: the target tile minus one of the preferred offsets, tested with canDigUpAt"],
+      "e#5": ["distance","inferred: distance in tiles between the target tile and the footprint tried, rings 1 to 8"],
+      "n#3": ["y","second coordinate of the [x, y] tile tried"],
+      "s#3": ["x","first coordinate of the [x, y] tile tried"],
+      "r#1": ["gapX","inferred: tiles between the target tile and the 4-wide footprint along x"],
+      "i#1": ["gapY","inferred: tiles between the target tile and the 4-high footprint along y"],
+      "lastAttackTick2": ["lastAttackTick","read from actor.combat.lastAttackTick"],
+      "r#2": ["digIntervalTicks","decision site inferno.meleer.dig_interval; added to context.tick for state.nextDigCheckTick"],
+      "e#6": ["actor","same object as the outer actor"],
+      "a#3": ["tick","stored as { tick }; caller passes context.tick"],
+      "t#2": ["context","same object as the outer context"],
+      "n#4": ["decisionKey","inferred: the { site, tick, actorId } key of the labelled decision"],
+      "i#2": ["player","= context.world.getPlayer()"],
+      "l": ["buriedActor","inferred: the actor again, parameter of an inlined setter of targetableFromTick; the meleer that just dug down"],
+      "o": ["targetableFromTick","stored as actor.targetableFromTick"]
+    },
+    "vU": {
+      "t#1": ["wasDugDown","inferred: state.dig was set before this tick's dig step ran"],
+      "t#2": ["noAttack","same value sol-heredit/minions.js calls noAttack"],
+      "n": ["target","passed as { target }; result of xG, the actor's current target"],
+      "s": ["npcAttack","stored under { npcAttacks }; same name in sol-heredit/minions.js"]
+    }
+  },
+  "nibbler.js": {
+    "pU": {
+      "n": ["player","= context.world.getPlayer()"]
+    },
+    "kU": {
+      "e#1": ["hook","the NPC definition's move hook argument { actor, config, context }"],
+      "e#2": ["hook","the NPC definition's tick hook argument { actor, config, context }"],
+      "n": ["noAttack","same value sol-heredit/minions.js calls noAttack"],
+      "s": ["target","passed as { target }; result of pU, the wave target (a pillar) or the player"],
+      "r": ["npcAttack","stored under { npcAttacks }; same name in sol-heredit/minions.js"]
+    }
+  },
+  "mager.js": {
+    "WG": {
+      "e": ["npc","read .npcTypeId; 7703 and 7699 are the mager ids in actors.js"]
+    },
+    "RG": {
+      "e": ["npc","read .npcTypeId; 7702 and 7698 are the ranger ids in actors.js"]
+    },
+    "PG": {
+      "e#1": ["attackers","inferred: MU passes [actor], zukFight passes the set's mager and ranger; each is turned to face the target"],
+      "a": ["target","MU passes its target; passed to buildActorVisualTarget and stored as { target }"],
+      "t#1": ["attacker","element of attackers"],
+      "t#2": ["magerProjectiles","stored under { projectiles }; built from the attackers WG (mager ids) keeps"],
+      "e#2": ["mager","element of attackers filtered by WG (mager npc type ids)"],
+      "n#1": ["rangerProjectiles","stored under { projectiles }; built from the attackers RG (ranger ids) keeps"],
+      "e#3": ["ranger","element of attackers filtered by RG (ranger npc type ids)"],
+      "t#3": ["facingRadians","inferred: ranger.facing (2048 units a turn) snapped to eighths and converted to radians"],
+      "n#2": ["facingDx","inferred: x step of the direction the ranger faces; FG stores facing as atan2(-dx, -dy)"],
+      "s": ["facingDy","inferred: y step of the direction the ranger faces; FG stores facing as atan2(-dx, -dy)"],
+      "r": ["forwardTiles","inferred: tiles in front of the centre the arrows start from, 2 when facing along an axis, 1 on a diagonal"],
+      "i": ["rangerCentre","inferred: getProjectileSourcePosition gives the middle of the ranger's footprint"],
+      "l": ["endDelayCycles","stored as { endDelayCycles }"],
+      "e#4": ["side","inferred: -1 and 1, the two arrows leave left and right of the facing direction"],
+      "e#5": ["attacker","element of attackers; stored as { actorId: attacker.id }"],
+      "e#6": ["projectile","element of magerProjectiles, which is stored under { projectiles }"]
+    },
+    "AU": {
+      "e#1": ["world","caller passes context.world; .getPlayer() .getNpcs()"],
+      "a": ["tile","passed as UG's tile; stored as the footprint's { position }"],
+      "t": ["size","stored as { size }"],
+      "n": ["footprint","inferred: { position, size } tested for overlap with the player and NPCs"],
+      "s": ["player","= world.getPlayer()"],
+      "e#2": ["npc","element of world.getNpcs()"]
+    },
+    "LU": {
+      "e#1": ["actor","MU passes the hook's actor"],
+      "a#1": ["resurrection","the tick hook passes config.resurrection; .eligibleCorpses .revive"],
+      "t#1": ["context","MU passes the hook's context; .tick .tickEvents"],
+      "n#1": ["corpses","= resurrection.eligibleCorpses(); the encounter returns this.corpses"],
+      "s#1": ["decisions","DM returns context.decisions"],
+      "r": ["decisionKey","inferred: { tick, actorId } shared by this function's labelled decisions, each adds its site"],
+      "i": ["corpse","decision site inferno.mager.rez.corpse; element of corpses"],
+      "size3": ["size","read from TC(corpse.species).size"],
+      "o": ["reviveTiles","inferred: tiles of the central area where the revived monster's footprint is free; one is chosen at site inferno.mager.rez.tile"],
+      "e#2": ["context","same object as the outer context"],
+      "a#2": ["size","same value as the outer size"],
+      "t#2": ["reviveTiles","returned as the outer reviveTiles"],
+      "n#2": ["y","second coordinate of the [x, y] tile passed to AU"],
+      "s#2": ["x","first coordinate of the [x, y] tile passed to AU"],
+      "d": ["reviveTile","decision site inferno.mager.rez.tile; passed to resurrection.revive as the position"],
+      "g": ["graphicTile","stored as the spot animation's tile target { kind: 'tile', position }"]
+    },
+    "MU": {
+      "t": ["attackChoices","passed as { choices }; callers pass the weighted { attack, weight, plan } lists"],
+      "n": ["resurrection","the tick hook passes config.resurrection; passed as LU's resurrection"],
+      "s": ["noAttack","same value sol-heredit/minions.js calls noAttack"],
+      "r#1": ["target","passed as { target }; result of xG, the actor's current target"],
+      "i": ["chosenAttack","inferred: the { attack, weight, plan } choice picked at site npc.attack.select"],
+      "e#1": ["selection","inferred: the argument of the inlined attack selector, { attacker, target, choices, random, decisions, tick }"],
+      "r#2": ["usableChoices","inferred: choices with a positive weight whose plan reaches the target"],
+      "e#2": ["choice","element of choices"],
+      "e#3": ["choice","element of usableChoices"],
+      "o": ["npcAttack","stored under { npcAttacks }; same name in sol-heredit/minions.js"],
+      "d": ["projectileArrivalCycles","stored as { projectileArrivalCycles }"]
+    },
+    "IU": {
+      "e": ["hook","the NPC definition's tick hook argument { actor, config, context }"]
+    },
+    "xU": {
+      "e": ["baseActor","callers pass the result of IC; same name in yama and sol-heredit for the actor given to createActor"],
+      "a": ["spawn","inferred: the spawn description BU and WU receive; read .spawnTick .initialTargetId"]
+    },
+    "BU": {
+      "e": ["spawn","passed as xU's spawn; read .id .position .spawnTick .initialDelayTicks"],
+      "a": ["baseActor","passed to IU.createActor; same name in yama and sol-heredit"]
+    }
+  },
+  "ranger.js": {
+    "CU": {
+      "e": ["hook","the NPC definition's tick hook argument { actor, config, context }"]
+    },
+    "WU": {
+      "e": ["spawn","passed as xU's spawn; read .id .position .spawnTick .initialDelayTicks"],
+      "a": ["variantProfile","inferred: LC[spawn.variant], the zuk or ordinary ranger's { identity, attackRange, attackSpeed }"],
+      "t": ["baseActor","passed to CU.createActor; same name in yama and sol-heredit"]
+    }
+  },
+  "jad.js": {
+    "zT": {
+      "e": ["actor","called as zT(actor, target) in selectStyle"],
+      "a": ["target","called as zT(actor, target) in selectStyle"]
+    },
+    "BG": {
+      "e#1": ["actor","stored as { actorId: actor.id }; called with the tick hook's actor"],
+      "a": ["target","passed to buildActorVisualTarget; the Jad tick passes its attack target"],
+      "t#1": ["style","error string 'Unknown demonstration style'; called with command.style"],
+      "n#1": ["animations","stored as { animations }"],
+      "t#2": ["distance","inferred: pT(actor, target), tiles from the actor's centre to the target"],
+      "n#2": ["projectilePart","inferred: one of the three spot animations (448, 449, 450) that make up the magic projectile"],
+      "e#2": ["unknownStyle","error string 'Unknown demonstration style'"]
+    },
+    "tU": {
+      "e": ["actor","called as tU(actor, context)"],
+      "a": ["context","called as tU(actor, context)"],
+      "t": ["supportTarget","world.getNpc(actor.state.supportTargetId)"]
+    },
+    "nU": {
+      "e": ["actor","called as nU(actor)"]
+    },
+    "sU": {
+      "t": ["player","context.world.getPlayer()"],
+      "n#1": ["supportTarget","returned by tU: world.getNpc(actor.state.supportTargetId)"],
+      "n#2": ["supportTarget","returned by tU: world.getNpc(actor.state.supportTargetId)"],
+      "s": ["actionDue","inferred: yG, context.tick has reached combat.nextActionTick"],
+      "r": ["player","context.world.getPlayer()"],
+      "i": ["meleePlan","passed as { plan }; built from config.melee"],
+      "l": ["npcAttack","returned as { npcAttacks: [...] }; as npcAttack in sol-heredit minions.js"]
+    },
+    "rU": {
+      "e": ["healerSetup","inferred: the values the Jad healer actor is built from, like bossSetup in Yama createNpcs"],
+      "a": ["baseActor","first argument of sU.createActor; as baseActor in Yama createNpcs"]
+    },
+    "iU": {
+      "n": ["decisionKey","inferred: first argument of decisions.choose; InfernoEncounter.js passes the same shape as { decisions, key: { site, tick, actorId } }"],
+      "s": ["oneThird","inferred: 1 / 3, the weight of each of the three styles in melee range"]
+    },
+    "dU": {
+      "t#1": ["npc","element of context.world.getNpcs()"],
+      "n#1": ["actionDue","inferred: yG, context.tick has reached combat.nextActionTick"],
+      "execution2": ["execution","read from config.execution"],
+      "r": ["initialDelayTicks","read from actor.state.initialDelayTicks ?? execution.initialDelayTicks"],
+      "i": ["pendingTargetId","read from actor.state.pendingAttack.targetId"],
+      "l": ["target","passed as { target }"],
+      "e#1": ["player","element of world.getPlayers()"],
+      "t#2": ["style","stored as { style }; returned by execution.selectStyle"],
+      "n#2": ["profile","element of execution.profiles"],
+      "pendingAttack2": ["pendingAttack","read from actor.state.pendingAttack"],
+      "attack2": ["attack","read from execution.profiles[style].attack"],
+      "g": ["npcAttack","returned as { npcAttacks: [...] }; as npcAttack in sol-heredit minions.js"],
+      "t#3": ["magicVisual","inferred: the animations, graphics and projectiles BG builds; emitted as an inferno_visual event"],
+      "e#2": ["projectile","element of magicVisual.projectiles"],
+      "impactDelayTicks2": ["impactDelayTicks","read from npcAttack.impactDelayTicks"]
+    },
+    "gU": {
+      "e": ["npc","engine: encounter.removeNpcIfDue(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.removeNpcIfDue(npc, tickContext, mechanics)"],
+      "state4": ["jadState","dU.getState(npc), dU being the inferno-jad definition; as bossState in Yama getSnapshot"]
+    },
+    "cU": {
+      "e": ["jadSetup","inferred: the values the Jad actor is built from, like bossSetup in Yama createNpcs"],
+      "a": ["baseActor","first argument of dU.createActor; as baseActor in Yama createNpcs"]
+    }
+  },
+  "waveMonsters.js": {
+    "PU": {
+      "e#1": ["npc","engine: encounter.removeNpcIfDue(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.removeNpcIfDue(npc, tickContext, mechanics)"],
+      "t": ["spawnSplit","inferred: called for each of splits; the encounter passes a function that spawns the small blob with origin 'split'"],
+      "n": ["removalDelayTicks","inferred: ticks after deathAnimationTick at which the NPC is despawned"],
+      "s": ["splits","returned as { splits }"],
+      "e#2": ["npc","called with the outer npc"],
+      "r": ["blob","inferred: the npc once it is known to have npcTypeId aH.blob"],
+      "e#3": ["split","element of splits"]
+    },
+    "_U": {
+      "e#1": ["species","error string 'Unknown Inferno wave species'; stored as { species }"],
+      "a#1": ["monsterSetup","inferred: the values the monster actor is built from (id, position, spawnTick, targetId, origin), like bossSetup in Yama createNpcs"],
+      "t#1": ["npc","inferred: the NPC actor created for the species"],
+      "e#2": ["species","error string 'Unknown Inferno wave species'; stored as { species }"],
+      "a#2": ["monsterSetup","called with the outer monsterSetup"],
+      "t#2": ["npcId","destructured from monsterSetup.id; passed as the NPC actor's id"],
+      "i": ["resurrected","passed as { resurrected }"],
+      "l": ["initialDelayOverride","inferred: spread into the setup, { initialDelayTicks } for a resurrected monster and nothing otherwise"],
+      "e#3": ["nibblerSetup","inferred: the values the nibbler actor is built from"],
+      "a#3": ["baseActor","first argument of kU.createActor; as baseActor in Yama createNpcs"],
+      "e#4": ["batSetup","inferred: the values the bat actor is built from"],
+      "a#4": ["baseActor","first argument of jG.createActor; as baseActor in Yama createNpcs"],
+      "e#5": ["blobSetup","inferred: the values the blob actor is built from"],
+      "a#5": ["baseActor","first argument of YG.createActor; as baseActor in Yama createNpcs"],
+      "e#6": ["blobChildSetup","inferred: the values a small blob actor is built from; blob.js gives them npcKind 'blob_child'"],
+      "a#6": ["baseActor","first argument of JG.createActor; as baseActor in Yama createNpcs"],
+      "t#3": ["firstActionTick","stored as { firstActionTick }"],
+      "e#7": ["meleerSetup","inferred: the values the meleer actor is built from"],
+      "a#7": ["baseActor","first argument of vU.createActor; as baseActor in Yama createNpcs"],
+      "e#8": ["unknownSpecies","error string 'Unknown Inferno wave species'"]
+    },
+    "bj": {
+      "e": ["species","passed as _U's species"],
+      "a": ["npcId","destructured from .id; passed as the NPC actor's id"]
+    },
+    "yj": {
+      "e#1": ["npcId","destructured from .id; passed as the NPC actor's id"],
+      "n": ["jadTiming","inferred: destructured from .jad, which waves.js fills with { openingDelayTicks, rangedMagicPeriod }"],
+      "e#2": ["npcId","destructured from .id; error string 'Jad healer ... needs a parent'"]
+    }
+  },
+  "zuk.js": {
+    "EU": {
+      "e": ["glyph","inferred: the inferno-glyph actor; zukFight.js holds it as this.glyph"],
+      "a": ["config","NU.move passes its hook's config"],
+      "t": ["tick","NU.move passes context.tick"],
+      "n": ["endpointTile","read from config.endpoints[glyph.state.targetEndpoint]"],
+      "s": ["nextTile","inferred: tile one step towards the endpoint; stored as path: [nextTile]"],
+      "r": ["reachesEndpoint","inferred: the step lands on the endpoint tile"]
+    },
+    "NU": {
+      "n": ["patrolStep","inferred: EU's { movement, state } for this tick, null while the glyph pauses"]
+    },
+    "GU": {
+      "e": ["glyphSetup","inferred: { id, position, spawnTick, targetEndpoint }, like bossSetup in Yama createNpcs"]
+    },
+    "KU": {
+      "n": ["noAttack","as noAttack in client/encounters/sol-heredit/minions.js"],
+      "s": ["glyph","world.getNpc(actor.state.glyphId)"],
+      "r#1": ["liveGlyph","inferred: the glyph while it is alive, else null"],
+      "i#1": ["player","world.getPlayer()"],
+      "l#1": ["targetsPlayer","result of config.targetsPlayer, true without a glyph"],
+      "o": ["blastTarget","stored as { attack: 'zuk_blast', targetId: blastTarget.id }"],
+      "d": ["projectileArrivalCycles","stored as { projectileArrivalCycles }"],
+      "g": ["impactDelayTicks","stored as { impactDelayTicks }"],
+      "c": ["formulaStats","error string 'Zuk requires formula stats'"],
+      "m": ["blastRoll","inferred: accuracy and damage rolled for the zuk_blast"],
+      "e": ["rollOptions","inferred: { attacker, target, targetEquipmentStats, targetPrayerMultipliers, random } for the roll"],
+      "r#2": ["targetPrayerMultipliers","read from rollOptions.targetPrayerMultipliers"],
+      "i#2": ["accuracy","stored as { accuracy }"],
+      "l#2": ["maxHit","stored as { maxHit }"]
+    },
+    "qU": {
+      "e": ["state","called with actor.state"],
+      "a": ["tick","called with context.tick"]
+    },
+    "YU": {
+      "e": ["state","called with actor.state"],
+      "a": ["tick","called with context.tick"]
+    }
+  },
+  "zukSetClock.js": {
+    "XU.advance": {
+      "e": ["bossHp","zukFight.js passes this.boss.vitals.hp"],
+      "a": ["jadSpawned","zukFight.js passes this.boss.state.jadSpawned"],
+      "t": ["setsEnabled","inferred: zukFight.js passes mechanics.zukSets !== false"],
+      "clock2": ["clock","read from this.clock"],
+      "s": ["remainingAfterTick","inferred: clock.remaining less this tick when sets are enabled"],
+      "r": ["remaining","stored as { remaining }"]
+    },
+    "XU.getSnapshot": {
+      "e": ["setsActive","inferred: zukFight.js passes mechanics.zukSets !== false && boss alive"],
+      "clock3": ["clock","read from this.clock"]
+    },
+    "JU": {
+      "e": ["clock","error string 'Unknown Zuk clock'"]
+    }
+  },
+  "zukHealers.js": {
+    "_G": {
+      "e#1": ["healers","inferred: zukFight.js passes the 'healer' actors and the tick hook of inferno-healer passes [actor]"],
+      "a": ["target","passed to buildActorVisualTarget; called with the heal's target"],
+      "t": ["healer","element of healers"],
+      "e#2": ["healer","element of healers"],
+      "e#3": ["healer","element of healers"]
+    },
+    "UU": {
+      "pendingHeals2": ["pendingHeals","read from actor.state.pendingHeals"],
+      "s": ["pendingHeal","element of actor.state.pendingHeals"],
+      "e": ["target","world.getNpc(pendingHeal.targetId)"],
+      "n#1": ["lastIncomingAttackTick","read from actor.combat.retaliation.lastIncomingAttackTick"],
+      "n#2": ["target","passed as { target }"],
+      "a": ["player","element of world.getPlayers()"],
+      "n#3": ["supportTarget","world.getNpc(actor.state.supportTargetId)"]
+    },
+    "QU": {
+      "source": ["sourceTile","zukFight.js castSparks passes the healer's position"],
+      "player": ["playerTile","zukFight.js castSparks passes the target's position, a tile and not the player actor"],
+      "n#1": ["dx","coordinate: player x minus healer x"],
+      "s#1": ["columnShift","inferred: the three spark columns move two tiles toward a player three or more tiles to the side"],
+      "r#1": ["centreX","inferred: x of the middle spark column"],
+      "i": ["playerTargeted","inferred: set once one spark of the volley has been put on the player's tile"],
+      "l#1": ["createSpark","inferred: builds one element of the array stored as { sparks }"],
+      "n#2": ["columnX","inferred: x of the column the spark falls in"],
+      "s#2": ["targetsPlayer","inferred: this spark lands on the player's own tile"],
+      "r#2": ["landingTile","stored as the spark's { position }, where its landing graphic plays"],
+      "l#2": ["damageAmount","stored as { amount }; resolve reads it back as baseDamage"],
+      "o": ["slope","stored as { slope }"],
+      "d": ["landingDelayCycles","stored as landing.delayCycles"],
+      "g": ["sourcePosition","stored as { sourcePosition }"]
+    },
+    "ej.emit": {
+      "e#1": ["sparkVolley","zukFight.js passes the command of type 'emit-spark-volley'; read as .sparks"],
+      "a": ["tick","called with context.tick; stored as { tick: tick + 3 }"],
+      "t": ["sparks","read from sparkVolley.sparks"],
+      "e#2": ["spark","stored as { spark }"],
+      "n": ["projectiles","returned as { projectiles }"],
+      "e#3": ["spark","element of sparks"]
+    },
+    "ej.resolve": {
+      "e": ["context","engine: encounter.resolveHazards(tickContext, mechanics), passed on by zukFight.js resolveHazards"],
+      "a#1": ["dueSparks","inferred: the entries of this.pending whose tick is this tick"],
+      "a#2": ["pendingSpark","element of this.pending"],
+      "a#3": ["pendingSpark","element of this.pending"],
+      "t": ["landingGraphics","passed as { graphics }; built from spark.landing"]
+    }
+  },
+  "zukFight.js": {
+    "mj.constructor": {
+      "e": ["seed","stored as this.seed; InfernoEncounter passes this.runSeed"],
+      "a": ["randomSeed","inferred: seeds this.random and jadHealerDecisions; InfernoEncounter passes its run seed mixed with the attempt seed"],
+      "t": ["controlTick","stored as this.controlTick"],
+      "n": ["shieldStart","InfernoEncounter passes this.setup.zukShieldStart ('left' or 'right')"]
+    },
+    "mj.UM": {
+      "e#1": ["hasIntro","inferred: controlTick is 0 only when the run starts on wave 69; otherwise the wave-69 intro runs and the shield starts further north"],
+      "e#2": ["bossSetup","as bossSetup in client/encounters/yama/YamaEncounter.js createNpcs"],
+      "a": ["baseActor","as baseActor in Yama createNpcs; first argument of KU.createActor"]
+    },
+    "mj.jM": {
+      "e": ["shieldStart","InfernoEncounter passes setup.zukShieldStart"]
+    },
+    "mj.get OM": {
+      "e": ["npcId","InfernoEncounter passes each element to context.despawnNpc"]
+    },
+    "mj.resolveHazards": {
+      "e": ["context","engine: encounter.resolveHazards(tickContext, mechanics), forwarded by InfernoEncounter"]
+    },
+    "mj.prepareNpcBand": {
+      "e": ["context","engine: encounter.prepareNpcBand(tickContext, mechanics)"],
+      "a": ["mechanics","engine: encounter.prepareNpcBand(tickContext, mechanics)"]
+    },
+    "mj.processPostTick": {
+      "e": ["context","engine: encounter.processPostTick(postTickContext, mechanics)"],
+      "a": ["mechanics","engine: encounter.processPostTick(postTickContext, mechanics)"]
+    },
+    "mj.removeNpcIfDue": {
+      "e": ["npc","engine: encounter.removeNpcIfDue(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.removeNpcIfDue(npc, tickContext, mechanics)"],
+      "t": ["despawnDelayTicks","inferred: ticks after npc.deathAnimationTick at which this NPC type is despawned"]
+    },
+    "mj.moveNpc": {
+      "e": ["npc","engine: encounter.moveNpc(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.moveNpc(npc, tickContext, mechanics)"],
+      "t": ["definitions","InfernoEncounter passes this.definitions"],
+      "n": ["ticksSinceControl","inferred: tick relative to this.controlTick, negative during the wave-69 intro"]
+    },
+    "mj.VM": {
+      "e": ["context","called with the hook context; InfernoEncounter.VM forwards its own"]
+    },
+    "mj.KM": {
+      "e": ["request","as request in Yama getSnapshot; engine passes { tick, mechanics, world }"],
+      "a": ["liveGlyph","inferred: this.glyph while it and the boss are alive and registered in the world, else null"],
+      "t": ["nextGlyphTile","inferred: last path tile of the glyph's next patrol step; its x is stored as { shieldNextX }"]
+    },
+    "mj.qM": {
+      "e": ["context","called with the syncBossHp and enterBossHpPhase context"]
+    },
+    "mj.syncBossHp": {
+      "e": ["bossHp","engine: encounter.syncBossHp(bossHp, { world })"],
+      "a": ["context","inferred: the engine passes only { world: this.worldState }, a reduced tick context"],
+      "boss2": ["boss","read from this.boss"]
+    },
+    "mj.enterBossHpPhase": {
+      "e#1": ["bossHp","engine: encounter.enterBossHpPhase(bossHp, { tick, world, spawnNpc, despawnNpc })"],
+      "a": ["context","engine: encounter.enterBossHpPhase(bossHp, { tick, world, spawnNpc, despawnNpc })"],
+      "boss3": ["boss","read from this.boss"],
+      "n": ["player","world.getPlayer()"],
+      "e#2": ["npc","element of world.getNpcs()"]
+    },
+    "mj.onNpcDefeated": {
+      "e": ["defeat","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "a": ["context","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "t": ["completionOwnership","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "n": ["definitions","InfernoEncounter passes this.definitions"],
+      "s": ["completionActorIds","stored as { completionActorIds }"],
+      "r": ["npc","element of world.getNpcs()"]
+    },
+    "mj.executeCommand": {
+      "e#1": ["command","engine: encounter.executeCommand(command, { playerPos, tick, world, spawnNpc, despawnNpc }, this.mechanicsConfig)"],
+      "a": ["context","engine: encounter.executeCommand(command, { playerPos, tick, world, spawnNpc, despawnNpc }, this.mechanicsConfig)"],
+      "boss4": ["boss","read from this.boss"],
+      "n": ["visual","stored in a game event of type 'inferno_visual'; as visual in sol-heredit emitColosseumVisual"],
+      "e#2": ["jad","the living dU (inferno-jad) actor, or the result of this.spawnJad"],
+      "e#3": ["npc","element of world.getNpcs()"],
+      "e#4": ["previousGlyphId","read from this.glyph.id before the glyph is replaced"],
+      "t#1": ["npc","element of world.getNpcs()"],
+      "t#2": ["player","world.getPlayer()"],
+      "e#5": ["x","coordinate of the healer tile [x, 51]"]
+    },
+    "mj.castSparks": {
+      "e": ["healer","inferred: the Zuk healer; zukHealers.js tick hook calls config.castSparks({ actor, target, context })"],
+      "a": ["target","zukHealers.js: config.castSparks({ actor, target, context })"],
+      "t": ["context","zukHealers.js: config.castSparks({ actor, target, context })"],
+      "n": ["visual","passed to Gx, which emits it as type 'inferno_visual'"]
+    },
+    "mj.spawnJad": {
+      "e": ["bossId","called with boss.id (executeCommand) and Zuk's actor.id (zuk.js config.spawnJad)"],
+      "a": ["context","zuk.js: config.spawnJad(actor.id, context)"],
+      "t": ["boss","world.getNpc(bossId); held as this.boss"],
+      "n": ["bossState","KU.getState(boss), as bossState in Yama getSnapshot"],
+      "s": ["jad","created with id this.YM('jad')"]
+    },
+    "mj.spawnHealers": {
+      "e#1": ["bossId","called with boss.id (executeCommand) and Zuk's actor.id (zuk.js config.spawnHealers); stored as { supportTargetId }"],
+      "a#1": ["context","zuk.js: config.spawnHealers(actor.id, context)"],
+      "t": ["x","coordinate of the healer tile [x, 51]"],
+      "n": ["healer","created with id this.YM('healer')"],
+      "e#2": ["healerSetup","inferred: { id, position, spawnTick, supportTargetId }, like bossSetup in Yama createNpcs"],
+      "a#2": ["baseActor","as baseActor in Yama createNpcs; first argument of UU.createActor"]
+    },
+    "mj.spawnJadHealers": {
+      "e#1": ["jadId","inferred: id of the Jad; stored as { parentId } and { actorId }, jad.js calls config.spawnHealers(actor.id, context)"],
+      "a#1": ["context","jad.js: config.spawnHealers(actor.id, context)"],
+      "t#1": ["jad","world.getNpc(jadId); its state is read through dU (inferno-jad)"],
+      "n#1": ["jadX","inferred: x of jad.position"],
+      "s": ["jadY","inferred: y of jad.position"],
+      "r": ["playerTile","read from world.getPlayer().position"],
+      "i": ["candidateTiles","inferred: tiles of the spawn rectangle south-east of Jad, without the player's tile"],
+      "e#2": ["x","coordinate of a candidate tile [x, y]"],
+      "a#2": ["y","coordinate of a candidate tile [x, y]"],
+      "l": ["walkableTiles","inferred: candidate tiles inside the arena bounds that pass isArenaTileWalkable"],
+      "e#3": ["x","coordinate of a tile [x, y]"],
+      "a#3": ["y","coordinate of a tile [x, y]"],
+      "o": ["jadHealers","created with id this.YM('jad_healer')"],
+      "t#2": ["spawnTile","stored as { position }"],
+      "n#2": ["jadHealer","created with id this.YM('jad_healer')"],
+      "state6": ["jadState","dU.getState(jad)"]
+    },
+    "mj.GM": {
+      "e": ["shieldStart","callers pass setup.zukShieldStart; compared with 'left' and 'right'"]
+    },
+    "mj.XM": {
+      "e#1": ["boss","called with this.boss"],
+      "a#1": ["context","called with the enterBossHpPhase and executeCommand context"],
+      "glyph2": ["glyph","read from this.glyph"],
+      "e#2": ["glyphSpawnTick","called with glyph.spawnTick"],
+      "a#2": ["openingDelayTicks","called with 13, the value UM stores as { openingDelayTicks }"],
+      "t": ["tick","called with context.tick"],
+      "n": ["openingCastTick","inferred: glyph spawn tick plus the opening delay, the first cast of a fight that starts then"]
+    },
+    "mj.YM": {
+      "e": ["kind","QM passes the same value to IC, which reads it as kind"]
+    },
+    "mj.QM": {
+      "e": ["kind","passed to IC, which reads a string first argument as the kind"],
+      "a": ["spawnTile","inferred: tile the demonstration NPC is created on, IC's position argument"],
+      "t": ["context","called with the executeCommand context"],
+      "n": ["npc","passed to context.spawnNpc"]
+    },
+    "mj.$M": {
+      "e": ["context","called with the processPostTick and executeCommand context"]
+    },
+    "mj.JM": {
+      "e": ["kind","'mager' or 'ranger'; mager.js and ranger.js store the same value as { kind }"],
+      "a": ["context","called with the hook context"],
+      "t": ["spawnSetup","inferred: { id, position, spawnTick, initialTargetId } shared by both set monsters, like bossSetup in Yama createNpcs"],
+      "n": ["minion","inferred: IC gives the set's mager and ranger role 'minion'"]
+    },
+    "mj.ZM": {
+      "e": ["context","called with the hook context"],
+      "a": ["npcTypeIds","executeCommand reports the same list as { npcTypeIds }; matched against npc.npcTypeId"],
+      "t": ["npc","element of world.getNpcs()"]
+    },
+    "hj": {
+      "e": ["command","error string 'Unknown Zuk command'"]
+    }
+  },
+  "InfernoEncounter.js": {
+    "Aj": {
+      "e": ["wave","called with this.wave and setup.startWave; compared with 69"]
+    },
+    "Mj": {
+      "e": ["x","inferred: tile coordinates, passed as isOpen(x, y) and to hasFlag(x, y, flag)"],
+      "a": ["y","inferred: tile coordinates, passed as isOpen(x, y) and to hasFlag(x, y, flag)"]
+    },
+    "Tj.constructor": {
+      "e#1": ["runSeed","stored as { runSeed } and this.runSeed"],
+      "a#1": ["options","inferred: only .decisionRandom is read; the factory's error string calls them constructor options"],
+      "t#1": ["getZukFight","inferred: returns this.zuk through this.eT(), which throws before wave 69"],
+      "n": ["presentParentHeal","wraps this.presentParentHeal; registered as { presentHeal }"],
+      "s": ["services","assigned this.services"],
+      "r": ["waveMonsterServices","inferred: the { getWaveTarget, resurrection } part of this.services that the wave monsters' definitions take"],
+      "e#2": ["context","nibbler.js: config.getWaveTarget(context)"],
+      "e#3": ["corpse","element of this.corpses; mager.js passes the corpse chosen at site inferno.mager.rez.corpse"],
+      "a#2": ["spawnTile","mager.js passes the tile chosen at site inferno.mager.rez.tile; stored as { position }"],
+      "t#2": ["context","inferred: mager.js passes the object it reads .tick and .tickEvents from"],
+      "e#4": ["jadId","jad.js: config.spawnHealers(actor.id, context)"],
+      "a#3": ["context","jad.js: config.spawnHealers(actor.id, context)"],
+      "e#5": ["parent","its id is added to this.healedParents; jad.js passes the NPC the healer just healed"],
+      "a#4": ["context","jad.js: config.presentHeal(n, context)"],
+      "e#6": ["streamLabel","inferred: this.openStream is called with \"npc\", \"layout\", \"nibbler_target\""],
+      "a#5": ["wave","this.openStream is called with this.wave"],
+      "t#3": ["random","this.openStream is called with a createSeededRandom function"],
+      "e#7": ["pillarKey","pillars.js: config.collapse(actor.state.pillar, context), state.pillar holds pillar.key"],
+      "a#6": ["context","pillars.js: config.collapse(actor.state.pillar, context)"],
+      "e#8": ["parent","its id is added to this.healedParents; zukHealers.js passes the NPC the healer just healed"],
+      "a#7": ["context","zukHealers.js: config.presentHeal(e, context)"],
+      "e#9": ["zukId","zuk.js: config.spawnJad(actor.id, context)"],
+      "a#8": ["context","zuk.js: config.spawnJad(actor.id, context)"],
+      "e#10": ["zukId","zuk.js: config.spawnHealers(actor.id, context)"],
+      "a#9": ["context","zuk.js: config.spawnHealers(actor.id, context)"]
+    },
+    "Tj.getDefaultPlayerStart": {
+      "e": ["mechanics","engine: encounter.getDefaultPlayerStart(this.mechanicsConfig)"]
+    },
+    "Tj.getIntroConfig": {
+      "e": ["mechanics","engine: encounter.getIntroConfig(this.mechanicsConfig)"]
+    },
+    "Tj.configureRunStart": {
+      "e#1": ["mechanics","engine: encounter.configureRunStart(this.mechanicsConfig, this.buildRunStartContext())"],
+      "a": ["runStartContext","engine: encounter.configureRunStart(this.mechanicsConfig, this.buildRunStartContext())"],
+      "t": ["setup","stored as this.setup"],
+      "openedStage2": ["previousStage","read from this.openedStage before it is reassigned"],
+      "s": ["startStage","inferred: stage of setup.startWave; stored as this.openedStage"],
+      "e#2": ["npcId","engine: despawnNpc: (npcId)"],
+      "e#3": ["pillar","stored as { pillar }"],
+      "e#4": ["npc","engine: spawnNpc: (npc)"]
+    },
+    "Tj.reset": {
+      "e": ["seeds","engine: encounter.reset(recording.encounter.seeds)"],
+      "a": ["parsedSeeds","inferred: the seeds after the schema's parse; .runSeed .attemptSeed"]
+    },
+    "Tj.refineArenaConfig": {
+      "e": ["arenaConfig","engine: encounter.refineArenaConfig(arenaConfig)"]
+    },
+    "Tj.resolveHazards": {
+      "e": ["context","engine: encounter.resolveHazards(tickContext, mechanics)"]
+    },
+    "Tj.prepareNpcBand": {
+      "e": ["context","engine: encounter.prepareNpcBand(tickContext, mechanics)"],
+      "a": ["mechanics","engine: encounter.prepareNpcBand(tickContext, mechanics)"]
+    },
+    "Tj.removeNpcIfDue": {
+      "e#1": ["npc","engine: encounter.removeNpcIfDue(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.removeNpcIfDue(npc, tickContext, mechanics)"],
+      "t": ["removalTick","read from state.removeAt"],
+      "e#2": ["split","waveMonsters.js: element of { splits }; spawned with origin \"split\""]
+    },
+    "Tj.moveNpc": {
+      "e": ["npc","engine: encounter.moveNpc(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.moveNpc(npc, tickContext, mechanics)"]
+    },
+    "Tj.resolveNpcLocalEffects": {
+      "e": ["npc","engine: encounter.resolveNpcLocalEffects(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.resolveNpcLocalEffects(npc, tickContext, mechanics)"]
+    },
+    "Tj.processNpcTick": {
+      "e": ["npc","engine: encounter.processNpcTick(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.processNpcTick(npc, tickContext, mechanics)"]
+    },
+    "Tj.processPostTick": {
+      "e": ["context","engine: encounter.processPostTick(postTickContext, mechanics)"],
+      "a": ["mechanics","engine: encounter.processPostTick(postTickContext, mechanics)"]
+    },
+    "Tj.onNpcDefeated": {
+      "e#1": ["defeat","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "a": ["context","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "t": ["completionOwnership","engine: encounter.onNpcDefeated(defeat, tickContext, this.completionOwnership)"],
+      "n": ["combatant","read from this.combatants"],
+      "s": ["defeatedNpc","inferred: world.getNpc(defeat.npcId)"],
+      "r": ["species","stored as { species }"],
+      "e#2": ["npc","inferred: .npcTypeId is read"]
+    },
+    "Tj.getSnapshot": {
+      "e#1": ["request","inferred: the engine passes { tick, mechanics, world }; yama and sol-heredit call it request"],
+      "s": ["proxyNpc","inferred: world.getNpc(proxyId), the NPC standing in for the pillar"],
+      "e#2": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"]
+    },
+    "Tj.syncBossHp": {
+      "e": ["bossHp","engine: encounter.syncBossHp(bossHp, { world })"],
+      "a": ["context","engine: encounter.syncBossHp(bossHp, { world })"]
+    },
+    "Tj.enterBossHpPhase": {
+      "e": ["bossHp","engine: encounter.enterBossHpPhase(bossHp, { tick, world, spawnNpc, despawnNpc })"],
+      "a": ["context","engine: encounter.enterBossHpPhase(bossHp, { tick, world, spawnNpc, despawnNpc })"]
+    },
+    "Tj.getEngineRules": {
+      "e#1": ["hit","engine: encounterRules.onPlayerDamageTaken(hit, this.buildRulesContext())"],
+      "e#2": ["hit","engine: encounterRules.onPlayerDamageTaken(hit, this.buildRulesContext())"],
+      "a#1": ["playerStatDrains","stored as { playerStatDrains }"],
+      "e#3": ["skill","inferred: one of attack, strength, defence, ranged, magic"],
+      "e#4": ["attackKind","engine: encounterRules.validateAttack(attackKind, target.id, encounterContext)"],
+      "a#2": ["targetId","engine: encounterRules.validateAttack(attackKind, target.id, encounterContext)"],
+      "t": ["rulesContext","engine passes { tick, player, world }, the shape of buildRulesContext()"],
+      "n": ["targetNpcTypeId","read from .npcTypeId of the target NPC"],
+      "e#5": ["rulesContext","engine: resolveValueOrCallback(encounterRules.playerInputLocked, this.buildRulesContext())"]
+    },
+    "Tj.executeCommand": {
+      "e#1": ["command","engine: encounter.executeCommand(command, { playerPos, tick, world, ... }, this.mechanicsConfig)"],
+      "a": ["context","engine: encounter.executeCommand(command, { playerPos, tick, world, ... }, this.mechanicsConfig)"],
+      "e#2": ["command","the command, .encounter is read"]
+    },
+    "Tj.planPracticeRestart": {
+      "e#1": ["command","engine: encounter.planPracticeRestart(command, this.getMechanicsConfigWithoutRunOverride(), this.buildRestartContext())"],
+      "a#1": ["mechanics","engine: encounter.planPracticeRestart(command, this.getMechanicsConfigWithoutRunOverride(), this.buildRestartContext())"],
+      "t": ["restartContext","engine: encounter.planPracticeRestart(command, this.getMechanicsConfigWithoutRunOverride(), this.buildRestartContext())"],
+      "n#1": ["buildRestartPlan","inferred: returns { encounterSeeds, runMechanics, startPosition }"],
+      "e#2": ["startWave","stored under the infernoStartWave mechanics key"],
+      "n#2": ["keepRunSeed","inferred: true returns { encounterSeeds } with this.runSeed and a new attemptSeed"],
+      "s#1": ["mechanicsOverrides","inferred: spread into { runMechanics }"],
+      "r": ["keepPlayerPosition","inferred: false leaves { startPosition } out"],
+      "i#1": ["runMechanics","stored as { runMechanics }"],
+      "l#1": ["startPosition","stored as { startPosition }"],
+      "s#2": ["startSpawnLayout","the snapshot stores the same expression as { startSpawnLayout }"],
+      "spawnLayout2": ["configuredSpawnLayout","read from .spawnLayout of the setup parsed from mechanics"],
+      "i#2": ["spawnLayoutOverride","inferred: the infernoSpawnLayout entry that keeps the run's layout when mechanics has another"],
+      "l#2": ["configuredStartTileKey","inferred: \"x,y\" of .startTile of the setup parsed from mechanics for this wave"],
+      "o": ["startTileOverride","inferred: the infernoStartTile entry that keeps the run's start tile"],
+      "d": ["pinnedWaveOverride","inferred: the infernoPinnedWave entry for this wave"],
+      "g": ["isWavePinned","compares this.setup.pinnedWave with this.wave"],
+      "a#2": ["targetWave","read from command.wave of go-to-wave"],
+      "e#3": ["command","error string: Unknown Inferno command"]
+    },
+    "Tj.planRestartStart": {
+      "e": ["mechanics","engine: encounter.planRestartStart(this.getMechanicsConfigWithoutRunOverride(), this.buildRestartContext())"],
+      "a": ["restartContext","engine: encounter.planRestartStart(this.getMechanicsConfigWithoutRunOverride(), this.buildRestartContext())"]
+    },
+    "Tj.iT": {
+      "e#1": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"],
+      "e#2": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"]
+    },
+    "Tj.aT": {
+      "e": ["runSeed","assigned this.runSeed"],
+      "a": ["attemptSeed","assigned this.attemptSeed"]
+    },
+    "Tj.YM": {
+      "e": ["species","called with the species given to yj[species]; waveMonsters.js error string: Unknown Inferno wave species"]
+    },
+    "Tj.VM": {
+      "e": ["context","called with the hooks' context; sol-heredit builds definitionContext the same way"]
+    },
+    "Tj.sT": {
+      "e": ["mechanics","called with the hooks' mechanics; controls.js reads the mechanics keys from it"]
+    },
+    "Tj.nT": {
+      "e#1": ["setup","called with this.sT(mechanics), the value stored as this.setup"],
+      "arenaBase2": ["arenaBase","read from this.arenaBase"],
+      "e#2": ["x","inferred: tile coordinates, passed to hasFlag(x, y, flag)"],
+      "t": ["y","inferred: tile coordinates, passed to hasFlag(x, y, flag)"]
+    },
+    "Tj.hT": {
+      "e#1": ["mechanics","engine: encounter.planRestartStart(this.getMechanicsConfigWithoutRunOverride(), ...)"],
+      "a#1": ["playerPos","called with restartContext.playerPos"],
+      "s": ["playerX","first element of playerPos"],
+      "r": ["playerY","second element of playerPos"],
+      "i": ["defaultX","first element of this.getDefaultPlayerStart(mechanics)"],
+      "l": ["defaultY","second element of this.getDefaultPlayerStart(mechanics)"],
+      "e#2": ["pillar","element of the pillar table; .key is read"],
+      "e#3": ["x","inferred: coordinates of a tile under the pillar"],
+      "a#2": ["y","inferred: coordinates of a tile under the pillar"]
+    },
+    "Tj.lT": {
+      "e": ["context","inferred: the tick context prepareNpcBand received (.tick .tickEvents .spawnNpc .teleportPlayer)"],
+      "zukControlTick3": ["zukControlTick","read from this.zukControlTick"],
+      "t": ["introTickOffset","inferred: context.tick minus zukControlTick, negative during wave 69's intro"],
+      "a": ["npc","engine: spawnNpc: (npc)"]
+    },
+    "Tj.oT": {
+      "e": ["context","inferred: the tick context prepareNpcBand received (.tick .spawnNpc)"],
+      "a": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"],
+      "t": ["proxyNpc","its id is stored as pillarState.proxyId"]
+    },
+    "Tj.waveNibblerTarget": {
+      "e#1": ["world","called with context.world"],
+      "a": ["targetPillarState","inferred: the element of this.pillars whose key is this.waveNibblerPillar"],
+      "e#2": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"],
+      "t": ["proxyNpc","inferred: world.getNpc(proxyId), the NPC standing in for the pillar"]
+    },
+    "Tj.tT": {
+      "e#1": ["pillarKey","compared with pillar.key; pillars.js: config.collapse(actor.state.pillar, context)"],
+      "a#1": ["context","pillars.js: config.collapse(actor.state.pillar, context)"],
+      "t#1": ["removeAfterTicks","inferred: removeAt is context.tick plus this"],
+      "n#1": ["collapsingPillarState","inferred: the element of this.pillars with this key"],
+      "a#2": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"],
+      "r": ["collapseNpc","inferred: actor with archetypeId inferno_pillar_collapse"],
+      "i": ["collapseSetup","inferred: argument object of an inlined function that builds the collapse actor"],
+      "l": ["collapseHits","inferred: hits passed to context.queueNpcHit"],
+      "e#2": ["world","called with context.world"],
+      "a#3": ["pillar","called with the destructured pillar"],
+      "t#2": ["attackerId","stored as { attackerId }"],
+      "n#2": ["isNibbler","inferred: called with a test for combatant kind \"nibbler\""],
+      "e#3": ["npc","element of world.getNpcs()"],
+      "e#4": ["npc","element of world.getNpcs()"],
+      "a#4": ["pillarPosition","called with pillar.position"],
+      "t#3": ["pillarX","first element of pillar.position"],
+      "n#3": ["pillarY","second element of pillar.position"],
+      "e#5": ["nibbler","inferred: the NPCs left after the isNibbler filter"],
+      "e#6": ["npc","element of world.getNpcs()"],
+      "e#7": ["hit","inferred: passed to context.queueNpcHit"]
+    },
+    "Tj.gT": {
+      "e": ["species","key of the yj spawn table; waveMonsters.js error string: Unknown Inferno wave species"],
+      "a": ["spawnSetup","inferred: { position, origin, ... } spread into the species factory's argument"],
+      "t": ["context","inferred: the tick context (.tick .spawnNpc)"],
+      "n": ["npc","engine: spawnNpc: (npc)"]
+    },
+    "Tj.cT": {
+      "e#1": ["context","called with processPostTick's context"],
+      "a#1": ["intactPillarKeys","inferred: pillar.key of the elements of this.pillars that are intact"],
+      "e#2": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"],
+      "e#3": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"],
+      "wave2": ["wave","read from this.wave"],
+      "e#4": ["runSeed","called with this.runSeed"],
+      "a#2": ["wave","called with this.wave"],
+      "t": ["pillarKeys","called with the intact pillar keys"],
+      "n#1": ["openDecisions","inferred: turns a seeded random into a decision stream; called with a wrapper of this.openStream"],
+      "s#1": ["tick","stored as { tick }"],
+      "e#5": ["random","inferred: receives a createSeededRandom function"],
+      "n#2": ["waveSpawns","inferred: { kind, position, jad } entries from waves.js for this wave"],
+      "e#6": ["random","inferred: receives a createSeededRandom function"],
+      "s#2": ["spawnLayout","formatted into this.waveSpawnLayout like this.setup.spawnLayout"],
+      "r": ["isPillarDestroyed","stored as this.waveStartDestroyedPillars"],
+      "e#7": ["pillarKey","compared with pillar.key"],
+      "a#3": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"],
+      "i": ["player","world.getPlayer()"],
+      "a#4": ["spawn","inferred: element of the wave's spawns"]
+    },
+    "Tj.dT": {
+      "e": ["context","called with the hooks' context"],
+      "a#1": ["npcId","key of this.combatants, passed to world.getNpc"],
+      "a#2": ["pillarState","inferred: element of this.pillars, { pillar, intact, proxyId }"]
+    },
+    "Tj.revive": {
+      "e": ["corpse","element of this.corpses"],
+      "a#1": ["spawnTile","stored as { position }; mager.js passes the tile chosen at site inferno.mager.rez.tile"],
+      "t": ["context","inferred: mager.js passes the object it reads .tick and .tickEvents from"],
+      "a#2": ["otherCorpse","element of this.corpses"]
+    },
+    "Tj.spawnJadHealers": {
+      "e#1": ["jadId","jad.js: config.spawnHealers(actor.id, context); stored as { parentId }"],
+      "a#1": ["context","jad.js: config.spawnHealers(actor.id, context)"],
+      "t#1": ["jad","inferred: world.getNpc(jadId)"],
+      "e#2": ["jad","inferred: called with world.getNpc(jadId)"],
+      "a#2": ["healerCount","called with .healersPerJad"],
+      "player": ["playerTile","the caller passes world.getPlayer()?.position"],
+      "r": ["decisionKey","destructured key; { site, tick, actorId } passed to the decision stream"],
+      "i": ["jadX","first element of jad.position"],
+      "l": ["jadY","second element of jad.position"],
+      "o": ["centerOffset","inferred: from the south-west tile to the centre of Jad's footprint"],
+      "d": ["centerX","inferred: centre of Jad's footprint"],
+      "g": ["centerY","inferred: centre of Jad's footprint"],
+      "c": ["isFreeTile","inferred: open and not the player's tile"],
+      "e#3": ["x","inferred: tile coordinates"],
+      "a#3": ["y","inferred: tile coordinates"],
+      "m": ["minDistance","destructured key min"],
+      "h": ["maxDistance","destructured key max"],
+      "f": ["candidateTiles","inferred: free tiles in the distance band, chosen from by the decision stream"],
+      "e#4": ["x","inferred: tile coordinates"],
+      "a#4": ["y","inferred: tile coordinates"],
+      "t#2": ["distanceSquared","inferred: squared distance from the centre"],
+      "u": ["healerTiles","inferred: tiles returned for the healers to spawn on"],
+      "v": ["isTaken","inferred: whether healerTiles already has the tile"],
+      "e#5": ["x","inferred: tile coordinates"],
+      "a#5": ["y","inferred: tile coordinates"],
+      "t#3": ["takenX","inferred: coordinates of an element of healerTiles"],
+      "n#1": ["takenY","inferred: coordinates of an element of healerTiles"],
+      "t#4": ["ringDistance","inferred: distance in tiles from Jad's footprint, 1 to 8"],
+      "n#2": ["x","inferred: tile coordinates"],
+      "s": ["y","inferred: tile coordinates"],
+      "t#5": ["healerTile","stored as { position } of a jad_healer"]
+    },
+    "Tj.presentParentHeal": {
+      "e": ["parent","its id is added to this.healedParents"],
+      "a": ["context","jad.js: config.presentHeal(n, context)"]
+    }
+  }
+}

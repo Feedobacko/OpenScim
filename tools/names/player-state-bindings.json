@@ -1,0 +1,13 @@
+{
+  "engine/playerState.js": {
+    "JA": ["spellbookNames", "isSpellbook tests membership in it; its elements are the values of the `spellbook` field of the combat supplies"],
+    "QA": ["spellbookLabels", "Grid.js shows `[spellbook]` of it in \"No autocast spells on the ... spellbook.\"; application.js spreads it into the labels of the spellbook row"],
+    "tL": ["statNames", "application.js stores each element under the key `stat` of `{ stat, level, label }`; combatStatNames and decayingStatNames are parts of it"],
+    "nL": ["clampStatLevel", "application.js calls it with a stat and `skills.<stat>.level` and stores the results as `baseLevels`; \"clamp\" is inferred from the body (truncate, then the stat's min and max)"],
+    "sL": ["statLabels", "application.js stores `[stat]` of it under the key `label`"],
+    "rL": ["statLevelBounds", "application.js reads `[stat].min` and `[stat].max` of it for the level input; \"bounds\" is inferred"],
+    "iL": ["isValidStatLevel", "inferred: true for an integer within the stat's min and max; application.js falls back to the default stats when a level stored under \"osrs-player-stats\" fails it"],
+    "lL": ["getCombatLevel", "Grid.js shows the result after \"Combat Lvl: \", in the box `combatLevel`"],
+    "vL": ["createStatsFromLevels", "application.js calls it with `baseLevels` and stores the result as `stats`; the wording follows createDefaultStats"]
+  }
+}

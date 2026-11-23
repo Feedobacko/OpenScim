@@ -1,0 +1,198 @@
+{
+  "data/itemVariants.js": {
+    "(statement 1)": {
+      "t": ["variantId", "an element of the entry's `variantIds`"]
+    },
+    "getBaseItemId": {
+      "e": ["itemId", "the engine's callers pass `weaponId`, `itemId`, `headId` and `equippedItemId`: the id of an item of any slot"]
+    }
+  },
+  "data/monsters.js": {
+    "(statement 1)": {
+      "e": ["monster", "an entry of the monster table; stored in monsterByNpcTypeId"],
+      "a": ["npcTypeId", "an element of the entry's `ids`; the key of monsterByNpcTypeId"]
+    },
+    "_A": {
+      "e": ["npcTypeId", "Grid.js passes `npcTypeId`, application.js `sourceNpcTypeId`"]
+    }
+  },
+  "data/combatSpells.js": {
+    "qA": {
+      "e": ["spellName", "getSpellDefinition passes the spell's `name`; Grid.js and application.js pass a spell's `name`"]
+    },
+    "ZA": {
+      "e": ["spellbook", "compared with a spell's `spellbook`; Grid.js passes `spellbook`"],
+      "a": ["spell", "inferred: an element of the parsed spell list"]
+    },
+    "YA": {
+      "e#1": ["spellName", "looked up in the set of spell names and compared with a spell's `name`"],
+      "e#2": ["name", "compared with a spell's `name`"],
+      "a": ["spell", "inferred: an element of the parsed spell list"]
+    },
+    "getSpellDefinition": {
+      "e": ["spellName", "compared with a spell's `name`; playerAttack/launch.js passes `spellId` and `manualCastSpell`, getActiveSpell `selectedSpell`"],
+      "a#1": ["spell", "inferred: the element of the parsed spell list with that name"],
+      "a#2": ["candidate", "inferred: an element of the parsed spell list, tested by its name"],
+      "t": ["fixedHitDelay", "stored under `fixedHitDelay`"],
+      "n": ["multiTarget", "stored under `multiTarget`"]
+    }
+  },
+  "data/equipment.js": {
+    "(statement 1)": {
+      "e": ["entry", "inferred: an element of the parsed entries, read for `ids`, `name`, `slot`, `category`, `version`"],
+      "a": ["slot", "stored under `slot`; \"2h\" becomes \"weapon\""],
+      "t": ["itemId", "an element of the entry's `ids`; stored under `id`"]
+    },
+    "(statement 2)": {
+      "e": ["variantIdKey", "a key of the record getCanonicalEquipmentId answers from, turned into a number on the next line"],
+      "a": ["canonicalId", "the record's value for that key: what getCanonicalEquipmentId answers"],
+      "t": ["variantId", "the key as a number; pushed to the canonical id's list and stored under `id`"],
+      "n": ["variantIds", "the list kept under the canonical id, which the lookup of the variants returns"],
+      "s": ["canonicalDefinition", "the definition of the canonical id, copied for a variant that has none"]
+    },
+    "IL": {
+      "e": ["first", "inferred: the comparator's first definition"],
+      "a": ["second", "inferred: the comparator's second definition"]
+    },
+    "getEquipmentDefinition": {
+      "e": ["itemId", "the key of the Map, whose values carry it as `id`; playerAttack/projection.js passes `weapon`, the ammunition rules an ammunition id"]
+    },
+    "BL": {
+      "e": ["itemId", "passed to getEquipmentDefinition; Grid.js passes an item id"],
+      "a": ["cacheName", "Grid.js passes `objTypeLoader.load(itemId).name`; the cache's \"null\" counts as none"],
+      "t": ["fallbackName", "Grid.js passes `\"Item \" + itemId`; returned when neither has a name"]
+    },
+    "WL": {
+      "e#1": ["itemId", "passed to getEquipmentDefinition; Grid.js passes an item id"],
+      "a": ["inventoryActions", "Grid.js passes the cache item's `inventoryActions`"],
+      "e#2": ["action", "inferred: an element of the inventory actions"],
+      "t": ["definition", "what getEquipmentDefinition answered"]
+    },
+    "getCanonicalEquipmentId": {
+      "e": ["itemId", "playerAttack/launch.js passes `weapon`, profiles.js `resources.ammoId`, specialAttacks.js `itemId`"]
+    },
+    "PL": {
+      "e": ["canonicalId", "the key under which the second loop collects the variant ids"]
+    }
+  },
+  "data/weaponCategories.js": {
+    "NL": {
+      "e": ["weaponId", "getActiveSpell passes `weaponId`"],
+      "a": ["spellbook", "getActiveSpell passes `spellbook`"],
+      "t": ["spellName", "passed to getSpellDefinition"]
+    },
+    "getDefaultAttackStyleIndex": {
+      "e#1": ["weaponId", "SimulationEngine.js passes `player.equipment.weapon`"],
+      "a#1": ["spellbook", "defaults to `defaultSpellbook`; SimulationEngine.js passes `player.combatSupplies.spellbook`"],
+      "t#1": ["categoryDefinition", "what getWeaponCategoryDefinition answered"],
+      "e#2": ["castingStyleIndex", "the index of the style whose `combatStyle` is \"Casting\""],
+      "e#3": ["style", "an element of the definition's `styles`"],
+      "n": ["defaultCombatStyle", "the category's entry in the table of default combat styles; compared with a style's `combatStyle`"],
+      "s": ["defaultStyleIndex", "the index of the style with that `combatStyle`; returned"],
+      "e#4": ["style", "an element of the definition's `styles`"],
+      "r": ["bestStyleIndex", "inferred: the index of the style with the highest score so far; returned"],
+      "i": ["bestScore", "inferred: the highest score so far"],
+      "e#5": ["styleIndex", "the index from `styles.entries()`"],
+      "a#2": ["style", "the element from `styles.entries()`"],
+      "t#2": ["score", "inferred: 100 for Rapid, 10 for Longrange, 3 for Aggressive, 1 for Controlled; the highest wins"]
+    },
+    "getActiveSpell": {
+      "e#1": ["equippedWeaponId", "called with `weaponId`; \"equipped\" is inferred, to tell it from the parameter around it"],
+      "a": ["styleIndex", "called with `selectedStyleIndex`"],
+      "t": ["style", "an element of the definition's `styles`"],
+      "e#2": ["spellDefinition", "what getSpellDefinition answered for `selectedSpell`"]
+    },
+    "getWeaponCategory": {
+      "e": ["weaponId", "sol-heredit/modifiers.js passes `weaponId`; the other lookups pass a weapon id on"]
+    },
+    "getWeaponCategoryOrUnarmed": {
+      "e": ["weaponId", "SimulationEngine.js passes `player.equipment.weapon`, playerAttack/projection.js `weapon`"]
+    },
+    "getWeaponCategoryDefinition": {
+      "e": ["weaponId", "the engine passes `player.equipment.weapon`"],
+      "a": ["category", "what getWeaponCategory answered"]
+    }
+  },
+  "data/specialAttackDefinitions.js": {
+    "getSpecialAttackDefinition": {
+      "e": ["weaponId", "playerAttack/profiles.js passes `canonicalInput.weaponId`, launch.js `player.equipment.weapon`"],
+      "a": ["definition", "the entry of the table; returned"]
+    },
+    "hasSpecialAttack": {
+      "e": ["weaponId", "SimulationEngine.js passes `player.equipment.weapon`, playerAttack/profiles.js `canonicalInput.weaponId`"]
+    }
+  },
+  "engine/ammunition.js": {
+    "bD": {
+      "e": ["ammoId", "isAmmoCompatibleWithWeapon passes its second argument, which attackResources.js fills with `ammo.id` and playerAttack/plan.js with `resources.ammoId`"],
+      "a": ["definition", "what getEquipmentDefinition answered"]
+    },
+    "isArrowOrBolt": {
+      "e": ["ammoId", "playerAttack/plan.js passes `planInput.resources.ammoId`"],
+      "a": ["ammoKind", "compared with \"arrow\", \"standard_bolt\" and \"dragon_bolt\"; \"kind\" is inferred"]
+    },
+    "weaponRequiresAmmo": {
+      "e": ["weaponId", "attackResources.js passes `weaponId`"],
+      "a": ["baseWeaponId", "what getBaseItemId answered for the weapon"]
+    },
+    "isAmmoCompatibleWithWeapon": {
+      "e": ["weaponId", "attackResources.js passes `weaponId`, playerAttack/plan.js `planInput.player.equipment.weapon`"],
+      "a": ["ammoId", "attackResources.js passes `ammo.id`, playerAttack/plan.js `planInput.resources.ammoId`"],
+      "t": ["baseWeaponId", "what getBaseItemId answered for the weapon"],
+      "n": ["ammoKind", "compared with \"atlatl_dart\", \"arrow\", \"standard_bolt\" and \"dragon_bolt\"; \"kind\" is inferred"]
+    }
+  },
+  "engine/weapons.js": {
+    "getPoweredStaffBaseMaxHit": {
+      "e": ["weaponId", "playerAttack/plan.js passes `planInput.player.equipment.weapon`"],
+      "a": ["magicLevel", "playerAttack/plan.js passes `planInput.player.stats.magic.current`"]
+    },
+    "getHitDelayWeaponKind": {
+      "e#1": ["weaponId", "SimulationEngine.js passes `weaponId`, playerAttack/launch.js `player.equipment.weapon`"],
+      "a#1": ["formulaStyle", "SimulationEngine.js and playerAttack/launch.js pass `formulaStyle`"],
+      "a#2": ["weaponKind", "the weapon's own entry in the table by weapon id; returned as the kind"],
+      "t": ["category", "what getWeaponCategory answered"],
+      "e#2": ["categoryKind", "the category's entry in the table by category; returned as the kind"]
+    },
+    "getRangedDefenceType": {
+      "e": ["weaponId", "playerAttack/plan.js passes `planInput.player.equipment.weapon`"],
+      "a": ["category", "what getWeaponCategory answered"]
+    },
+    "getWeaponFormulaStyle": {
+      "e": ["weaponId", "SimulationEngine.js and sol-heredit/modifiers.js pass `weaponId`"],
+      "a": ["styleIndex", "SimulationEngine.js passes `styleIndex`, playerAttack/launch.js `selectedAttackStyleIndex`"],
+      "t": ["category", "what getWeaponCategory answered"],
+      "n": ["categoryDefinition", "the category's entry in the table of category definitions"],
+      "s": ["style", "an element of the definition's `styles`"]
+    },
+    "computePlayerCombatParams": {
+      "e#1": ["player", "SimulationEngine.js and playerAttack/launch.js pass `player`"],
+      "a#1": ["combatParams", "SimulationEngine.js stores the result as `combatParams`"],
+      "e#2": ["baseAttackSpeed", "called with `equipmentStats.attackSpeed`; \"base\" is inferred"],
+      "a#2": ["baseAttackRange", "called with `equipmentStats.attackRange`; \"base\" is inferred"],
+      "t#1": ["weaponId", "called with `equipment.weapon`"],
+      "n": ["selectedStyleIndex", "called with `selectedAttackStyleIndex`"],
+      "s": ["category", "what getWeaponCategory answered"],
+      "r": ["categoryDefinition", "the category's entry in the table of category definitions"],
+      "i": ["styleIndex", "the selected index held inside the definition's `styles`"],
+      "l": ["style", "an element of the definition's `styles`"],
+      "o": ["attackSpeed", "returned under `attackSpeed`"],
+      "d": ["attackRange", "returned under `attackRange`"],
+      "t#2": ["activeSpell", "what getActiveSpell answered"]
+    },
+    "formulaStyleToAttackStyle": {
+      "e": ["formulaStyle", "compared with \"ranged\" and \"magic\", two of the values getWeaponFormulaStyle answers; from the function's name"]
+    },
+    "formulaStyleToAttackKind": {
+      "e": ["formulaStyle", "the cases are the five values getWeaponFormulaStyle answers; from the function's name"]
+    },
+    "getWeaponProjectileTiming": {
+      "e": ["weaponId", "SimulationEngine.js passes `weaponId`, playerAttack/launch.js `player.equipment.weapon`"],
+      "a": ["isSpecialAttack", "playerAttack/launch.js passes `isSpecialAttack`"],
+      "t": ["baseWeaponId", "what getBaseItemId answered for the weapon"],
+      "n": ["specialTiming", "the weapon's entry in the timings read only for a special attack"],
+      "s": ["weaponTiming", "the weapon's entry in the timings by weapon id"],
+      "r": ["category", "what getWeaponCategory answered"]
+    }
+  }
+}

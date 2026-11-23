@@ -1,0 +1,551 @@
+{
+  "constants.js": {
+    "dh": {
+      "e": ["style","boss.js stores { style, attackKind: dh(style) }"]
+    },
+    "gh": {
+      "e": ["seed","inferred: callers pass a seed (encounterSeed, fireballSeed, config.damageSeed)"],
+      "a": ["salt","inferred: a constant or roll index mixed into the seed"]
+    }
+  },
+  "beatClock.js": {
+    "lh": {
+      "e": ["tick","callers pass context.tick"],
+      "a": ["attackPattern","callers pass resolvedConfig.attackPattern, config.attackPattern"],
+      "t": ["beatStartTick","read from attackPattern.beatStartTick"],
+      "n": ["beatIntervalTicks","read from attackPattern.beatIntervalTicks"],
+      "s": ["beatsPerCycle","read from attackPattern.beatsPerCycle"],
+      "r": ["fireballBeats","read from attackPattern.fireballBeats"],
+      "i": ["snapFireballBeats","read from attackPattern.snapFireballBeats"],
+      "l": ["voidFlareBeats","read from attackPattern.voidFlareBeats"],
+      "o": ["globalBeatOrdinal","returned as { globalBeatOrdinal }"],
+      "d": ["beatIndex","returned as { beatIndex }"],
+      "g": ["isFireballBeat","returned as { isFireballBeat }"],
+      "c": ["isSnapBeat","inferred: the beat is in snapFireballBeats, giving fireballBeatKind 'snap'"]
+    },
+    "oh": {
+      "e": ["tick","caller passes context.tick"],
+      "a": ["attackPattern","caller passes config.attackPattern"],
+      "t": ["beatStartTick","read from attackPattern.beatStartTick"],
+      "n": ["beatIntervalTicks","read from attackPattern.beatIntervalTicks"]
+    }
+  },
+  "fireballWaves.js": {
+    "Sh": {
+      "e": ["duoSide","caller passes mechanics.duoSide"]
+    },
+    "yh": {
+      "e": ["burstIndex","caller passes the key of fireballs.burstShapes"],
+      "a": ["seed","caller passes fireballs.seed"],
+      "t": ["start","caller passes configuredShape.start, the destructured { start }"]
+    },
+    "zh": {
+      "e": ["burstIndex","passed on as yh's burstIndex"],
+      "a": ["indexInBurst","inferred: index into the three angles of a burst, parallel to kh"],
+      "t": ["seed","callers pass fireballs.seed"],
+      "n": ["start","callers pass the destructured { start }"],
+      "s": ["side","callers pass the destructured { side }"],
+      "r": ["startsVertical","inferred: yh's answer, picks the 'vertical' or 'horizontal' angle list"]
+    },
+    "wh": {
+      "e": ["cycleIndex","inferred: which cycle of beatsPerCycle beats"],
+      "a": ["beatSlot","inferred: position of the beat in fireballBeats"],
+      "t": ["indexInBurst","inferred: index into kh"]
+    },
+    "bN": {
+      "e#1": ["tick","caller passes query.tick"],
+      "a#1": ["seed","caller passes fireballs.seed"],
+      "t#1": ["attackPattern","caller passes this.attackPattern"],
+      "n#1": ["shape","caller passes query.shape"],
+      "e#2": ["tick","same value as bN's tick"],
+      "a#2": ["seed","same value as bN's seed"],
+      "t#2": ["attackPattern","same value as bN's attackPattern"],
+      "n#2": ["shape","same value as bN's shape"],
+      "s#1": ["shapeForBurst","inferred: returns { start, side } for a burst index"],
+      "e#3": ["shape","same value as bN's shape"],
+      "r#1": ["beatStartTick","read from attackPattern.beatStartTick"],
+      "i#1": ["cycleTicks","inferred: beatsPerCycle * beatIntervalTicks"],
+      "e#4": ["attackPattern","same value as bN's attackPattern"],
+      "a#3": ["beatIntervalTicks","read from attackPattern.beatIntervalTicks"],
+      "l#1": ["burstStartTicks","inferred: ph() gives the first-cycle start tick of each fireball beat's burst"],
+      "o": ["activePhases","returned to bV.activePhases"],
+      "d#1": ["ticksSinceFirstBeat","inferred: tick - beatStartTick"],
+      "g": ["currentCycleIndex","inferred: cycle the tick falls in"],
+      "t#3": ["cycleIndex","passed as wh's cycleIndex"],
+      "n#3": ["beatSlot","passed as wh's beatSlot"],
+      "r#2": ["burstStartTick","inferred: start tick of this cycle's burst for the beat"],
+      "d#2": ["burstIndex","passed as zh's burstIndex"],
+      "s#2": ["indexInBurst","passed as zh's and wh's indexInBurst"],
+      "i#2": ["startTick","stored as { startTick }"],
+      "l#2": ["endTick","stored as { endTick }"]
+    },
+    "zN": {
+      "e#1": ["playerPosition","caller passes playerPosition"],
+      "a#1": ["center","caller passes center"],
+      "t#1": ["angle","caller passes fireball.angle"],
+      "e#2": ["center","same value as zN's center"],
+      "a#2": ["angle","same value as zN's angle"],
+      "t#2": ["x","first element of the center tile"],
+      "n": ["y","second element of the center tile"],
+      "a#3": ["x","first element of a perfect-dodge tile"],
+      "t#3": ["y","second element of a perfect-dodge tile"]
+    }
+  },
+  "contracts.js": {
+    "_$": {
+      "e": ["currentHp","callers pass vitals.hp"],
+      "a": ["maxHp","callers pass vitals.maxHp"],
+      "t": ["clampedMaxHp","inferred: maxHp truncated and kept at 1 or more"]
+    },
+    "E$": {
+      "e": ["maxHp","inferred: 2500, 3000, 2875 are the maxHp values of the contracts"],
+      "a": ["fraction","inferred: share of maxHp the boss starts phase 3 with"]
+    },
+    "Y$": {
+      "e": ["baseConfig","inferred: the encounter config the overrides are spread over"],
+      "a": ["overrides","inferred: per contract values spread last"]
+    },
+    "eV": {
+      "e#1": ["rulesContext","engine: encounterRules.onTickStart(this.buildRulesContext())"],
+      "e#2": ["hit","engine: encounterRules.onPlayerDamageTaken(hit, this.buildRulesContext())"],
+      "a": ["rulesContext","engine: encounterRules.onPlayerDamageTaken(hit, this.buildRulesContext())"],
+      "t": ["runEnergyDrain","inferred: negated into { runEnergyDelta }"]
+    },
+    "aV": {
+      "e": ["combatParams","engine: encounterRules.modifyPlayerCombatParams(combatParams, this.buildRulesContext())"],
+      "a": ["rulesContext","engine: encounterRules.modifyPlayerCombatParams(combatParams, this.buildRulesContext())"]
+    },
+    "tV": {
+      "e#1": ["maximumRolledDamage","engine: playerMinimumHit(maximumRolledDamage, encounterContext)"],
+      "e#2": ["maximumRolledDamage","passed the maximumRolledDamage of the enclosing function"],
+      "a": ["currentHp","passed player.vitals.hp"],
+      "t": ["maxHp","passed player.vitals.maxHp"]
+    }
+  },
+  "controls.js": {
+    "dV": {
+      "e#1": ["contract","called as dV(this.contract); default X$ is the no-contract contract"],
+      "a": ["defaultMechanicsConfig","returned as { defaultMechanicsConfig }"],
+      "t": ["mechanicsToggles","returned as { mechanicsToggles }"],
+      "e#2": ["key","destructured key"]
+    }
+  },
+  "voidFlares.js": {
+    "gV": {
+      "n": ["minDamage","inferred: lower bound of the explosion damage range, the roll is min + hash % (max - min + 1)"],
+      "s": ["maxDamage","inferred: upper bound of the explosion damage range"],
+      "e#1": ["explosionDamage","passed config.explosionDamage"],
+      "a": ["remainingHp","multiplied by explosionDamage.perRemainingHp; passed actor.vitals.hp"],
+      "t": ["remainingHpDamage","inferred: damage added for the hp the flare still has"],
+      "r": ["damage","stored as { damage } in scheduleImpact and in the voidflare_exploded event"],
+      "boss6": ["boss","returned by config.getBoss(context)"],
+      "l": ["heal","stored as { heal } in the voidflare_exploded event"],
+      "e#2": ["damage","passed the value stored as { damage }"]
+    },
+    "cV": {
+      "e": ["flare","its id is emitted as flareId in voidflare_destroyed"],
+      "a": ["context","inferred: { tick, tickEvents }, the two context fields the caller copies in"],
+      "state12": ["state","returned by gV.getState"]
+    },
+    "AV.constructor": {
+      "e": ["config","stored as this.config"]
+    },
+    "AV.rI": {
+      "e": ["voidFlares","encounter passes this.state.voidFlares"],
+      "a": ["context","encounter passes the context of its completeNpcBand hook"],
+      "t": ["enabled","encounter passes mechanics.voidFlares === true, the value it calls { enabled } for processPostTick"],
+      "pendingSpawnCount2": ["pendingSpawnCount","read from voidFlares.pendingSpawnCount"]
+    },
+    "AV.processPostTick": {
+      "e": ["voidFlares","encounter passes this.state.voidFlares"],
+      "a": ["context","encounter passes the context of its processPostTick hook"],
+      "t": ["tickInfo","inferred: { enabled, beatInfo, didMeleeThisTick } for this tick"]
+    },
+    "AV.lI": {
+      "e#1": ["voidFlares","encounter passes this.state.voidFlares"],
+      "a": ["context","encounter passes the context of its resolveHazards hook"],
+      "t": ["damages","encounter passes the same array as { damages } to fireballRuntime.resolveHazards"],
+      "n": ["player","returned by context.world.getPlayer()"],
+      "e#2": ["impact","element of voidFlares.pendingImpacts, pushed by config.scheduleImpact({ impactTick, damage })"]
+    },
+    "AV.oI": {
+      "e#1": ["voidFlares","encounter passes this.state.voidFlares"],
+      "a": ["context","encounter passes the context of its executeCommand hook"],
+      "t": ["activeFlares","inferred: alive void flare NPCs, counted against config.maxActive"],
+      "n": ["spawnTile","inferred: tile from the spawn tile list; stored as { position } of the new flare"],
+      "e#2": ["flare","inferred: element of the active void flares"]
+    },
+    "AV.nI": {
+      "e#1": ["voidFlares","encounter passes this.state.voidFlares"],
+      "a": ["context","encounter passes the context of its onNpcDefeated hook"],
+      "t": ["defeatTick","inferred: encounter.onNpcDefeated passes the .tick of Yama's defeat; stored as { tick }"],
+      "e#2": ["npc","element of context.world.getNpcs()"]
+    },
+    "AV.iI": {
+      "e#1": ["voidFlares","callers pass the state from this.state.voidFlares"],
+      "a": ["context","callers pass their context"],
+      "t": ["spawnBatch","inferred: { count, hp } of the flares to spawn"],
+      "n#1": ["activeFlares","inferred: alive void flare NPCs, counted against config.maxActive"],
+      "s": ["spawnCount","inferred: spawnBatch.count capped by the room left under config.maxActive"],
+      "r": ["flareTiles","inferred: positions of the flares already placed, for the overlap test"],
+      "e#2": ["flare","inferred: element of the active void flares"],
+      "n#2": ["i","inferred: loop counter"],
+      "n#3": ["spawnTile","inferred: tile from the spawn tile list; stored as { position } of the new flare"]
+    },
+    "AV.cI": {
+      "e#1": ["voidFlares","callers pass the state from this.state.voidFlares"],
+      "a#1": ["context","callers pass their context; .spawnNpc is called on it"],
+      "t#1": ["spawn","inferred: { position, hp } of the one flare to create"],
+      "n#1": ["flareIndex","inferred: sequence number read from voidFlares.nextId; used in the id and stored as { damageRollIndex }"],
+      "s#1": ["flareId","stored as { flareId } in the voidflare_spawned event"],
+      "r": ["flare","inferred: the actor made by gV.createActor, passed to context.spawnNpc"],
+      "e#2": ["flareOptions","inferred: { id, damageRollIndex, position, spawnTick, chargeTicks, currentHp, guaranteedPlayerMaximum }"],
+      "a#2": ["currentHp","read from flareOptions.currentHp"],
+      "t#2": ["maxHp","stored as vitals { maxHp }"],
+      "n#2": ["formulaStats","spread into { formulaStats }; error string 'Missing monster formula stats'"],
+      "s#2": ["baseActor","inferred: the actor fields gV.createActor completes with definition and state"]
+    },
+    "AV.gI": {
+      "e": ["voidFlares","callers pass the state from this.state.voidFlares"],
+      "a": ["playerPos","callers pass context.playerPos"],
+      "t": ["flareTiles","inferred: positions of the flares already placed, for the overlap test"],
+      "spawnIndex2": ["spawnIndex","read from voidFlares.spawnIndex"],
+      "s": ["offset","inferred: steps past spawnIndex in the spawn tile list"],
+      "r": ["candidateTile","inferred: spawn tile being tried"]
+    },
+    "AV.dI": {
+      "e#1": ["world","callers pass context.world"],
+      "e#2": ["npc","element of world.getNpcs()"]
+    },
+    "AV.mI": {
+      "e": ["candidateTile","inferred: spawn tile being tried"],
+      "a#1": ["flareTiles","inferred: positions of the flares already placed"],
+      "a#2": ["flareTile","inferred: element of flareTiles"]
+    }
+  },
+  "boss.js": {
+    "mV": {
+      "e": ["openingStyle","stored as { openingStyle }"],
+      "a": ["attackPattern","stored as { attackPattern }"]
+    },
+    "hV": {
+      "e#1": ["policyInput","inferred: { self, world, tick } built by fV.postTick for the attack policy"],
+      "a#1": ["policyState","returned as { nextState }; caller passes actor.state.attackPolicy"],
+      "t#1": ["player","returned by world.getPlayer()"],
+      "n#1": ["beatInfo","the encounter passes the same lh() result as { beatInfo }"],
+      "s#1": ["style","stored as { style } of the attack intent"],
+      "e#2": ["beatInfo","the encounter passes the same lh() result as { beatInfo }"],
+      "a#2": ["openingStyle","passed policyState.openingStyle"],
+      "t#2": ["attackPattern","passed policyState.attackPattern"],
+      "n#2": ["beatsPerCycle","read from attackPattern.beatsPerCycle"],
+      "s#2": ["snapFireballBeats","read from attackPattern.snapFireballBeats"],
+      "r": ["cycleIndex","inferred: beatInfo.globalBeatOrdinal divided by beatsPerCycle"],
+      "length18": ["earlierSnapBeats","inferred: number of snap fireball beats before this beat in the cycle"],
+      "a#3": ["snapBeat","element of snapFireballBeats"],
+      "e#3": ["attackOrdinal","inferred: how many ranged or magic attack beats came before this one"],
+      "a#4": ["openingStyle","passed the openingStyle of the enclosing function"]
+    },
+    "fV": {
+      "queuedAttack2": ["queuedAttack","read from actor.state.queuedAttack"],
+      "s#1": ["npcAttacks","returned as { npcAttacks }"],
+      "windup2": ["windup","read from actor.state.windup"],
+      "mechanics2": ["attackMechanics","config.getMechanics returns the encounter's this.attackMechanics"],
+      "mechanics3": ["attackMechanics","config.getMechanics returns the encounter's this.attackMechanics"],
+      "s#2": ["beatInfo","the encounter passes the same lh() result as { beatInfo }"],
+      "r": ["decision","inferred: { intent, nextState } returned by the attack policy"],
+      "intent2": ["intent","read from decision.intent"],
+      "e": ["unexpectedIntent","error string 'Unexpected Yama attack intent'"],
+      "mechanics4": ["attackMechanics","config.getMechanics returns the encounter's this.attackMechanics"]
+    },
+    "uV": {
+      "e": ["actor","passed to fV.getState; the encounter passes this.yamaActor"]
+    },
+    "vV": {
+      "e": ["actor","called with the hook's { actor }"],
+      "state13": ["state","returned by fV.getState"]
+    },
+    "pV": {
+      "e": ["state","called with actor.state"],
+      "a": ["alternateStyle","inferred: the ranged or magic style that is not the opening style"],
+      "t": ["style","stored as { style } of the queued attack"]
+    },
+    "kV": {
+      "e": ["actor","called with the hook's { actor }"],
+      "a": ["attack","inferred: the queued attack or the windup, { style, attackKind }"],
+      "t": ["environment","inferred: { config, world } taken from the hook argument"],
+      "s": ["isMelee","inferred: attack.style === 'melee'"],
+      "r": ["currentHp","assigned actor.vitals.hp"],
+      "i": ["maxHp","assigned actor.vitals.maxHp"]
+    },
+    "SV": {
+      "e": ["actor","kV passes its actor"],
+      "a": ["style","kV passes attack.style"],
+      "t": ["environment","kV passes its environment, { config, world }"],
+      "n": ["formulaStats","error string 'Yama cannot roll accuracy without formula stats'"],
+      "s": ["player","returned by world.getPlayer()"],
+      "r": ["formulaStyle","client/toa/zebak/native.js: formulaStyle: melee ? 'melee_crush' : magic ? 'magic' : 'ranged'"],
+      "i": ["hitChance","inferred: probability the accuracyRandom() roll is compared with"]
+    }
+  },
+  "fireballs.js": {
+    "bV.constructor": {
+      "e": ["sourceActorId","stored as this.sourceActorId"],
+      "a": ["attackPattern","stored as this.attackPattern"],
+      "t": ["damage","stored as this.damage"],
+      "n": ["allowDuoSide","stored as this.allowDuoSide"]
+    },
+    "bV.qT": {
+      "e": ["fireballs","caller passes this.state.fireballs"],
+      "a": ["spawnRequest","inferred: { tick, mechanics } built for the spawn-fireball command"],
+      "t": ["configuredShape","inferred: { start, side } from the mechanics settings, the fallback for burstShapes"],
+      "n": ["burstIndex","read from fireballs.manualBurstCount; passed as zh's burstIndex"],
+      "s": ["indexInBurst","inferred: index into kh, the tick offsets of the three fireballs of a burst"],
+      "r": ["startTick","stored as { startTick }"],
+      "i": ["angle","stored as { angle }"],
+      "l": ["instanceId","key of fireballs.manual, read back as { instanceId } in sI"]
+    },
+    "bV.processPostTick": {
+      "e": ["fireballs","caller passes this.state.fireballs"],
+      "a": ["context","engine: encounter.processPostTick(postTickContext, mechanics), passed on unchanged"],
+      "t": ["tickInfo","inferred: this tick's { beatInfo, didMeleeThisTick, mechanics }"],
+      "n": ["scheduledEnabled","stored as { scheduledEnabled }"],
+      "s": ["startsBurst","inferred: a scheduled burst is registered on this beat"]
+    },
+    "bV.resolveHazards": {
+      "e#1": ["fireballs","caller passes this.state.fireballs"],
+      "a#1": ["context","engine: encounter.resolveHazards(tickContext, mechanics), passed on unchanged; stored as { ctx }"],
+      "t#1": ["hazards","inferred: the encounter's { mechanics, damages } for this resolveHazards call"],
+      "e#2": ["fireballs","same object as the method's first parameter"],
+      "a#2": ["resolution","inferred: { ctx, activePhases, sourceActorId, damage, damages } for this resolution"],
+      "t#2": ["player","= ctx.world.getPlayer()"],
+      "position2": ["playerPosition","stored as { playerPosition }"],
+      "s": ["pushDamage","inferred: pushes the fireball damage onto resolution.damages"],
+      "r": ["fireball","element of resolution.activePhases; emitted as fireballIndex: fireball.instanceId"],
+      "i": ["center","emitted as { fireballCenter }; log string 'centered'"],
+      "e#3": ["impactTile","inferred: a tile hit in the impact phase (yN)"],
+      "e#4": ["explosionTile","inferred: a tile hit in the explosion phase (wN)"],
+      "o": ["queuedDamage","inferred: total base damage already in resolution.damages this tick"],
+      "e#5": ["total","reducer accumulator"],
+      "a#3": ["damage","element of resolution.damages"]
+    },
+    "bV.aI": {
+      "e": ["fireballs","caller passes this.state.fireballs"],
+      "a": ["snapshotRequest","inferred: { tick, defeated, mechanics } built in getSnapshot"],
+      "t#1": ["fireballStates","returned as { fireballStates }"],
+      "t#2": ["fireball","element of this.activePhases(...)"],
+      "n": ["center","stored as { centerPosition }"]
+    },
+    "bV.nI": {
+      "e": ["fireballs","caller passes this.state.fireballs"]
+    },
+    "bV.ZT": {
+      "e": ["mechanics","callers pass spawnRequest.mechanics, tickInfo.mechanics"],
+      "a": ["fireballStart","read from mechanics.fireballStart"]
+    },
+    "bV.QT": {
+      "e": ["fireballs","callers pass the fireballs state on"],
+      "a#1": ["mechanics","callers pass tickInfo.mechanics, hazards.mechanics; passed to ZT"],
+      "t": ["configuredShape","inferred: { start, side } from the mechanics settings, the fallback for burstShapes"],
+      "a#2": ["burstIndex","key of fireballs.burstShapes"]
+    },
+    "bV.activePhases": {
+      "e": ["fireballs","callers pass the fireballs state on"],
+      "a": ["query","inferred: { tick, scheduledEnabled, shape } to evaluate"]
+    },
+    "bV.sI": {
+      "e#1": ["fireballs","callers pass the fireballs state on"],
+      "a": ["tick","caller passes query.tick"],
+      "t": ["activePhases","spread into the result of activePhases()"],
+      "n": ["instanceId","stored as { instanceId }"],
+      "s": ["manualFireball","value of fireballs.manual"],
+      "e#2": ["endTick","stored as { endTick }"]
+    },
+    "bV.YT": {
+      "e": ["fireballs","callers pass the fireballs state on"],
+      "a#1": ["beatInfo","caller passes tickInfo.beatInfo"],
+      "t": ["configuredShape","inferred: { start, side } from the mechanics settings (result of ZT)"],
+      "fireballBeats2": ["fireballBeats","read from this.attackPattern.fireballBeats"],
+      "s": ["cycleIndex","inferred: globalBeatOrdinal / beatsPerCycle; passed as wh's cycleIndex"],
+      "r": ["beatSlot","inferred: position of beatIndex in fireballBeats; passed as wh's beatSlot"],
+      "i": ["burstIndex","key of fireballs.burstShapes"],
+      "a#2": ["storedBurstIndex","key of fireballs.burstShapes"],
+      "a#3": ["indexInBurst","inferred: index into kh; passed as wh's indexInBurst"]
+    },
+    "bV.JT": {
+      "e": ["fireballs","callers pass the fireballs state on"],
+      "a": ["context","the engine context passed on by processPostTick (.playerPos .logEvent)"],
+      "t": ["query","passed on as activePhases' query"],
+      "n": ["fireball","element of this.activePhases(...)"],
+      "s": ["center","stored as { center } and { centerPosition }"]
+    },
+    "bV.XT": {
+      "e#1": ["fireballs","callers pass the fireballs state on"],
+      "a": ["context","the engine context passed on by processPostTick (.tick .tickEvents)"],
+      "pendingSpawnEvents2": ["pendingSpawnEvents","read from fireballs.pendingSpawnEvents"],
+      "e#2": ["pendingSpawnEvent","element of fireballs.pendingSpawnEvents"],
+      "e#3": ["pendingSpawnEvent","element of fireballs.pendingSpawnEvents"]
+    },
+    "bV.eI": {
+      "e": ["fireballs","callers pass the fireballs state on"],
+      "a": ["tick","caller passes context.tick"],
+      "t": ["instanceId","key of fireballs.manual, read back as { instanceId } in sI"],
+      "n": ["manualFireball","value of fireballs.manual"]
+    },
+    "yV": {
+      "e": ["seed","callers pass seeds.encounterSeed, seeds.fireballSeed, seeds.voidFlareSeed"]
+    }
+  },
+  "YamaEncounter.js": {
+    "zV": {
+      "e#1": ["config","inferred: { waves } picked from this.resolvedConfig by both callers"],
+      "a#1": ["seeding","inferred: { source: \"constructor\" | \"reset\", encounterSeed, seeds }, where the new state's seeds come from"],
+      "t": ["seeds","read from .seeds; engine: encounter.reset(recording.encounter.seeds)"],
+      "n": ["encounterSeed","stored as run.encounterSeed; read from seeds.encounterSeed"],
+      "s": ["openingStyle","stored as run.openingStyleSeed and handed to the boss as openingStyle; read from seeds.firstRangeMageType"],
+      "r": ["fireballSeed","read from seeds.fireballSeed; stored as fireballs.seed"],
+      "e#2": ["seed","inferred: the encounter seed the fireball seed is derived from"],
+      "a#2": ["random","inferred: seeded generator returned by me(seed)"],
+      "i": ["voidFlareSeed","read from seeds.voidFlareSeed; stored as voidFlares.seed"]
+    },
+    "DV": {
+      "e": ["southWestTile","inferred: jO calls canOccupy(tile, size) with a candidate for bossSW"],
+      "a": ["size","jO calls canOccupy(r, size)"],
+      "t": ["dx","inferred: x offset inside the size by size footprint"],
+      "n": ["dy","inferred: y offset inside the size by size footprint"]
+    },
+    "MV": {
+      "e": ["fromTile","inferred: the tile distances are measured from (called with context.playerPos)"],
+      "a#1": ["tiles","inferred: candidate tiles (called with wavePositions)"],
+      "t": ["nearestTile","inferred: the closest candidate so far, returned"],
+      "n": ["nearestDistanceSquared","inferred: squared distance of nearestTile"],
+      "s": ["tile","element of tiles"],
+      "a#2": ["dx","inferred: tile[0] - fromTile[0]"],
+      "r": ["dy","inferred: tile[1] - fromTile[1]"],
+      "i": ["distanceSquared","inferred: dx * dx + dy * dy"]
+    },
+    "cn.constructor": {
+      "e#1": ["contract","stored as this.contract"],
+      "a#1": ["encounterSeed","passed as { encounterSeed }"],
+      "e#2": ["encounterOverrides","inferred: called with this.contract.encounter, the contract's partial settings; every field falls back to a default"],
+      "a#2": ["attackPattern","read from .attackPattern"],
+      "t": ["fireballBeats","stored as { fireballBeats }"],
+      "n": ["snapFireballBeatSet","inferred: Set of attackPattern.snapFireballBeats"],
+      "s": ["snapFireballBeats","stored as { snapFireballBeats }"],
+      "e#3": ["beatIndex","element of fireballBeats; beatClock.js matches these against beatIndex"]
+    },
+    "cn.createNpcs": {
+      "e#1": ["startPosition","engine: encounter.createNpcs(startPosition)"],
+      "e#2": ["bossSetup","inferred: { position, hp, maxHp, openingStyle, attackPattern, levelOverrides, defenceDrainFloor } for the Yama actor"],
+      "a": ["baseFormulaStats","error string \"Missing Phase 3 Yama formula stats\"; before level overrides"],
+      "t": ["formulaStats","spread into { formulaStats }"],
+      "n": ["baseActor","inferred: the actor fields passed to fV.createActor, which adds definition and state"]
+    },
+    "cn.reset": {
+      "e": ["seeds","engine: encounter.reset(recording.encounter.seeds); passed as { seeds }"]
+    },
+    "cn.getSeeds": {
+      "e": ["state","assigned this.state"]
+    },
+    "cn.moveNpc": {
+      "e": ["npc","engine: encounter.moveNpc(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.moveNpc(npc, tickContext, mechanics)"]
+    },
+    "cn.resolveHazards": {
+      "e#1": ["context","engine: encounter.resolveHazards(tickContext, mechanics)"],
+      "a#1": ["mechanics","engine: encounter.resolveHazards(tickContext, mechanics); passed as { mechanics }"],
+      "t#1": ["damages","passed as { damages }"],
+      "damage2": ["waveDamage","read from resolvedConfig.waves.damage"],
+      "e#2": ["playerX","called with context.playerPos[0]"],
+      "a#2": ["playerY","called with context.playerPos[1]"],
+      "t#2": ["tick","called with context.tick"],
+      "n#1": ["waveConfig","called with state.run.waveConfig"],
+      "s": ["periodTicks","read from waveConfig.periodTicks"],
+      "r": ["deltas","read from waveConfig.deltas"],
+      "i": ["speedTilesPerTick","read from waveConfig.speedTilesPerTick"],
+      "l": ["startDelay","read from waveConfig.startDelay"],
+      "o": ["firstCycleDeltas","read from waveConfig.firstCycleDeltas"],
+      "d": ["seed","read from waveConfig.seed"],
+      "g": ["useRandomOffsets","read from waveConfig.randomOffsets (and a seed is present)"],
+      "c": ["diagonalDifference","inferred: playerY - playerX, constant along a wave that FN tags waveType \"L\""],
+      "m": ["diagonalSum","inferred: playerX + playerY, constant along a wave that FN tags waveType \"R\""],
+      "e#3": ["waveIndex","FN in rendering.js stores the same loop index as waveIndex"],
+      "a#3": ["ticksIntoPeriod","inferred: destructured key tp of BN, the tick position inside the wave period"],
+      "h": ["tilesTravelled","inferred: speedTilesPerTick * ticksIntoPeriod"],
+      "f": ["leftWaveStart","inferred: diagonalDifference of the \"L\" wave at the start of its period (-40 plus random offset)"],
+      "u": ["rightWaveStart","inferred: diagonalSum of the \"R\" wave at the start of its period (20 plus random offset)"],
+      "a#4": ["randomOffset","inferred: [left, right] pair from _N, used when waveConfig.randomOffsets"],
+      "v": ["leftWaveLine","inferred: the player's diagonalDifference minus the wave's travel; on the \"L\" wave when it equals leftWaveStart or one more"],
+      "p": ["rightWaveLine","inferred: the player's diagonalSum minus the wave's travel; on the \"R\" wave when it equals rightWaveStart or one more"],
+      "a#5": ["definitionContext","engine: npcDefinitions.move(npc, this.buildNpcDefinitionContext())"],
+      "n#2": ["npc","element of context.world.getNpcs()"]
+    },
+    "cn.processNpcTick": {
+      "e": ["npc","engine: encounter.processNpcTick?.(npc, tickContext, mechanics)"],
+      "a": ["context","engine: encounter.processNpcTick?.(npc, tickContext, mechanics)"],
+      "t": ["mechanics","engine: encounter.processNpcTick?.(npc, tickContext, mechanics)"]
+    },
+    "cn.completeNpcBand": {
+      "e": ["context","engine: encounter.completeNpcBand?.(tickContext, mechanics)"],
+      "a": ["mechanics","engine: encounter.completeNpcBand?.(tickContext, mechanics)"]
+    },
+    "cn.vI": {
+      "e": ["context","passed on from completeNpcBand"],
+      "a": ["mechanics","passed on from completeNpcBand; .voidFlares toggle"]
+    },
+    "cn.processPostTick": {
+      "e#1": ["context","engine: encounter.processPostTick(postTickContext, mechanics)"],
+      "a#1": ["mechanics","engine: encounter.processPostTick(postTickContext, mechanics); passed as { mechanics }"],
+      "t#1": ["beatInfo","passed as { beatInfo }"],
+      "n": ["boss","same lookup as getBoss in this module: world.getNpc(LV)"],
+      "s": ["bossState","inferred: fV.getState(boss), the Yama definition's state"],
+      "a#2": ["bounds","read from getArenaConfig().bounds"],
+      "t#2": ["waveTiles","inferred: FN's { x, y, waveType, waveIndex, layer } list; debug flag key \"waveTiles\""],
+      "a#3": ["wavePositions","stored as { wavePositions }"],
+      "e#2": ["waveTile","element of waveTiles"],
+      "e#3": ["actor","inferred: called with boss; passed to fV.getState"],
+      "a#4": ["tick","called with context.tick; stored as state.latestAttackTick"],
+      "state14": ["state","the result of fV.getState(actor)"]
+    },
+    "cn.getSnapshot": {
+      "e": ["request","inferred: engine passes { tick, mechanics, world } to encounter.getSnapshot"],
+      "a": ["bossState","inferred: fV.getState(this.yamaActor), the Yama definition's state"]
+    },
+    "cn.onNpcDefeated": {
+      "e": ["defeat","engine: encounter.onNpcDefeated?.(defeat, tickContext, this.completionOwnership)"],
+      "a": ["context","engine: encounter.onNpcDefeated?.(defeat, tickContext, this.completionOwnership)"],
+      "t": ["completionOwnership","engine: encounter.onNpcDefeated?.(defeat, tickContext, this.completionOwnership)"],
+      "n": ["random","inferred: seeded generator me(encounterSeed ^ constant)"],
+      "s": ["overheadTextIndex","index into mh, emitted as overheadText"]
+    },
+    "cn.getArenaConfig": {
+      "e": ["arenaConfig","inferred: the value getArenaConfig returns; { bounds, walkableTiles, collisionMap }"],
+      "a": ["sealedWalkableTiles","stored as sealedArenaConfig.walkableTiles"],
+      "t": ["tileKey","element of arenaConfig.walkableTiles, a \"x,y\" string"]
+    },
+    "cn.executeCommand": {
+      "e": ["command","engine: runEncounterCommand(command) passes command first; .encounter"],
+      "a": ["context","inferred: engine passes { playerPos, tick, world, spawnNpc, despawnNpc }; zebak native.js executeCommand(command, context)"],
+      "t": ["mechanics","engine passes this.mechanicsConfig third"]
+    },
+    "cn.pI": {
+      "e#1": ["command","passed on from executeCommand; .type .style"],
+      "a#1": ["context","passed on from executeCommand"],
+      "t#1": ["mechanics","passed as { mechanics }"],
+      "t#2": ["boss","same lookup as getBoss in this module: world.getNpc(LV)"],
+      "e#2": ["actor","inferred: called with boss; passed to fV.getState"],
+      "a#2": ["openingStyle","stored as state.openingStyle"],
+      "t#3": ["attackPattern","called with resolvedConfig.attackPattern"],
+      "state15": ["state","the result of fV.getState(actor)"],
+      "e#3": ["event","returned in gameEvents; oI returns a { type: \"voidflare_spawned\" } event"]
+    },
+    "cn.hI": {
+      "e": ["impact","pushed to state.voidFlares.pendingImpacts; voidFlares.js passes { impactTick, damage }"]
+    },
+    "cn.uI": {
+      "e": ["mechanics","callers pass the hooks' mechanics; .yamaMelee .yamaMageRange toggles"]
+    },
+    "cn.fI": {
+      "e": ["context","callers pass the hooks' context; spread"]
+    }
+  }
+}

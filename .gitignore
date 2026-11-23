@@ -1,0 +1,34 @@
+node_modules/
+__pycache__/
+
+# Test screenshots and downloaded cache groups
+/evidence/
+
+# Jagex-owned game data and media: never commit (see README).
+# Allow the project's supplied branding below.
+osrs-cache/
+*.dat
+*.bin
+*.ogg
+*.ttf
+*.png
+!/client/assets/openscim-logo/openscim-logo/*.png
+!/client/assets/openscim-logo/openscim-logo/icons/*.png
+!/client/openscim-social.png
+!/client/og-image.png
+!/client/favicon.png
+!/client/brand/openscim-wordmark*@*x.png
+!/client/brand/preview*.png
+!/client/icons/discord-server-icon.png
+!/client/icons/icon-180.png
+!/client/icons/icon-192.png
+!/client/icons/icon-512.png
+!/client/icons/icon-maskable-512.png
+*.webp
+/dist/
+/deploy/
+/.scratch/
+/.cache/
+
+# A local clone of github.com/runelite/runelite, if you keep one here.
+/runelite/

@@ -1,0 +1,25 @@
+{
+  "registry.js": {
+    "(anonymous class)": {
+      "kI": [
+        "getRegisteredKinds",
+        "returns the keys of `this.factories` as an array; `create` prints them after \"Registered kinds:\" in its error text"
+      ],
+      "SI": [
+        "isRegistered",
+        "returns `this.factories.has(kind)`; \"registered\" from the error text \"Registered kinds:\" and from the method `register`. The scene builder registry of rendering.js (`de`) has a method of the same two letters, reached once, in Grid.js through the import `de as bK` (\"No scene builder registered for encounter kind\"); the three accesses in application.js are on `encounterRegistry` and on its import alias `cE`, and the scenario's are on `rendering.encounterRegistry` and a registry of its class",
+        {
+          "onlyIn": [
+            "client/encounters/registry.js",
+            "client/assets/application.js",
+            "tools/determinism/scenarios/shared.mjs"
+          ]
+        }
+      ],
+      "rd": [
+        "getDescriptorOfKindOrVariant",
+        "returns the descriptor registered for the kind, or else the descriptor one of whose `variants` has that `encounterKind`; beside `getDescriptor(kind)`, which only does the first. The wording is inferred"
+      ]
+    }
+  }
+}

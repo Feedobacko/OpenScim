@@ -1,0 +1,39 @@
+{
+  "fireballs.js": {
+    "FireballRuntime": {
+      "qT": ["spawnManualBurst","the command case \"spawn-fireball\" calls it; it fills state.manual and counts state.manualBurstCount"],
+      "aI": ["buildVisuals","getSnapshot() stores its result under the key visuals"],
+      "nI": ["clearFireballs","inferred: empties every map and set of the fireball state; called when Yama is defeated; shared name: YamaEncounter.js line 516 calls it on this.fireballRuntime",{"onlyIn":[],"lines":{"client/encounters/yama/YamaEncounter.js":[516]}}],
+      "ZT": ["getBurstShapeFromMechanics","inferred: returns { start, side } from mechanics.fireballStart and mechanics.duoSide; such objects are kept in state.burstShapes"],
+      "QT": ["createBurstShapeLookup","its result is passed under the key shape; it reads state.burstShapes by burst number"],
+      "sI": ["getManualActivePhases","activePhases() appends its result; it reads state.manual"],
+      "YT": ["registerScheduledBurst","it adds the burst's three instance ids to state.registeredIds and stores its shape in state.burstShapes"],
+      "JT": ["recordStartPositions","it fills state.startPositions and logs FIREBALL_SPAWN"],
+      "XT": ["emitPendingSpawnEvents","emits \"fireball_spawned\" for entries of state.pendingSpawnEvents"],
+      "eI": ["removeExpiredManualFireballs","inferred: deletes the entries of state.manual whose last tick has passed"],
+      "tI": ["buildInactiveVisuals","inferred: the visuals with fireballState.active false and no fireballStates"]
+    }
+  },
+  "voidFlares.js": {
+    "VoidFlareCoordinator": {
+      "rI": ["spawnPendingFlares","it spawns state.pendingSpawnCount flares and zeroes the count"],
+      "lI": ["resolvePendingImpacts","it turns the due entries of state.pendingImpacts into damage with source \"VoidFlare\""],
+      "oI": ["spawnManualFlare","the command case \"spawn-void-flare\" calls it"],
+      "nI": ["clearFlares","inferred: zeroes the pending spawns and impacts and destroys every flare (\"voidflare_destroyed\"); called when Yama is defeated; shared name: YamaEncounter.js line 517 calls it on this.voidFlareCoordinator",{"onlyIn":[],"lines":{"client/encounters/yama/YamaEncounter.js":[517]}}],
+      "iI": ["spawnFlares","inferred: spawns up to count flares within config.maxActive and emits their \"voidflare_spawned\" events"],
+      "cI": ["spawnFlareAt","calls spawnNpc at the given position and returns the event \"voidflare_spawned\""],
+      "gI": ["pickSpawnTile","inferred: the next free tile of the spawn tiles from state.spawnIndex"],
+      "dI": ["getActiveFlares","its length is compared with config.maxActive; the alive actors of the \"yama-void-flare\" definition"],
+      "mI": ["isOverlappingFlare","inferred: a 2x2 footprint overlap test against the positions of flares"]
+    }
+  },
+  "YamaEncounter.js": {
+    "YamaEncounter": {
+      "vI": ["spawnPendingVoidFlares","inferred: forwards to the coordinator's spawn of state.pendingSpawnCount flares, with mechanics.voidFlares"],
+      "pI": ["executeYamaCommand","executeCommand() calls it when command.encounter is \"yama_p3\""],
+      "hI": ["createNpcDefinitions","its result is assigned to this.npcDefinitions"],
+      "uI": ["updateAttackMechanics","it assigns this.attackMechanics from mechanics.yamaMelee and mechanics.yamaMageRange"],
+      "fI": ["buildNpcDefinitionContext","the engine's buildNpcDefinitionContext() makes the same argument for npcDefinitions calls; this one adds random"]
+    }
+  }
+}

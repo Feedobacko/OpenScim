@@ -1,0 +1,36 @@
+{
+  "fireballGeometry.js": {
+    "getFireballPhase": {
+      "ticksIntoPhase": [
+        "ticksSinceStart",
+        "it is tick - startTick, and the phases falling, impact and explosion are cut from it: the fireball's age, not a position inside one phase"
+      ]
+    }
+  },
+  "fireballWaves.js": {
+    "toBurstShapeLookup": {
+      "shape": [
+        "startOrShapeLookup",
+        "it is returned as it is when it is a function, and becomes the `start` of a shape otherwise"
+      ]
+    },
+    "getScheduledFireballs": {
+      "shape": [
+        "startOrShapeLookup",
+        "it is handed to toBurstShapeLookup; its default \"random\" is a start orientation, and a shape is { start, side }"
+      ],
+      "activePhases": [
+        "activeFireballs",
+        "each entry is { startTick, endTick, angle, instanceId }, and every loop over the result calls its element fireball"
+      ]
+    }
+  },
+  "fireballs.js": {
+    "FireballRuntime.getActiveManualFireballs": {
+      "activePhases": [
+        "activeFireballs",
+        "each entry is { startTick, endTick, angle, instanceId } of a fireball in fireballs.manual"
+      ]
+    }
+  }
+}

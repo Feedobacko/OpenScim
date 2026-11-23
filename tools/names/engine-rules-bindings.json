@@ -1,0 +1,30 @@
+{
+  "engine/mechanicsConfig.js": {
+    "Qh": ["commonMechanicsDefaults", "spread first in buildMechanicsConfig, under the encounter's defaults and the player's settings; the fallback of isPrayerUnlockedByMechanics: \"common\" is inferred"]
+  },
+  "engine/prayerTables.js": {
+    "df": ["mechanicsKeyByPrayer", "its values (\"upgradedPrayers\", \"zealPrayer\") are keys isPrayerUnlockedByMechanics reads from the mechanics config"]
+  },
+  "engine/npcRetaliation.js": {
+    "wG": ["delayNextActionForRetaliation", "inferred: unless the NPC already fights the attacker and acted within 8 ticks, moves `nextActionTick` to at least half an attack speed from now; the \"standard\" case of the retaliation"],
+    "HG": ["applyNpcRetaliation", "inferred: sets `retaliation.lastIncomingAttackTick` and `combat.targetId` to the attacker, by the retaliation's mode; throws \"Unknown retaliation mode\""]
+  },
+  "engine/equipmentStats.js": {
+    "JM": ["gracefulSetItemPairs", "inferred: twelve lists of six pairs of item ids; six pieces found give the full bonus in getGracefulBonusPercent"],
+    "QM": ["agilityCapeItemPairs", "inferred: three pairs of item ids stored with piece index 1, the cape of a graceful set"],
+    "eT": ["gracefulPieceBonusPercents", "getGracefulBonusPercent sums it by piece index into what the engine stores as `gracefulBonusPercent`"],
+    "aT": ["wornVariantItemPairs", "inferred: pairs of item ids, the graceful and cape pairs among them; the second is the item whose weight counts when the first is worn"],
+    "tT": ["wornVariantByItemId", "inferred: the Map of those pairs; getCarriedWeight loads `tT.get(itemId) ?? itemId` for an item of the equipment"],
+    "nT": ["gracefulPieceIndexByItemId", "filled with `set(itemId, pieceIndex)`; getGracefulBonusPercent collects the indices found among the equipment"],
+    "sT": ["getWornVariantItemId", "inferred: the item id getCarriedWeight loads for a worn item"],
+    "iT": ["getNumericParam", "inferred: `params.get(paramId)` if it is a number, else the fallback"],
+    "oT": ["equipmentStatOverridesByItemId", "inferred: partial stats by item id (`attackCrush`, `attackSpeed`, ...), spread over the stats read from the item"],
+    "dT": ["applyEquipmentStatOverrides", "inferred: returns the stats with the variant arrow's or the override table's values over them"],
+    "gT": ["readEquipmentStats", "inferred: reads `attackStab` ... `attackRange` from an item's params and applies the overrides"],
+    "cT": ["equipmentStatParamIds", "the param ids readEquipmentStats reads; an item with none of them takes the stats of its base item"]
+  },
+  "assets/rendering.js": {
+    "RA": ["monsterByNpcTypeId", "filled with `set(id, entry)` for each of an entry's `ids`; getMonsterHitpoints and getMonsterFormulaStats look an NPC type id up in it"],
+    "PA": ["monsterByNpcTypeIdAndVersion", "filled with the key `${id}:${entry.version}`; getMonsterFormulaStats looks up `${npcTypeId}:${version}`"]
+  }
+}
