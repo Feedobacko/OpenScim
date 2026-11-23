@@ -11,10 +11,10 @@ const example = (key, meta, arena, mode, npcs, options = {}) => ({
 });
 
 export const sandboxExamples = [
-  example("two-suns", { name: "Two Suns", description: "Two Sol Heredits in his own arena. Good luck." }, "sol_heredit", "versus", [
-    npc("sol-west", "sol_heredit", 27, 36),
-    npc("sol-east", "sol_heredit", 34, 36),
-  ]),
+  // The real Sol Heredit, with all his mechanics (the arena's host), and a second one of the sandbox's.
+  example("two-suns", { name: "Two Suns", description: "Sol Heredit with all his mechanics, and a second Sol beside him. Good luck." }, "sol_heredit", "versus", [
+    npc("sol-twin", "sol_heredit", 26, 29),
+  ], { bossMechanics: true }),
   example("inferno-gauntlet", { name: "Inferno Gauntlet", description: "A late Inferno wave without the pillars to hide behind." }, "inferno", "versus", [
     npc("meleer", "inferno.meleer", 29, 40),
     npc("ranger", "inferno.ranger", 20, 42),

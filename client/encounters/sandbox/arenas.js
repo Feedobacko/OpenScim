@@ -14,6 +14,8 @@
 //   locRender     the levels of map objects the scene draws
 //   camera        { yaw, pitch, zoom } on entering, from the encounter's
 //                 presentation
+//   hostKind      the encounter whose boss can be fought here with all its
+//                 mechanics (encounter.js); the scene is then that encounter's
 // The arena of the lobby is left out: its floor and walls are drawn by its
 // own scene (in client/assets/rendering.js), which the sandbox cannot use.
 import { solMapSquare, solPlayerStart } from "../sol-heredit/constants.js";
@@ -37,6 +39,7 @@ export const sandboxArenas = [
   },
   {
     id: "sol_heredit",
+    hostKind: "sol_heredit",
     name: "Sol Heredit's arena",
     mapSquare: solMapSquare,
     playerStart: [...solPlayerStart],
@@ -57,6 +60,7 @@ export const sandboxArenas = [
   },
   {
     id: "yama",
+    hostKind: "yama_p3",
     name: "Yama's room",
     mapSquare: { x: 23, y: 157 }, // registry.js
     playerStart: [31, 37],
@@ -66,6 +70,7 @@ export const sandboxArenas = [
   },
   {
     id: "zebak",
+    hostKind: "zebak",
     name: "Zebak's room (ToA)",
     mapSquare: { x: 61, y: 84 }, // toa/zebak/native.js
     playerStart: [29, 32],
@@ -75,6 +80,7 @@ export const sandboxArenas = [
   },
   {
     id: "vardorvis",
+    hostKind: "vardorvis",
     name: "Vardorvis' clearing",
     mapSquare: vardorvisMapSquare,
     playerStart: [40, 24], // vardorvis/encounter.js
@@ -84,6 +90,7 @@ export const sandboxArenas = [
   },
   {
     id: "doom",
+    hostKind: "doom_of_mokhaiotl",
     name: "Doom of Mokhaiotl, delve 1",
     mapSquare: { x: 20, y: 149 }, // doom-of-mokhaiotl/encounter.js
     playerStart: [31, 28],
@@ -93,6 +100,7 @@ export const sandboxArenas = [
   },
   {
     id: "doom_deep",
+    hostKind: "doom_of_mokhaiotl_deep",
     name: "Doom of Mokhaiotl, deeper room",
     mapSquare: { x: 53, y: 100 }, // doom-of-mokhaiotl/encounter.js
     playerStart: [31, 28],

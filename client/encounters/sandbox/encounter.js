@@ -19,9 +19,17 @@
 // then `processNpcTick` passes the turn to the definition; `processPostTick`
 // takes away the dead and decides the outcome. No timer, no hazard.
 //
-// Seeds: `encounterSeed`, and the scenario itself, so that a replay or a
-// restart with the same seeds plays the same scenario whatever the editor
-// holds by then.
+// The boss of the arena, when the scenario asks for it
+// (`options.bossMechanics`) and the arena has one (arenas.js, `hostKind`):
+// the arena's own encounter, made by its own factory, runs inside the
+// sandbox as its host, with every mechanic it has. The sandbox hands it
+// every hook the engine calls, adds the scenario's NPCs to its own, and
+// keeps the run going until both the host's fight and the scenario's are
+// won. The host's NPCs are a team of their own ("boss") in "ffa".
+//
+// Seeds: `encounterSeed`, the host's seeds, and the scenario itself, so that
+// a replay or a restart with the same seeds plays the same scenario whatever
+// the editor holds by then.
 import { getMonsterFormulaStats, getMonsterHitpoints } from "../../engine/monsterStats.js";
 import { createSeededRandom } from "../../engine/random.js";
 import { isActorAlive } from "../../engine/npcState.js";
@@ -38,25 +46,37 @@ const deathTicks = 4;
 // inferred: the first attack two ticks after the start, as the fixture's.
 const firstActionTick = 2;
 const ticksFromLastKillToVictory = 3;
+const bossTeam = "boss";
 
 const footprintGap = (a, b) => {
   const dx = Math.max(0, b.position[0] - (a.position[0] + a.size - 1), a.position[0] - (b.position[0] + b.size - 1));
   const dy = Math.max(0, b.position[1] - (a.position[1] + a.size - 1), a.position[1] - (b.position[1] + b.size - 1));
   return Math.max(dx, dy);
 };
+const isBrawler = (npc) => npc?.definition?.id === brawlerNpcDefinition.id;
+
+// The host's hooks the engine calls only if they are there: the sandbox has
+// each exactly when its host has it. Those that name an NPC skip the
+// sandbox's own NPCs (the value is what they answer for one).
+const hostHooks = [
+  "prepareNpcBand", "completeNpcBand", "onPlayerAttackStarted", "onPlayerAttackResolved", "executeCommand", "acceptsInput",
+  "approachRange", "moveDisplacedPlayer", "syncBossHp", "enterBossHpPhase", "planPracticeRestart", "planRestartStart",
+  "getEngineRules", "refineArenaConfig", "configureRunStart",
+];
+const hostNpcHooks = { removeNpcIfDue: undefined, resolveNpcLocalEffects: [] };
 
 export class SandboxEncounter {
-  constructor(arenaId, options) {
+  // `createHost(kind)` makes the encounter of a kind (registry.js hands it in).
+  constructor(arenaId, options, createHost) {
     this.arena = getSandboxArena(arenaId);
     this.kind = sandboxVariantKind(this.arena.id);
+    this.createHost = createHost;
     // A scenario handed to the factory (the harness, a test) wins over the editor's.
     this.givenScenario = options?.scenario ? normalizeScenario(options.scenario) : null;
-    this.definitions = new NpcDefinitionRegistry([
-      brawlerNpcDefinition.register({
-        selectTarget: (actor, context) => this.selectTarget(actor, context),
-        entryOf: (actor) => getSandboxNpcEntry(actor.state.entryId),
-      }),
-    ]);
+    this.brawlers = brawlerNpcDefinition.register({
+      selectTarget: (actor, context) => this.selectTarget(actor, context),
+      entryOf: (actor) => getSandboxNpcEntry(actor.state.entryId),
+    });
     this.reset();
   }
 
@@ -68,8 +88,30 @@ export class SandboxEncounter {
     this.outcome = { phase: "active" };
     this.winner = null;
     this.npcIds = [];
+    const hosted = this.scenario.options.bossMechanics && this.arena.hostKind && this.createHost;
+    this.setHost(hosted ? this.createHost(this.arena.hostKind) : null, seeds?.host);
     // A new run or a restart waits for "Start encounter" (clock.js).
     holdSandboxForStart();
+  }
+  setHost(host, hostSeeds) {
+    this.host = host;
+    if (host && hostSeeds) host.reset(hostSeeds);
+    for (const name of [...hostHooks, ...Object.keys(hostNpcHooks), "onNpcDefeated", "moveNpc", "runStartMechanicsKeys"]) delete this[name];
+    const hostDefinitions = host?.getNpcDefinitions?.();
+    this.definitions = new NpcDefinitionRegistry([...(hostDefinitions?.registrations.values() ?? []), this.brawlers]);
+    if (!host) return;
+    for (const name of hostHooks) if (host[name]) this[name] = (...args) => host[name](...args);
+    for (const [name, answerForOwn] of Object.entries(hostNpcHooks)) {
+      if (host[name]) this[name] = (npc, ...rest) => (isBrawler(npc) ? answerForOwn : host[name](npc, ...rest));
+    }
+    if (host.onNpcDefeated) {
+      this.onNpcDefeated = (defeat, ...rest) => (this.npcIds.includes(defeat.npcId) ? undefined : host.onNpcDefeated(defeat, ...rest));
+    }
+    if (host.moveNpc) {
+      this.moveNpc = (npc, context, mechanics) =>
+        isBrawler(npc) ? this.definitions.move(npc, { ...context, random: this.random }) : host.moveNpc(npc, context, mechanics);
+    }
+    if (host.runStartMechanicsKeys) this.runStartMechanicsKeys = host.runStartMechanicsKeys;
   }
   // Asked by the application's tick loop only (not by the engine).
   isPaused() {
@@ -83,23 +125,27 @@ export class SandboxEncounter {
     return { ...createEmptyScenario(this.arena.id), meta: { name: `Empty: ${this.arena.name}`, author: "", description: "" } };
   }
   getSeeds() {
-    return { encounterSeed: this.seed, scenario: structuredClone(this.scenario) };
+    return { encounterSeed: this.seed, scenario: structuredClone(this.scenario), ...(this.host ? { host: this.host.getSeeds() } : {}) };
   }
   getDefaultMechanicsConfig() {
-    return {};
+    return this.host?.getDefaultMechanicsConfig() ?? {};
   }
-  getDefaultPlayerStart() {
-    return [...(this.scenario.options.playerStart ?? this.arena.playerStart)];
+  getDefaultPlayerStart(mechanics) {
+    return [...(this.scenario.options.playerStart ?? this.host?.getDefaultPlayerStart(mechanics) ?? this.arena.playerStart)];
   }
+  // The sandbox's run starts with "Start encounter"; a host's intro is left out.
   getIntroConfig() {
     return null;
   }
   getArenaConfig() {
-    return { bounds: null, collisionMap: null, walkableTiles: null };
+    return this.host?.getArenaConfig() ?? { bounds: null, collisionMap: null, walkableTiles: null };
   }
-  createNpcs() {
-    this.npcIds = this.scenario.npcs.map((npc) => npc.id);
-    return this.scenario.npcs.map((npc) => this.createNpcActor(npc));
+  createNpcs(startTile) {
+    const hostNpcs = this.host?.createNpcs(startTile) ?? [];
+    const taken = new Set(hostNpcs.map((npc) => npc.id));
+    const own = this.scenario.npcs.filter((npc) => !taken.has(npc.id));
+    this.npcIds = own.map((npc) => npc.id);
+    return [...hostNpcs, ...own.map((npc) => this.createNpcActor(npc))];
   }
   createNpcActor(npc) {
     const entry = getSandboxNpcEntry(npc.npc);
@@ -136,24 +182,33 @@ export class SandboxEncounter {
       { entryId: entry.id, team: this.teamOf(npc), maxHit: npc.maxHit, lastAttackerId: null },
     );
   }
-  resolveHazards() {
-    return [];
+  resolveHazards(context, mechanics) {
+    return this.host?.resolveHazards(context, mechanics) ?? [];
   }
-  processPostTick(context) {
+  processPostTick(context, mechanics) {
+    const damages = this.host?.processPostTick(context, mechanics) ?? [];
     for (const npc of context.world.getNpcs()) {
-      if (npc.death !== undefined && context.tick >= (npc.deathAnimationTick ?? npc.death.killTick) + deathTicks) context.despawnNpc(npc.id);
+      if (isBrawler(npc) && npc.death !== undefined && context.tick >= (npc.deathAnimationTick ?? npc.death.killTick) + deathTicks) context.despawnNpc(npc.id);
     }
     if (this.outcome.phase === "resolving") {
       if (context.tick >= this.outcome.completionTick) this.outcome = { ...this.outcome, phase: "victory" };
     } else if (this.npcIds.length > 0) {
       this.decideOutcome(context);
     }
-    return [];
+    return damages;
   }
+  // With a host: won when its fight is won and the scenario's NPCs are too
+  // (or there were none); the host's outcome times the victory.
   getOutcome() {
-    return this.outcome;
+    if (!this.host) return this.outcome;
+    const hostOutcome = this.host.getOutcome();
+    if (hostOutcome.phase === "active") return hostOutcome;
+    return this.npcIds.length === 0 || this.outcome.phase !== "active" ? hostOutcome : { phase: "active" };
   }
-  getSnapshot({ world } = {}) {
+  getSnapshot(input = {}) {
+    // The host's scene reads the host's snapshot.
+    if (this.host) return this.host.getSnapshot(input);
+    const world = input.world;
     const alive = world ? world.getNpcs().filter(isActorAlive).length : 0;
     return {
       kind: this.kind,
@@ -170,15 +225,17 @@ export class SandboxEncounter {
   }
   getNpcDamageSourceLabel(npcId) {
     const npc = this.scenario.npcs.find((candidate) => candidate.id === npcId);
-    return npc ? getSandboxNpcEntry(npc.npc).name : "Sandbox";
+    if (npc) return getSandboxNpcEntry(npc.npc).name;
+    return this.host?.getNpcDamageSourceLabel(npcId) ?? "Sandbox";
   }
 
   // --- what the engine calls if it is there -----------------------------
   getNpcDefinitions() {
     return this.definitions;
   }
-  processNpcTick(npc, context) {
-    return this.definitions.tick(npc, { ...context, random: this.random });
+  processNpcTick(npc, context, mechanics) {
+    if (isBrawler(npc)) return this.definitions.tick(npc, { ...context, random: this.random });
+    return this.host?.processNpcTick?.(npc, context, mechanics);
   }
 
   // --- the rules of the modes ---------------------------------------------
@@ -193,7 +250,8 @@ export class SandboxEncounter {
     if (other === actor || !isActorAlive(other)) return false;
     if (other.kind === "player") return actor.state.team !== playerTeam && this.playerIsFair();
     if (this.scenario.mode !== "ffa") return false;
-    return other.state?.team !== undefined && other.state.team !== actor.state.team;
+    const team = isBrawler(other) ? other.state.team : bossTeam;
+    return team !== actor.state.team;
   }
   // The attacker that hit last, if it is an enemy; else the target it has;
   // else the nearest enemy (ties: the player, then the NPCs in the order of
@@ -219,7 +277,8 @@ export class SandboxEncounter {
   decideOutcome(context) {
     const player = context.world.getPlayer();
     if (!player?.alive) return;
-    const teams = new Set(context.world.getNpcs().filter(isActorAlive).map((npc) => npc.state.team));
+    // The scenario's NPCs only: a host decides its own fight.
+    const teams = new Set(context.world.getNpcs().filter((npc) => isBrawler(npc) && isActorAlive(npc)).map((npc) => npc.state.team));
     let won = false;
     if (this.playerIsFair()) {
       teams.delete(playerTeam);
@@ -247,12 +306,27 @@ const describeArena = (arena) => ({
   playerStart: [...arena.playerStart],
   collision: arena.collision,
 });
-const controls = { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] };
+const emptyControls = { defaultMechanicsConfig: {}, mechanicsToggles: [], debugActions: [] };
 const [firstArena, ...otherArenas] = sandboxArenas;
 
-export const sandboxDefinition = {
+/**
+ * The sandbox's definition, given the other encounters' (registry.js): a
+ * host is made by its own definition's factory, and an arena with a host
+ * offers the host's controls (toggles, debug actions, boss hitpoints).
+ */
+export function buildSandboxDefinition(otherDefinitions) {
+  const definitionOf = (kind) => otherDefinitions.find((definition) => definition.kind === kind || definition.variantFactories?.[kind]);
+  const createHost = (kind) => {
+    const definition = definitionOf(kind);
+    return (definition.variantFactories?.[kind] ?? definition.factory)(undefined);
+  };
+  const controlsOf = (arena) => {
+    const definition = arena.hostKind && definitionOf(arena.hostKind);
+    return (definition && (definition.variantControls?.[arena.hostKind] ?? definition.controls)) || emptyControls;
+  };
+  const sandboxDefinition = {
   kind: sandboxKind,
-  factory: (options) => new SandboxEncounter(firstArena.id, options),
+  factory: (options) => new SandboxEncounter(firstArena.id, options, createHost),
   descriptor: {
     kind: sandboxKind,
     displayName: "Sandbox",
@@ -273,12 +347,14 @@ export const sandboxDefinition = {
     })),
     victory: { eyebrow: "Sandbox", title: "VICTORY", narrative: "SCENARIO CLEARED", accent: "gold" },
   },
-  controls,
-  variantFactories: Object.fromEntries(otherArenas.map((arena) => [sandboxVariantKind(arena.id), (options) => new SandboxEncounter(arena.id, options)])),
-  variantControls: Object.fromEntries(otherArenas.map((arena) => [sandboxVariantKind(arena.id), controls])),
-};
-// Each arena's own map square and collision (registry.js, variantDescriptors);
-// its kind stays the sandbox's, as the Doom's deeper room's does.
-sandboxDefinition.variantDescriptors = Object.fromEntries(
-  otherArenas.map((arena) => [sandboxVariantKind(arena.id), { ...sandboxDefinition.descriptor, ...describeArena(arena) }]),
-);
+  controls: controlsOf(firstArena),
+  variantFactories: Object.fromEntries(otherArenas.map((arena) => [sandboxVariantKind(arena.id), (options) => new SandboxEncounter(arena.id, options, createHost)])),
+  variantControls: Object.fromEntries(otherArenas.map((arena) => [sandboxVariantKind(arena.id), controlsOf(arena)])),
+  };
+  // Each arena's own map square and collision (registry.js, variantDescriptors);
+  // its kind stays the sandbox's, as the Doom's deeper room's does.
+  sandboxDefinition.variantDescriptors = Object.fromEntries(
+    otherArenas.map((arena) => [sandboxVariantKind(arena.id), { ...sandboxDefinition.descriptor, ...describeArena(arena) }]),
+  );
+  return sandboxDefinition;
+}

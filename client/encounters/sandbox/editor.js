@@ -33,6 +33,7 @@ import {
 } from "./scenario.js";
 import { deleteSavedScenario, listSavedScenarios, saveScenario } from "./storage.js";
 import { sandboxClock, startSandbox, toggleSandboxPause } from "./clock.js";
+import { isHostedVisit } from "./visit.js";
 
 const reopenKey = "openscim.sandbox.editorStep";
 const style = `
@@ -188,6 +189,16 @@ function play() {
   ui.draft = setActiveScenario(ui.draft);
   if (!isDraftInThisArena()) {
     goToArena(ui.draft.arena, 2);
+    return;
+  }
+  // The boss's scene or the sandbox's is chosen as a visit starts (presentation.js).
+  if (isHostedVisit(ui.arena) !== ui.hostedVisit) {
+    try {
+      globalThis.sessionStorage?.setItem(reopenKey, "2");
+    } catch {
+      // The editor opens at step 1 instead.
+    }
+    globalThis.location.reload();
     return;
   }
   setStatus("Restarted with the scenario. Press Start encounter.");
@@ -440,6 +451,15 @@ function stepArena() {
     box.checked = draft.options.ffaIncludesPlayer;
     nodes.push(el("label", { class: "sbx-row" }, [box, "Monsters may attack the player (off: you only watch)"]));
     nodes.push(el("p", { class: "sbx-note", text: `Give monsters a team in step 2 to make sides; the team "${playerTeam}" fights for you.` }));
+  }
+
+  const arena = getSandboxArena(draft.arena);
+  if (arena.hostKind) {
+    nodes.push(el("h3", { text: "Boss" }));
+    const box = el("input", { type: "checkbox", onchange: (event) => { draft.options = { ...draft.options, bossMechanics: event.target.checked }; commit(); } });
+    box.checked = draft.options.bossMechanics;
+    nodes.push(el("label", { class: "sbx-row" }, [box, "Fight this arena's boss with all its mechanics"]));
+    nodes.push(el("p", { class: "sbx-note", text: "The boss starts where its own fight puts it, with its own attacks, phases and hazards; your monsters fight beside it. The run is won when both are beaten." }));
   }
 
   nodes.push(el("h3", { text: "Examples" }));
@@ -698,6 +718,7 @@ function create(kind) {
   ui.draft = active ?? createEmptyScenario(ui.arena.id);
   if (!active) ui.draft = setActiveScenario(ui.draft);
   ui.selectedId = null;
+  ui.hostedVisit = isHostedVisit(ui.arena);
   ui.status = el("div", { class: "sbx-status", role: "status" });
   ui.body = el("div", { class: "sbx-body" });
   ui.stepButtons = steps.map((step, index) => button(step.title, () => showStep(index + 1), "ghost"));

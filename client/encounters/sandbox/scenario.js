@@ -9,7 +9,9 @@
 //     "mode": "versus",                     "versus" or "ffa"
 //     "options": {
 //       "playerStart": [23, 36],            or null: the arena's own
-//       "ffaIncludesPlayer": true           ffa: may the NPCs attack the player
+//       "ffaIncludesPlayer": true,          ffa: may the NPCs attack the player
+//       "bossMechanics": false              the arena's boss, with all its
+//                                           mechanics (arenas.js, hostKind)
 //     },
 //     "npcs": [
 //       { "id": "npc-1", "npc": "inferno.meleer", "position": [30, 40],
@@ -111,7 +113,7 @@ export function normalizeScenario(input) {
     },
     arena: input.arena,
     mode,
-    options: { playerStart, ffaIncludesPlayer: options.ffaIncludesPlayer !== false },
+    options: { playerStart, ffaIncludesPlayer: options.ffaIncludesPlayer !== false, bossMechanics: options.bossMechanics === true },
     npcs: npcs.map((npc, index) => normalizeNpc(npc, index, takenIds)),
   };
 }
