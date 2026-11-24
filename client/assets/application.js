@@ -16663,6 +16663,7 @@ var gpe = ({
   variantLabel: variantLabel,
   onVariantChange: onVariantChange,
   baseEncounterKind: baseEncounterKind,
+  offerScenarioCode: offerScenarioCode = false,
   modifiers: modifiers,
   modifierSelection: modifierSelection,
   onModifierSelectionChange: onModifierSelectionChange,
@@ -17059,7 +17060,7 @@ var gpe = ({
                     },
                     hD.CkFau(baseEncounterKind, encounterKind),
                   ),
-                  baseEncounterKind === "sandbox" && (0, jsxRuntime.jsx)(SandboxCodeField, { onVariantChange: onVariantChange, onLoadoutChange: onLoadoutChange }),
+                  baseEncounterKind === "sandbox" && offerScenarioCode && (0, jsxRuntime.jsx)(SandboxCodeField, { onVariantChange: onVariantChange, onLoadoutChange: onLoadoutChange }),
                   hZ &&
                     (0, jsxRuntime.jsx)("section", {
                       className: "rail-section configurer-encounter-setup",
@@ -50170,42 +50171,49 @@ function eCe({ devHarness: devHarness } = {}) {
     updateStartingHpPerEncounter: lK,
     devHarness: h5,
   });
-  // The sandbox (client/encounters/sandbox/editor.js) reaches the loadout
-  // through three window events: "sandbox-open-setup" opens the setup window
-  // of a kind (loadout, presets, Start Encounter); "sandbox-get-loadout"
-  // hands detail.reply the sandbox's loadout; "sandbox-apply-loadout" sets
-  // the loadout a scenario carries and enters detail.encounterKind with it.
-  const sandboxEnterRef = (0, React.useRef)(null);
+  // The sandbox (client/encounters/sandbox/bridge.js) asks through one window
+  // event, "sandbox-request": each request is taken at once
+  // (detail.accept()) and settled when it is done. "open-setup" opens the
+  // setup window of a kind (loadout, presets, Start Encounter); "get-loadout"
+  // answers the sandbox's loadout; "apply-loadout" sets the loadout a
+  // scenario carries and, in the render that holds it, enters
+  // payload.encounterKind with it; "enter" enters an arena of the sandbox.
+  const sandboxApplyRef = (0, React.useRef)(null);
+  const [sandboxApplied, setSandboxApplied] = (0, React.useState)(0);
   (0, React.useEffect)(() => {
-    const open = (event) => setSelectedLobbyEncounter(event.detail);
-    const get = (event) => event.detail.reply(getLoadout("sandbox"));
-    const apply = (event) => {
-      setLoadout("sandbox", event.detail.loadout);
-      sandboxEnterRef.current = event.detail.encounterKind;
-      // Entered once the loadout is in the state (below), or at the latest now.
-      setTimeout(() => {
-        if (sandboxEnterRef.current) {
-          const kind = sandboxEnterRef.current;
-          sandboxEnterRef.current = null;
-          enterEncounter(kind);
-        }
-      }, 50);
+    const onRequest = (event) => {
+      const { type, payload, accept, resolve } = event.detail;
+      if (type === "open-setup") {
+        accept();
+        setSelectedLobbyEncounter(payload);
+        resolve();
+      } else if (type === "get-loadout") {
+        accept();
+        resolve(getLoadout("sandbox"));
+      } else if (type === "apply-loadout") {
+        accept();
+        // A newer request takes the place of one not yet entered.
+        sandboxApplyRef.current?.resolve();
+        sandboxApplyRef.current = { encounterKind: payload.encounterKind ?? null, resolve };
+        setLoadout("sandbox", payload.loadout);
+        setSandboxApplied((count) => count + 1);
+      } else if (type === "enter") {
+        accept();
+        enterEncounter(payload.encounterKind);
+        resolve();
+      }
     };
-    window.addEventListener("sandbox-open-setup", open);
-    window.addEventListener("sandbox-get-loadout", get);
-    window.addEventListener("sandbox-apply-loadout", apply);
-    return () => {
-      window.removeEventListener("sandbox-open-setup", open);
-      window.removeEventListener("sandbox-get-loadout", get);
-      window.removeEventListener("sandbox-apply-loadout", apply);
-    };
+    window.addEventListener("sandbox-request", onRequest);
+    return () => window.removeEventListener("sandbox-request", onRequest);
   }, [setSelectedLobbyEncounter, getLoadout, setLoadout, enterEncounter]);
+  // The render that holds the applied loadout: its enterEncounter enters with it.
   (0, React.useEffect)(() => {
-    if (!sandboxEnterRef.current) return;
-    const kind = sandboxEnterRef.current;
-    sandboxEnterRef.current = null;
-    enterEncounter(kind);
-  }, [enterEncounter]);
+    const pending = sandboxApplyRef.current;
+    if (!pending) return;
+    sandboxApplyRef.current = null;
+    if (pending.encounterKind) enterEncounter(pending.encounterKind);
+    pending.resolve();
+  }, [sandboxApplied]);
   const mm =
     "encounter" === sceneState.kind
       ? sceneState.encounterKind
@@ -53619,6 +53627,8 @@ function eCe({ devHarness: devHarness } = {}) {
               encounterKind: selectedLobbyEncounter.encounterKind,
               displayName: selectedLobbyEncounter.displayName,
               description: selectedLobbyEncounter.description,
+              // The sandbox's "Load a scenario" field: offered by the lobby's gateway only.
+              offerScenarioCode: selectedLobbyEncounter.offerScenarioCode === true,
               isAvailable: cE.isRegistered(sR) && (sT?.available ?? true),
               isWorkInProgress: sQ?.isWorkInProgress ?? false,
               playerConfig: hm,
