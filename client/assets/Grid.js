@@ -1407,6 +1407,22 @@ var ls = Object.fromEntries(
         "............##",
       ],
     },
+    news: {
+      origin: [0, 2],
+      rows: [
+        ".###########.",
+        "##.........##",
+        "##.#######.##",
+        "##.........##",
+        "##.#######.##",
+        "##.........##",
+        "##.#####...##",
+        "##.........##",
+        "##.#######.##",
+        "##.........##",
+        ".###########.",
+      ],
+    },
     discord: {
       origin: [0, 2],
       rows: [
@@ -1421,6 +1437,24 @@ var ls = Object.fromEntries(
         "###############",
         ".###.......###.",
         "..##.......##..",
+      ],
+    },
+    github: {
+      origin: [0, 0],
+      rows: [
+        ".....#####.....",
+        "...#########...",
+        "..###########..",
+        ".###.#####.###.",
+        ".###.......###.",
+        "###.........###",
+        "###.........###",
+        "####.......####",
+        ".####.....####.",
+        ".######.######.",
+        "..#.##...####..",
+        "...#.....###...",
+        ".....#...#.....",
       ],
     },
     keyboard: {
@@ -13678,6 +13712,8 @@ var Yse = {
   uiScale: 1,
   stretchedModePluginEnabled: true,
   autoOverlayScaleEnabled: true,
+  sceneOverlaysFollowUiScale: true,
+  sceneOverlayScalePercent: 100,
   showTickCounter: true,
   showTickCounterOverhead: false,
   tickCounterAbovePrayerIcon: false,
@@ -14025,6 +14061,10 @@ var kRe = {
   uiScale: zUnknown().transform(dRe),
   stretchedModePluginEnabled: zBoolean().catch(Yse.stretchedModePluginEnabled),
   autoOverlayScaleEnabled: zBoolean().catch(Yse.autoOverlayScaleEnabled),
+  sceneOverlaysFollowUiScale: zBoolean().catch(Yse.sceneOverlaysFollowUiScale),
+  sceneOverlayScalePercent: zUnknown().transform((ez) =>
+    hRe(ez, 50, 400, Yse.sceneOverlayScalePercent),
+  ),
   showTickCounter: zBoolean().catch(Yse.showTickCounter),
   showTickCounterOverhead: zBoolean().catch(Yse.showTickCounterOverhead),
   tickCounterAbovePrayerIcon: zBoolean().catch(Yse.tickCounterAbovePrayerIcon),
@@ -40361,26 +40401,24 @@ function fHe({
     ],
   });
 }
-function Ase({ className: className, label: label }) {
-  return (0, wn.jsxs)(l_e, {
-    href: "https://discord.gg/openscim",
+const communityLinks = [
+  { name: "Discord", glyph: "discord", href: "https://discord.gg/openscim", description: "Join the OpenScim Discord" },
+  { name: "GitHub", glyph: "github", href: "https://github.com/realkadera/OpenScim", description: "View OpenScim on GitHub" },
+];
+function CommunityLinks({ className, showLabels = false }) {
+  return communityLinks.map(({ name, glyph, href, description }) => (0, wn.jsxs)(l_e, {
+    href,
     target: "_blank",
     rel: "noopener noreferrer",
     className: className,
-    hint: label ? null : "Discord",
-    "aria-label": "Join the OPENSCIM.DEV Discord",
+    hint: showLabels ? null : name,
+    "aria-label": description,
     onMouseDown: (eC) => eC.preventDefault(),
-    tabIndex: -1,
     children: [
-      (0, wn.jsx)(zae, {
-        glyph: "discord",
-      }),
-      label &&
-        (0, wn.jsx)("span", {
-          children: label,
-        }),
+      (0, wn.jsx)(zae, { glyph }),
+      showLabels && (0, wn.jsx)("span", { children: name }),
     ],
-  });
+  }, name));
 }
 function bHe(ez, eA) {
   const eB = {
@@ -42443,6 +42481,9 @@ var FHe = (ez) => {
             (0, wn.jsx)("span", {
               className: "launcher-btn launcher-btn--icon",
             }),
+            communityLinks.map(({ name }) => (0, wn.jsx)("span", {
+              className: "launcher-btn launcher-btn--icon",
+            }, name)),
             (0, wn.jsx)("button", {
               type: "button",
               className: "launcher-btn launcher-btn--plugins",
@@ -42456,7 +42497,16 @@ var FHe = (ez) => {
           "data-tucked": fJ,
           style: fY(fA.x, fA.y),
           children: [
-            (0, wn.jsx)(Ase, {
+            (0, wn.jsx)(Jie, {
+              type: "button",
+              className: "launcher-btn launcher-btn--icon launcher-btn--link",
+              hint: "What's New",
+              "aria-label": "See what's new in OpenScim",
+              onMouseDown: (eC) => eC.preventDefault(),
+              onClick: plugins.onWhatsNew,
+              children: (0, wn.jsx)(zae, { glyph: "news" }),
+            }),
+            (0, wn.jsx)(CommunityLinks, {
               className: "launcher-btn launcher-btn--icon launcher-btn--link",
             }),
             (0, wn.jsx)("button", {
@@ -53415,6 +53465,7 @@ var mn = (ez) => {
     overlayScale: h9 = 1,
     chromeScale: hb = h9,
     stretchedModePluginEnabled: hc = true,
+    sceneOverlayScale: sceneOverlayScale = null,
     overlayOuterScale: hd = 1,
     framePaintScale: hf = null,
     onGamePanelPositionChange: onGamePanelPositionChange,
@@ -55109,6 +55160,9 @@ var mn = (ez) => {
                               height: l5 ? l5.height : jI.height,
                               logicalHeight: l5 ? jY.height : undefined,
                               paintScale: hf,
+                              // Health bars, hitsplats and prayers follow the interface scale
+                              // unless Stretched Mode pins their own (sceneOverlayScale).
+                              overlayGameScale: sceneOverlayScale ?? (jO ? jP : k0),
                               onCameraChange: lO,
                               speedMultiplier: gl,
                               playerOverheadNumbers: n0,
@@ -56075,7 +56129,7 @@ export {
   Mse,
   Pse,
   Ise,
-  Ase,
+  CommunityLinks,
   Rse,
   Lse,
   Ese,

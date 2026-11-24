@@ -406,7 +406,7 @@ import {
   Mse as g7,
   Pse as g8,
   Ise as g9,
-  Ase as ga,
+  CommunityLinks,
   Rse as gb,
   Lse as gc,
   Ese as gd,
@@ -22957,6 +22957,28 @@ var Yme = [
         "high dpi",
       ],
     }),
+    _me("stretchedMode", "Stretched Mode", "Scale health bars, hitsplats and prayers with UI", {
+      description:
+        "Untick to size health bars, hitsplats and overhead prayers apart from the UI scale.",
+      keywords: [
+        "hp bar size",
+        "health bar size",
+        "overhead prayer size",
+        "hitsplat size",
+        "overlay scale",
+      ],
+    }),
+    _me("stretchedMode", "Stretched Mode", "Health bar, hitsplat and prayer scale", {
+      whenUnavailable: {
+        reason: "Untick Scale health bars, hitsplats and prayers with UI to use this.",
+        route: {
+          label: "Show the setting",
+          target: gs("stretchedMode", "Scale health bars, hitsplats and prayers with UI"),
+        },
+      },
+      description: "Sizes health bars, hitsplats and overhead prayers.",
+      keywords: ["hp bar size", "health bar size", "prayer size", "percent"],
+    }),
     $me("tickAudioMetronome", "Tick Audio Metronome", {
       description: "Plays a soft tick-tock on every game tick.",
       keywords: [
@@ -24922,6 +24944,59 @@ function afe({ enabled: enabled, onToggle: onToggle }) {
     }),
   });
 }
+// Health bars, hitsplats and overhead prayers: follow the UI scale, or a
+// scale of their own (CSS pixels per game pixel, as a percent).
+function sceneOverlayScaleSetting({
+  follow: follow,
+  onFollowToggle: onFollowToggle,
+  percent: percent,
+  onPercentChange: onPercentChange,
+}) {
+  return (0, jsxRuntime.jsxs)("div", {
+    className: "overlay-size-setting",
+    children: [
+      (0, jsxRuntime.jsx)(f5, {
+        isModified: !follow,
+        onReset: () => !follow && onFollowToggle(),
+        searchId: gs("stretchedMode", "Scale health bars, hitsplats and prayers with UI"),
+        children: (0, jsxRuntime.jsx)(fd, {
+          label: "Scale health bars, hitsplats and prayers with UI",
+          checked: follow,
+          onChange: onFollowToggle,
+        }),
+      }),
+      !follow &&
+        (0, jsxRuntime.jsxs)("div", {
+          className: "stretched-mode-heading",
+          "data-search-id": gs("stretchedMode", "Health bar, hitsplat and prayer scale"),
+          children: [
+            (0, jsxRuntime.jsx)("label", {
+              className: "plugin-group-label",
+              htmlFor: "stretched-mode-scene-overlay-scale",
+              title: "Sizes health bars, hitsplats and overhead prayers.",
+              children: "Health bar, hitsplat and prayer scale",
+            }),
+            (0, jsxRuntime.jsx)(dP, {
+              id: "stretched-mode-scene-overlay-scale",
+              value: percent,
+              min: 50,
+              max: 400,
+              step: 1,
+              fieldWidth: 38,
+              suffix: "%",
+              onMouseDown: tfe,
+              onChange: (lC) => {
+                const lE = Number.parseFloat(lC.target.value);
+                if (Number.isFinite(lE) && lE >= 50 && lE <= 400) {
+                  onPercentChange(Math.round(lE));
+                }
+              },
+            }),
+          ],
+        }),
+    ],
+  });
+}
 function ife({ pluginKey: pluginKey, options: options, onChange: onChange }) {
   const h6 = aW;
   return (0, jsxRuntime.jsxs)(jsxRuntime.Fragment, {
@@ -25492,6 +25567,10 @@ var cfe = (0, React.memo)(
     onStretchedModePluginToggle: onStretchedModePluginToggle,
     autoOverlayScaleEnabled: autoOverlayScaleEnabled,
     onAutoOverlayScaleToggle: onAutoOverlayScaleToggle,
+    sceneOverlaysFollowUiScale: sceneOverlaysFollowUiScale,
+    onSceneOverlaysFollowUiScaleToggle: onSceneOverlaysFollowUiScaleToggle,
+    sceneOverlayScalePercent: sceneOverlayScalePercent,
+    onSceneOverlayScalePercentChange: onSceneOverlayScalePercentChange,
     fixedLayout: kX = false,
     mobileLayout: kY = false,
     compactOrbsEnabled: compactOrbsEnabled,
@@ -27851,6 +27930,12 @@ var cfe = (0, React.memo)(
                         (0, jsxRuntime.jsx)(afe, {
                           enabled: autoOverlayScaleEnabled,
                           onToggle: onAutoOverlayScaleToggle,
+                        }),
+                        (0, jsxRuntime.jsx)(sceneOverlayScaleSetting, {
+                          follow: sceneOverlaysFollowUiScale,
+                          onFollowToggle: onSceneOverlaysFollowUiScaleToggle,
+                          percent: sceneOverlayScalePercent,
+                          onPercentChange: onSceneOverlayScalePercentChange,
                         }),
                       ],
                     }),
@@ -33027,6 +33112,7 @@ var _ye = (0, React.memo)(
     visible: visible,
     onClose: onClose,
     onOpenShortcuts: onOpenShortcuts,
+    onOpenWhatsNew: onOpenWhatsNew,
     onOpenCredits: onOpenCredits,
     simulationControls: simulationControls,
     displayControls: displayControls,
@@ -33162,7 +33248,17 @@ var _ye = (0, React.memo)(
                       search: hk,
                       fieldId: fieldId,
                     }),
-                    (0, jsxRuntime.jsx)(ga, {
+                    (0, jsxRuntime.jsx)(eB, {
+                      type: "button",
+                      className: "panel-header-action",
+                      onClick: onOpenWhatsNew,
+                      hint: "What's New",
+                      "aria-label": "See what's new in OpenScim",
+                      children: (0, jsxRuntime.jsx)(dy, {
+                        glyph: "news",
+                      }),
+                    }),
+                    (0, jsxRuntime.jsx)(CommunityLinks, {
                       className: "panel-header-action",
                     }),
                     !hg &&
@@ -36380,6 +36476,166 @@ var Mbe = ({ visible: visible, width: width, height: height }) =>
     : null;
 var Pbe = ["All", "Encounters", "Combat", "Training", "Plugins", "Interface"];
 var Ibe = [
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-colosseum",
+    category: "Encounters",
+    title: "Fortis Colosseum",
+    impact:
+      "All Colosseum waves are in, with modifiers, a waves overlay, a line-of-sight simulator and an in-game Colosseum helper plugin.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-zebak",
+    category: "Encounters",
+    title: "Zebak",
+    impact:
+      "The first Tombs of Amascut boss is in. More ToA bosses are on the way.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-vardorvis",
+    category: "Encounters",
+    title: "Vardorvis",
+    impact:
+      "Vardorvis is in, including the awakened version.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-doom-of-mokhaiotl",
+    category: "Encounters",
+    title: "Doom of Mokhaiotl",
+    impact:
+      "You can now fight the Doom of Mokhaiotl.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-thralls",
+    category: "Combat",
+    title: "Thralls",
+    impact:
+      "Thralls can now be summoned.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-zaryte-crossbow-and-bolt-specs",
+    category: "Combat",
+    title: "Zaryte crossbow and bolt specs",
+    impact:
+      "The Zaryte crossbow special attack and all enchanted bolt specials now work.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-eldritch-nightmare-staff-spec",
+    category: "Combat",
+    title: "Eldritch nightmare staff",
+    impact:
+      "The Eldritch nightmare staff special attack now works.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-arkan-blade-spec",
+    category: "Combat",
+    title: "Arkan blade",
+    impact:
+      "The Arkan blade special attack now works.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-accursed-sceptre-spec",
+    category: "Combat",
+    title: "Accursed sceptre",
+    impact:
+      "The Accursed sceptre special attack now works.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-sanguinesti-staff",
+    category: "Combat",
+    title: "Sanguinesti staff",
+    impact:
+      "The Sanguinesti staff now has its healing effect.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-necklace-of-rupture",
+    category: "Combat",
+    title: "Necklace of rupture",
+    impact:
+      "The Necklace of rupture can now be equipped.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-slayer-staff",
+    category: "Combat",
+    title: "Slayer's staff",
+    impact:
+      "The Slayer's staff can now be equipped.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-torva-platebody-left-click",
+    category: "Combat",
+    title: "Torva platebody fix",
+    impact:
+      "Left-clicking the Torva platebody now equips it.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-attack-range-plugin",
+    category: "Plugins",
+    title: "Attack Range",
+    impact:
+      "The new Attack Range plugin shows how far you can attack from where you stand.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-hp-bars",
+    category: "Interface",
+    title: "HP bars",
+    impact:
+      "Default HP bars are back, and the HD bars moved to the Interface Styles plugin. HP bars now have the right scale and follow the player as they should.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-prayer-icon-scale",
+    category: "Interface",
+    title: "Prayer icon scale",
+    impact:
+      "Prayer icons now scale correctly.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-inventory-switch-lag",
+    category: "Interface",
+    title: "Faster item switching",
+    impact:
+      "Switching inventory items no longer lags or lands late.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-inventory-keybind-tab",
+    category: "Interface",
+    title: "Inventory keybind on Tab",
+    impact:
+      "The inventory keybinding can now be set to Tab.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-performance",
+    category: "Interface",
+    title: "Performance",
+    impact:
+      "OpenScim runs faster.",
+  },
+  {
+    date: "2026-11-24",
+    id: "2026-11-24-architecture",
+    category: "Interface",
+    title: "Under the hood",
+    impact:
+      "Large internal clean-up that makes new encounters and fixes quicker to add.",
+  },
   {
     date: "2026-11-13",
     id: "2026-11-13-stretch-to-window",
@@ -49192,6 +49448,8 @@ function eCe({ devHarness: devHarness } = {}) {
     uiScale: uiScale,
     stretchedModePluginEnabled: stretchedModePluginEnabled,
     autoOverlayScaleEnabled: autoOverlayScaleEnabled,
+    sceneOverlaysFollowUiScale: sceneOverlaysFollowUiScale,
+    sceneOverlayScalePercent: sceneOverlayScalePercent,
     showTickCounter: showTickCounter,
     showTickCounterOverhead: showTickCounterOverhead,
     tickCounterAbovePrayerIcon: tickCounterAbovePrayerIcon,
@@ -53215,9 +53473,9 @@ function eCe({ devHarness: devHarness } = {}) {
           ],
         }),
       sk &&
-        (0, jsxRuntime.jsx)(ga, {
-          className: "controls-toggle-open controls-toggle-open--discord",
-          label: "Discord",
+        (0, jsxRuntime.jsx)(CommunityLinks, {
+          className: "controls-toggle-open controls-toggle-open--community",
+          showLabels: true,
         }),
     ],
   });
@@ -53548,6 +53806,7 @@ function eCe({ devHarness: devHarness } = {}) {
               visible: kR,
               onClose: () => kX(false),
               onOpenShortcuts: () => hG(true),
+              onOpenWhatsNew: () => hL(true),
               onOpenCredits: () => hI(true),
               simulationControls: {
                 onReset: handleReset,
@@ -53940,6 +54199,11 @@ function eCe({ devHarness: devHarness } = {}) {
                                     chromeScale: o1,
                                     stretchedModePluginEnabled:
                                       stretchedModePluginEnabled,
+                                    sceneOverlayScale:
+                                      stretchedModePluginEnabled &&
+                                      !sceneOverlaysFollowUiScale
+                                        ? sceneOverlayScalePercent / 100
+                                        : null,
                                     overlayOuterScale: qR,
                                     framePaintScale: qT,
                                     replayViewportWidth: nU.width,
@@ -54019,6 +54283,7 @@ function eCe({ devHarness: devHarness } = {}) {
                                                 open: kY,
                                                 inset: nT.right,
                                                 onToggle: () => kZ((sP) => !sP),
+                                                onWhatsNew: () => hL(true),
                                               }
                                             : null,
                                           modifiers: sF,
@@ -54427,6 +54692,12 @@ function eCe({ devHarness: devHarness } = {}) {
               autoOverlayScaleEnabled: autoOverlayScaleEnabled,
               onAutoOverlayScaleToggle: () =>
                 hS("autoOverlayScaleEnabled", !autoOverlayScaleEnabled),
+              sceneOverlaysFollowUiScale: sceneOverlaysFollowUiScale,
+              onSceneOverlaysFollowUiScaleToggle: () =>
+                hS("sceneOverlaysFollowUiScale", !sceneOverlaysFollowUiScale),
+              sceneOverlayScalePercent: sceneOverlayScalePercent,
+              onSceneOverlayScalePercentChange: (sP) =>
+                hS("sceneOverlayScalePercent", sP),
               onUiScaleChange: commit2,
               fixedLayoutScale: fixedLayoutScale,
               onFixedLayoutScaleChange: (sP) => hS("fixedLayoutScale", sP),
