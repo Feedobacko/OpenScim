@@ -5,6 +5,12 @@
 // an NPC are the engine's own NPC-on-NPC attacks (the Inferno's nibblers hit
 // the pillars the same way), rolled with the monster table's stats of both.
 //
+// What the player sees of an attack is announced twice: as an
+// "inferno_visual" event, which the default scene (InfernoScene and the
+// scenes built on it) plays, and as a "colosseum_visual" one, which Sol
+// Heredit's and Yama's scenes play (the arena's host draws with those). No
+// scene plays both.
+//
 // Random numbers come from `context.random`, the encounter's seeded
 // generator; nothing else is random.
 import { canNpcActAtTick, isActorAlive } from "../../engine/npcState.js";
@@ -14,7 +20,8 @@ import { findNpcRouteToMeleeRange } from "../shared/npcRoutes.js";
 import { defineNpc } from "../shared/npcDefinitions.js";
 import { rollNpcAttack, isNpcInAttackRange, getDistanceFromNpcCentre } from "../shared/npcAttack.js";
 import { scheduleNextActionTick, buildNpcProjectileVisual, getProjectileSourcePosition, buildActorVisualTarget } from "../shared/npcHelpers.js";
-import { emitInfernoNpcAttack } from "../inferno/events.js";
+import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
+import { emitColosseumVisual } from "../sol-heredit/constants.js";
 
 // What the formulas and the events call each style.
 const planOfStyle = {
@@ -29,6 +36,8 @@ const cyclesPerTick = 30;
 /** The reach that brings an NPC close enough for its longest attack. */
 export const getApproachRange = (entry) => Math.max(...entry.attacks.map((attack) => attack.range));
 
+// The visual of an attack: its projectiles and the graphics on the target.
+// A windup (Jad's three ticks) delays both, as it delays the hit.
 function buildPlan(attack, maxHitOverride, attacker, target) {
   const plan = {
     ...planOfStyle[attack.style],
@@ -36,8 +45,30 @@ function buildPlan(attack, maxHitOverride, attacker, target) {
   };
   const maxHit = maxHitOverride ?? attack.maxHit;
   if (maxHit !== undefined) plan.maxHit = maxHit;
+  const windupCycles = (attack.windupTicks ?? 0) * cyclesPerTick;
+  if (attack.windupTicks) plan.windupTicks = attack.windupTicks;
   let visual = [];
-  if (attack.projectile) {
+  const graphics = attack.targetGraphic
+    ? [{ spotAnimId: attack.targetGraphic.spotAnimId, target: { kind: "tile", position: [...target.position] }, height: attack.targetGraphic.height ?? 92, delayCycles: windupCycles }]
+    : [];
+  if (attack.parts) {
+    // A projectile of several spot animations, each leaving and landing at
+    // its own offset (Jad's magic: inferno/jad.js).
+    plan.impactDelayTicks = 0;
+    plan.projectile = attack.parts.timing;
+    const distance = getDistanceFromNpcCentre(attacker, target);
+    visual = attack.parts.spotAnims.map(({ spotAnimId, start, end }) => ({
+      spotAnimId,
+      sourcePosition: getProjectileSourcePosition(attacker),
+      target: buildActorVisualTarget(target),
+      startDelayCycles: windupCycles + start,
+      endDelayCycles: windupCycles + end + distance * attack.parts.timing.stepMultiplier,
+      slope: attack.parts.slope,
+      startOffset: attack.parts.startOffset,
+      startHeight: attack.parts.startHeight,
+      endHeight: attack.parts.endHeight,
+    }));
+  } else if (attack.projectile) {
     plan.impactDelayTicks = 0;
     plan.projectile = attack.projectile.timing;
     const endDelayCycles = getProjectileFlightCycles(attack.projectile.timing, getDistanceFromNpcCentre(attacker, target));
@@ -49,7 +80,10 @@ function buildPlan(attack, maxHitOverride, attacker, target) {
   } else {
     plan.impactDelayTicks = attack.impactDelayTicks ?? (attack.style === "melee" ? 0 : defaultDistantImpactTicks);
   }
-  return { plan, visual };
+  if (windupCycles > 0 && !attack.parts) {
+    visual = visual.map((projectile) => ({ ...projectile, startDelayCycles: projectile.startDelayCycles + windupCycles, endDelayCycles: projectile.endDelayCycles + windupCycles }));
+  }
+  return { plan, visual, graphics };
 }
 
 // When the straight walk is blocked (a pillar, a wall between them and no
@@ -86,6 +120,11 @@ export const brawlerNpcDefinition = defineNpc({
   },
   move: ({ actor, context, config }) => {
     if (!canNpcActAtTick(actor, context.tick) || !isActorAlive(actor)) return [];
+    // An NPC that never moves in its own fight (TzKal-Zuk) stays where it was placed.
+    if (config.entryOf(actor).immobile) {
+      actor.combat.targetId = config.selectTarget(actor, context)?.id ?? null;
+      return [];
+    }
     const target = config.selectTarget(actor, context);
     actor.combat.targetId = target?.id ?? null;
     if (!target) return [];
@@ -103,7 +142,7 @@ export const brawlerNpcDefinition = defineNpc({
     const inReach = entry.attacks.filter((attack) => isNpcInAttackRange(actor, target, attack.range));
     if (inReach.length === 0) return idle;
     const attack = inReach.length === 1 ? inReach[0] : inReach[Math.floor(context.random() * inReach.length)];
-    const { plan, visual } = buildPlan(attack, actor.state.maxHit, actor, target);
+    const { plan, visual, graphics } = buildPlan(attack, actor.state.maxHit, actor, target);
     const npcAttack = rollNpcAttack({ attacker: actor, target, plan, random: context.random });
     // Null when an NPC has no stats: the catalog holds only NPCs of the monster table.
     if (!npcAttack) return idle;
@@ -114,6 +153,13 @@ export const brawlerNpcDefinition = defineNpc({
       kind: `sandbox_${attack.style}`,
       impactDelayTicks: npcAttack.impactDelayTicks,
       projectiles: visual,
+    });
+    if (graphics.length > 0) emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics });
+    emitColosseumVisual(context.tickEvents, {
+      animations: [{ actorId: actor.id, clipId: attack.clip, delayCycles: 0 }],
+      projectiles: visual,
+      // Its graphics name a tile as `position` (the schema of rendering.js).
+      graphics: graphics.map(({ spotAnimId, target: on, height, delayCycles }) => ({ spotAnimId, position: [...on.position], delayCycles, height })),
     });
     actor.combat.attackStyle = attack.style;
     actor.combat.lastAttackTick = context.tick;
