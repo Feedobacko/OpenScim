@@ -54810,7 +54810,8 @@ var iN = class extends SceneCompositor {
     return this.npcInstanceManager.LA(e, a * 20) ?? 0;
   }
   async UD(e) {
-    this.spotAnimRenderer.preload(e, [...ox]);
+    // With those of the render config: the sandbox's monsters beside Sol (client/encounters/sandbox/).
+    this.spotAnimRenderer.preload(e, [...ox, ...(this.encounterRenderConfig?.spotAnimIds ?? [])]);
   }
   OD() {
     return ox.every((e) => this.spotAnimRenderer.isLoaded(e));
@@ -55862,9 +55863,24 @@ var qN = class extends SceneCompositor {
       played = true;
     }
     if (played) this.bD(cycle);
+    // Their graphics, where an NPC or the player is drawn now (as Sol Heredit's scene finds them).
+    this.visuals.render(cycle, this.terrainHeights, (actorId) => {
+      if (actorId === "player") {
+        const tile = this.otherVisualsPlayerTile;
+        return tile ? { position: [tile[0] + 0.5, tile[1] + 0.5, -Nb(this.terrainHeights, tile[0] + 0.5, tile[1] + 0.5) / 128] } : null;
+      }
+      if (!e.npcs.some((npc) => npc.id === actorId && TR(npc, this.primaryCycle))) return null;
+      const matrix = this.npcInstanceManager.Gg(this.getNpcRenderInstanceId(actorId));
+      return matrix ? { position: [matrix[12], matrix[13], matrix[14]], yaw2048: (Math.atan2(matrix[8], matrix[0]) * 2048) / (Math.PI * 2) } : null;
+    });
     return WR(e);
   }
   oH(e, a, t, n, s, r, i, l) {
+    // The other NPCs' projectiles (see the constructor), as Sol Heredit's scene flies them.
+    this.otherVisualsPlayerTile = [...t];
+    if (!l) {
+      this.visuals.mM({ cycle: this.primaryCycle, resolveActor: this.aH(t), terrainHeights: this.terrainHeights, resolveSurfaceHeight: this.resolveSurfaceHeight }, undefined, this.replayProjectileWork);
+    }
     if (l || i?.yamaMageRange === false) {
       this.attackController.Sz(this.spotAnimRenderer);
     } else {
@@ -55929,7 +55945,8 @@ var qN = class extends SceneCompositor {
   }
   async MM(e) {
     this.spotAnimModelLoader = e;
-    this.spotAnimRenderer.preload(e, ON);
+    // With those of the render config: the sandbox's monsters beside Yama (client/encounters/sandbox/).
+    this.spotAnimRenderer.preload(e, [...ON, ...(this.encounterRenderConfig?.spotAnimIds ?? [])]);
     await this.xM(e);
   }
   HM() {
