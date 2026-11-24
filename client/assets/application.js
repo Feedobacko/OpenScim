@@ -50182,7 +50182,9 @@ function eCe({ devHarness: devHarness } = {}) {
   const [sandboxApplied, setSandboxApplied] = (0, React.useState)(0);
   (0, React.useEffect)(() => {
     const onRequest = (event) => {
-      const { type, payload, accept, resolve } = event.detail;
+      const { type, payload, accept, resolve, reject } = event.detail;
+      // A request taken and then failed settles with the error, never hangs.
+      try {
       if (type === "open-setup") {
         accept();
         setSelectedLobbyEncounter(payload);
@@ -50194,13 +50196,17 @@ function eCe({ devHarness: devHarness } = {}) {
         accept();
         // A newer request takes the place of one not yet entered.
         sandboxApplyRef.current?.resolve();
-        sandboxApplyRef.current = { encounterKind: payload.encounterKind ?? null, resolve };
+        sandboxApplyRef.current = { encounterKind: payload.encounterKind ?? null, resolve, reject };
         setLoadout("sandbox", payload.loadout);
         setSandboxApplied((count) => count + 1);
       } else if (type === "enter") {
         accept();
         enterEncounter(payload.encounterKind);
         resolve();
+      }
+      } catch (error) {
+        if (sandboxApplyRef.current?.resolve === resolve) sandboxApplyRef.current = null;
+        reject(error);
       }
     };
     window.addEventListener("sandbox-request", onRequest);
@@ -50211,8 +50217,12 @@ function eCe({ devHarness: devHarness } = {}) {
     const pending = sandboxApplyRef.current;
     if (!pending) return;
     sandboxApplyRef.current = null;
-    if (pending.encounterKind) enterEncounter(pending.encounterKind);
-    pending.resolve();
+    try {
+      if (pending.encounterKind) enterEncounter(pending.encounterKind);
+      pending.resolve();
+    } catch (error) {
+      pending.reject(error);
+    }
   }, [sandboxApplied]);
   const mm =
     "encounter" === sceneState.kind
