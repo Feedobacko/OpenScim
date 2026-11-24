@@ -153,11 +153,6 @@ curated entries and these.
 - The determinism harness has a scenario per entry (`sandbox/catalog/<id>`):
   a new one needs its digests recorded
   (`node tools/determinism/harness.mjs --update --only sandbox/catalog/`).
-- `.github/workflows/sandbox-catalog.yml`: on a pull request it fails when
-  `discovered.js` is out of date; on a push to `main` it regenerates it and,
-  when it changed, opens a pull request with the new entries, whose body
-  says to run the catalog test and record the digests before merging (the
-  workflow has no game cache, so it cannot fight them itself).
 
 ## Format
 
