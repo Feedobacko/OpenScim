@@ -13,6 +13,12 @@
 //       "bossMechanics": false              the arena's boss, with all its
 //                                           mechanics (arenas.js, hostKind)
 //     },
+//     "gear": {                             optional: the loadout the scenario
+//       "name": "Max ranged",               is played with (equipment slot to
+//       "equipment": { "weapon": 20997 },   item id, the 28 inventory slots,
+//       "inventory": [{ "id": 6685 }, null], the supplies: ammunition, spellbook,
+//       "supplies": { "equippedAmmo": { "id": 11212 } }   rune pouch...), as
+//     },                                    the application keeps a loadout
 //     "npcs": [
 //       { "id": "npc-1", "npc": "inferno.meleer", "position": [30, 40],
 //         "hp": 75, "maxHit": 20, "attackSpeed": 4, "team": "red",
@@ -88,6 +94,37 @@ function normalizeNpc(npc, index, takenIds) {
   return result;
 }
 
+const equipmentSlots = ["head", "cape", "amulet", "weapon", "body", "shield", "legs", "hands", "boots", "ring"];
+const itemId = (value) => integer(value, 1, 100000);
+// Supplies are the application's to read (its parsers check them as a
+// loadout is set); here they only have to be small plain JSON.
+const maxSuppliesJson = 4000;
+
+function normalizeGear(gear) {
+  if (gear === undefined || gear === null) return undefined;
+  if (typeof gear !== "object" || Array.isArray(gear)) throw new ScenarioError("gear must be an object");
+  const equipment = {};
+  for (const slot of equipmentSlots) {
+    const id = itemId(gear.equipment?.[slot]);
+    if (id !== undefined) equipment[slot] = id;
+  }
+  const slots = Array.isArray(gear.inventory) ? gear.inventory.slice(0, 28) : [];
+  const inventory = Array.from({ length: 28 }, (_, index) => {
+    const item = slots[index];
+    const id = itemId(item?.id);
+    if (id === undefined) return null;
+    const quantity = integer(item.quantity, 1, 2147483647);
+    return quantity === undefined || quantity === 1 ? { id } : { id, quantity };
+  });
+  let supplies = {};
+  if (gear.supplies && typeof gear.supplies === "object" && !Array.isArray(gear.supplies)) {
+    const json = JSON.stringify(gear.supplies);
+    if (json.length > maxSuppliesJson) throw new ScenarioError("gear.supplies is too large");
+    supplies = JSON.parse(json);
+  }
+  return { name: text(gear.name, 40).trim() || "Scenario gear", equipment, inventory, supplies };
+}
+
 /** A scenario in its current version, every value checked; throws ScenarioError. */
 export function normalizeScenario(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new ScenarioError("A scenario is a JSON object");
@@ -114,6 +151,7 @@ export function normalizeScenario(input) {
     arena: input.arena,
     mode,
     options: { playerStart, ffaIncludesPlayer: options.ffaIncludesPlayer !== false, bossMechanics: options.bossMechanics === true },
+    ...(input.gear ? { gear: normalizeGear(input.gear) } : {}),
     npcs: npcs.map((npc, index) => normalizeNpc(npc, index, takenIds)),
   };
 }

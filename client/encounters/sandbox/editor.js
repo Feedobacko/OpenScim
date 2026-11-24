@@ -9,7 +9,8 @@
 //                is the "P" marker, dragged the same way.
 //   3 Save & share   save in this browser, export and import a file, copy a
 //                share code or a link.
-// "Apply & restart" applies the scenario: the run restarts with it, and, as
+// "Gear" opens the application's setup window for the arena (loadout and
+// presets). "Apply & restart" applies the scenario: the run restarts with it, and, as
 // every run of the sandbox, waits for "Start encounter" (clock.js); the same
 // button pauses and resumes it.
 //
@@ -18,7 +19,7 @@
 // is restarted. Like the Colosseum's dialog (colosseum/intermission.js) the
 // panel is plain elements of the page, not one of the application's panels.
 import { getRegisteredArenaConfig } from "../../engine/arena.js";
-import { getActiveScenario, setActiveScenario } from "./activeScenario.js";
+import { getActiveScenario, setActiveScenario, takeArrivedByLink } from "./activeScenario.js";
 import { getSandboxArena, getSandboxArenaOfKind, sandboxArenas, sandboxKind } from "./arenas.js";
 import { getSandboxNpcEntry, sandboxNpcCatalog } from "./catalog.js";
 import { sandboxExamples } from "./examples.js";
@@ -185,6 +186,19 @@ function restartFight() {
   else globalThis.location.reload();
 }
 
+// The scenario's gear goes to the application's loadout of the sandbox
+// (assets/application.js listens); with `encounterKind` the application then
+// enters that kind with it, which restarts the run.
+const loadoutOf = (gear) => ({ equipment: gear.equipment, inventory: gear.inventory, supplies: gear.supplies });
+function applyGear(gear, encounterKind) {
+  globalThis.dispatchEvent(new CustomEvent("sandbox-apply-loadout", { detail: { loadout: loadoutOf(gear), encounterKind } }));
+}
+function readCurrentGear() {
+  let loadout = null;
+  globalThis.dispatchEvent(new CustomEvent("sandbox-get-loadout", { detail: { reply: (value) => (loadout = value) } }));
+  return loadout;
+}
+
 function play() {
   ui.draft = setActiveScenario(ui.draft);
   if (!isDraftInThisArena()) {
@@ -198,11 +212,14 @@ function play() {
     } catch {
       // The editor opens at step 1 instead.
     }
-    globalThis.location.reload();
+    if (ui.draft.gear) applyGear(ui.draft.gear);
+    // The loadout is kept by the application before the page goes.
+    setTimeout(() => globalThis.location.reload(), ui.draft.gear ? 300 : 0);
     return;
   }
   setStatus("Restarted with the scenario. Press Start encounter.");
-  restartFight();
+  if (ui.draft.gear) applyGear(ui.draft.gear, ui.kind);
+  else restartFight();
 }
 
 // --- the map -----------------------------------------------------------------
@@ -621,8 +638,41 @@ function duplicate(npc) {
   setStatus("No free spot nearby.", true);
 }
 
+function gearSection() {
+  const gear = ui.draft.gear;
+  const items = gear ? Object.keys(gear.equipment).length + gear.inventory.filter(Boolean).length : 0;
+  return [
+    el("h3", { text: "Gear" }),
+    el("p", { class: "sbx-note", text: gear
+      ? `"${gear.name}": ${Object.keys(gear.equipment).length} worn, ${gear.inventory.filter(Boolean).length} in the inventory. Set when you press Apply & restart, and saved, exported and shared with the scenario.`
+      : "None: the scenario is played with whatever you wear. Choose a loadout with Gear at the top, then keep it here." }),
+    el("div", { class: "sbx-row" }, [
+      button(gear ? "Replace with my current gear" : "Use my current gear", () => {
+        const loadout = readCurrentGear();
+        if (!loadout) {
+          setStatus("The application did not answer; reload the page and try again.", true);
+          return;
+        }
+        try {
+          ui.draft = normalizeScenario({ ...ui.draft, gear: { name: gear?.name ?? "Scenario gear", ...loadout } });
+          commit();
+          setStatus("The scenario keeps your current gear.");
+        } catch (error) {
+          setStatus(error.message, true);
+        }
+      }),
+      gear ? button("Remove gear", () => {
+        const { gear: removed, ...rest } = ui.draft;
+        ui.draft = normalizeScenario(rest);
+        commit();
+      }, "ghost") : null,
+    ]),
+    items > 0 && gear ? el("label", {}, ["Gear name", el("input", { value: gear.name, maxlength: 40, onchange: (event) => { ui.draft.gear = { ...ui.draft.gear, name: event.target.value }; commit(); } })]) : null,
+  ];
+}
+
 function stepShare() {
-  const nodes = [];
+  const nodes = [...gearSection()];
   nodes.push(el("h3", { text: "Save" }));
   nodes.push(el("div", { class: "sbx-row" }, [
     button(ui.savedId ? "Save" : "Save in this browser", () => {
@@ -739,7 +789,14 @@ function create(kind) {
     else toggleSandboxPause();
     syncClockButton();
   }, "primary");
-  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle]), ui.panel]);
+  // The application's setup window for this arena (assets/application.js
+  // listens): loadout and presets; its Start Encounter restarts with them.
+  ui.gearButton = button("Gear", () => {
+    globalThis.dispatchEvent(new CustomEvent("sandbox-open-setup", {
+      detail: { encounterKind: ui.kind, displayName: "Sandbox", description: `Your loadout for ${ui.arena.name}. Start Encounter restarts the run with it.` },
+    }));
+  }, "default");
+  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.gearButton, ui.toggle]), ui.panel]);
   // Keys typed in the panel are the panel's, not the game's hotkeys.
   for (const type of ["keydown", "keyup", "keypress", "wheel"]) ui.root.addEventListener(type, (event) => event.stopPropagation());
   document.body.append(ui.root);
@@ -752,6 +809,9 @@ function create(kind) {
   }
   ui.step = reopenStep ?? 1;
   renderBody();
+  // A share link brought the scenario: its gear goes on now, and the run
+  // starts again with it.
+  if (takeArrivedByLink() && ui.draft.gear && isDraftInThisArena()) applyGear(ui.draft.gear, ui.kind);
   // Open when the editor sent the page here, when there is nothing to fight,
   // and when the scenario is for another arena (the fight here is empty).
   setOpen(reopenStep !== null || ui.draft.npcs.length === 0 || !isDraftInThisArena());
@@ -784,5 +844,5 @@ export function syncSandboxEditor(kind, simulationState) {
 export function closeSandboxEditor() {
   ui.drag?.ghost?.remove();
   ui.root?.remove();
-  Object.assign(ui, { root: null, toggle: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
+  Object.assign(ui, { root: null, toggle: null, gearButton: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
 }

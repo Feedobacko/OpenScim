@@ -37,12 +37,23 @@ function readShareUrl() {
   }
 }
 
+// True once, after a share URL brought a scenario: the editor then sets the
+// scenario's gear (editor.js), which a URL cannot do by itself.
+let arrivedByLink = false;
+export function takeArrivedByLink() {
+  const arrived = arrivedByLink;
+  arrivedByLink = false;
+  return arrived;
+}
+
 export function getActiveScenario() {
   if (!loaded) {
     loaded = true;
     const shared = readShareUrl();
-    if (shared) setActiveScenario(shared);
-    else active = readStorage();
+    if (shared) {
+      setActiveScenario(shared);
+      arrivedByLink = true;
+    } else active = readStorage();
   }
   return active;
 }
