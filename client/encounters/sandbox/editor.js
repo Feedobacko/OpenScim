@@ -5,10 +5,13 @@
 //                Another arena is another route (/sandbox/<arena>): the
 //                application enters it (bridge.js) and the editor opens
 //                again at step 2.
-//   2 Monsters   a map of the arena's walkable tiles. Monsters are dragged
-//                from the list onto their starting tiles, moved by dragging
-//                them, and edited below the map; the player's starting tile
-//                is the "P" marker, dragged the same way.
+//   2 Monsters   a map of the arena's walkable tiles. Monsters and boulders
+//                (obstacles.js) are dragged from the list onto the map and
+//                moved by dragging them; a monster is edited below the map.
+//                In a free-for-all each monster shows its team's number, and
+//                a right click gives it the next team; a right click on a
+//                boulder takes it away. The player's starting tile is the "P"
+//                marker, dragged the same way.
 //   3 Gear & share   the scenario's gear (chosen in the application's setup
 //                window), save in this browser, export a file, copy a share
 //                code or a link, and the one box that imports a code, a link,
@@ -35,17 +38,23 @@ import {
   encodeShareCode,
   importScenarioText,
   maxScenarioNpcs,
+  maxScenarioObstacles,
   normalizeScenario,
+  obstacleSize,
   playerTeam,
   scenarioToJson,
 } from "./scenario.js";
+import { obstacleTiles } from "./obstacles.js";
 import { deleteSavedScenario, listSavedScenarios, saveScenario } from "./storage.js";
 import { sandboxClock, startSandbox, toggleSandboxPause } from "./clock.js";
 import { isHostedVisit } from "./visit.js";
 
 const reopenKey = "openscim.sandbox.editorStep";
 const style = `
-.sbx-hud { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 40; display: flex; gap: 6px; }
+.sbx-hud { position: fixed; top: 8px; right: 232px; z-index: 40; display: flex; gap: 6px; }
+.sbx-countdown { position: fixed; top: 32%; left: 50%; transform: translate(-50%, -50%); z-index: 39; pointer-events: none;
+  font: 64px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f); text-shadow: 2px 2px 0 #000, 0 0 12px rgb(0 0 0 / 0.8); }
+.sbx-countdown[hidden] { display: none; }
 .sbx-hud .sbx-start { box-shadow: 0 0 0 2px var(--color-primary, #ff981f); }
 .sbx-result { align-self: center; padding: 3px 8px; font: 13px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f);
   background: var(--color-bg-solid, #1e1812); border: 1px solid var(--color-primary, #ff981f); border-radius: 3px; }
@@ -273,9 +282,20 @@ const footprintTiles = ([x, y], size) => Array.from({ length: size * size }, (_,
 const covers = (position, size, [x, y]) => x >= position[0] && x < position[0] + size && y >= position[1] && y < position[1] + size;
 
 // Can a footprint (or the player, size 1) stand there: walkable, and on no one else.
+const obstacleId = (index) => `rock:${index}`;
+function obstacleAt(tile) {
+  const obstacles = ui.draft.obstacles ?? [];
+  for (let index = obstacles.length - 1; index >= 0; index--) if (covers(obstacles[index], obstacleSize, tile)) return index;
+  return -1;
+}
 function canPlace(position, size, ignoreId) {
   const tiles = footprintTiles(position, size);
   if (!tiles.every(([x, y]) => isWalkable(x, y))) return false;
+  const obstacles = ui.draft.obstacles ?? [];
+  for (let index = 0; index < obstacles.length; index++) {
+    if (obstacleId(index) === ignoreId) continue;
+    if (tiles.some((tile) => covers(obstacles[index], obstacleSize, tile))) return false;
+  }
   for (const npc of ui.draft.npcs) {
     if (npc.id === ignoreId) continue;
     const otherSize = getSandboxNpcEntry(npc.npc).size;
@@ -292,7 +312,20 @@ function npcAt(tile) {
   }
   return null;
 }
-const npcColour = (npc) => colourOf(ui.draft.mode === "ffa" ? npc.team ?? npc.id : getSandboxNpcEntry(npc.npc).group);
+// The teams a right click goes through in a free-for-all: none (each for
+// itself), 1 to 4, and the player's side.
+const teamCycle = [undefined, "1", "2", "3", "4", playerTeam];
+const teamColours = { 1: "#e0533d", 2: "#3d8fe0", 3: "#5fc45f", 4: "#e0b83d", [playerTeam]: "#2ec4ff" };
+const teamLabel = (team) => (team === playerTeam ? "A" : team === undefined ? "" : String(team).slice(0, 2));
+const npcColour = (npc) =>
+  ui.draft.mode === "ffa" ? teamColours[npc.team] ?? colourOf(npc.team ?? npc.id) : colourOf(getSandboxNpcEntry(npc.npc).group);
+function cycleTeam(npc) {
+  const next = teamCycle[(teamCycle.indexOf(npc.team) + 1) % teamCycle.length];
+  if (next === undefined) delete npc.team;
+  else npc.team = next;
+  setStatus(`${getSandboxNpcEntry(npc.npc).name}: ${next === undefined ? "no team (fights everyone)" : next === playerTeam ? "on your side" : `team ${next}`}.`);
+  commit();
+}
 
 function cssColour(name, fallback) {
   const value = getComputedStyle(ui.panel).getPropertyValue(name).trim();
@@ -322,6 +355,15 @@ function drawMap() {
   const font = Math.max(9, Math.round(size * 0.7));
   g.textAlign = "center";
   g.textBaseline = "middle";
+  (ui.draft.obstacles ?? []).forEach((position, index) => {
+    if (ui.drag?.id === obstacleId(index) && ui.drag.moved) return;
+    const [px, py] = toPixel(position[0], position[1] + obstacleSize - 1);
+    g.fillStyle = "#6b6157";
+    g.fillRect(px + 1, py + 1, obstacleSize * size - 2, obstacleSize * size - 2);
+    g.strokeStyle = "#2a241e";
+    g.lineWidth = 1.5 * ratio;
+    g.strokeRect(px + 1, py + 1, obstacleSize * size - 2, obstacleSize * size - 2);
+  });
   for (const npc of ui.draft.npcs) {
     if (ui.drag?.id === npc.id && ui.drag.moved) continue;
     const entry = getSandboxNpcEntry(npc.npc);
@@ -335,6 +377,20 @@ function drawMap() {
     g.fillStyle = "#ffffff";
     g.font = `${font}px "RuneScape Bold 12", sans-serif`;
     g.fillText(abbreviation(entry.name), px + (entry.size * size) / 2, py + (entry.size * size) / 2);
+    // Its team, in a free-for-all: a number in the corner (A: the player's side).
+    const label = ui.draft.mode === "ffa" ? teamLabel(npc.team) : "";
+    if (label) {
+      const badgeFont = Math.round(font * 1.4);
+      const badge = Math.round(badgeFont * 1.3);
+      g.fillStyle = "#000000dd";
+      g.fillRect(px - badge / 3, py - badge / 3, badge, badge);
+      g.strokeStyle = teamColours[npc.team] ?? "#ffffff";
+      g.lineWidth = 1.5 * ratio;
+      g.strokeRect(px - badge / 3, py - badge / 3, badge, badge);
+      g.fillStyle = teamColours[npc.team] ?? "#ffffff";
+      g.font = `${badgeFont}px "RuneScape Bold 12", sans-serif`;
+      g.fillText(label, px - badge / 3 + badge / 2, py - badge / 3 + badge / 2);
+    }
   }
   if (!(ui.drag?.id === playerTeam && ui.drag.moved)) {
     const [px, py] = toPixel(...playerStartOf(ui.draft));
@@ -397,6 +453,17 @@ function drop(drag, position) {
   if (drag.id === playerTeam) {
     ui.draft.options = { ...ui.draft.options, playerStart: position };
     setStatus(`Player starts at ${position.join(", ")}.`);
+  } else if (drag.id?.startsWith("rock:")) {
+    ui.draft.obstacles[Number(drag.id.slice(5))] = position;
+  } else if (drag.obstacle) {
+    const obstacles = ui.draft.obstacles ?? [];
+    if (obstacles.length >= maxScenarioObstacles) {
+      setStatus(`At most ${maxScenarioObstacles} boulders.`, true);
+      drawMap();
+      return;
+    }
+    ui.draft.obstacles = [...obstacles, position];
+    setStatus("Placed a boulder. Right-click it to take it away.");
   } else if (drag.id) {
     draftNpc(drag.id).position = position;
     ui.selectedId = drag.id;
@@ -418,7 +485,32 @@ function drop(drag, position) {
   commit();
 }
 
+// A right click: the next team for a monster (free-for-all), or a boulder away.
+function onMapContextMenu(event) {
+  event.preventDefault();
+  const tile = tileAtPointer(event);
+  if (!tile) return;
+  const npc = npcAt(tile);
+  if (npc) {
+    if (ui.draft.mode !== "ffa") {
+      setStatus("Teams count in Free for all (step 1).", true);
+      return;
+    }
+    cycleTeam(npc);
+    return;
+  }
+  const rock = obstacleAt(tile);
+  if (rock >= 0) {
+    ui.draft.obstacles = ui.draft.obstacles.filter((_, index) => index !== rock);
+    if (ui.draft.obstacles.length === 0) delete ui.draft.obstacles;
+    setStatus("Took the boulder away.");
+    commit();
+  }
+}
+
 function onMapPointerDown(event) {
+  // The right button is the context menu's (onMapContextMenu).
+  if (event.button === 2) return;
   const tile = tileAtPointer(event);
   if (!tile) return;
   const start = playerStartOf(ui.draft);
@@ -427,6 +519,12 @@ function onMapPointerDown(event) {
     return;
   }
   const npc = npcAt(tile);
+  const rock = npc ? -1 : obstacleAt(tile);
+  if (rock >= 0) {
+    const position = ui.draft.obstacles[rock];
+    startDrag(event, { id: obstacleId(rock), size: obstacleSize, offset: [tile[0] - position[0], tile[1] - position[1]], label: "Boulder" });
+    return;
+  }
   if (!npc) {
     if (ui.selectedId) {
       ui.selectedId = null;
@@ -492,11 +590,13 @@ function stepArena() {
     nodes.push(el("p", { class: "sbx-note", text: "The boss starts where its own fight puts it, with its own attacks, phases and hazards; your monsters fight beside it. The run is won when both are beaten." }));
   }
 
-  nodes.push(el("h3", { text: "Examples" }));
-  nodes.push(el("div", { class: "sbx-grid" }, sandboxExamples.map(({ scenario }) =>
+  // The examples of the mode chosen above.
+  const shown = sandboxExamples.filter(({ scenario }) => scenario.mode === draft.mode);
+  nodes.push(el("h3", { text: `Examples · ${draft.mode === "ffa" ? "Free for all" : "All against you"} (${shown.length})` }));
+  nodes.push(el("div", { class: "sbx-grid" }, shown.map(({ scenario }) =>
     el("button", { class: "sbx-card", type: "button", title: scenario.meta.description, onclick: () => loadDraft(scenario) }, [
       el("b", { text: scenario.meta.name }),
-      el("small", { text: `${getSandboxArena(scenario.arena).name} · ${scenario.mode === "ffa" ? "FFA" : "Versus"} · ${scenario.npcs.length}` }),
+      el("small", { text: `${getSandboxArena(scenario.arena).name} · ${scenario.npcs.length} monsters${scenario.obstacles ? ` · ${scenario.obstacles.length} rocks` : ""}` }),
     ]),
   )));
 
@@ -532,8 +632,10 @@ function stepMonsters() {
     nodes.push(button(`Go to ${getSandboxArena(draft.arena).name}`, () => goToArena(draft.arena, 2)));
     return nodes;
   }
-  nodes.push(el("p", { class: "sbx-note", text: "Drag a monster or the player (P) onto its starting tile. Drag on the map to move; click to edit." }));
-  ui.canvas = el("canvas", { class: "sbx-map", onpointerdown: onMapPointerDown });
+  nodes.push(el("p", { class: "sbx-note", text: draft.mode === "ffa"
+    ? "Drag a monster, a rock or the player (P) onto the map; drag to move, click to edit. Right-click a monster for its next team (the number; A is your side), a rock to take it away."
+    : "Drag a monster, a rock or the player (P) onto the map; drag to move, click to edit. Right-click a rock to take it away." }));
+  ui.canvas = el("canvas", { class: "sbx-map", onpointerdown: onMapPointerDown, oncontextmenu: onMapContextMenu });
   nodes.push(el("div", { class: "sbx-map-wrap" }, ui.canvas));
   if (!ui.tiles) nodes.push(el("p", { class: "sbx-note", text: "The arena's tiles are still loading; every tile is shown as open." }));
 
@@ -541,7 +643,11 @@ function stepMonsters() {
   const chips = [el("div", {
     class: "sbx-chip sbx-chip--player",
     onpointerdown: (event) => startDrag(event, { id: playerTeam, size: 1, offset: [0, 0], label: "Player start" }),
-  }, [el("i"), "Player start"])];
+  }, [el("i"), "Player start"]),
+  el("div", {
+    class: "sbx-chip", title: "A boulder: blocks the way and the line of sight. Several make a wall.",
+    onpointerdown: (event) => startDrag(event, { id: null, obstacle: true, size: obstacleSize, offset: [0, 0], label: "Boulder" }),
+  }, [el("i", { style: "background: #6b6157" }), "Boulder (obstacle)"])];
   for (const entry of sandboxNpcCatalog) {
     chips.push(el("div", {
       class: "sbx-chip", title: `${entry.group} · ${entry.size}×${entry.size}`,
@@ -820,7 +926,8 @@ function create(kind) {
     syncClockButton();
   }, "primary");
   ui.result = el("span", { class: "sbx-result", role: "status", hidden: true });
-  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle, ui.result]), ui.panel]);
+  ui.countdown = el("div", { class: "sbx-countdown", "aria-live": "polite", hidden: true });
+  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle, ui.result]), ui.countdown, ui.panel]);
   // Keys typed in the panel are the panel's, not the game's hotkeys.
   for (const type of ["keydown", "keyup", "keypress", "wheel"]) ui.root.addEventListener(type, (event) => event.stopPropagation());
   document.body.append(ui.root);
@@ -878,6 +985,20 @@ function syncResult(simulationState) {
   ui.result.hidden = text === "";
 }
 
+// The sandbox's own countdown (encounter.js, countdownUntil): the ticks left
+// before the monsters act, then "Fight!" for a tick.
+function syncCountdown(simulationState) {
+  const until = simulationState?.encounter?.sandbox?.countdownUntil ?? 0;
+  const tick = simulationState?.currentTick ?? 0;
+  let text = "";
+  if (sandboxClock.state !== "waiting" && until > 0) {
+    if (tick < until) text = String(until - tick);
+    else if (tick === until) text = "Fight!";
+  }
+  if (ui.countdown.textContent !== text) ui.countdown.textContent = text;
+  ui.countdown.hidden = text === "";
+}
+
 export function syncSandboxEditor(kind, simulationState) {
   if (typeof document === "undefined") return;
   if (ui.root && ui.kind !== kind) closeSandboxEditor();
@@ -887,10 +1008,11 @@ export function syncSandboxEditor(kind, simulationState) {
   ui.simulationState = simulationState;
   syncClockButton();
   syncResult(simulationState);
+  syncCountdown(simulationState);
 }
 
 export function closeSandboxEditor() {
   ui.drag?.ghost?.remove();
   ui.root?.remove();
-  Object.assign(ui, { root: null, toggle: null, result: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
+  Object.assign(ui, { root: null, toggle: null, result: null, countdown: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
 }
