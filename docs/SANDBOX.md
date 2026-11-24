@@ -95,11 +95,17 @@ other.
   catalog keeps its look and the shape of its attacks: JalTok-Jad winds up
   for three ticks and throws his three-part magic or his ranged boulder (the
   style to pray against shows in the animation, but he picks it at random),
-  TzKal-Zuk does not move, the Doom throws his orbs, Sol Heredit's spear and
-  shield land three ticks after their telegraph on tiles (a plus or a 3 by 3
-  around where the target stood), with his stomp on each, and can be walked
-  out of (`strike` in `catalog.js`, landed by `encounter.js`); Yama's
-  fireballs or Vardorvis' axes come only with the host.
+  TzKal-Zuk does not move, the Doom throws his orbs, the jaguar claws three
+  times at once and the manticore throws its three orbs a tick apart (each
+  hit with its hitsplat: `hits` and `volley` in `catalog.js`). Sol Heredit's
+  regular attack is his own fight's (`solGround` in `brawler.js`, landed by
+  `encounter.js` with `buildGroundAttackArea` of `sol-heredit/`): a spear or
+  a shield at even odds, the first a spear, the variant alternating; the
+  tiles from where he and his target stand three ticks after the telegraph,
+  the stomp going out from his centre, the larger of two rolls of 0 to 44
+  that no prayer stops, 7 or 6 ticks between attacks. His triple attack,
+  grapple and phases, Yama's fireballs or Vardorvis' axes come only with
+  the host.
 - The catalog is the monsters whose models and sequences the trimmed cache
   already holds and whose stats are in the monster table
   (`client/data/monsters.js`). Its bosses: Sol Heredit, Yama, Vardorvis, the
