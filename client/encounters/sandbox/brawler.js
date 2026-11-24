@@ -36,15 +36,6 @@ const cyclesPerTick = 30;
 // graphic (inferno/jad.js) and Zuk's (inferno/zukFight.js) are drawn.
 const defaultTargetGraphicHeight = 92;
 
-// The tiles a strike lands on, around the target's tile as the attack starts:
-// "square" the 3 by 3 around it, "plus" it and its four neighbours.
-function strikeTiles(shape, [x, y]) {
-  const offsets = shape === "square"
-    ? [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy) => [dx, dy]))
-    : [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]];
-  return offsets.map(([dx, dy]) => [x + dx, y + dy]);
-}
-
 /** The reach that brings an NPC close enough for its longest attack. */
 export const getApproachRange = (entry) => Math.max(...entry.attacks.map((attack) => attack.range));
 
@@ -140,7 +131,7 @@ export const brawlerNpcDefinition = defineNpc({
     const target = config.selectTarget(actor, context);
     actor.combat.targetId = target?.id ?? null;
     if (!target) return [];
-    // Sol Heredit stands still while a spear or a shield is on its way (solGround).
+    // Still while an attack of tiles is on its way (special: Sol Heredit's spear and shield).
     if (context.tick < (actor.state.immobileUntilTick ?? 0)) return [];
     const moves = getNpcPursuitMoves(actor, context, target);
     if (moves.length > 0 || isNpcInAttackRange(actor, target, actor.combat.attackRange)) return moves;
@@ -156,8 +147,7 @@ export const brawlerNpcDefinition = defineNpc({
     const inReach = entry.attacks.filter((attack) => isNpcInAttackRange(actor, target, attack.range));
     if (inReach.length === 0) return idle;
     const attack = inReach.length === 1 ? inReach[0] : inReach[Math.floor(context.random() * inReach.length)];
-    if (attack.solGround) return solGround(actor, target, attack, context, config);
-    if (attack.strike) return strike(actor, target, attack, context, config);
+    if (attack.special) return special(actor, target, attack, context, config);
     // One attack may be several hits, each rolled on its own and with a
     // hitsplat of its own: `hits` at once (the jaguar's three claws), or a
     // `volley` a tick apart (the manticore's three orbs). The engine
@@ -200,57 +190,20 @@ export const brawlerNpcDefinition = defineNpc({
   },
 });
 
-// Sol Heredit's regular attack, as his own fight makes it
-// (sol-heredit/bossAttacks.js, scheduleSolAttack; boss.js, tryLaunchSolAttack):
-// a spear or a shield at even odds, the first always a spear, the variant
-// alternating when he repeats one; the telegraph now, the ground attack three
-// ticks later on the tiles his position and the target's then give
-// (encounter.js lands it with buildGroundAttackArea); still for 6 ticks after
-// a spear and 4 after a shield; the next attack 7 or 6 ticks later.
-function solGround(actor, target, attack, context, config) {
-  const memory = actor.state.solMemory ?? { lastAction: null, lastVariant: 1, attacked: false };
-  const style = !memory.attacked || context.random() < 0.5 ? "spear" : "shield";
-  const variant = memory.lastAction !== style ? 1 : memory.lastVariant === 1 ? 2 : 1;
-  actor.state.solMemory = { lastAction: style, lastVariant: variant, attacked: true };
-  config.queueStrike({ landsAt: context.tick + 3, solGround: { style, variant }, attackerId: actor.id, targetId: target.id });
-  actor.state.immobileUntilTick = context.tick + (style === "spear" ? 6 : 4);
+// An attack of the encounter's own that lands on tiles (`special`: Sol
+// Heredit's spear and shield, sol-heredit/sandbox.js). It decides now; the
+// encounter lands it when it is due (encounter.js, landStrikes) and draws
+// it. The NPC stands still `holdTicks` and acts again `nextActionTicks` later.
+function special(actor, target, attack, context, config) {
+  const started = attack.special.start({ actor, target, random: context.random });
+  config.queueStrike({ landsAt: context.tick + started.landsInTicks, special: attack.special.id, data: started.data, attackerId: actor.id, targetId: target.id });
+  actor.state.immobileUntilTick = context.tick + started.holdTicks;
   faceActorToward(actor, target);
-  const animations = [{ actorId: actor.id, clipId: style, delayCycles: 0 }];
+  const animations = [{ actorId: actor.id, clipId: started.clipId, delayCycles: 0 }];
   emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
   emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
-  actor.combat.attackStyle = "melee";
-  actor.combat.lastAttackTick = context.tick;
-  scheduleNextActionTick(actor.combat, context.tick, style === "spear" ? 7 : 6);
-  return { environmentalDamages: [] };
-}
-
-// A strike on tiles: the attack is rolled
-// now and lands `delayTicks` later on the tiles it was aimed at, on whoever
-// still stands there (the encounter lands it: encounter.js, strikes). The
-// telegraph is the attack's clip; the stomp is a spot animation on every
-// tile as it lands.
-function strike(actor, target, attack, context, config) {
-  const idle = { environmentalDamages: [] };
-  const plan = { ...planOfStyle[attack.style], impactDelayTicks: 0, sourceDeathPolicy: "cancel-before-impact" };
-  const maxHit = actor.state.maxHit ?? attack.maxHit;
-  if (maxHit !== undefined) plan.maxHit = maxHit;
-  const rolled = rollNpcAttack({ attacker: actor, target, plan, random: context.random });
-  if (!rolled) return idle;
-  const { delayTicks, shape, spotAnimIds } = attack.strike;
-  const tiles = strikeTiles(shape, target.position);
-  config.queueStrike({ landsAt: context.tick + delayTicks, tiles, attack: rolled });
-  faceActorToward(actor, target);
-  const delayCycles = delayTicks * cyclesPerTick;
-  const graphics = tiles.map((tile, index) => ({ spotAnimId: spotAnimIds[index % spotAnimIds.length], target: { kind: "tile", position: tile }, height: 0, delayCycles }));
-  const animations = [{ actorId: actor.id, clipId: attack.clip, delayCycles: 0 }];
-  emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics });
-  emitColosseumVisual(context.tickEvents, {
-    animations,
-    projectiles: [],
-    graphics: graphics.map(({ spotAnimId, target: on, height, delayCycles: delay }) => ({ spotAnimId, position: [...on.position], delayCycles: delay, height })),
-  });
   actor.combat.attackStyle = attack.style;
   actor.combat.lastAttackTick = context.tick;
-  scheduleNextActionTick(actor.combat, context.tick, actor.combat.attackSpeed);
-  return idle;
+  scheduleNextActionTick(actor.combat, context.tick, started.nextActionTicks);
+  return { environmentalDamages: [] };
 }

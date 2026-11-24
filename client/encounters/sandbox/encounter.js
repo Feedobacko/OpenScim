@@ -35,15 +35,14 @@ import { createSeededRandom } from "../../engine/random.js";
 import { isActorAlive } from "../../engine/npcState.js";
 import { NpcDefinitionRegistry } from "../shared/npcDefinitions.js";
 import { brawlerNpcDefinition, getApproachRange } from "./brawler.js";
-import { getSandboxNpcEntry, sandboxNpcCatalog } from "./catalog.js";
+import { getSandboxNpcEntry, getSandboxSpecialAttack, sandboxNpcCatalog } from "./catalog.js";
 import { getSandboxArena, sandboxArenas, sandboxKind, sandboxVariantKind } from "./arenas.js";
 import { createEmptyScenario, normalizeScenario, playerTeam } from "./scenario.js";
 import { getActiveScenario } from "./activeScenario.js";
 import { holdSandboxForStart, isSandboxHeld } from "./clock.js";
 import { noteRunningScenario } from "./visit.js";
 import { isArenaTileWalkable } from "../../engine/arena.js";
-import { buildGroundAttackArea, getGroundAttackDelayCycles } from "../sol-heredit/bossAttacks.js";
-import { colosseumSpotAnimIds, emitColosseumVisual } from "../sol-heredit/constants.js";
+import { emitColosseumVisual } from "../sol-heredit/constants.js";
 import { emitInfernoVisual } from "../inferno/events.js";
 
 // inferred: a body stays four ticks after the kill (the Colosseum's monsters stay three or four).
@@ -99,7 +98,8 @@ export class SandboxEncounter {
     this.winner = null;
     this.npcIds = [];
     this.ownNpcs = [];
-    // Strikes on tiles that have not landed yet (brawler.js): { landsAt, tiles, attack }.
+    // Attacks of tiles that have not landed yet (brawler.js, special):
+    // { landsAt, special, data, attackerId, targetId }.
     this.strikes = [];
     const hosted = this.scenario.options.bossMechanics && this.arena.hostKind && this.createHost;
     this.setHost(hosted ? this.createHost(this.arena.hostKind) : null, seeds?.host);
@@ -206,68 +206,35 @@ export class SandboxEncounter {
   resolveHazards(context, mechanics) {
     return [...(this.host?.resolveHazards(context, mechanics) ?? []), ...this.landStrikes(context)];
   }
-  // The strikes due now land on whoever stands on their tiles: the player as
-  // damage to apply, an NPC as a hit of the attacker. A strike whose attacker
-  // died first does not land.
+  // The attacks of tiles due now land (brawler.js, special): the special's
+  // own rules (catalog.js, getSandboxSpecialAttack) give the tiles, their
+  // stomps and the damage, on the arena's floor; the stomps are drawn in
+  // either scene, and the damage goes to the player as damage to apply, to an
+  // NPC as a hit of the attacker. One whose attacker died first does not land.
   landStrikes(context) {
     const damages = [];
     const due = this.strikes.filter((pending) => pending.landsAt <= context.tick);
     this.strikes = this.strikes.filter((pending) => pending.landsAt > context.tick);
-    for (const pending of due) {
-      if (pending.solGround) {
-        damages.push(...this.landSolGround(pending, context));
+    for (const { special, data, attackerId, targetId } of due) {
+      const attacker = context.world.getNpc(attackerId);
+      if (!attacker || !isActorAlive(attacker)) continue;
+      const found = context.world.actors.get(targetId);
+      const target = found && isActorAlive(found) ? found : null;
+      // A target that died is still aimed at (where it fell), but not hit.
+      const landed = getSandboxSpecialAttack(special).land({ data, attacker, target: found ?? null, targetAlive: target !== null, random: this.random, isTileWalkable: isArenaTileWalkable });
+      emitColosseumVisual(context.tickEvents, { animations: [], graphics: landed.stomps.map(({ spotAnimId, tile, delayCycles }) => ({ spotAnimId, position: [...tile], delayCycles })) });
+      emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: landed.stomps.map(({ spotAnimId, tile, delayCycles }) => ({ spotAnimId, target: { kind: "tile", position: [...tile] }, height: 0, delayCycles })) });
+      if (!target || landed.damage === null) continue;
+      if (target.kind === "player") {
+        damages.push({ baseDamage: landed.damage, attackType: "typeless", source: this.getNpcDamageSourceLabel(attackerId), playerPosition: [...target.position] });
         continue;
       }
-      const { tiles, attack } = pending;
-      const attacker = context.world.getNpc(attack.attackerId);
-      const target = context.world.actors.get(attack.targetId);
-      if (!attacker || !isActorAlive(attacker) || !target || !isActorAlive(target)) continue;
-      const size = target.size ?? 1;
-      const covered = tiles.some(([x, y]) => x >= target.position[0] && x < target.position[0] + size && y >= target.position[1] && y < target.position[1] + size);
-      if (!covered) continue;
-      if (target.kind === "player") {
-        damages.push({ baseDamage: attack.accuracySucceeded ? attack.rolledDamage : 0, attackType: attack.style, source: this.getNpcDamageSourceLabel(attack.attackerId), playerPosition: [...target.position] });
-      } else {
-        context.queueNpcHit({ ...attack, impactDelayTicks: 0 });
-      }
+      context.queueNpcHit({
+        attackerId, targetId, style: "typeless", attackKind: "typeless", rolledDamage: landed.damage,
+        accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "cancel-before-impact",
+      });
     }
     return damages;
-  }
-  // Sol Heredit's spear or shield lands (brawler.js, solGround): the tiles are
-  // those of his own fight (buildGroundAttackArea), from where he and his
-  // target stand now, within 10 tiles of his centre and on the arena's floor;
-  // the stomp goes out from his centre as in his scene
-  // (getGroundAttackDelayCycles). A target on them takes the larger of two
-  // rolls of 0 to 44, which no prayer stops (sol-heredit/boss.js).
-  landSolGround({ solGround, attackerId, targetId }, context) {
-    const attacker = context.world.getNpc(attackerId);
-    const target = context.world.actors.get(targetId);
-    if (!attacker || !isActorAlive(attacker)) return [];
-    const [x, y] = attacker.position;
-    const window = { minX: x - 10, maxX: x + 14, minY: y - 10, maxY: y + 14 };
-    const area = buildGroundAttackArea(solGround, { position: attacker.position, target: target?.position ?? [x + 2, y - 1], arena: window });
-    const tiles = area.tiles.filter(([tileX, tileY]) => isArenaTileWalkable(tileX, tileY));
-    const graphics = tiles.map((tile, index) => ({
-      spotAnimId: colosseumSpotAnimIds.solMelee[index % colosseumSpotAnimIds.solMelee.length],
-      tile,
-      delayCycles: getGroundAttackDelayCycles(tile, area.centre),
-    }));
-    emitColosseumVisual(context.tickEvents, { animations: [], graphics: graphics.map(({ spotAnimId, tile, delayCycles }) => ({ spotAnimId, position: [...tile], delayCycles })) });
-    emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: graphics.map(({ spotAnimId, tile, delayCycles }) => ({ spotAnimId, target: { kind: "tile", position: [...tile] }, height: 0, delayCycles })) });
-    if (!target || !isActorAlive(target)) return [];
-    const size = target.size ?? 1;
-    const struck = tiles.some(([tileX, tileY]) => tileX >= target.position[0] && tileX < target.position[0] + size && tileY >= target.position[1] && tileY < target.position[1] + size);
-    if (!struck) return [];
-    const roll = () => Math.floor(this.random() * 45);
-    const damage = Math.max(roll(), roll());
-    if (target.kind === "player") {
-      return [{ baseDamage: damage, attackType: "typeless", source: this.getNpcDamageSourceLabel(attackerId), playerPosition: [...target.position] }];
-    }
-    context.queueNpcHit({
-      attackerId, targetId, style: "typeless", attackKind: "typeless", rolledDamage: damage,
-      accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "cancel-before-impact",
-    });
-    return [];
   }
   processPostTick(context, mechanics) {
     const damages = this.host?.processPostTick(context, mechanics) ?? [];
