@@ -24,6 +24,8 @@
 //                 of several spot animations on one timing (Jad's magic),
 //                 `targetGraphic` a spot animation on the target's tile;
 //                 `windupTicks` delays all of it and the hit (Jad's three);
+//                 `chargedVolley` a charge that shows the orbs it will throw,
+//                 then one a tick (the manticore's: colosseum/sandbox.js);
 //                 `special` an attack of the encounter's own that lands on
 //                 tiles and can be walked out of ({ id, spotAnimIds, start,
 //                 land }: Sol Heredit's spear and shield, in
@@ -84,8 +86,13 @@ export const sandboxPreloadNpcTypes = sandboxNpcCatalog.map((entry) => ({
   attackClips: entry.clips,
   deathSeqId: entry.deathSeqId,
 }));
-// An attack's parts too: a volley's orbs fly as its own (the manticore's).
-const attackAndParts = (attack) => [attack, ...(attack.volley ?? [])];
+// An attack's parts too: a volley's orbs fly as its own, and a charged
+// volley holds, throws and lands its orbs (the manticore's).
+const attackAndParts = (attack) => [
+  attack,
+  ...(attack.volley ?? []),
+  ...Object.values(attack.chargedVolley?.orbs ?? {}).map((orb) => ({ flight: { spotAnimId: orb.spotAnimId }, targetGraphic: { spotAnimId: orb.impactSpotAnimId } })),
+];
 export const sandboxSpotAnimIds = [
   ...new Set(
     sandboxNpcCatalog.flatMap((entry) =>

@@ -7,16 +7,43 @@ import {
   shamanSpotAnimIds,
   javelinProjectileSpotAnimId,
   manticoreOrbSpotAnimIds,
+  manticoreOrbImpactSpotAnimIds,
   shockwaveProjectileSpotAnimId,
 } from "./constants.js";
 
 // shockwave.js: leaves after 50 cycles, 26 and 8 a tile more.
 const shockwaveProjectile = { spotAnimId: shockwaveProjectileSpotAnimId, timing: { delay: 50, lengthAdjustment: 26, stepMultiplier: 8, progress: 40 }, slope: 0, startHeight: 158, endHeight: 100 };
-// manticore.js: an orb flies 30 cycles and lands a tick later.
-const manticoreOrb = (spotAnimId) => ({ spotAnimId, startDelayCycles: 0, endDelayCycles: 30, slope: 127, startOffset: 0, startHeight: 400, endHeight: 50 });
-// WIKI: the most each orb hits for.
+// The manticore's charge and volley, as manticore.js makes them (its numbers
+// and their sources are there): the order of its three orbs chosen once,
+// ranged and magic in either order and melee last (WIKI, SIM); a charge of
+// 10 ticks (its attack speed), the charge animation when 6 are left and an
+// orb held over it when 5, 4 and 3 are left, 300, 400 and 500 high, drawn
+// every second tick (OBS, CACHE); then one orb a tick, flying 30 cycles to
+// 50 high with slope 127, the first with a start offset of 50 (OBS), its
+// hitsplat a tick after it leaves (OBS, SIM), and its impact drawn 100 high
+// on a target that does not pray against it (OBS). The most each hits for:
+// WIKI. The sandbox's brawler.js plays it (chargedVolley); the
+// Colosseum's modifiers (Mantimayhem) and the copying of another
+// manticore's order are its fight's only.
 const manticoreOrbMaxHits = { range: 36, magic: 31, melee: 31 };
-const manticoreOrbPart = (style) => ({ style, maxHit: manticoreOrbMaxHits[style], flight: manticoreOrb(manticoreOrbSpotAnimIds[style]) });
+const manticoreChargedVolley = {
+  orders: [["range", "magic", "melee"], ["magic", "range", "melee"]],
+  orbs: Object.fromEntries(["range", "magic", "melee"].map((style) => [style, {
+    style,
+    maxHit: manticoreOrbMaxHits[style],
+    spotAnimId: manticoreOrbSpotAnimIds[style],
+    impactSpotAnimId: manticoreOrbImpactSpotAnimIds[style],
+  }])),
+  heights: [300, 400, 500],
+  startOffsets: [50, 0, 0],
+  flight: { startDelayCycles: 0, endDelayCycles: 30, slope: 127, endHeight: 50 },
+  impactDelayTicks: 1,
+  impactHeight: 100,
+  chargeClip: "charge",
+  chargeClipTicksLeft: 6,
+  firstOrbShownTicksLeft: 5,
+  heldOrbGraphicTicks: 2,
+};
 // shaman.js (OBS: leaves after 67 cycles, lands 3 ticks after the cast) and
 // javelin.js (OBS: 58 to 90 cycles, lands after 3 ticks).
 const shamanFlight = { spotAnimId: shamanSpotAnimIds.projectile, startDelayCycles: 67, endDelayCycles: 90, slope: 14, startOffset: 32, startHeight: 172, endHeight: 146 };
@@ -44,16 +71,9 @@ export const colosseumSandboxEntries = [
   // jaguar.js: three claws at once, each rolled on its own, up to 47 each (WIKI, SIM).
   monster("jaguar", { clip: "attack", hits: 3, maxHit: 47 }),
   monster("javelin", { clip: "attack", maxHit: 48, flight: javelinFlight }), // javelin.js
-  // manticore.js: a volley of three orbs, one a tick, ranged and magic in
-  // either order and melee last, each with its hitsplat a tick after it
-  // leaves; a volley every 10 ticks (its charge is not drawn here).
-  {
-    ...monster("manticore", { clip: "throw" }),
-    attacks: [
-      { style: "range", range: 15, clip: "throw", volley: [manticoreOrbPart("range"), manticoreOrbPart("magic"), manticoreOrbPart("melee")] },
-      { style: "magic", range: 15, clip: "throw", volley: [manticoreOrbPart("magic"), manticoreOrbPart("range"), manticoreOrbPart("melee")] },
-    ],
-  },
+  // manticore.js: it charges, shows its three orbs in the order it will
+  // throw them, and throws them one a tick (manticoreChargedVolley above).
+  monster("manticore", { clip: "throw", chargedVolley: manticoreChargedVolley }),
   monster("shockwave", { clip: "attack", projectile: shockwaveProjectile }),
   monster("minotaur", { clip: "attack" }),
 ];

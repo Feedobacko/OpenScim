@@ -63,7 +63,8 @@ for (const entry of sandboxNpcCatalog) {
   assert.ok(sandboxPreloadNpcTypes.some((npcType) => npcType.npcTypeId === entry.npcTypeId), `${entry.id}: loaded by the scene`);
   // Every spot animation its attacks fly or draw, a volley's parts included
   // (the manticore's orbs), is loaded by the scene: one that is not is never drawn.
-  for (const attack of entry.attacks.flatMap((attack) => [attack, ...(attack.volley ?? [])])) {
+  const chargedOrbs = (attack) => Object.values(attack.chargedVolley?.orbs ?? {}).map((orb) => ({ flight: orb, targetGraphic: { spotAnimId: orb.impactSpotAnimId } }));
+  for (const attack of entry.attacks.flatMap((attack) => [attack, ...(attack.volley ?? []), ...chargedOrbs(attack)])) {
     for (const id of [attack.projectile?.spotAnimId, attack.flight?.spotAnimId, attack.targetGraphic?.spotAnimId, ...(attack.parts?.spotAnims.map((part) => part.spotAnimId) ?? []), ...(attack.special?.spotAnimIds ?? [])]) {
       if (id !== undefined) assert.ok(sandboxSpotAnimIds.includes(id), `${entry.id}: spot animation ${id} is loaded by the scene`);
     }
