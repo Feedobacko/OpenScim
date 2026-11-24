@@ -19,14 +19,23 @@ The **Sandbox editor** button at the top of the screen opens a panel in three st
 
 1. **Arena**: the scenario's name, author and description; the arena (another
    arena is another route: the page goes there and the editor reopens at
-   step 2); the mode; the ten examples; the scenarios saved in this browser.
+   step 2); the mode; the twenty examples; the scenarios saved in this browser.
 2. **Monsters**: a map of the arena's walkable tiles. Drag a monster from the
    list onto its starting tile, drag it on the map to move it, click it to
    edit its hitpoints, max hit, attack speed, levels and team, duplicate it or
    remove it. The blue **P** is the player's starting tile; drag it the same
    way. A footprint must stand on walkable tiles and on no one else.
-3. **Save & share**: save in this browser, export or import a `.json` file,
-   copy a share code or a link, import a code, a link or JSON.
+3. **Save & share**: the scenario's gear ("Use my current gear" keeps what
+   you wear, as the Gear button set it; "Remove gear"), save in this
+   browser, export or import a `.json` file, copy a share code or a link,
+   import a code, a link or JSON.
+
+**Gear**, beside Start at the top, opens the application's setup window for
+the arena: the loadout, with the presets of every fight. A scenario with
+gear puts it on when it is applied, loaded from the setup window or opened
+by link (the application sets the sandbox's loadout and enters the arena
+again; window events `sandbox-get-loadout` and `sandbox-apply-loadout`,
+heard in `assets/application.js`).
 
 **Apply & restart** restarts the run with the scenario (the application's
 own restart; a reload when the boss was switched on or off, because the
@@ -80,22 +89,30 @@ other.
 
 - Every monster placed from the catalog has one behaviour (`brawler.js`):
   walk to the target (with the route search around obstacles), attack with
-  whichever of its attacks reaches, wait its attack speed. Their special
-  mechanics are those of the arena's host only (above): a Jad, a Sol or a
-  Doom placed from the catalog has no prayer switch, spears or orbs. Their
-  stats, models and animations are the originals'.
+  whichever of its attacks reaches, wait its attack speed. Their full
+  mechanics are those of the arena's host only (above). A boss from the
+  catalog keeps its look and the shape of its attacks: JalTok-Jad winds up
+  for three ticks and throws his three-part magic or his ranged boulder (the
+  style to pray against shows in the animation, but he picks it at random),
+  TzKal-Zuk does not move, the Doom throws his orbs; Sol Heredit's spears,
+  Yama's fireballs or Vardorvis' axes come only with the host.
 - The catalog is the monsters whose models and sequences the trimmed cache
   already holds and whose stats are in the monster table
-  (`client/data/monsters.js`); the Doom's larvae, Zebak and Yama are left
-  out for that reason (Zebak and Yama: their sequences are only in
-  `client/assets/rendering.js`). A monster's numbers that are not the
-  table's are named with their source in `catalog.js`; several are
-  "inferred".
+  (`client/data/monsters.js`). Its bosses: Sol Heredit, Yama, Vardorvis, the
+  Doom of Mokhaiotl, JalTok-Jad and TzKal-Zuk. The Doom's larvae are left
+  out (not in the table), and Zebak (a head and a tail of nine tiles) is
+  only the host of his room. A monster's numbers that are not the table's
+  are named with their source in `catalog.js`; several are "inferred".
+- What an attack looks like is announced as an "inferno_visual" event
+  (the default scene) and a "colosseum_visual" one (Sol Heredit's and
+  Yama's scenes, which the hosts draw with; Yama's plays them since a seam
+  in `assets/rendering.js`). Yama's scene plays the animations only, not
+  the projectiles.
 - Arenas: the lobby is left out (its floor and walls are drawn by its own
   scene in `rendering.js`). The Inferno's has no pillars.
-- Ranged and magic attacks without a projectile of their own (Jad, the blob,
-  the Doom's orb, the shockwave colossus) land after a fixed delay and show
-  only the attack animation.
+- Ranged and magic attacks without a projectile of their own (the blob,
+  Yama, the shockwave colossus) land after a fixed delay and show only the
+  attack animation.
 - The share code goes in the address (`#sbx=`); there is no server. A
   scenario of 40 monsters makes a code of about 800 characters.
 
@@ -112,6 +129,12 @@ top. In short:
   "arena": "sol_heredit",
   "mode": "versus",
   "options": { "playerStart": null, "ffaIncludesPlayer": true, "bossMechanics": true },
+  "gear": {
+    "name": "Max melee",
+    "equipment": { "weapon": 26219, "shield": 22322, "head": 26382 },
+    "inventory": [{ "id": 13652 }, { "id": 6685 }, null],
+    "supplies": {}
+  },
   "npcs": [
     { "id": "sol-west", "npc": "sol_heredit", "position": [27, 36] },
     { "id": "sol-east", "npc": "sol_heredit", "position": [34, 36], "hp": 750, "team": "red" }
@@ -140,7 +163,20 @@ seeded generator.
 `tools/determinism/scenarios/sandbox.mjs` runs both modes, each host with
 two of the sandbox's monsters, and each example.
 `test/test-sandbox-scenario.mjs` checks the format, the codes and the
-examples.
+examples; `test/test-sandbox-examples.mjs` that each of the twenty stands on
+walkable tiles, clear of the others, of the host's NPCs and of the player.
+
+## The examples
+
+Twenty, bosses only, each with its gear (max ranged, melee or magic). Eleven
+fight the arena's real boss with all its mechanics and other bosses beside
+it (Two Suns, Sun and Flame, Sun and Shadow, Yama's Court, Two Lords of
+Fire, The Stranglewood Hunt, Three Heads, The Doom and Two Jads, The Abyss
+Below, Depths of Fire, Jaws and Spear); nine put the catalog's bosses
+together: Zuk's Set, Triple Jad, Boss Rush, Twin Flames (all against you),
+Royal Rumble (every one for itself), The Champions' Stand (two bosses on
+your side), Clash of Titans and Boss Royale (bosses against each other
+while you watch), Tomb Raiders.
 
 ## Files
 
@@ -149,7 +185,7 @@ examples.
 | `arenas.js` | the arenas: map square, collision, start tile, camera; the variant kind of each |
 | `catalog.js` | the monsters: NPC type, size, speed, attacks, sequences, projectiles |
 | `scenario.js` | the format: `normalizeScenario`, JSON, share codes |
-| `examples.js` | the ten examples |
+| `examples.js` | the twenty examples and their gear |
 | `brawler.js` | the NPC definition every sandbox NPC has |
 | `encounter.js` | `SandboxEncounter`, the modes, the definition with its variants |
 | `activeScenario.js` | the scenario the next run starts with (localStorage, `#sbx=` links) |
@@ -163,5 +199,8 @@ examples.
 What needed `client/assets/`, each a few lines: the tick loop asks
 `encounter.isPaused()` (`Grid.js`); `routeVariants` (variants with a route
 and presets that the menus do not list) and the sandbox's presets, every
-fight's (`application.js`); `presentationOf(kind)` handed to the
-presentations written in modules (`rendering.js`).
+fight's, the scenario code field of the setup window, and the window
+events of the Gear button and of a scenario's gear (`application.js`);
+`presentationOf(kind)` handed to the presentations written in modules, and
+Yama's scene playing other NPCs' "colosseum_visual" animations
+(`rendering.js`).
