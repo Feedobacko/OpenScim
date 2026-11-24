@@ -8,38 +8,46 @@ Ways in: "Sandbox" in the encounter picker and the quick search (one entry;
 the arena is chosen in the sandbox's editor, not in the menus), and the
 gateway in the lobby, a dais ringed with coloured beams on the spoke between
 Yama and his neighbour. Both open the setup window, where the loadout can be
-any preset of any fight, and "Load a scenario" takes a share code, a link or
-a scenario's JSON and switches the window to its arena, so that Start
-Encounter plays it. Routes: `/sandbox/` and `/sandbox/<arena>` (e.g.
-`/sandbox/inferno`).
+any preset of any fight. The gateway's also offers "Load a scenario", the way
+in for someone holding a code: it takes a share code, a link or a scenario's
+JSON and switches the window to its arena, so that Start Encounter plays it.
+Routes: `/sandbox/` and `/sandbox/<arena>` (e.g. `/sandbox/inferno`).
 
 ## Using it
 
-The **Sandbox editor** button at the top of the screen opens a panel in three steps:
+The editor is the one place to build and play a scenario. The top bar holds
+**Start encounter** and the **Sandbox editor** button, which opens a panel in
+three steps:
 
 1. **Arena**: the scenario's name, author and description; the arena (another
-   arena is another route: the page goes there and the editor reopens at
-   step 2); the mode; the twenty examples; the scenarios saved in this browser.
+   arena is another route, which the application enters without loading the
+   page; the editor reopens at step 2); the mode; the twenty examples; the
+   library; the scenarios saved in this browser.
 2. **Monsters**: a map of the arena's walkable tiles. Drag a monster from the
    list onto its starting tile, drag it on the map to move it, click it to
    edit its hitpoints, max hit, attack speed, levels and team, duplicate it or
    remove it. The blue **P** is the player's starting tile; drag it the same
    way. A footprint must stand on walkable tiles and on no one else.
-3. **Save & share**: the scenario's gear ("Use my current gear" keeps what
-   you wear, as the Gear button set it; "Remove gear"), save in this
-   browser, export or import a `.json` file, copy a share code or a link,
-   import a code, a link or JSON.
+3. **Gear & share**: the scenario's gear ("Choose gear…" opens the
+   application's setup window for the arena, with the presets of every
+   fight; "Use my current gear" keeps what you wear in the scenario; "Remove
+   gear"), save in this browser, export a `.json` file, copy a share code or
+   a link, and the one import box: a code, a link or JSON pasted, or a file.
 
-**Gear**, beside Start at the top, opens the application's setup window for
-the arena: the loadout, with the presets of every fight. A scenario with
-gear puts it on when it is applied, loaded from the setup window or opened
-by link (the application sets the sandbox's loadout and enters the arena
-again; window events `sandbox-get-loadout` and `sandbox-apply-loadout`,
-heard in `assets/application.js`).
+A scenario with gear puts it on when it is applied, loaded from the setup
+window or opened by link: the application sets the sandbox's loadout and,
+in the render that holds it, enters the arena with it.
 
-**Apply & restart** restarts the run with the scenario (the application's
-own restart; a reload when the boss was switched on or off, because the
-scene is chosen as a visit starts). Every change is kept at once as the
+The editor reaches the application through `bridge.js`: one
+`sandbox-request` window event (heard in `assets/application.js`) whose
+listener takes each request at once and settles a promise when it is done
+(the setup window open, the loadout read, the loadout set and the arena
+entered, an arena entered). Nothing waits a guessed time.
+
+**Apply & restart**, the editor's one primary action, restarts the run with
+the scenario (the application's own restart; when the boss was switched on
+or off, the application enters the arena again, because the scene is chosen
+as a visit starts). Every change is kept at once as the
 active scenario (localStorage), so a reload keeps it; the fight on screen
 only changes on a restart. The scene follows the scenario of the run, not
 the editor's: the encounter notes it as it resets (`visit.js`), and should a
@@ -81,8 +89,9 @@ intro is left out (the sandbox's Start replaces it).
   "Monsters may attack the player" is off, the player. NPCs of the team
   `player` fight on the player's side. An NPC that is hit turns on its
   attacker if that is an enemy. Won when the player's side is the last
-  standing; with the player left out, when one team of NPCs is left (the
-  snapshot's `winner` names it).
+  standing; with the player left out, when one team of NPCs is left. The top
+  bar names the winner: the snapshot's `sandbox.winner`, which every
+  snapshot of the sandbox carries, a host's included.
 
 NPC-on-NPC attacks are the engine's own (the Inferno's nibblers hit its
 pillars the same way): `rollNpcAttack` rolls them with the monster table's
@@ -101,8 +110,9 @@ other.
   TzKal-Zuk does not move, the Doom throws his orbs, the jaguar claws three
   times at once and the manticore throws its three orbs a tick apart (each
   hit with its hitsplat: `hits` and `volley` in `catalog.js`). Sol Heredit's
-  regular attack is his own fight's (`solGround` in `brawler.js`, landed by
-  `encounter.js` with `buildGroundAttackArea` of `sol-heredit/`): a spear or
+  regular attack is his own fight's (`solGroundAttack` in
+  `sol-heredit/sandbox.js`, a `special` that `brawler.js` starts and
+  `encounter.js` lands and draws, with `buildGroundAttackArea`): a spear or
   a shield at even odds, the first a spear, the variant alternating; the
   tiles from where he and his target stand three ticks after the telegraph,
   the stomp going out from his centre, the larger of two rolls of 0 to 44
@@ -115,7 +125,8 @@ other.
   Doom of Mokhaiotl, JalTok-Jad and TzKal-Zuk. The Doom's larvae are left
   out (not in the table), and Zebak (a head and a tail of nine tiles) is
   only the host of his room. A monster's numbers that are not the table's
-  are named with their source in `catalog.js`; several are "inferred".
+  are named with their source in its encounter's `sandbox.js`; several are
+  "inferred".
 - What an attack looks like is announced as an "inferno_visual" event
   (the default scene) and a "colosseum_visual" one (Sol Heredit's and
   Yama's scenes, which the hosts draw with; Yama's plays them, with their
@@ -134,11 +145,14 @@ The catalog follows the encounters by itself. `tools/sandbox-catalog.mjs`
 reads the render config of every presentation written in modules (the way
 every new encounter is added) and finds each NPC it draws that has stats in
 the monster table and an attack clip. One that the curated catalog
-(`catalog.js`) neither holds nor excludes (`sandboxCatalogExclusions`, each
+neither holds nor excludes (`sandboxCatalogExclusions` in `catalog.js`, each
 with its reason) becomes an entry of `discovered.js`, a generated file:
 its size and attack speed from the table, the style its levels and bonuses
 favour, its sequences from the render config. The sandbox's catalog is the
-curated entries and these.
+curated entries and these. The curated entries are each encounter's own:
+`client/encounters/<encounter>/sandbox.js` (the Inferno, the Colosseum, Sol
+Heredit, Vardorvis, the Doom, Yama) holds its monsters' entries beside the
+ids, sequences and projectiles they copy, and `catalog.js` gathers them.
 
 - `npm run sandbox:catalog` (or `node tools/sandbox-catalog.mjs --write`)
   writes `discovered.js`; without `--write` it lists every NPC found and
@@ -217,8 +231,12 @@ seeded generator.
 `tools/determinism/scenarios/sandbox.mjs` runs both modes, each host with
 two of the sandbox's monsters, and each example.
 `test/test-sandbox-scenario.mjs` checks the format, the codes and the
-examples; `test/test-sandbox-examples.mjs` that each of the twenty stands on
-walkable tiles, clear of the others, of the host's NPCs and of the player.
+examples; `test/test-sandbox-examples.mjs` that each of the twenty, and each
+scenario of the library, stands on walkable tiles, clear of the others, of
+the host's NPCs and of the player. `test/test-sandbox-wiring.mjs` fails when
+the engine calls a hook of an encounter that the sandbox neither implements
+nor hands its host (`sandboxHostHooks` in `encounter.js`), and when
+`engine/encounterKinds.js` does not list the arenas of `arenas.js`.
 
 ## The examples
 
@@ -232,12 +250,22 @@ Royal Rumble (every one for itself), The Champions' Stand (two bosses on
 your side), Clash of Titans and Boss Royale (bosses against each other
 while you watch), Tomb Raiders.
 
+## The library
+
+`client/encounters/sandbox/scenarios/` holds scenarios that players submit
+by pull request: one JSON file each, as the editor's "Export .json" writes
+it, under a short name of its own, listed in that directory's `index.js`.
+The editor offers them as the Library, next to the examples.
+`test/test-sandbox-examples.mjs` checks that every file is listed and reads,
+and places each as it places the examples. Share codes stay for casual
+sharing; the library is reviewed, permanent and one click away.
+
 ## Files
 
 | File | Contents |
 |---|---|
 | `arenas.js` | the arenas: map square, collision, start tile, camera; the variant kind of each |
-| `catalog.js` | the monsters: NPC type, size, speed, attacks, sequences, projectiles |
+| `catalog.js` | the monsters, gathered from each encounter's `sandbox.js`, and the exclusions |
 | `scenario.js` | the format: `normalizeScenario`, JSON, share codes |
 | `examples.js` | the twenty examples and their gear |
 | `brawler.js` | the NPC definition every sandbox NPC has |
@@ -245,7 +273,9 @@ while you watch), Tomb Raiders.
 | `activeScenario.js` | the scenario the next run starts with (localStorage, `#sbx=` links) |
 | `storage.js` | the saved scenarios (localStorage) |
 | `presentation.js` | one presentation per arena; brings the editor in step every frame |
-| `editor.js` | the editor panel, and Start / Pause |
+| `editor.js` | the editor panel, Start / Pause and the run's result |
+| `bridge.js` | the editor's requests to the application, as promises |
+| `scenarios/` | the library: one JSON scenario per file, and its `index.js` |
 | `clock.js` | whether the run may tick: waiting for Start, running, paused |
 | `visit.js` | whether a visit fights the host (and draws its scene) |
 | `gateway.js` | the gateway in the lobby (`client/lobby/gateways.js` lists it) |
@@ -254,8 +284,9 @@ while you watch), Tomb Raiders.
 What needed `client/assets/`, each a few lines: the tick loop asks
 `encounter.isPaused()` (`Grid.js`); `routeVariants` (variants with a route
 and presets that the menus do not list) and the sandbox's presets, every
-fight's, the scenario code field of the setup window, and the window
-events of the Gear button and of a scenario's gear (`application.js`);
+fight's, the scenario code field of the setup window (from the lobby's
+gateway), and the `sandbox-request` listener of `bridge.js`
+(`application.js`);
 `presentationOf(kind)` handed to the presentations written in modules, and
 Yama's scene playing other NPCs' "colosseum_visual" animations, projectiles
 and graphics, cleared on a replay jump, a despawn and when the scene goes

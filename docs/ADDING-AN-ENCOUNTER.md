@@ -809,4 +809,6 @@ Every step adds files of your own; none edits a list.
    tools/determinism/harness.mjs --update --only sandbox/catalog/` records
    their digests. A monster that is not one to place on its own goes to
    `sandboxCatalogExclusions` in `client/encounters/sandbox/catalog.js`
-   with its reason (`docs/SANDBOX.md`, "New encounters' monsters").
+   with its reason; one that needs numbers of its own gets an entry in your
+   encounter's `sandbox.js`, gathered by that catalog (`docs/SANDBOX.md`,
+   "New encounters' monsters").
