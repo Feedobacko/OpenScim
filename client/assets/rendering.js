@@ -16960,16 +16960,27 @@ function withThrallRenderConfig(config) {
 // keeps the bars' edges on device pixels.
 // Measured: observer crops doom-20261123-192925 and Pictures/hp_test.png,
 // the 30x5 bar drawn 90x15, the 25 px prayer 75.
-// ponytail: fixed factor, make it a setting (RuneLite's scaling %) when
-// someone plays at another one.
-var OVERLAY_DEVICE_PIXELS_PER_GAME_PIXEL = 3;
+// The factor is a setting now: 1 (a game pixel is a CSS pixel: the sprites
+// at their own size, as the game draws them unstretched) unless
+// localStorage "openscim.overlayScale" holds another, e.g. 3 for RuneLite's
+// stretched mode as measured above.
+function readOverlayScale() {
+  try {
+    const value = Number(globalThis.localStorage?.getItem("openscim.overlayScale"));
+    return Number.isFinite(value) && value >= 1 && value <= 4 ? value : 1;
+  } catch {
+    return 1;
+  }
+}
+var OVERLAY_DEVICE_PIXELS_PER_GAME_PIXEL = readOverlayScale();
 var OVERLAY_LAYER_SELECTOR =
   "[data-overhead-icons],[data-tick-counters],[data-overhead-texts],[data-hitsplats],[data-healthbars],[data-timerbars]";
 // The camera the overlay renderer projects with: screen points in game
 // pixels. Only the 3D camera (it has a viewport) projects like the game.
 function overlayCamera(camera, model) {
+  // Never under a CSS pixel per game pixel (the default on a high-density screen).
   const k = camera.viewport
-    ? OVERLAY_DEVICE_PIXELS_PER_GAME_PIXEL / (globalThis.devicePixelRatio || 1)
+    ? Math.max(1, OVERLAY_DEVICE_PIXELS_PER_GAME_PIXEL / (globalThis.devicePixelRatio || 1))
     : 1;
   model.overlayScale = k;
   if (k === 1) {
