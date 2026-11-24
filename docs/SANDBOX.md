@@ -338,9 +338,9 @@ sharing; the library is reviewed, permanent and one click away.
 What needed `client/assets/`, each a few lines: the tick loop asks
 `encounter.isPaused()` (`Grid.js`); `routeVariants` (variants with a route
 and presets that the menus do not list) and the sandbox's presets, every
-fight's, the scenario code field of the setup window (from the lobby's
-gateway), and the `sandbox-request` listener of `bridge.js`
-(`application.js`);
+fight's, the way in from the menus and the gateway (`sandboxEntryKind`),
+the victory screen's Sandbox editor button, and the `sandbox-request`
+listener of `bridge.js` (`application.js`);
 `presentationOf(kind)` handed to the presentations written in modules, and
 Yama's scene playing other NPCs' "colosseum_visual" animations, projectiles
 and graphics, cleared on a replay jump, a despawn and when the scene goes

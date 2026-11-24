@@ -1,11 +1,7 @@
-// The scenario code field of the sandbox's setup window (assets/application.js):
-// a share code, a link that carries one, or a scenario's JSON becomes the
-// active scenario, and the window switches to the scenario's arena, so that
-// "Start Encounter" goes straight into it, with the scenario's gear when it
-// carries one.
-import { getActiveScenario, setActiveScenario } from "./activeScenario.js";
+// The sandbox's way in from the application's menus and the lobby's gateway
+// (assets/application.js): the arena to enter, and the step its editor opens at.
+import { getActiveScenario } from "./activeScenario.js";
 import { getSandboxArena, sandboxVariantKind } from "./arenas.js";
-import { importScenarioText } from "./scenario.js";
 
 // The step the editor (editor.js) opens at when it is made again: kept in
 // sessionStorage so that it survives the arena being entered, or the page
@@ -27,17 +23,4 @@ export function sandboxEntryKind() {
   }
   const scenario = getActiveScenario();
   return sandboxVariantKind(scenario ? scenario.arena : getSandboxArena().id);
-}
-
-/** Throws ScenarioError with a message for the player when the text is not a scenario. */
-export function loadSandboxCode(text) {
-  const scenario = setActiveScenario(importScenarioText(text));
-  return {
-    encounterKind: sandboxVariantKind(scenario.arena),
-    name: scenario.meta.name,
-    arenaName: getSandboxArena(scenario.arena).name,
-    npcCount: scenario.npcs.length,
-    // The scenario's loadout, for the setup window to take (none: keep the player's).
-    gear: scenario.gear ? { equipment: scenario.gear.equipment, inventory: scenario.gear.inventory, supplies: scenario.gear.supplies } : null,
-  };
 }
