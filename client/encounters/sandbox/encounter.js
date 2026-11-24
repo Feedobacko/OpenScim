@@ -76,6 +76,7 @@ export class SandboxEncounter {
     this.brawlers = brawlerNpcDefinition.register({
       selectTarget: (actor, context) => this.selectTarget(actor, context),
       entryOf: (actor) => getSandboxNpcEntry(actor.state.entryId),
+      queueStrike: (pending) => this.strikes.push(pending),
     });
     this.reset();
   }
@@ -88,6 +89,8 @@ export class SandboxEncounter {
     this.outcome = { phase: "active" };
     this.winner = null;
     this.npcIds = [];
+    // Strikes on tiles that have not landed yet (brawler.js): { landsAt, tiles, attack }.
+    this.strikes = [];
     const hosted = this.scenario.options.bossMechanics && this.arena.hostKind && this.createHost;
     this.setHost(hosted ? this.createHost(this.arena.hostKind) : null, seeds?.host);
     // A new run or a restart waits for "Start encounter" (clock.js).
@@ -183,7 +186,29 @@ export class SandboxEncounter {
     );
   }
   resolveHazards(context, mechanics) {
-    return this.host?.resolveHazards(context, mechanics) ?? [];
+    return [...(this.host?.resolveHazards(context, mechanics) ?? []), ...this.landStrikes(context)];
+  }
+  // The strikes due now land on whoever stands on their tiles: the player as
+  // damage to apply, an NPC as a hit of the attacker. A strike whose attacker
+  // died first does not land.
+  landStrikes(context) {
+    const damages = [];
+    const due = this.strikes.filter((pending) => pending.landsAt <= context.tick);
+    this.strikes = this.strikes.filter((pending) => pending.landsAt > context.tick);
+    for (const { tiles, attack } of due) {
+      const attacker = context.world.getNpc(attack.attackerId);
+      const target = context.world.actors.get(attack.targetId);
+      if (!attacker || !isActorAlive(attacker) || !target || !isActorAlive(target)) continue;
+      const size = target.size ?? 1;
+      const covered = tiles.some(([x, y]) => x >= target.position[0] && x < target.position[0] + size && y >= target.position[1] && y < target.position[1] + size);
+      if (!covered) continue;
+      if (target.kind === "player") {
+        damages.push({ baseDamage: attack.accuracySucceeded ? attack.rolledDamage : 0, attackType: attack.style, source: attack.attackerId, playerPosition: [...target.position] });
+      } else {
+        context.queueNpcHit({ ...attack, impactDelayTicks: 0 });
+      }
+    }
+    return damages;
   }
   processPostTick(context, mechanics) {
     const damages = this.host?.processPostTick(context, mechanics) ?? [];

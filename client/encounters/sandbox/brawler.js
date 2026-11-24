@@ -19,7 +19,7 @@ import { getNpcPursuitMoves, isArenaFootprintWalkable } from "../shared/npcMovem
 import { findNpcRouteToMeleeRange } from "../shared/npcRoutes.js";
 import { defineNpc } from "../shared/npcDefinitions.js";
 import { rollNpcAttack, isNpcInAttackRange, getDistanceFromNpcCentre } from "../shared/npcAttack.js";
-import { scheduleNextActionTick, buildNpcProjectileVisual, getProjectileSourcePosition, buildActorVisualTarget } from "../shared/npcHelpers.js";
+import { scheduleNextActionTick, buildNpcProjectileVisual, getProjectileSourcePosition, buildActorVisualTarget, faceActorToward } from "../shared/npcHelpers.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
 import { emitColosseumVisual } from "../sol-heredit/constants.js";
 
@@ -32,6 +32,15 @@ const planOfStyle = {
 // inferred: a ranged or magic attack without a projectile of its own lands two ticks later.
 const defaultDistantImpactTicks = 2;
 const cyclesPerTick = 30;
+
+// The tiles a strike lands on, around the target's tile as the attack starts:
+// "square" the 3 by 3 around it, "plus" it and its four neighbours.
+function strikeTiles(shape, [x, y]) {
+  const offsets = shape === "square"
+    ? [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy) => [dx, dy]))
+    : [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]];
+  return offsets.map(([dx, dy]) => [x + dx, y + dy]);
+}
 
 /** The reach that brings an NPC close enough for its longest attack. */
 export const getApproachRange = (entry) => Math.max(...entry.attacks.map((attack) => attack.range));
@@ -142,6 +151,7 @@ export const brawlerNpcDefinition = defineNpc({
     const inReach = entry.attacks.filter((attack) => isNpcInAttackRange(actor, target, attack.range));
     if (inReach.length === 0) return idle;
     const attack = inReach.length === 1 ? inReach[0] : inReach[Math.floor(context.random() * inReach.length)];
+    if (attack.strike) return strike(actor, target, attack, context, config);
     const { plan, visual, graphics } = buildPlan(attack, actor.state.maxHit, actor, target);
     const npcAttack = rollNpcAttack({ attacker: actor, target, plan, random: context.random });
     // Null when an NPC has no stats: the catalog holds only NPCs of the monster table.
@@ -167,3 +177,34 @@ export const brawlerNpcDefinition = defineNpc({
     return { environmentalDamages: [], npcAttacks: [npcAttack] };
   },
 });
+
+// A strike on tiles (Sol Heredit's spear and shield): the attack is rolled
+// now and lands `delayTicks` later on the tiles it was aimed at, on whoever
+// still stands there (the encounter lands it: encounter.js, strikes). The
+// telegraph is the attack's clip; the stomp is a spot animation on every
+// tile as it lands.
+function strike(actor, target, attack, context, config) {
+  const idle = { environmentalDamages: [] };
+  const plan = { ...planOfStyle[attack.style], impactDelayTicks: 0, sourceDeathPolicy: "cancel-before-impact" };
+  const maxHit = actor.state.maxHit ?? attack.maxHit;
+  if (maxHit !== undefined) plan.maxHit = maxHit;
+  const rolled = rollNpcAttack({ attacker: actor, target, plan, random: context.random });
+  if (!rolled) return idle;
+  const { delayTicks, shape, spotAnimIds } = attack.strike;
+  const tiles = strikeTiles(shape, target.position);
+  config.queueStrike({ landsAt: context.tick + delayTicks, tiles, attack: rolled });
+  faceActorToward(actor, target);
+  const delayCycles = delayTicks * cyclesPerTick;
+  const graphics = tiles.map((tile, index) => ({ spotAnimId: spotAnimIds[index % spotAnimIds.length], target: { kind: "tile", position: tile }, height: 0, delayCycles }));
+  const animations = [{ actorId: actor.id, clipId: attack.clip, delayCycles: 0 }];
+  emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics });
+  emitColosseumVisual(context.tickEvents, {
+    animations,
+    projectiles: [],
+    graphics: graphics.map(({ spotAnimId, target: on, height, delayCycles: delay }) => ({ spotAnimId, position: [...on.position], delayCycles: delay, height })),
+  });
+  actor.combat.attackStyle = attack.style;
+  actor.combat.lastAttackTick = context.tick;
+  scheduleNextActionTick(actor.combat, context.tick, actor.combat.attackSpeed);
+  return idle;
+}
