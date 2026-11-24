@@ -40,6 +40,7 @@ const hostedArenas = [
 export async function scenarios() {
   const { sandboxExamples } = await import("../../../client/encounters/sandbox/examples.js");
   const { sandboxVariantKind } = await import("../../../client/encounters/sandbox/arenas.js");
+  const { sandboxNpcCatalog } = await import("../../../client/encounters/sandbox/catalog.js");
   const example = (key) => sandboxExamples.find((entry) => entry.key === key).scenario;
   return [
     {
@@ -82,6 +83,16 @@ export async function scenarios() {
       options: { scenario: { arena, mode: "versus", meta: { name: "Harness: host" }, options: { bossMechanics: true }, npcs } },
       ...rangedGear,
       script: shootNearest(),
+    })),
+    // Each monster of the catalog, curated or discovered (tools/sandbox-catalog.mjs),
+    // alone against the player: a new one needs its digests recorded.
+    ...sandboxNpcCatalog.map((entry) => ({
+      name: `sandbox/catalog/${entry.id}`,
+      kind: sandboxVariantKind("colosseum"),
+      seed: 4,
+      ticks: 24,
+      mechanics: { infiniteHealth: true },
+      options: { scenario: { arena: "colosseum", mode: "versus", meta: { name: "Harness: catalog" }, npcs: [{ id: "probe", npc: entry.id, position: [27, 35] }] } },
     })),
     // Each example loads and its NPCs set off.
     ...sandboxExamples.map(({ key, scenario }) => ({
