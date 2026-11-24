@@ -70,6 +70,10 @@ const hostHooks = [
   "getEngineRules", "refineArenaConfig", "configureRunStart",
 ];
 const hostNpcHooks = { removeNpcIfDue: undefined, resolveNpcLocalEffects: [] };
+// Every hook the sandbox hands its host: test/test-sandbox-wiring.mjs checks
+// that each method the engine calls on an encounter is the sandbox's own or
+// one of these, so that a hook the engine calls later is not skipped.
+export const sandboxHostHooks = [...hostHooks, ...Object.keys(hostNpcHooks), "onNpcDefeated", "moveNpc"];
 
 export class SandboxEncounter {
   // `createHost(kind)` makes the encounter of a kind (registry.js hands it in).
