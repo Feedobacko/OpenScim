@@ -44,6 +44,13 @@ for (const { key, scenario } of [...sandboxExamples, ...libraryScenarios]) {
   assert.ok(scenario.gear, `${key}: has gear`);
 
   const taken = new Map([[start.join(","), "the player's start"]]);
+  // The boulders: walkable tiles, one each, before the monsters.
+  for (const position of scenario.obstacles ?? []) {
+    const tile = position.join(",");
+    assert.ok(walkable.has(tile), `${key}: a boulder on ${tile}, which is not walkable`);
+    assert.ok(!taken.has(tile), `${key}: a boulder on ${taken.get(tile)} at ${tile}`);
+    taken.set(tile, "a boulder");
+  }
   // The host's NPCs first: they stand where their fight puts them (Zebak in his water).
   for (const actor of [...actors.filter((a) => !own.has(a.id)), ...actors.filter((a) => own.has(a.id))]) {
     const size = own.has(actor.id) ? getSandboxNpcEntry(scenario.npcs.find((npc) => npc.id === actor.id).npc).size : actor.size;
