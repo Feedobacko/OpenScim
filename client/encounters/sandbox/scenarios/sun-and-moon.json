@@ -1,0 +1,33 @@
+{
+  "format": "openscim-sandbox",
+  "version": 1,
+  "meta": {
+    "name": "Sun and Moon",
+    "author": "OpenScim",
+    "description": "Sol Heredit and Yama side by side in the nexus of the Tombs of Amascut. The first scenario of the library: a pull request adds the next."
+  },
+  "arena": "toa_nexus",
+  "mode": "versus",
+  "options": { "playerStart": null, "ffaIncludesPlayer": true, "bossMechanics": false },
+  "gear": {
+    "name": "Max melee",
+    "equipment": {
+      "weapon": 26219, "shield": 22322, "head": 26382, "body": 26384, "legs": 26386,
+      "cape": 21295, "amulet": 29801, "hands": 22981, "boots": 13239, "ring": 28307
+    },
+    "inventory": [
+      { "id": 13652 }, { "id": 23685 }, { "id": 6685 }, { "id": 6685 },
+      { "id": 6685 }, { "id": 6685 }, { "id": 6685 }, { "id": 6685 },
+      { "id": 3024 }, { "id": 3024 }, { "id": 3024 }, { "id": 3024 },
+      { "id": 3024 }, { "id": 3024 }, { "id": 13441 }, { "id": 13441 },
+      { "id": 13441 }, { "id": 13441 }, { "id": 13441 }, { "id": 13441 },
+      { "id": 13441 }, { "id": 13441 }, { "id": 13441 }, { "id": 13441 },
+      { "id": 13441 }, { "id": 13441 }, { "id": 13441 }, { "id": 13441 }
+    ],
+    "supplies": {}
+  },
+  "npcs": [
+    { "id": "sol", "npc": "sol_heredit", "position": [24, 28] },
+    { "id": "yama", "npc": "yama", "position": [34, 28] }
+  ]
+}

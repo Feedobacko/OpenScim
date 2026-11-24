@@ -1,7 +1,7 @@
 // The sandbox's editor: the one place to build and play a scenario, a panel
 // over the page in three steps.
-//   1 Arena      the scenario's name and mode, the examples and the saved
-//                scenarios, and the arena.
+//   1 Arena      the scenario's name and mode, the examples, the library
+//                (scenarios/) and the saved scenarios, and the arena.
 //                Another arena is another route (/sandbox/<arena>): the
 //                application enters it (bridge.js) and the editor opens
 //                again at step 2.
@@ -27,6 +27,7 @@ import { getActiveScenario, setActiveScenario, takeAgreedLinkGear } from "./acti
 import { getSandboxArena, getSandboxArenaOfKind, sandboxArenas, sandboxKind, sandboxVariantKind } from "./arenas.js";
 import { getSandboxNpcEntry, sandboxNpcCatalog } from "./catalog.js";
 import { sandboxExamples } from "./examples.js";
+import { libraryScenarios } from "./scenarios/index.js";
 import { requestApp } from "./bridge.js";
 import {
   createEmptyScenario,
@@ -492,6 +493,17 @@ function stepArena() {
       el("small", { text: `${getSandboxArena(scenario.arena).name} · ${scenario.mode === "ffa" ? "FFA" : "Versus"} · ${scenario.npcs.length}` }),
     ]),
   )));
+
+  if (libraryScenarios.length > 0) {
+    nodes.push(el("h3", { text: "Library" }));
+    nodes.push(el("p", { class: "sbx-note", text: "Scenarios players added to OpenScim (client/encounters/sandbox/scenarios/)." }));
+    nodes.push(el("div", { class: "sbx-grid" }, libraryScenarios.map(({ scenario }) =>
+      el("button", { class: "sbx-card", type: "button", title: scenario.meta.description, onclick: () => loadDraft(scenario) }, [
+        el("b", { text: scenario.meta.name }),
+        el("small", { text: `${scenario.meta.author ? `by ${scenario.meta.author} · ` : ""}${getSandboxArena(scenario.arena).name} · ${scenario.npcs.length}` }),
+      ]),
+    )));
+  }
 
   const saved = listSavedScenarios();
   nodes.push(el("h3", { text: "Saved in this browser" }));
