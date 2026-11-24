@@ -15,10 +15,15 @@
 // set the other way), the page reloads into it.
 import { buildScene } from "../shared/buildScene.js";
 import { sandboxArenas, sandboxVariantKind } from "./arenas.js";
-import { sandboxPreloadNpcTypes, sandboxSpotAnimIds } from "./catalog.js";
+import { sandboxPreloadNpcTypes as catalogPreloadNpcTypes, sandboxSpotAnimIds } from "./catalog.js";
+import { obstacleNpcTypeId } from "./obstacles.js";
 import { closeSandboxEditor, syncSandboxEditor } from "./editor.js";
 import { setActiveScenario } from "./activeScenario.js";
 import { getRunningScenario, isHostedVisit } from "./visit.js";
+
+// The catalog's monsters and the obstacles' boulder (obstacles.js), which has
+// no sequence (idleSeqId -1, as toa/zebak/phases.js loads it).
+const sandboxPreloadNpcTypes = [...catalogPreloadNpcTypes, { npcTypeId: obstacleNpcTypeId, idleSeqId: -1 }];
 
 const withCatalog = (renderConfig) => ({
   ...renderConfig,

@@ -41,6 +41,7 @@ import { createEmptyScenario, normalizeScenario, playerTeam } from "./scenario.j
 import { getActiveScenario } from "./activeScenario.js";
 import { holdSandboxForStart, isSandboxHeld } from "./clock.js";
 import { noteRunningScenario } from "./visit.js";
+import { createObstacleActor, isObstacle, obstacleNpcDefinition, withObstacles } from "./obstacles.js";
 import { isArenaTileWalkable } from "../../engine/arena.js";
 import { emitColosseumVisual } from "../sol-heredit/constants.js";
 import { emitInfernoVisual } from "../inferno/events.js";
@@ -60,6 +61,8 @@ const footprintGap = (a, b) => {
   return Math.max(dx, dy);
 };
 const isBrawler = (npc) => npc?.definition?.id === brawlerNpcDefinition.id;
+// The scenario's own NPCs: its monsters and its obstacles (obstacles.js).
+const isOwn = (npc) => isBrawler(npc) || isObstacle(npc);
 
 // The host's hooks the engine calls only if they are there: the sandbox has
 // each exactly when its host has it. Those that name an NPC skip the
@@ -67,7 +70,7 @@ const isBrawler = (npc) => npc?.definition?.id === brawlerNpcDefinition.id;
 const hostHooks = [
   "prepareNpcBand", "completeNpcBand", "onPlayerAttackStarted", "onPlayerAttackResolved", "executeCommand", "acceptsInput",
   "approachRange", "moveDisplacedPlayer", "syncBossHp", "enterBossHpPhase", "planPracticeRestart", "planRestartStart",
-  "getEngineRules", "refineArenaConfig", "configureRunStart",
+  "getEngineRules", "configureRunStart",
 ];
 const hostNpcHooks = { removeNpcIfDue: undefined, resolveNpcLocalEffects: [] };
 // Every hook the sandbox hands its host: test/test-sandbox-wiring.mjs checks
@@ -83,6 +86,7 @@ export class SandboxEncounter {
     this.createHost = createHost;
     // A scenario handed to the factory (the harness, a test) wins over the editor's.
     this.givenScenario = options?.scenario ? normalizeScenario(options.scenario) : null;
+    this.obstacleRegistration = obstacleNpcDefinition.register(undefined);
     this.brawlers = brawlerNpcDefinition.register({
       selectTarget: (actor, context) => this.selectTarget(actor, context),
       entryOf: (actor) => getSandboxNpcEntry(actor.state.entryId),
@@ -107,6 +111,8 @@ export class SandboxEncounter {
     this.strikes = [];
     const hosted = this.scenario.options.bossMechanics && this.arena.hostKind && this.createHost;
     this.setHost(hosted ? this.createHost(this.arena.hostKind) : null, seeds?.host);
+    // The sandbox's own countdown (ownsCountdown): its monsters wait until this tick.
+    this.countdownUntil = this.host ? 0 : this.scenario.options.countdownTicks;
     // A new run or a restart waits for "Start encounter" (clock.js).
     holdSandboxForStart();
   }
@@ -115,24 +121,37 @@ export class SandboxEncounter {
     if (host && hostSeeds) host.reset(hostSeeds);
     for (const name of [...hostHooks, ...Object.keys(hostNpcHooks), "onNpcDefeated", "moveNpc", "runStartMechanicsKeys"]) delete this[name];
     const hostDefinitions = host?.getNpcDefinitions?.();
-    this.definitions = new NpcDefinitionRegistry([...(hostDefinitions?.registrations.values() ?? []), this.brawlers]);
+    this.definitions = new NpcDefinitionRegistry([...(hostDefinitions?.registrations.values() ?? []), this.brawlers, this.obstacleRegistration]);
     if (!host) return;
     for (const name of hostHooks) if (host[name]) this[name] = (...args) => host[name](...args);
     for (const [name, answerForOwn] of Object.entries(hostNpcHooks)) {
-      if (host[name]) this[name] = (npc, ...rest) => (isBrawler(npc) ? answerForOwn : host[name](npc, ...rest));
+      if (host[name]) this[name] = (npc, ...rest) => (isOwn(npc) ? answerForOwn : host[name](npc, ...rest));
     }
     if (host.onNpcDefeated) {
       this.onNpcDefeated = (defeat, ...rest) => (this.npcIds.includes(defeat.npcId) ? undefined : host.onNpcDefeated(defeat, ...rest));
     }
     if (host.moveNpc) {
       this.moveNpc = (npc, context, mechanics) =>
-        isBrawler(npc) ? this.definitions.move(npc, { ...context, random: this.random }) : host.moveNpc(npc, context, mechanics);
+        isBrawler(npc) ? this.definitions.move(npc, { ...context, random: this.random }) : isObstacle(npc) ? [] : host.moveNpc(npc, context, mechanics);
     }
     if (host.runStartMechanicsKeys) this.runStartMechanicsKeys = host.runStartMechanicsKeys;
   }
   // Asked by the application's tick loop only (not by the engine).
   isPaused() {
     return isSandboxHeld();
+  }
+  // Asked by the application (assets/Grid.js): without the arena's boss the
+  // sandbox counts down itself, in ticks of the run, so that the player can
+  // move, pray, switch gear and drop things while its monsters wait
+  // (countdownUntil); with the boss, the application's countdown holds the
+  // run as for any fight, since the boss's own clock starts at once.
+  ownsCountdown() {
+    return !this.host;
+  }
+  // The obstacles' tiles block the way (obstacles.js), on the host's arena too.
+  refineArenaConfig(arena) {
+    const base = this.host?.refineArenaConfig?.(arena) ?? arena;
+    return withObstacles(base, this.scenario.obstacles ?? []);
   }
   // The editor's scenario when it is for this arena; otherwise an empty one,
   // and the editor offers to go to the arena of its own.
@@ -170,7 +189,13 @@ export class SandboxEncounter {
     });
     this.ownNpcs = own;
     this.npcIds = own.map((npc) => npc.id);
-    return [...hostNpcs, ...own.map((npc) => this.createNpcActor(npc))];
+    const obstacles = (this.scenario.obstacles ?? []).map((position, index) => {
+      let id = `obstacle-${index + 1}`;
+      while (taken.has(id)) id += "x";
+      taken.add(id);
+      return createObstacleActor(id, position);
+    });
+    return [...hostNpcs, ...own.map((npc) => this.createNpcActor(npc)), ...obstacles];
   }
   createNpcActor(npc) {
     const entry = getSandboxNpcEntry(npc.npc);
@@ -194,17 +219,19 @@ export class SandboxEncounter {
         history: new Map(),
         vitals: { hp: hitpoints, maxHp: hitpoints },
         formulaStats,
+        // While the sandbox counts down, nobody can be attacked; the bar shows.
+        ...(this.countdownUntil > 0 ? { targetableFromTick: this.countdownUntil, healthBarWhenUntargetable: true } : {}),
         combat: {
           attackSpeed,
           attackRange: getApproachRange(entry),
           attackStyle: entry.attacks[0].style,
-          nextActionTick: firstActionTick,
+          nextActionTick: this.countdownUntil + firstActionTick,
           targetId: null,
           lastAttackTick: null,
           animations: { idle: null, walk: null, run: null, attack: null, death: null },
         },
       },
-      { entryId: entry.id, team: this.teamOf(npc), maxHit: npc.maxHit, lastAttackerId: null },
+      { entryId: entry.id, team: this.teamOf(npc), maxHit: npc.maxHit, lastAttackerId: null, immobileUntilTick: this.countdownUntil },
     );
   }
   resolveHazards(context, mechanics) {
@@ -276,6 +303,7 @@ export class SandboxEncounter {
       // Set only when the player is left out of a free-for-all.
       winner: this.winner,
       ffaIncludesPlayer: this.scenario.options.ffaIncludesPlayer,
+      countdownUntil: this.countdownUntil,
     };
     if (this.host) return { ...this.host.getSnapshot(input), sandbox };
     return { kind: this.kind, state: sandbox, sandbox, visuals: {} };
@@ -292,6 +320,7 @@ export class SandboxEncounter {
   }
   processNpcTick(npc, context, mechanics) {
     if (isBrawler(npc)) return this.definitions.tick(npc, { ...context, random: this.random });
+    if (isObstacle(npc)) return { environmentalDamages: [] };
     return this.host?.processNpcTick?.(npc, context, mechanics);
   }
 
@@ -304,7 +333,7 @@ export class SandboxEncounter {
     return this.scenario.mode === "versus" || this.scenario.options.ffaIncludesPlayer;
   }
   isEnemy(actor, other) {
-    if (other === actor || !isActorAlive(other)) return false;
+    if (other === actor || !isActorAlive(other) || isObstacle(other)) return false;
     if (other.kind === "player") return actor.state.team !== playerTeam && this.playerIsFair();
     if (this.scenario.mode !== "ffa") return false;
     const team = isBrawler(other) ? other.state.team : bossTeam;

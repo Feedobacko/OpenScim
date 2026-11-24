@@ -10,9 +10,14 @@
 //     "options": {
 //       "playerStart": [23, 36],            or null: the arena's own
 //       "ffaIncludesPlayer": true,          ffa: may the NPCs attack the player
-//       "bossMechanics": false              the arena's boss, with all its
+//       "bossMechanics": false,             the arena's boss, with all its
 //                                           mechanics (arenas.js, hostKind)
+//       "countdownTicks": 3                 ticks after Start before the
+//                                           monsters act (0 to 10); the player
+//                                           moves, prays and switches gear
 //     },
+//     "obstacles": [[28, 30]],              optional: boulders, one tile each,
+//                                           that block the way, at most 60
 //     "gear": {                             optional: the loadout the scenario
 //       "name": "Max ranged",               is played with (equipment slot to
 //       "equipment": { "weapon": 20997 },   item id, the 28 inventory slots,
@@ -44,6 +49,12 @@ export const scenarioFormat = "openscim-sandbox";
 export const scenarioVersion = 1;
 export const sandboxModes = ["versus", "ffa"];
 export const maxScenarioNpcs = 40;
+export const maxScenarioObstacles = 60;
+// The size of an obstacle: Zebak's boulder (CACHE: NPC 11737, size 1).
+export const obstacleSize = 1;
+// The app's own start-of-fight countdown is 3 ticks by default (Grid.js,
+// fightStartCountdownTicks); the sandbox's is the same unless a scenario says.
+export const defaultCountdownTicks = 3;
 export const playerTeam = "player";
 const shareCodePrefix = "OSB1.";
 // A share code's limits. The largest scenario (40 NPCs with every field, the
@@ -156,6 +167,14 @@ export function normalizeScenario(input) {
   const meta = input.meta ?? {};
   const options = input.options ?? {};
   const playerStart = tile(options.playerStart) ?? null;
+  const countdownTicks = integer(options.countdownTicks, 0, 10) ?? defaultCountdownTicks;
+  const obstacleList = Array.isArray(input.obstacles) ? input.obstacles : [];
+  if (obstacleList.length > maxScenarioObstacles) throw new ScenarioError(`At most ${maxScenarioObstacles} obstacles`);
+  const obstacles = obstacleList.map((value, index) => {
+    const position = tile(value);
+    if (!position) throw new ScenarioError(`Obstacle ${index + 1}: [x, y] with whole numbers from 0 to 255`);
+    return position;
+  });
   return {
     format: scenarioFormat,
     version: scenarioVersion,
@@ -166,7 +185,8 @@ export function normalizeScenario(input) {
     },
     arena: input.arena,
     mode,
-    options: { playerStart, ffaIncludesPlayer: options.ffaIncludesPlayer !== false, bossMechanics: options.bossMechanics === true },
+    options: { playerStart, ffaIncludesPlayer: options.ffaIncludesPlayer !== false, bossMechanics: options.bossMechanics === true, countdownTicks },
+    ...(obstacles.length > 0 ? { obstacles } : {}),
     ...(input.gear ? { gear: normalizeGear(input.gear) } : {}),
     npcs: npcs.map((npc, index) => normalizeNpc(npc, index, takenIds)),
   };
