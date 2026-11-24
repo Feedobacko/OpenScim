@@ -1,0 +1,53 @@
+# The sandbox's catalog follows the encounters (tools/sandbox-catalog.mjs):
+# every NPC a new encounter draws, with stats in the monster table, joins
+# the sandbox through client/encounters/sandbox/discovered.js.
+#   - On a pull request: fail when discovered.js is out of date.
+#   - On a push to main: regenerate it, and when it changed open a pull
+#     request with the new entries. Before merging that one, run locally
+#     (with `npm run assets`): node test/test-sandbox-catalog.mjs, which
+#     fights every entry, and record the new entries' digests with
+#     node tools/determinism/harness.mjs --update --only sandbox/catalog/.
+# The game cache is not needed here: the presentations and the monster
+# table are modules.
+name: Sandbox catalog
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Check that discovered.js is up to date
+        if: github.event_name == 'pull_request'
+        run: node tools/sandbox-catalog.mjs --check
+      - name: Regenerate discovered.js
+        if: github.event_name != 'pull_request'
+        run: node tools/sandbox-catalog.mjs --write
+      - name: Open a pull request with the new entries
+        if: github.event_name != 'pull_request'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: sandbox/catalog-sync
+          add-paths: client/encounters/sandbox/discovered.js
+          commit-message: "Sandbox: add the new encounters' NPCs to the catalog"
+          title: "Sandbox: add the new encounters' NPCs to the catalog"
+          body: |
+            tools/sandbox-catalog.mjs found NPCs that the encounters draw and the sandbox does not have yet; this adds them to client/encounters/sandbox/discovered.js.
+
+            Before merging, with the game cache (`npm run assets`):
+            - `node test/test-sandbox-catalog.mjs`: every entry is placed and fights. A monster that cannot fight as a plain sandbox NPC belongs in `sandboxCatalogExclusions` (client/encounters/sandbox/catalog.js) with its reason, or in the curated catalog.
+            - `node tools/determinism/harness.mjs --update --only sandbox/catalog/`: record the new entries' digests.
