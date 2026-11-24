@@ -7,17 +7,21 @@ mechanics, and one of two modes. Code: `client/encounters/sandbox/`.
 Ways in: "Sandbox" in the encounter picker and the quick search (one entry;
 the arena is chosen in the sandbox's editor, not in the menus), and the
 gateway in the lobby, a dais ringed with coloured beams on the spoke between
-Yama and his neighbour. Both open the setup window, where the loadout can be
-any preset of any fight. The gateway's also offers "Load a scenario", the way
-in for someone holding a code: it takes a share code, a link or a scenario's
-JSON and switches the window to its arena, so that Start Encounter plays it.
-Routes: `/sandbox/` and `/sandbox/<arena>` (e.g. `/sandbox/inferno`).
+Yama and his neighbour. None opens a setup window: each enters the arena of
+the player's scenario with the editor open at its **start screen**
+(`menuImport.js`, `sandboxEntryKind`, called by `handleConfigureEncounter`
+and the picker's Enter in `assets/application.js`). Routes: `/sandbox/` and
+`/sandbox/<arena>` (e.g. `/sandbox/inferno`).
 
 ## Using it
 
 The editor is the one place to build and play a scenario. The top bar, on
 the right beside the minimap, holds **Start encounter** and the **Sandbox
-editor** button, which opens a panel in three steps:
+editor** button, which opens a panel: a start screen and three steps.
+
+- **Start**: the one box that loads a scenario (a share code, a link, a
+  scenario's JSON pasted, or a file), then where to go on: the scenario you
+  have, a new one in this arena, or the examples.
 
 1. **Arena**: the scenario's name, author and description; the arena (another
    arena is another route, which the application enters without loading the
@@ -36,7 +40,11 @@ editor** button, which opens a panel in three steps:
    application's setup window for the arena, with the presets of every
    fight; "Use my current gear" keeps what you wear in the scenario; "Remove
    gear"), save in this browser, export a `.json` file, copy a share code or
-   a link, and the one import box: a code, a link or JSON pasted, or a file.
+   a link.
+
+When a run is won, the victory screen has a **Sandbox editor** button
+(`assets/application.js`, for an encounter whose snapshot has `sandbox`): the
+panel opens over it, in front of everything until it is closed.
 
 A scenario with gear puts it on when it is applied, loaded from the setup
 window or opened by link: the application sets the sandbox's loadout and,
@@ -132,8 +140,20 @@ other.
   for three ticks and throws his three-part magic or his ranged boulder (the
   style to pray against shows in the animation, but he picks it at random),
   TzKal-Zuk does not move, the Doom throws his orbs, the jaguar claws three
-  times at once and the manticore throws its three orbs a tick apart (each
-  hit with its hitsplat: `hits` and `volley` in `catalog.js`). Sol Heredit's
+  times at once (each hit with its hitsplat: `hits` in `catalog.js`). The
+  Colosseum's monsters do what they do in its waves (`colosseum/sandbox.js`
+  holds their numbers, from `colosseum/*.js`): the manticore chooses the
+  order of its orbs once, charges for 10 ticks with the charge animation 6
+  ticks before it throws and the three orbs appearing over it 5, 4 and 3
+  ticks before, at 300, 400 and 500 high and in the order it will throw
+  them, then throws one a tick, each drawing its impact on a target that
+  does not pray against it (`chargedVolley`); every fifth attack of the
+  javelin colossus is a javelin thrown high that comes down on the tile its
+  target stood on 6 ticks later, 0 to 40 that no prayer stops
+  (`everyNth` and a `special`); out of reach of its target the minotaur
+  heals one of its side below 75 % within 7 tiles in sight, to full
+  (`heal`). Their modifiers (Mantimayhem, Red Flag) and the manticores
+  copying each other's order are their fight's only. Sol Heredit's
   regular attack is his own fight's (`solGroundAttack` in
   `sol-heredit/sandbox.js`, a `special` that `brawler.js` starts and
   `encounter.js` lands and draws, with `buildGroundAttackArea`): a spear or
