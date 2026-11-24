@@ -9,7 +9,7 @@ const shootNearest = (accept) => (tick, api) => {
   const npc = nearestNpc(api, accept);
   if (npc) attack(api, npc.id);
 };
-const allies = new Set(["berserker", "archer", "seer"]);
+const allies = new Set(["sol", "vardorvis"]);
 
 const versus = {
   format: "openscim-sandbox",
@@ -53,21 +53,21 @@ export async function scenarios() {
       script: shootNearest(),
     },
     {
-      // Every one for itself, the player left out: the monsters fight until one is left.
+      // Two teams of bosses, the player left out: they fight until one team is left.
       name: "sandbox/ffa-spectator",
       kind: sandboxVariantKind("colosseum"),
       seed: 5,
-      ticks: 300,
-      options: { scenario: example("colosseum-royale") },
+      ticks: 2500,
+      options: { scenario: example("clash-of-titans") },
     },
     {
-      // Teams: the warband on the player's side against an Inferno wave; the player helps.
+      // Teams: Sol Heredit and Vardorvis on the player's side against three bosses; the player helps.
       name: "sandbox/ffa-allies",
       kind: sandboxVariantKind("colosseum"),
       seed: 9,
-      ticks: 200,
+      ticks: 2500,
       mechanics: { infiniteHealth: true },
-      options: { scenario: example("warband-stand") },
+      options: { scenario: example("champions-stand") },
       ...rangedGear,
       script: shootNearest((npc) => !allies.has(npc.id)),
     },
