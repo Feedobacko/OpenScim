@@ -69,15 +69,23 @@ const presentationOf = (arena) => (BaseScene, packHsl, { presentationOf: present
   const host = () => (arena.hostKind && presentationOfKind ? presentationOfKind(arena.hostKind) : undefined);
   const hosted = () => isHostedVisit(arena) && host() !== undefined;
   let hostRenderConfig = null;
+  const hostedRenderConfig = () => (hostRenderConfig ??= withCatalog(host().renderConfig ?? {}));
   return {
     kind,
     // Read by the application as a visit starts.
     get renderConfig() {
       if (!hosted()) return ownRenderConfig;
-      return (hostRenderConfig ??= withCatalog(host().renderConfig ?? {}));
+      return hostedRenderConfig();
     },
     sceneBuilder(context) {
-      if (hosted()) return withEditor(host().sceneBuilder(context), kind, arena, true);
+      if (hosted()) {
+        const scene = host().sceneBuilder(context);
+        // A host whose scene sets its own render config as it is built
+        // (Zebak's, toa/zebak/native.js) gets the sandbox's instead: its own
+        // with the catalog's NPCs, so that their attacks play their clips.
+        scene.setEncounterRenderConfig?.(hostedRenderConfig());
+        return withEditor(scene, kind, arena, true);
+      }
       return withEditor(buildScene(BaseScene, ownRenderConfig, context), kind, arena, false);
     },
     // The host's camera where the arena has one: it looks at the boss.
