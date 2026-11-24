@@ -220,9 +220,11 @@ async function play() {
     return;
   }
   // The boss's scene or the sandbox's is chosen as a visit starts
-  // (presentation.js): entering the arena again starts one.
-  const sceneChanges = isHostedVisit(ui.arena) !== ui.hostedVisit;
-  if (sceneChanges) reopenAt(2);
+  // (presentation.js): entering the arena again starts one. The scene on
+  // screen is the running scenario's (visit.js); the draft says the next.
+  const sceneChanges = Boolean(ui.arena.hostKind && ui.draft.options.bossMechanics) !== ui.hostedVisit;
+  // Entering the arena makes the editor again: it reopens where it was.
+  if (sceneChanges || ui.draft.gear) reopenAt(ui.step);
   try {
     if (ui.draft.gear) await applyGear(ui.draft.gear, ui.kind);
     else if (sceneChanges) await requestApp("enter", { encounterKind: ui.kind });
