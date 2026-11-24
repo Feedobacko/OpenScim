@@ -55676,8 +55676,13 @@ var qN = class extends SceneCompositor {
     this.fD("yama-frame-audio", () => {
       this.frameSoundTracker?.reset();
     });
+    // The other NPCs' visuals go on a replay jump, as Sol Heredit's scene clears them.
+    this.fD("yama-other-visuals", () => {
+      this.visuals.clear();
+    });
   }
   dispose() {
+    this.visuals.clear();
     this.waveController.Sz(this.spotAnimRenderer);
     this.attackController.Sz(this.spotAnimRenderer);
     this.fireballController.Sz(this.spotAnimRenderer);
@@ -55720,6 +55725,10 @@ var qN = class extends SceneCompositor {
       this.attackController.consumeEvents(e);
       this.voidFlareController.consumeEvents(e);
       this.visuals.consume(e);
+    }
+    // A despawned NPC's pending animations and graphics go with it, as in Sol Heredit's scene.
+    for (const event of e) {
+      if (mB(event, "actor_despawned")) this.visuals.oM(event.actorId);
     }
   }
   KD(e) {
