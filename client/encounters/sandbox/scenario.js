@@ -36,6 +36,7 @@
 // base64url, short enough for a URL (#sbx=<code>), as the replays' codes are.
 // Nothing in this module draws a random number or reads the page.
 import { pako } from "../../assets/vendor.js";
+import { parseCombatSupplies } from "../../engine/supplies.js";
 import { getSandboxNpcEntry } from "./catalog.js";
 import { isSandboxArenaId, sandboxArenas } from "./arenas.js";
 
@@ -45,6 +46,12 @@ export const sandboxModes = ["versus", "ffa"];
 export const maxScenarioNpcs = 40;
 export const playerTeam = "player";
 const shareCodePrefix = "OSB1.";
+// A share code's limits. The largest scenario (40 NPCs with every field, the
+// gear and the longest texts) is about 13 KB of JSON and 1,200 characters of
+// code; a code past these is refused before it is decoded, and its JSON is
+// not inflated past 64 KB, so that a crafted code cannot exhaust the tab.
+export const maxShareCodeLength = 16384;
+export const maxScenarioJsonBytes = 65536;
 
 export class ScenarioError extends Error {
   constructor(message) {
@@ -96,9 +103,24 @@ function normalizeNpc(npc, index, takenIds) {
 
 const equipmentSlots = ["head", "cape", "amulet", "weapon", "body", "shield", "legs", "hands", "boots", "ring"];
 const itemId = (value) => integer(value, 1, 100000);
-// Supplies are the application's to read (its parsers check them as a
-// loadout is set); here they only have to be small plain JSON.
-const maxSuppliesJson = 4000;
+// Supplies keep only what the application reads of a loadout's supplies
+// (engine/supplies.js: ammunition, quiver, rune pouch, blowpipe, spell,
+// spellbook), each parsed as it parses them; anything else is dropped.
+function normalizeSupplies(supplies) {
+  if (!supplies || typeof supplies !== "object" || Array.isArray(supplies)) return {};
+  const parsed = parseCombatSupplies(supplies);
+  const result = {};
+  for (const key of ["equippedAmmo", "quiverAmmo", "blowpipe"]) {
+    const id = itemId(parsed[key]?.id);
+    if (id !== undefined) result[key] = { id };
+  }
+  if (parsed.runePouch) {
+    result.runePouch = { kind: parsed.runePouch.kind, slots: parsed.runePouch.slots.map((slot) => (itemId(slot?.id) === undefined ? null : { id: slot.id })) };
+  }
+  if (supplies.spellbook !== undefined) result.spellbook = parsed.spellbook;
+  if (parsed.selectedSpell) result.selectedSpell = parsed.selectedSpell;
+  return result;
+}
 
 function normalizeGear(gear) {
   if (gear === undefined || gear === null) return undefined;
@@ -116,13 +138,7 @@ function normalizeGear(gear) {
     const quantity = integer(item.quantity, 1, 2147483647);
     return quantity === undefined || quantity === 1 ? { id } : { id, quantity };
   });
-  let supplies = {};
-  if (gear.supplies && typeof gear.supplies === "object" && !Array.isArray(gear.supplies)) {
-    const json = JSON.stringify(gear.supplies);
-    if (json.length > maxSuppliesJson) throw new ScenarioError("gear.supplies is too large");
-    supplies = JSON.parse(json);
-  }
-  return { name: text(gear.name, 40).trim() || "Scenario gear", equipment, inventory, supplies };
+  return { name: text(gear.name, 40).trim() || "Scenario gear", equipment, inventory, supplies: normalizeSupplies(gear.supplies) };
 }
 
 /** A scenario in its current version, every value checked; throws ScenarioError. */
@@ -206,12 +222,35 @@ export function encodeShareCode(scenario) {
   return shareCodePrefix + toBase64Url(pako.deflateRaw(new TextEncoder().encode(json)));
 }
 
+// Inflates chunk by chunk and stops past maxScenarioJsonBytes.
+function inflateLimited(bytes) {
+  const inflator = new pako.Inflate({ raw: true, chunkSize: 16384 });
+  const chunks = [];
+  let total = 0;
+  // Thrown out of push(): the inflation stops at the chunk that goes past.
+  inflator.onData = (chunk) => {
+    total += chunk.length;
+    if (total > maxScenarioJsonBytes) throw new ScenarioError("The share code holds more than a scenario can");
+    chunks.push(chunk);
+  };
+  inflator.push(bytes, true);
+  if (inflator.err || !inflator.ended) throw new ScenarioError("The share code is damaged");
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return out;
+}
+
 export function decodeShareCode(code) {
   const trimmed = String(code ?? "").trim();
   if (!trimmed.startsWith(shareCodePrefix)) throw new ScenarioError(`A share code starts with "${shareCodePrefix}"`);
+  if (trimmed.length > maxShareCodeLength) throw new ScenarioError("The share code is too long to be a scenario");
   let json;
   try {
-    json = new TextDecoder().decode(pako.inflateRaw(fromBase64Url(trimmed.slice(shareCodePrefix.length))));
+    json = new TextDecoder().decode(inflateLimited(fromBase64Url(trimmed.slice(shareCodePrefix.length))));
   } catch (error) {
     if (error instanceof ScenarioError) throw error;
     throw new ScenarioError("The share code is damaged");
@@ -219,11 +258,16 @@ export function decodeShareCode(code) {
   return parseScenarioJson(json);
 }
 
-/** Accepts a share code, a URL that carries one (#sbx=...), or a scenario's JSON. */
+/**
+ * Accepts a scenario's JSON, a share code, or a URL that carries one
+ * (#sbx=...), told apart by the first character: "{" is JSON (whatever its
+ * texts mention), "OSB" a code, anything else is searched for a link.
+ */
 export function importScenarioText(input) {
   const trimmed = String(input ?? "").trim();
+  if (trimmed.startsWith("{")) return parseScenarioJson(trimmed);
+  if (trimmed.startsWith("OSB")) return decodeShareCode(trimmed);
   const fromUrl = /[#&?]sbx=([\w.-]+)/.exec(trimmed);
   if (fromUrl) return decodeShareCode(fromUrl[1]);
-  if (trimmed.startsWith(shareCodePrefix)) return decodeShareCode(trimmed);
-  return parseScenarioJson(trimmed);
+  throw new ScenarioError("Paste a scenario's JSON, a share code (OSB1.…) or a link with #sbx=");
 }

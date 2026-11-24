@@ -55,6 +55,47 @@ assert.throws(() => decodeShareCode("OSB1.!!!"), ScenarioError);
 assert.throws(() => decodeShareCode("OSB1.AAAA"), ScenarioError);
 assert.throws(() => importScenarioText("{ not json"), /Not valid JSON/);
 
+// A share code is refused past its limits before it can exhaust the page:
+// longer than a scenario's code can be, or inflating past 64 KB (an 8 MB
+// run of spaces deflates to a code under the length limit's reach).
+const { pako } = await import("../client/assets/vendor.js");
+const deflatedCode = (bytes) => "OSB1." + Buffer.from(pako.deflateRaw(bytes, { level: 9 })).toString("base64url");
+assert.throws(() => decodeShareCode("OSB1." + "A".repeat(scenario.maxShareCodeLength)), /too long/);
+const bomb = deflatedCode(new Uint8Array(8 * 1024 * 1024).fill(32));
+assert.ok(bomb.length < scenario.maxShareCodeLength);
+const bombStart = Date.now();
+assert.throws(() => decodeShareCode(bomb), /more than a scenario/);
+assert.ok(Date.now() - bombStart < 2000);
+assert.throws(() => decodeShareCode(deflatedCode(new TextEncoder().encode(" ".repeat(scenario.maxScenarioJsonBytes + 1)))), /more than a scenario/);
+
+// The import box goes by the first character: a JSON scenario whose texts
+// mention a link is that scenario, not the linked one.
+const mentionsLink = { ...minimal, meta: { ...minimal.meta, description: `Like ${"#sbx=" + encodeShareCode(sandboxExamples[0].scenario)}` } };
+assert.deepEqual(importScenarioText(JSON.stringify(mentionsLink)), normalizeScenario(mentionsLink));
+assert.throws(() => importScenarioText("hello"), ScenarioError);
+
+// Gear supplies keep only what the application reads of them, as it parses them.
+const supplied = normalizeScenario({
+  arena: "yama",
+  gear: {
+    supplies: {
+      equippedAmmo: { id: 11212, extra: true },
+      quiverAmmo: "nonsense",
+      runePouch: { kind: "standard", slots: [{ id: 560 }, null, { id: 565, junk: 1 }] },
+      spellbook: "ancient",
+      selectedSpell: "Ice Barrage",
+      script: "<img src=x>",
+      nested: { deep: [1, 2, 3] },
+    },
+  },
+});
+assert.deepEqual(supplied.gear.supplies, {
+  equippedAmmo: { id: 11212 },
+  runePouch: { kind: "standard", slots: [{ id: 560 }, null, { id: 565 }] },
+  spellbook: "ancient",
+  selectedSpell: "Ice Barrage",
+});
+
 // Every arena is a variant of the sandbox with a route.
 assert.equal(sandboxArenas.length, new Set(sandboxArenas.map((arena) => arena.id)).size);
 
