@@ -19,7 +19,7 @@
 // is restarted. Like the Colosseum's dialog (colosseum/intermission.js) the
 // panel is plain elements of the page, not one of the application's panels.
 import { getRegisteredArenaConfig } from "../../engine/arena.js";
-import { getActiveScenario, setActiveScenario, takeArrivedByLink } from "./activeScenario.js";
+import { getActiveScenario, setActiveScenario, takeAgreedLinkGear } from "./activeScenario.js";
 import { getSandboxArena, getSandboxArenaOfKind, sandboxArenas, sandboxKind } from "./arenas.js";
 import { getSandboxNpcEntry, sandboxNpcCatalog } from "./catalog.js";
 import { sandboxExamples } from "./examples.js";
@@ -809,9 +809,9 @@ function create(kind) {
   }
   ui.step = reopenStep ?? 1;
   renderBody();
-  // A share link brought the scenario: its gear goes on now, and the run
-  // starts again with it.
-  if (takeArrivedByLink() && ui.draft.gear && isDraftInThisArena()) applyGear(ui.draft.gear, ui.kind);
+  // A share link brought the scenario and the player agreed to its gear: it
+  // goes on now, and the run starts again with it.
+  if (takeAgreedLinkGear() && ui.draft.gear && isDraftInThisArena()) applyGear(ui.draft.gear, ui.kind);
   // Open when the editor sent the page here, when there is nothing to fight,
   // and when the scenario is for another arena (the fight here is empty).
   setOpen(reopenStep !== null || ui.draft.npcs.length === 0 || !isDraftInThisArena());
