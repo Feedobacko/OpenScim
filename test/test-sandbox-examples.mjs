@@ -46,7 +46,7 @@ for (const { key, scenario } of [...sandboxExamples, ...libraryScenarios]) {
   const taken = new Map([[start.join(","), "the player's start"]]);
   // The boulders: walkable tiles, one each, before the monsters.
   for (const position of scenario.obstacles ?? []) {
-    const tile = position.join(",");
+    const tile = position.slice(0, 2).join(",");
     assert.ok(walkable.has(tile), `${key}: a boulder on ${tile}, which is not walkable`);
     assert.ok(!taken.has(tile), `${key}: a boulder on ${taken.get(tile)} at ${tile}`);
     taken.set(tile, "a boulder");

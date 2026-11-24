@@ -60,6 +60,8 @@ const example = (key, meta, arena, mode, gear, npcs, options = {}, obstacles = [
 });
 // Boulders (obstacles.js) in a line from [x, y], `length` of them, a step of [dx, dy].
 const wall = (x, y, length, dx, dy) => Array.from({ length }, (_, index) => [x + index * dx, y + index * dy]);
+// The same of jugs: low obstacles, walked around but shot over.
+const lowWall = (x, y, length, dx, dy) => wall(x, y, length, dx, dy).map((tile) => [...tile, "low"]);
 const team = (name) => ({ team: name });
 
 // Ten against the player, then ten free-for-alls (the editor shows the ones
@@ -180,7 +182,7 @@ export const sandboxExamples = [
     npc("mager", "inferno.mager", 20, 20, team("1")),
     npc("blob", "inferno.blob", 39, 20, team("1")),
   ]),
-  example("spells-vs-arrows", { name: "Spells vs Arrows", description: "Every caster (team 1: an Inferno mager, two seers, two shamans) against every archer (team 2: an Inferno ranger, two archers, two javelin colossi) in Yama's room, without Yama. You watch." }, "yama", "ffa", mageGear, [
+  example("spells-vs-arrows", { name: "Spells vs Arrows", description: "Every caster (team 1: an Inferno mager, two seers, two shamans) against every archer (team 2: an Inferno ranger, two archers, two javelin colossi) in Yama's room, without Yama, across a line of jugs they shoot over. You watch." }, "yama", "ffa", mageGear, [
     npc("mager", "inferno.mager", 20, 30, team("1")),
     npc("seer-1", "warband.seer", 20, 25, team("1")),
     npc("seer-2", "warband.seer", 22, 35, team("1")),
@@ -191,7 +193,7 @@ export const sandboxExamples = [
     npc("archer-2", "warband.archer", 42, 34, team("2")),
     npc("javelin-1", "colosseum.javelin", 36, 23, team("2")),
     npc("javelin-2", "colosseum.javelin", 36, 33, team("2")),
-  ], { ffaIncludesPlayer: false, playerStart: [31, 39] }),
+  ], { ffaIncludesPlayer: false, playerStart: [31, 39] }, lowWall(31, 24, 9, 0, 1)),
   example("king-of-the-hill", { name: "King of the Hill", description: "A ring of boulders in the middle of Sol Heredit's arena, and a jaguar, a minotaur, Vardorvis, an Inferno meleer and a manticore, every one for itself. You are in the ring." }, "sol_heredit", "ffa", meleeGear, [
     npc("jaguar", "colosseum.jaguar", 27, 39),
     npc("minotaur", "colosseum.minotaur", 36, 38),

@@ -61,6 +61,8 @@ refuses({ arena: "yama", obstacles: [[1]] }, /Obstacle 1/);
 assert.equal(normalizeScenario({ arena: "yama", options: { countdownTicks: 7 } }).options.countdownTicks, 7);
 assert.equal(normalizeScenario({ arena: "yama", options: { countdownTicks: 99 } }).options.countdownTicks, 3);
 assert.deepEqual(normalizeScenario({ arena: "yama", obstacles: [[30, 30]] }).obstacles, [[30, 30]]);
+// A low obstacle keeps its kind; any other third value is a boulder.
+assert.deepEqual(normalizeScenario({ arena: "yama", obstacles: [[30, 30, "low"], [31, 30, "tall"]] }).obstacles, [[30, 30, "low"], [31, 30]]);
 assert.throws(() => decodeShareCode("OSB1.!!!"), ScenarioError);
 assert.throws(() => decodeShareCode("OSB1.AAAA"), ScenarioError);
 assert.throws(() => importScenarioText("{ not json"), /Not valid JSON/);

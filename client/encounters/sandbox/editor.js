@@ -364,7 +364,8 @@ function drawMap() {
   (ui.draft.obstacles ?? []).forEach((position, index) => {
     if (ui.drag?.id === obstacleId(index) && ui.drag.moved) return;
     const [px, py] = toPixel(position[0], position[1] + obstacleSize - 1);
-    g.fillStyle = "#6b6157";
+    // A boulder grey, a low obstacle (a jug) the colour of clay.
+    g.fillStyle = position[2] === "low" ? "#b07a48" : "#6b6157";
     g.fillRect(px + 1, py + 1, obstacleSize * size - 2, obstacleSize * size - 2);
     g.strokeStyle = "#2a241e";
     g.lineWidth = 1.5 * ratio;
@@ -460,7 +461,8 @@ function drop(drag, position) {
     ui.draft.options = { ...ui.draft.options, playerStart: position };
     setStatus(`Player starts at ${position.join(", ")}.`);
   } else if (drag.id?.startsWith("rock:")) {
-    ui.draft.obstacles[Number(drag.id.slice(5))] = position;
+    const index = Number(drag.id.slice(5));
+    ui.draft.obstacles[index] = [...position, ...ui.draft.obstacles[index].slice(2)];
   } else if (drag.obstacle) {
     const obstacles = ui.draft.obstacles ?? [];
     if (obstacles.length >= maxScenarioObstacles) {
@@ -468,8 +470,8 @@ function drop(drag, position) {
       drawMap();
       return;
     }
-    ui.draft.obstacles = [...obstacles, position];
-    setStatus("Placed a boulder. Right-click it to take it away.");
+    ui.draft.obstacles = [...obstacles, drag.low ? [...position, "low"] : position];
+    setStatus(`Placed ${drag.low ? "a jug" : "a boulder"}. Right-click it to take it away.`);
   } else if (drag.id) {
     draftNpc(drag.id).position = position;
     ui.selectedId = drag.id;
@@ -509,7 +511,7 @@ function onMapContextMenu(event) {
   if (rock >= 0) {
     ui.draft.obstacles = ui.draft.obstacles.filter((_, index) => index !== rock);
     if (ui.draft.obstacles.length === 0) delete ui.draft.obstacles;
-    setStatus("Took the boulder away.");
+    setStatus("Took it away.");
     commit();
   }
 }
@@ -653,7 +655,11 @@ function stepMonsters() {
   el("div", {
     class: "sbx-chip", title: "A boulder: blocks the way and the line of sight. Several make a wall.",
     onpointerdown: (event) => startDrag(event, { id: null, obstacle: true, size: obstacleSize, offset: [0, 0], label: "Boulder" }),
-  }, [el("i", { style: "background: #6b6157" }), "Boulder (obstacle)"])];
+  }, [el("i", { style: "background: #6b6157" }), "Boulder (obstacle)"]),
+  el("div", {
+    class: "sbx-chip", title: "A jug: blocks the way, but attacks from afar pass over it, as over a table.",
+    onpointerdown: (event) => startDrag(event, { id: null, obstacle: true, low: true, size: obstacleSize, offset: [0, 0], label: "Jug" }),
+  }, [el("i", { style: "background: #b07a48" }), "Jug (low obstacle)"])];
   for (const entry of sandboxNpcCatalog) {
     chips.push(el("div", {
       class: "sbx-chip", title: `${entry.group} · ${entry.size}×${entry.size}`,

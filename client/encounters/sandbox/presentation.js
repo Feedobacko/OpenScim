@@ -16,14 +16,14 @@
 import { buildScene } from "../shared/buildScene.js";
 import { sandboxArenas, sandboxVariantKind } from "./arenas.js";
 import { sandboxPreloadNpcTypes as catalogPreloadNpcTypes, sandboxSpotAnimIds } from "./catalog.js";
-import { obstacleNpcTypeId } from "./obstacles.js";
+import { obstacleNpcTypeIds } from "./obstacles.js";
 import { closeSandboxEditor, syncSandboxEditor } from "./editor.js";
 import { setActiveScenario } from "./activeScenario.js";
 import { getRunningScenario, isHostedVisit } from "./visit.js";
 
-// The catalog's monsters and the obstacles' boulder (obstacles.js), which has
-// no sequence (idleSeqId -1, as toa/zebak/phases.js loads it).
-const sandboxPreloadNpcTypes = [...catalogPreloadNpcTypes, { npcTypeId: obstacleNpcTypeId, idleSeqId: -1 }];
+// The catalog's monsters and the obstacles' boulder and jug (obstacles.js),
+// which have no sequence (idleSeqId -1, as toa/zebak/phases.js loads them).
+const sandboxPreloadNpcTypes = [...catalogPreloadNpcTypes, ...obstacleNpcTypeIds.map((npcTypeId) => ({ npcTypeId, idleSeqId: -1 }))];
 
 const withCatalog = (renderConfig) => ({
   ...renderConfig,

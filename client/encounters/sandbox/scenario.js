@@ -16,8 +16,11 @@
 //                                           monsters act (0 to 10); the player
 //                                           moves, prays and switches gear
 //     },
-//     "obstacles": [[28, 30]],              optional: boulders, one tile each,
-//                                           that block the way, at most 60
+//     "obstacles": [[28, 30], [29, 30, "low"]],   optional, at most 60, one
+//                                           tile each: a boulder blocks the way
+//                                           and the line of sight; "low" (a
+//                                           jug) blocks the way only, attacks
+//                                           from afar pass over it
 //     "gear": {                             optional: the loadout the scenario
 //       "name": "Max ranged",               is played with (equipment slot to
 //       "equipment": { "weapon": 20997 },   item id, the 28 inventory slots,
@@ -171,9 +174,9 @@ export function normalizeScenario(input) {
   const obstacleList = Array.isArray(input.obstacles) ? input.obstacles : [];
   if (obstacleList.length > maxScenarioObstacles) throw new ScenarioError(`At most ${maxScenarioObstacles} obstacles`);
   const obstacles = obstacleList.map((value, index) => {
-    const position = tile(value);
-    if (!position) throw new ScenarioError(`Obstacle ${index + 1}: [x, y] with whole numbers from 0 to 255`);
-    return position;
+    const position = tile(Array.isArray(value) ? value.slice(0, 2) : value);
+    if (!position) throw new ScenarioError(`Obstacle ${index + 1}: [x, y] (or [x, y, "low"]) with whole numbers from 0 to 255`);
+    return value[2] === "low" ? [...position, "low"] : position;
   });
   return {
     format: scenarioFormat,
