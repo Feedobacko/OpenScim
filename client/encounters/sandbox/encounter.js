@@ -93,6 +93,7 @@ export class SandboxEncounter {
     this.outcome = { phase: "active" };
     this.winner = null;
     this.npcIds = [];
+    this.ownNpcs = [];
     // Strikes on tiles that have not landed yet (brawler.js): { landsAt, tiles, attack }.
     this.strikes = [];
     const hosted = this.scenario.options.bossMechanics && this.arena.hostKind && this.createHost;
@@ -149,8 +150,16 @@ export class SandboxEncounter {
   }
   createNpcs(startTile) {
     const hostNpcs = this.host?.createNpcs(startTile) ?? [];
+    // A scenario NPC whose id is a host NPC's (one called "yama", say) is
+    // renamed, as normalizeNpc renames duplicates, never left out.
     const taken = new Set(hostNpcs.map((npc) => npc.id));
-    const own = this.scenario.npcs.filter((npc) => !taken.has(npc.id));
+    const own = this.scenario.npcs.map((npc) => {
+      let id = npc.id;
+      for (let n = 2; taken.has(id); n++) id = `${npc.id}-${n}`;
+      taken.add(id);
+      return id === npc.id ? npc : { ...npc, id };
+    });
+    this.ownNpcs = own;
     this.npcIds = own.map((npc) => npc.id);
     return [...hostNpcs, ...own.map((npc) => this.createNpcActor(npc))];
   }
@@ -294,7 +303,7 @@ export class SandboxEncounter {
     };
   }
   getNpcDamageSourceLabel(npcId) {
-    const npc = this.scenario.npcs.find((candidate) => candidate.id === npcId);
+    const npc = this.ownNpcs.find((candidate) => candidate.id === npcId);
     if (npc) return getSandboxNpcEntry(npc.npc).name;
     return this.host?.getNpcDamageSourceLabel(npcId) ?? "Sandbox";
   }

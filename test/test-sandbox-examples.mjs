@@ -42,5 +42,23 @@ for (const { key, scenario } of sandboxExamples) {
       }
   }
 }
+// A scenario monster whose id is a host NPC's is renamed, not left out.
+{
+  const hosted = sandboxExamples.find(({ scenario }) => scenario.options.bossMechanics && scenario.npcs.length > 0).scenario;
+  const kind = sandboxVariantKind(hosted.arena);
+  await prepareArena(kind);
+  const build = (scenario) =>
+    engineModule.createSimulationEngine({
+      encounterConfig: { kind, mechanics: {}, options: { scenario } },
+      objTypeLoader, combatSeed: 1,
+      inventory: engineModule.createEmptyInventory(), equipment: {}, combatSupplies: engineModule.createEmptyCombatSupplies(), attackStylePerCategory: {},
+    });
+  const hostIds = build({ ...hosted, npcs: [] }).worldState.getNpcs().map((actor) => actor.id);
+  assert.ok(hostIds.length > 0);
+  const clash = { ...hosted, npcs: [{ ...hosted.npcs[0], id: hostIds[0] }] };
+  const ids = build(clash).worldState.getNpcs().map((actor) => actor.id);
+  assert.equal(ids.length, hostIds.length + 1, "the clashing monster is placed");
+  assert.ok(ids.includes(`${hostIds[0]}-2`), "under a new id");
+}
 console.log("sandbox examples: 20 placed");
 process.exit(0);
