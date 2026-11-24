@@ -137,6 +137,8 @@ export const brawlerNpcDefinition = defineNpc({
     const target = config.selectTarget(actor, context);
     actor.combat.targetId = target?.id ?? null;
     if (!target) return [];
+    // Sol Heredit stands still while a spear or a shield is on its way (solGround).
+    if (context.tick < (actor.state.immobileUntilTick ?? 0)) return [];
     const moves = getNpcPursuitMoves(actor, context, target);
     if (moves.length > 0 || isNpcInAttackRange(actor, target, actor.combat.attackRange)) return moves;
     return routeAround(actor, target, context);
@@ -151,11 +153,28 @@ export const brawlerNpcDefinition = defineNpc({
     const inReach = entry.attacks.filter((attack) => isNpcInAttackRange(actor, target, attack.range));
     if (inReach.length === 0) return idle;
     const attack = inReach.length === 1 ? inReach[0] : inReach[Math.floor(context.random() * inReach.length)];
+    if (attack.solGround) return solGround(actor, target, attack, context, config);
     if (attack.strike) return strike(actor, target, attack, context, config);
-    const { plan, visual, graphics } = buildPlan(attack, actor.state.maxHit, actor, target);
-    const npcAttack = rollNpcAttack({ attacker: actor, target, plan, random: context.random });
-    // Null when an NPC has no stats: the catalog holds only NPCs of the monster table.
-    if (!npcAttack) return idle;
+    // One attack may be several hits, each rolled on its own and with a
+    // hitsplat of its own: `hits` at once (the jaguar's three claws), or a
+    // `volley` a tick apart (the manticore's three orbs). The engine
+    // announces the first; the others continue it.
+    const parts = attack.volley
+      ? attack.volley.map((part, index) => ({ ...attack, ...part, windupTicks: (attack.windupTicks ?? 0) + index * (attack.volleySpacingTicks ?? 1) }))
+      : Array.from({ length: attack.hits ?? 1 }, () => attack);
+    const npcAttacks = [];
+    const visual = [];
+    const graphics = [];
+    for (const part of parts) {
+      const built = buildPlan(part, actor.state.maxHit, actor, target);
+      const rolled = rollNpcAttack({ attacker: actor, target, plan: built.plan, random: context.random });
+      // Null when an NPC has no stats: the catalog holds only NPCs of the monster table.
+      if (!rolled) return idle;
+      npcAttacks.push(npcAttacks.length === 0 ? rolled : { ...rolled, isContinuation: true });
+      visual.push(...built.visual);
+      graphics.push(...built.graphics);
+    }
+    const npcAttack = npcAttacks[0];
     emitInfernoNpcAttack(context, {
       actor,
       target,
@@ -174,11 +193,35 @@ export const brawlerNpcDefinition = defineNpc({
     actor.combat.attackStyle = attack.style;
     actor.combat.lastAttackTick = context.tick;
     scheduleNextActionTick(actor.combat, context.tick, actor.combat.attackSpeed);
-    return { environmentalDamages: [], npcAttacks: [npcAttack] };
+    return { environmentalDamages: [], npcAttacks };
   },
 });
 
-// A strike on tiles (Sol Heredit's spear and shield): the attack is rolled
+// Sol Heredit's regular attack, as his own fight makes it
+// (sol-heredit/bossAttacks.js, scheduleSolAttack; boss.js, tryLaunchSolAttack):
+// a spear or a shield at even odds, the first always a spear, the variant
+// alternating when he repeats one; the telegraph now, the ground attack three
+// ticks later on the tiles his position and the target's then give
+// (encounter.js lands it with buildGroundAttackArea); still for 6 ticks after
+// a spear and 4 after a shield; the next attack 7 or 6 ticks later.
+function solGround(actor, target, attack, context, config) {
+  const memory = actor.state.solMemory ?? { lastAction: null, lastVariant: 1, attacked: false };
+  const style = !memory.attacked || context.random() < 0.5 ? "spear" : "shield";
+  const variant = memory.lastAction !== style ? 1 : memory.lastVariant === 1 ? 2 : 1;
+  actor.state.solMemory = { lastAction: style, lastVariant: variant, attacked: true };
+  config.queueStrike({ landsAt: context.tick + 3, solGround: { style, variant }, attackerId: actor.id, targetId: target.id });
+  actor.state.immobileUntilTick = context.tick + (style === "spear" ? 6 : 4);
+  faceActorToward(actor, target);
+  const animations = [{ actorId: actor.id, clipId: style, delayCycles: 0 }];
+  emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+  emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+  actor.combat.attackStyle = "melee";
+  actor.combat.lastAttackTick = context.tick;
+  scheduleNextActionTick(actor.combat, context.tick, style === "spear" ? 7 : 6);
+  return { environmentalDamages: [] };
+}
+
+// A strike on tiles: the attack is rolled
 // now and lands `delayTicks` later on the tiles it was aimed at, on whoever
 // still stands there (the encounter lands it: encounter.js, strikes). The
 // telegraph is the attack's clip; the stomp is a spot animation on every

@@ -12,6 +12,9 @@
 //   size          CACHE, TABLE
 //   attackSpeed   ticks between attacks
 //   attacks       one or more { style, range, clip, maxHit?, windupTicks?,
+//                 hits?, volley?, ...: `hits` hits at once (the jaguar's
+//                 claws), `volley` [{ style, maxHit?, flight? ... }] one a tick
+//                 (the manticore's orbs), each rolled with a hitsplat of its own;
 //                 projectile?, flight?, parts?, targetGraphic? }: `style` is
 //                 "melee", "range" or "magic"; of the attacks that reach, one
 //                 is drawn at random. `projectile` is a timed projectile
@@ -82,9 +85,9 @@ const blobProjectile = (spotAnimId, timing) => ({ spotAnimId, timing, slope: 16,
 const shockwaveProjectile = { spotAnimId: shockwaveProjectileSpotAnimId, timing: { delay: 50, lengthAdjustment: 26, stepMultiplier: 8, progress: 40 }, slope: 0, startHeight: 158, endHeight: 100 };
 // colosseum/manticore.js: an orb flies 30 cycles and lands a tick later.
 const manticoreOrb = (spotAnimId) => ({ spotAnimId, startDelayCycles: 0, endDelayCycles: 30, slope: 127, startOffset: 0, startHeight: 400, endHeight: 50 });
-// sol-heredit/bossAttacks.js and boss.js: a spear or a shield lands three
-// ticks after its telegraph, on tiles, with the melee spot animations on them.
-const solStrike = (shape) => ({ delayTicks: 3, shape, spotAnimIds: colosseumSpotAnimIds.solMelee });
+// WIKI: the most each orb hits for.
+const manticoreOrbMaxHits = { range: 36, magic: 31, melee: 31 };
+const manticoreOrbPart = (style) => ({ style, maxHit: manticoreOrbMaxHits[style], flight: manticoreOrb(manticoreOrbSpotAnimIds[style]) });
 // inferno/zuk.js: 16 cycles and 10 a tile.
 const zukProjectile = { spotAnimId: 1375, timing: { delay: 16, lengthAdjustment: 0, stepMultiplier: 10, progress: 128 }, slope: 0, startHeight: 390, endHeight: 124 };
 // doom-of-mokhaiotl/encounter.js: an orb leaves after 55 cycles; it lands
@@ -190,16 +193,17 @@ export const curatedNpcCatalog = [
   },
   // The waves of the Colosseum: colosseum/constants.js, one module each.
   colosseum("shaman", { clip: "attack", maxHit: 28, flight: shamanFlight }), // colosseum/shaman.js
-  colosseum("jaguar", { clip: "attack" }),
+  // colosseum/jaguar.js: three claws at once, each rolled on its own, up to 47 each (WIKI, SIM).
+  colosseum("jaguar", { clip: "attack", hits: 3, maxHit: 47 }),
   colosseum("javelin", { clip: "attack", maxHit: 48, flight: javelinFlight }), // colosseum/javelin.js
-  // The manticore throws one orb of a style at a time (inferred: without the charge of three).
+  // colosseum/manticore.js: a volley of three orbs, one a tick, ranged and
+  // magic in either order and melee last, each with its hitsplat a tick after
+  // it leaves; a volley every 10 ticks (its charge is not drawn here).
   {
-    ...colosseum("manticore", { clip: "throw", flight: manticoreOrb(manticoreOrbSpotAnimIds.range) }),
-    attackSpeed: 5,
+    ...colosseum("manticore", { clip: "throw" }),
     attacks: [
-      { style: "range", range: 15, clip: "throw", flight: manticoreOrb(manticoreOrbSpotAnimIds.range) },
-      { style: "magic", range: 15, clip: "throw", flight: manticoreOrb(manticoreOrbSpotAnimIds.magic) },
-      { style: "melee", range: 15, clip: "throw", flight: manticoreOrb(manticoreOrbSpotAnimIds.melee) },
+      { style: "range", range: 15, clip: "throw", volley: [manticoreOrbPart("range"), manticoreOrbPart("magic"), manticoreOrbPart("melee")] },
+      { style: "magic", range: 15, clip: "throw", volley: [manticoreOrbPart("magic"), manticoreOrbPart("range"), manticoreOrbPart("melee")] },
     ],
   },
   colosseum("shockwave", { clip: "attack", projectile: shockwaveProjectile }),
@@ -210,10 +214,9 @@ export const curatedNpcCatalog = [
   warband("seer", warbandSeerNpcTypeId, "magic", 10, warbandProjectileFlights.seer),
   {
     id: "sol_heredit", name: "Sol Heredit", group: "Bosses", npcTypeId: solHereditNpcTypeId, size: 5, attackSpeed: 7, // inferred
-    attacks: [
-      { style: "melee", range: 2, clip: "spear", strike: solStrike("plus") },
-      { style: "melee", range: 2, clip: "shield", strike: solStrike("square") },
-    ],
+    // His regular attack as his own fight makes it (brawler.js, solGround);
+    // his triple attack and grapple belong to his phases, only with the host.
+    attacks: [{ style: "melee", range: 1, clip: "spear", solGround: true }],
     idleSeqId: colosseumSeqIds.sol.idle, walkSeqId: colosseumSeqIds.sol.walk, deathSeqId: colosseumSeqIds.sol.death,
     clips: { attack: colosseumSeqIds.sol.spearTelegraph, spear: colosseumSeqIds.sol.spearTelegraph, shield: colosseumSeqIds.sol.shieldTelegraph },
   },
@@ -289,6 +292,7 @@ export const sandboxSpotAnimIds = [
           attack.targetGraphic?.spotAnimId,
           ...(attack.parts?.spotAnims.map((part) => part.spotAnimId) ?? []),
           ...(attack.strike?.spotAnimIds ?? []),
+          ...(attack.solGround ? colosseumSpotAnimIds.solMelee : []),
         ])
         .filter((id) => id !== undefined),
     ),
