@@ -32,6 +32,9 @@ const planOfStyle = {
 // inferred: a ranged or magic attack without a projectile of its own lands two ticks later.
 const defaultDistantImpactTicks = 2;
 const cyclesPerTick = 30;
+// inferred: a graphic on a target tile at a body's height, as JalTok-Jad's ranged
+// graphic (inferno/jad.js) and Zuk's (inferno/zukFight.js) are drawn.
+const defaultTargetGraphicHeight = 92;
 
 // The tiles a strike lands on, around the target's tile as the attack starts:
 // "square" the 3 by 3 around it, "plus" it and its four neighbours.
@@ -58,7 +61,7 @@ function buildPlan(attack, maxHitOverride, attacker, target) {
   if (attack.windupTicks) plan.windupTicks = attack.windupTicks;
   let visual = [];
   const graphics = attack.targetGraphic
-    ? [{ spotAnimId: attack.targetGraphic.spotAnimId, target: { kind: "tile", position: [...target.position] }, height: attack.targetGraphic.height ?? 92, delayCycles: windupCycles }]
+    ? [{ spotAnimId: attack.targetGraphic.spotAnimId, target: { kind: "tile", position: [...target.position] }, height: attack.targetGraphic.height ?? defaultTargetGraphicHeight, delayCycles: windupCycles }]
     : [];
   if (attack.parts) {
     // A projectile of several spot animations, each leaving and landing at

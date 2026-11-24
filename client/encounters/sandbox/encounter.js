@@ -50,6 +50,8 @@ import { emitInfernoVisual } from "../inferno/events.js";
 const deathTicks = 4;
 // inferred: the first attack two ticks after the start, as the fixture's.
 const firstActionTick = 2;
+// inferred: the victory screen three ticks after the last kill, once the
+// body has begun to fall (not a game number: the sandbox is not in the game).
 const ticksFromLastKillToVictory = 3;
 const bossTeam = "boss";
 

@@ -35,7 +35,7 @@ export const sandboxArenas = [
     playerStart: [...colosseumPlayerStart],
     collision: { mode: "auto", seed: [...colosseumPlayerStart] },
     locRender: { bounds: null, levels: [0, 1, 2] },
-    camera: { yaw: 270, pitch: -60, zoom: 300 },
+    camera: { yaw: 270, pitch: -60, zoom: 300 }, // inferred: looking along the arena from the player's start
   },
   {
     id: "sol_heredit",
@@ -45,7 +45,7 @@ export const sandboxArenas = [
     playerStart: [...solPlayerStart],
     collision: { mode: "auto", seed: [...solPlayerStart], dynamicLocs: solBoundaryLocs },
     locRender: { bounds: null, levels: [0, 1, 2] },
-    camera: { yaw: 180, pitch: -55, zoom: 320 }, // inferred
+    camera: { yaw: 180, pitch: -55, zoom: 320 }, // inferred: Sol's own scene takes over with his boss
   },
   {
     id: "inferno",
@@ -56,14 +56,17 @@ export const sandboxArenas = [
     // The pillars are the Inferno's NPCs; without them the floor is open.
     collision: { mode: "auto", seed: [...infernoPlayerStart], excludedStaticLocIds: infernoExcludedStaticLocIds },
     locRender: { bounds: null, levels: [0] },
-    camera: { yaw: 180, pitch: -55, zoom: 360 }, // inferred
+    camera: { yaw: 180, pitch: -55, zoom: 360 }, // inferred: the whole open floor in view
   },
   {
     id: "yama",
     hostKind: "yama_p3",
     name: "Yama's room",
     mapSquare: { x: 23, y: 157 }, // registry.js
+    // inferred: the middle of Yama's own start square (yama/constants.js,
+    // yamaPlayerStartMin/Max [29, 35] to [33, 39]), which he picks at random.
     playerStart: [31, 37],
+    // inferred: a floor tile in front of Yama, from which the room's floor is reached.
     collision: { mode: "auto", seed: [32, 30] },
     locRender: { bounds: null, levels: [0, 1] },
     camera: { yaw: 180, pitch: -55, zoom: 300 }, // the fixture's (test/fixtures/training-ground)
@@ -73,49 +76,49 @@ export const sandboxArenas = [
     hostKind: "zebak",
     name: "Zebak's room (ToA)",
     mapSquare: { x: 61, y: 84 }, // toa/zebak/native.js
-    playerStart: [29, 32],
-    collision: { mode: "auto", seed: [29, 32] },
+    playerStart: [29, 32], // toa/zebak/native.js (start)
+    collision: { mode: "auto", seed: [29, 32] }, // as toa/zebak/native.js seeds it
     locRender: { bounds: null, levels: [0, 1, 2] },
-    camera: { yaw: 270, pitch: -55, zoom: 330 }, // inferred
+    camera: { yaw: 90, pitch: -40, zoom: 240 }, // toa/zebak/native.js (defaultCamera)
   },
   {
     id: "vardorvis",
     hostKind: "vardorvis",
     name: "Vardorvis' clearing",
     mapSquare: vardorvisMapSquare,
-    playerStart: [40, 24], // vardorvis/encounter.js
-    collision: { mode: "auto", seed: [40, 24] },
+    playerStart: [40, 24], // vardorvis/encounter.js (playerStart)
+    collision: { mode: "auto", seed: [40, 24] }, // as vardorvis/encounter.js seeds it
     locRender: { bounds: null, levels: [0, 1] },
-    camera: { yaw: 180, pitch: -45, zoom: 320 },
+    camera: { yaw: 180, pitch: -45, zoom: 320 }, // vardorvis/presentation.js (defaultCamera)
   },
   {
     id: "doom",
     hostKind: "doom_of_mokhaiotl",
     name: "Doom of Mokhaiotl, delve 1",
     mapSquare: { x: 20, y: 149 }, // doom-of-mokhaiotl/encounter.js
-    playerStart: [31, 28],
-    collision: { mode: "auto", seed: [31, 28] },
+    playerStart: [31, 28], // doom-of-mokhaiotl/encounter.js (playerStart)
+    collision: { mode: "auto", seed: [31, 28] }, // as doom-of-mokhaiotl/encounter.js seeds it
     locRender: { bounds: null, levels: [0] },
-    camera: { yaw: 0, pitch: -45, zoom: 330 },
+    camera: { yaw: 0, pitch: -45, zoom: 330 }, // doom-of-mokhaiotl/presentation.js (defaultCamera)
   },
   {
     id: "doom_deep",
     hostKind: "doom_of_mokhaiotl_deep",
     name: "Doom of Mokhaiotl, deeper room",
     mapSquare: { x: 53, y: 100 }, // doom-of-mokhaiotl/encounter.js
-    playerStart: [31, 28],
-    collision: { mode: "auto", seed: [31, 28] },
+    playerStart: [31, 28], // doom-of-mokhaiotl/encounter.js (playerStart, both rooms)
+    collision: { mode: "auto", seed: [31, 28] }, // as doom-of-mokhaiotl/encounter.js seeds it
     locRender: { bounds: null, levels: [0] },
-    camera: { yaw: 0, pitch: -45, zoom: 330 },
+    camera: { yaw: 0, pitch: -45, zoom: 330 }, // doom-of-mokhaiotl/presentation.js (defaultCamera)
   },
   {
     id: "toa_nexus",
     name: "Tombs of Amascut nexus",
     mapSquare: { x: 55, y: 80 }, // toa/nexus.js
-    playerStart: [31, 26],
-    collision: { mode: "auto", seed: [31, 26] },
+    playerStart: [31, 26], // toa/nexus.js (start)
+    collision: { mode: "auto", seed: [31, 26] }, // as toa/nexus.js seeds it
     locRender: { bounds: null, levels: [0, 1] },
-    camera: { yaw: 0, pitch: -50, zoom: 330 },
+    camera: { yaw: 0, pitch: -50, zoom: 330 }, // toa/nexus.js (defaultCamera)
   },
 ];
 
