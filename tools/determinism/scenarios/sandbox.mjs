@@ -95,7 +95,7 @@ export async function scenarios() {
       ...rangedGear,
       script: shootNearest(),
     })),
-    // Each monster of the catalog, curated or discovered (tools/sandbox-catalog.mjs),
+    // Each monster of the catalog (each encounter's sandbox.js),
     // alone against the player: a new one needs its digests recorded.
     ...sandboxNpcCatalog.map((entry) => ({
       name: `sandbox/catalog/${entry.id}`,

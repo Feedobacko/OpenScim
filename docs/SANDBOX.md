@@ -185,32 +185,27 @@ other.
 
 ## New encounters' monsters
 
-The catalog follows the encounters by itself. `tools/sandbox-catalog.mjs`
-reads the render config of every presentation written in modules (the way
-every new encounter is added) and finds each NPC it draws that has stats in
-the monster table and an attack clip. One that the curated catalog
-neither holds nor excludes (`sandboxCatalogExclusions` in `catalog.js`, each
-with its reason) becomes an entry of `discovered.js`, a generated file:
-its size and attack speed from the table, the style its levels and bonuses
-favour, its sequences from the render config. The sandbox's catalog is the
-curated entries and these. The curated entries are each encounter's own:
+Each encounter keeps its monsters' catalog entries in its own
 `client/encounters/<encounter>/sandbox.js` (the Inferno, the Colosseum, Sol
-Heredit, Vardorvis, the Doom, Yama) holds its monsters' entries beside the
-ids, sequences and projectiles they copy, and `catalog.js` gathers them.
+Heredit, Vardorvis, the Doom, Yama), beside the ids, sequences and
+projectiles they copy; `catalog.js` gathers them.
 
-- `npm run sandbox:catalog` (or `node tools/sandbox-catalog.mjs --write`)
-  writes `discovered.js`; without `--write` it lists every NPC found and
-  where it went.
-- `test/test-sandbox-catalog.mjs` (part of `npm test`) fails while
-  `discovered.js` is out of date, checks the discovery on a made-up
-  encounter, and fights every entry, curated or discovered: it must have
-  stats, its clips, be loaded by the scene and attack the player within 40
-  ticks. A monster that cannot fight as a plain sandbox NPC (Zebak, nine
-  tiles of head and tail, fails here) goes to the exclusions with its
-  reason, or to the curated catalog with its own numbers.
-- The determinism harness has a scenario per entry (`sandbox/catalog/<id>`):
-  a new one needs its digests recorded
-  (`node tools/determinism/harness.mjs --update --only sandbox/catalog/`).
+`test/test-sandbox-catalog.mjs` (part of `npm test`) keeps the catalog in
+step with the encounters. It reads the render config of every presentation
+and fails for each NPC an encounter draws that has stats in the monster
+table and an attack clip, and that the catalog neither holds nor excludes
+(`sandboxCatalogExclusions` in `catalog.js`, each with its reason); the
+message lists every NPC found and where it stands
+(`tools/sandbox/discover.mjs`). So a new encounter's monsters reach the
+sandbox with the pull request that adds them: an entry in its
+`sandbox.js`, or a reason to leave one out (Zebak, nine tiles of head and
+tail, is the host of his room only). The same test fights every entry: it
+must have stats, its clips, be loaded by the scene with every spot
+animation its attacks use, and attack the player within 40 ticks.
+
+The determinism harness has a scenario per entry (`sandbox/catalog/<id>`):
+a new one needs its digests recorded
+(`node tools/determinism/harness.mjs --update --only sandbox/catalog/`).
 
 ## Format
 
@@ -333,7 +328,6 @@ sharing; the library is reviewed, permanent and one click away.
 | `clock.js` | whether the run may tick: waiting for Start, running, paused |
 | `visit.js` | whether a visit fights the host (and draws its scene) |
 | `gateway.js` | the gateway in the lobby (`client/lobby/gateways.js` lists it) |
-| `discovered.js` | the generated part of the catalog (`tools/sandbox-catalog.mjs`, `tools/sandbox/discover.mjs`) |
 
 What needed `client/assets/`, each a few lines: the tick loop asks
 `encounter.isPaused()` (`Grid.js`); `routeVariants` (variants with a route

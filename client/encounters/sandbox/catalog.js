@@ -50,7 +50,6 @@ import { solHereditSandboxEntries } from "../sol-heredit/sandbox.js";
 import { vardorvisSandboxEntries } from "../vardorvis/sandbox.js";
 import { doomSandboxEntries } from "../doom-of-mokhaiotl/sandbox.js";
 import { yamaSandboxEntries } from "../yama/sandbox.js";
-import { discoveredNpcCatalog } from "./discovered.js";
 
 export const curatedNpcCatalog = [
   ...infernoSandboxEntries,
@@ -62,17 +61,17 @@ export const curatedNpcCatalog = [
 ];
 
 // What the encounters draw that is not a monster to place, each with its
-// reason; tools/sandbox-catalog.mjs leaves these out of discovered.js.
+// reason. test/test-sandbox-catalog.mjs fails for any other NPC an encounter
+// draws (with stats in the monster table and an attack clip) that the
+// catalog does not hold: a new encounter gives its monsters entries in its
+// own sandbox.js, or reasons here.
 export const sandboxCatalogExclusions = {
   11730: "Zebak is a head and a tail of nine tiles with mechanics of his own: he is fought as the host of his room",
   11732: "Zebak, enraged: as above",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
 };
 
-// The curated entries and those tools/sandbox-catalog.mjs found in the
-// encounters' presentations (discovered.js): a new encounter's monsters
-// join the sandbox without an entry written by hand.
-export const sandboxNpcCatalog = [...curatedNpcCatalog, ...discoveredNpcCatalog];
+export const sandboxNpcCatalog = curatedNpcCatalog;
 
 const catalogById = new Map(sandboxNpcCatalog.map((entry) => [entry.id, entry]));
 export const getSandboxNpcEntry = (id) => catalogById.get(id);
