@@ -55647,6 +55647,10 @@ function KN(e, a, t, n, s = 0) {
 var qN = class extends SceneCompositor {
   constructor() {
     super();
+    // The animations other NPCs announce as "colosseum_visual" events, as
+    // Sol Heredit's scene plays them: the sandbox's monsters beside Yama
+    // (client/encounters/sandbox/brawler.js).
+    ce(this, "visuals", new OE(this.spotAnimRenderer));
     ce(this, "waveController", new jN());
     ce(this, "attackController", new ZW());
     ce(this, "fireballController", new IN());
@@ -55717,6 +55721,7 @@ var qN = class extends SceneCompositor {
       this.waveController.consumeEvents(e);
       this.attackController.consumeEvents(e);
       this.voidFlareController.consumeEvents(e);
+      this.visuals.consume(e);
     }
   }
   KD(e) {
@@ -55844,6 +55849,19 @@ var qN = class extends SceneCompositor {
     );
   }
   lH(e, a) {
+    // The other NPCs' animations (see the constructor), as Sol Heredit's scene starts them.
+    // Nothing changes for Yama's own fight, which has no such events.
+    const cycle = (a ?? e.currentTick) * 30;
+    let played = false;
+    for (const cue of this.visuals.gM(cycle)) {
+      const npc = e.npcs.find((candidate) => candidate.id === cue.cue.actorId);
+      if (!npc || !TR(npc, cue.cycle)) continue;
+      if (this.encounterRenderConfig?.preloadNpcTypes?.find((entry) => entry.npcTypeId === npc.npcTypeId)?.attackClips?.[cue.cue.clipId] === undefined) continue;
+      this.bD(cue.cycle);
+      this.npcInstanceManager.PA(0, 1, [{ actorId: this.getNpcRenderInstanceId(cue.cue.actorId), trigger: "attack", clipId: cue.cue.clipId, tick: cue.cycle / 30 }]);
+      played = true;
+    }
+    if (played) this.bD(cycle);
     return WR(e);
   }
   oH(e, a, t, n, s, r, i, l) {
