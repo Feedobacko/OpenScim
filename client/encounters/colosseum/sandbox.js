@@ -9,6 +9,7 @@ import {
   manticoreOrbSpotAnimIds,
   manticoreOrbImpactSpotAnimIds,
   shockwaveProjectileSpotAnimId,
+  highJavelinSpotAnimIds,
 } from "./constants.js";
 
 // shockwave.js: leaves after 50 cycles, 26 and 8 a tile more.
@@ -49,6 +50,49 @@ const manticoreChargedVolley = {
 const shamanFlight = { spotAnimId: shamanSpotAnimIds.projectile, startDelayCycles: 67, endDelayCycles: 90, slope: 14, startOffset: 32, startHeight: 172, endHeight: 146 };
 const javelinFlight = { spotAnimId: javelinProjectileSpotAnimId, startDelayCycles: 58, endDelayCycles: 90, slope: 16, startOffset: 0, startHeight: 200, endHeight: 138 };
 
+// javelin.js: every fifth attack is a javelin thrown high, which comes down
+// 6 ticks later on the tile its target stood on when it was thrown (OBS);
+// it ignores prayer (WIKI) and deals 0 to 40 (WIKI's strategy page; the
+// least inferred). Its effects: on the colossus at 60 cycles, the shadow and
+// the falling javelin on the tile at 120, the blast at 180 (OBS). A sandbox
+// `special` (sandbox/brawler.js starts it, sandbox/encounter.js lands it).
+const highJavelinDamage = [0, 40];
+export const javelinHighThrow = {
+  id: "colosseum.javelin_high",
+  spotAnimIds: Object.values(highJavelinSpotAnimIds),
+  start({ target }) {
+    const tile = [target.position[0], target.position[1]];
+    return {
+      clipId: "throwHigh",
+      landsInTicks: 6,
+      data: { tile },
+      holdTicks: 0,
+      nextActionTicks: colosseumMonsters.javelin.attackSpeed,
+      graphics: [
+        { spotAnimId: highJavelinSpotAnimIds.launch, on: "self", height: 0, delayCycles: 60 },
+        { spotAnimId: highJavelinSpotAnimIds.shadow, tile, height: 0, delayCycles: 120 },
+        { spotAnimId: highJavelinSpotAnimIds.falling, tile, height: 0, delayCycles: 120 },
+        { spotAnimId: highJavelinSpotAnimIds.blast, tile, height: 0, delayCycles: 180 },
+      ],
+    };
+  },
+  land({ data, target, targetAlive, random }) {
+    const [x, y] = data.tile;
+    const size = target?.size ?? 1;
+    const struck = target && targetAlive && x >= target.position[0] && x < target.position[0] + size && y >= target.position[1] && y < target.position[1] + size;
+    if (!struck) return { stomps: [], damage: null };
+    const [least, most] = highJavelinDamage;
+    return { stomps: [], damage: least + Math.floor(random() * (most - least + 1)) };
+  },
+};
+
+// minotaur.js: while its target is not beside it, it heals instead, on its
+// attack timer, a monster below 75 % of its hitpoints whose centre is in
+// sight of its own and no more than 7 tiles away (WIKI), to full; the
+// healed one draws spot animation 444 128 high (OBS, CACHE: tzhaar_heal).
+// In the sandbox it heals the monsters of its own side only.
+const minotaurHeal = { belowFraction: 0.75, range: 7, clip: "heal", graphic: { spotAnimId: 444, height: 128 } };
+
 const monster = (key, attack) => {
   const entry = colosseumMonsters[key];
   return {
@@ -70,10 +114,18 @@ export const colosseumSandboxEntries = [
   monster("shaman", { clip: "attack", maxHit: 28, flight: shamanFlight }), // shaman.js
   // jaguar.js: three claws at once, each rolled on its own, up to 47 each (WIKI, SIM).
   monster("jaguar", { clip: "attack", hits: 3, maxHit: 47 }),
-  monster("javelin", { clip: "attack", maxHit: 48, flight: javelinFlight }), // javelin.js
+  // javelin.js: its javelin, and every fifth attack one thrown high (javelinHighThrow).
+  {
+    ...monster("javelin", { clip: "attack", maxHit: 48, flight: javelinFlight }),
+    attacks: [
+      { style: "range", range: colosseumMonsters.javelin.attackRange, clip: "attack", maxHit: 48, flight: javelinFlight },
+      { style: "range", range: colosseumMonsters.javelin.attackRange, clip: "throwHigh", special: javelinHighThrow, everyNth: 5 },
+    ],
+  },
   // manticore.js: it charges, shows its three orbs in the order it will
   // throw them, and throws them one a tick (manticoreChargedVolley above).
   monster("manticore", { clip: "throw", chargedVolley: manticoreChargedVolley }),
   monster("shockwave", { clip: "attack", projectile: shockwaveProjectile }),
-  monster("minotaur", { clip: "attack" }),
+  // minotaur.js: its smash (WIKI: up to 74, a tick after the swing), and its heal.
+  { ...monster("minotaur", { clip: "attack", maxHit: 74, impactDelayTicks: 1 }), heal: minotaurHeal },
 ];

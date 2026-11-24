@@ -31,6 +31,10 @@
 //                 land }: Sol Heredit's spear and shield, in
 //                 sol-heredit/sandbox.js; brawler.js starts it and
 //                 encounter.js lands it)
+//                 `everyNth` makes an attack come on that attack of the count
+//                 and only then (the javelin colossus's high throw)
+//   heal          { belowFraction, range, clip, graphic }: out of reach of
+//                 its target it heals one of its side (the minotaur)
 //   immobile      true: never moves (TzKal-Zuk)
 //   idleSeqId, walkSeqId?, deathSeqId, clips   the sequences the scene loads
 //

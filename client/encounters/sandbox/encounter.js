@@ -89,6 +89,8 @@ export class SandboxEncounter {
     this.obstacleRegistration = obstacleNpcDefinition.register(undefined);
     this.brawlers = brawlerNpcDefinition.register({
       selectTarget: (actor, context) => this.selectTarget(actor, context),
+      // Of its side: an NPC it does not fight (in "versus", every monster); never a boulder.
+      isAlly: (actor, other) => other.kind === "npc" && !isObstacle(other) && !this.isEnemy(actor, other),
       entryOf: (actor) => getSandboxNpcEntry(actor.state.entryId),
       queueStrike: (pending) => this.strikes.push(pending),
     });

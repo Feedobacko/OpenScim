@@ -23,6 +23,8 @@ import { scheduleNextActionTick, buildNpcProjectileVisual, getProjectileSourcePo
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
 import { emitColosseumVisual } from "../sol-heredit/constants.js";
 import { isCorrectProtectionPrayer } from "../../engine/damage.js";
+import { hasLineOfSight } from "../../engine/attackRange.js";
+import { healNpc } from "../shared/npcHelpers.js";
 
 // What the formulas and the events call each style.
 const planOfStyle = {
@@ -149,9 +151,18 @@ export const brawlerNpcDefinition = defineNpc({
     actor.combat.targetId = target?.id ?? null;
     if (!target) return idle;
     const entry = config.entryOf(actor);
-    const inReach = entry.attacks.filter((attack) => isNpcInAttackRange(actor, target, attack.range));
-    if (inReach.length === 0) return idle;
-    const attack = inReach.length === 1 ? inReach[0] : inReach[Math.floor(context.random() * inReach.length)];
+    // An attack of `everyNth` comes on that attack of the count, and only then
+    // (the javelin colossus's fifth); the others are drawn among the rest.
+    const count = (actor.state.attackCount ?? 0) + 1;
+    const inReach = entry.attacks.filter((attack) => isNpcInAttackRange(actor, target, attack.range) && (attack.everyNth ? count % attack.everyNth === 0 : true));
+    const due = inReach.find((attack) => attack.everyNth);
+    const plain = inReach.filter((attack) => !attack.everyNth);
+    if (!due && plain.length === 0) {
+      // Out of reach: a healer heals one of its side instead (the minotaur).
+      return entry.heal ? heal(actor, target, entry.heal, context, config) : idle;
+    }
+    actor.state.attackCount = count;
+    const attack = due ?? (plain.length === 1 ? plain[0] : plain[Math.floor(context.random() * plain.length)]);
     if (attack.special) return special(actor, target, attack, context, config);
     // One attack may be several hits, each rolled on its own and with a
     // hitsplat of its own: `hits` at once (the jaguar's three claws), or a
@@ -194,6 +205,30 @@ export const brawlerNpcDefinition = defineNpc({
     return { environmentalDamages: [], npcAttacks };
   },
 });
+
+// With its target out of reach, a healer (`heal`, the minotaur's:
+// colosseum/sandbox.js) heals to full, on its attack timer, the first NPC of
+// its own side below `belowFraction` of its hitpoints whose centre is in
+// sight and within `range` of its own.
+const centreTile = (npc) => [npc.position[0] + Math.floor(npc.size / 2), npc.position[1] + Math.floor(npc.size / 2)];
+function heal(actor, target, config_, context, config) {
+  const idle = { environmentalDamages: [] };
+  const [x, y] = centreTile(actor);
+  const wounded = context.world.getNpcs().find((npc) => {
+    if (npc === actor || !isActorAlive(npc) || npc.death !== undefined || !config.isAlly(actor, npc)) return false;
+    if (npc.vitals.hp >= npc.vitals.maxHp * config_.belowFraction) return false;
+    const [otherX, otherY] = centreTile(npc);
+    return Math.max(Math.abs(otherX - x), Math.abs(otherY - y)) <= config_.range && hasLineOfSight(x, y, otherX, otherY);
+  });
+  if (!wounded) return idle;
+  faceActorToward(actor, wounded);
+  const animations = [{ actorId: actor.id, clipId: config_.clip, delayCycles: 0 }];
+  emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [{ ...config_.graphic, target: buildActorVisualTarget(wounded), delayCycles: 0 }] });
+  emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [{ ...config_.graphic, actorId: wounded.id, delayCycles: 0 }] });
+  healNpc(wounded, wounded.vitals.maxHp - wounded.vitals.hp, context.tickEvents);
+  scheduleNextActionTick(actor.combat, context.tick, actor.combat.attackSpeed);
+  return idle;
+}
 
 // A charged volley (`chargedVolley`, the manticore's: colosseum/sandbox.js,
 // after colosseum/manticore.js). With a target in reach for the first time
@@ -327,8 +362,18 @@ function special(actor, target, attack, context, config) {
   actor.state.immobileUntilTick = context.tick + started.holdTicks;
   faceActorToward(actor, target);
   const animations = [{ actorId: actor.id, clipId: started.clipId, delayCycles: 0 }];
-  emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
-  emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+  // What it draws as it starts: on itself (`on: "self"`) or on a tile.
+  const graphics = started.graphics ?? [];
+  emitInfernoVisual(context.tickEvents, {
+    animations,
+    projectiles: [],
+    graphics: graphics.map(({ spotAnimId, on, tile, height, delayCycles }) => ({ spotAnimId, target: on === "self" ? buildActorVisualTarget(actor) : { kind: "tile", position: [...tile] }, height, delayCycles })),
+  });
+  emitColosseumVisual(context.tickEvents, {
+    animations,
+    projectiles: [],
+    graphics: graphics.map(({ spotAnimId, on, tile, height, delayCycles }) => (on === "self" ? { spotAnimId, actorId: actor.id, height, delayCycles } : { spotAnimId, position: [...tile], height, delayCycles })),
+  });
   actor.combat.attackStyle = attack.style;
   actor.combat.lastAttackTick = context.tick;
   scheduleNextActionTick(actor.combat, context.tick, started.nextActionTicks);
