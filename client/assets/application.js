@@ -17047,7 +17047,7 @@ var gpe = ({
                     },
                     hD.CkFau(baseEncounterKind, encounterKind),
                   ),
-                  baseEncounterKind === "sandbox" && (0, jsxRuntime.jsx)(SandboxCodeField, { onVariantChange: onVariantChange }),
+                  baseEncounterKind === "sandbox" && (0, jsxRuntime.jsx)(SandboxCodeField, { onVariantChange: onVariantChange, onLoadoutChange: onLoadoutChange }),
                   hZ &&
                     (0, jsxRuntime.jsx)("section", {
                       className: "rail-section configurer-encounter-setup",
@@ -39971,13 +39971,14 @@ function $we(h2, h3) {
 }
 // The sandbox's setup window: paste a scenario's code, link or JSON
 // (client/encounters/sandbox/menuImport.js); the window switches to its arena.
-function SandboxCodeField({ onVariantChange }) {
+function SandboxCodeField({ onVariantChange, onLoadoutChange }) {
   const [text, setText] = (0, React.useState)("");
   const [message, setMessage] = (0, React.useState)(null);
   const load = () => {
     try {
       const loaded = loadSandboxCode(text);
       onVariantChange?.(loaded.encounterKind);
+      if (loaded.gear) onLoadoutChange?.(loaded.gear);
       setMessage({ ok: true, text: 'Loaded "' + loaded.name + '" (' + loaded.arenaName + ", " + loaded.npcCount + " monsters). Start Encounter plays it." });
     } catch (error) {
       setMessage({ ok: false, text: error.message });
@@ -49870,6 +49871,42 @@ function eCe({ devHarness: devHarness } = {}) {
     updateStartingHpPerEncounter: lK,
     devHarness: h5,
   });
+  // The sandbox (client/encounters/sandbox/editor.js) reaches the loadout
+  // through three window events: "sandbox-open-setup" opens the setup window
+  // of a kind (loadout, presets, Start Encounter); "sandbox-get-loadout"
+  // hands detail.reply the sandbox's loadout; "sandbox-apply-loadout" sets
+  // the loadout a scenario carries and enters detail.encounterKind with it.
+  const sandboxEnterRef = (0, React.useRef)(null);
+  (0, React.useEffect)(() => {
+    const open = (event) => setSelectedLobbyEncounter(event.detail);
+    const get = (event) => event.detail.reply(getLoadout("sandbox"));
+    const apply = (event) => {
+      setLoadout("sandbox", event.detail.loadout);
+      sandboxEnterRef.current = event.detail.encounterKind;
+      // Entered once the loadout is in the state (below), or at the latest now.
+      setTimeout(() => {
+        if (sandboxEnterRef.current) {
+          const kind = sandboxEnterRef.current;
+          sandboxEnterRef.current = null;
+          enterEncounter(kind);
+        }
+      }, 50);
+    };
+    window.addEventListener("sandbox-open-setup", open);
+    window.addEventListener("sandbox-get-loadout", get);
+    window.addEventListener("sandbox-apply-loadout", apply);
+    return () => {
+      window.removeEventListener("sandbox-open-setup", open);
+      window.removeEventListener("sandbox-get-loadout", get);
+      window.removeEventListener("sandbox-apply-loadout", apply);
+    };
+  }, [setSelectedLobbyEncounter, getLoadout, setLoadout, enterEncounter]);
+  (0, React.useEffect)(() => {
+    if (!sandboxEnterRef.current) return;
+    const kind = sandboxEnterRef.current;
+    sandboxEnterRef.current = null;
+    enterEncounter(kind);
+  }, [enterEncounter]);
   const mm =
     "encounter" === sceneState.kind
       ? sceneState.encounterKind
