@@ -4,9 +4,10 @@
 // footprint stands on walkable tiles of its arena, clear of the others and
 // of the host boss's NPCs: test/test-sandbox-examples.mjs checks it.
 //
-// The first ten are the original set; the second ten are harder: the
-// arena's real boss with its mechanics and company, full Inferno and
-// Colosseum line-ups, teams in a free for all.
+// Bosses only: the first eleven fight the arena's real boss with all its
+// mechanics (the host) and other bosses beside it; the rest put the bosses
+// of the catalog together, against the player, against each other, or in
+// teams.
 import { normalizeScenario } from "./scenario.js";
 
 // Item ids (the game's object ids, as tools/determinism/scenarios/common.mjs has them).
@@ -57,139 +58,103 @@ const example = (key, meta, arena, mode, gear, npcs, options = {}) => ({
 });
 
 export const sandboxExamples = [
-  // The real Sol Heredit, with all his mechanics (the arena's host), and a second one of the sandbox's.
-  example("two-suns", { name: "Two Suns", description: "Sol Heredit with all his mechanics, and a second Sol beside him. Good luck." }, "sol_heredit", "versus", meleeGear, [
+  // --- the arena's real boss, with all its mechanics, and company -------------
+  example("two-suns", { name: "Two Suns", description: "Sol Heredit with all his mechanics, and a second Sol beside him." }, "sol_heredit", "versus", meleeGear, [
     npc("sol-twin", "sol_heredit", 26, 29),
   ], { bossMechanics: true }),
-  example("inferno-gauntlet", { name: "Inferno Gauntlet", description: "A late Inferno wave without the pillars to hide behind." }, "inferno", "versus", rangedGear, [
-    npc("meleer", "inferno.meleer", 29, 40),
-    npc("ranger", "inferno.ranger", 20, 42),
-    npc("mager", "inferno.mager", 39, 41),
-    npc("bat-1", "inferno.bat", 24, 37),
-    npc("bat-2", "inferno.bat", 36, 37),
-    npc("nibbler-1", "inferno.nibbler", 28, 36),
-    npc("nibbler-2", "inferno.nibbler", 31, 36),
-    npc("nibbler-3", "inferno.nibbler", 34, 36),
-  ]),
-  example("colosseum-royale", { name: "Colosseum Royale", description: "The six monsters of the waves, every one for itself. Watch who is left." }, "colosseum", "ffa", mageGear, [
-    npc("shaman", "colosseum.shaman", 22, 46),
-    npc("jaguar", "colosseum.jaguar", 40, 46),
-    npc("javelin", "colosseum.javelin", 20, 24),
-    npc("manticore", "colosseum.manticore", 41, 23),
-    npc("shockwave", "colosseum.shockwave", 31, 44),
-    npc("minotaur", "colosseum.minotaur", 31, 25),
-  ], { ffaIncludesPlayer: false }),
-  example("warband-stand", { name: "The Warband's Stand", description: "The Fremennik fight at your side against an Inferno wave." }, "colosseum", "ffa", rangedGear, [
-    npc("berserker", "warband.berserker", 25, 36, { team: "player" }),
-    npc("archer", "warband.archer", 24, 33, { team: "player" }),
-    npc("seer", "warband.seer", 24, 39, { team: "player" }),
-    npc("meleer", "inferno.meleer", 38, 35, { team: "inferno" }),
-    npc("ranger", "inferno.ranger", 42, 42, { team: "inferno" }),
-    npc("blob", "inferno.blob", 42, 28, { team: "inferno" }),
-  ]),
-  example("jad-duel", { name: "Jad in Yama's Room", description: "JalTok-Jad and his two healers, far from home." }, "yama", "versus", rangedGear, [
-    npc("jad", "inferno.jad", 29, 24),
-    npc("healer-1", "inferno.jad_healer", 25, 27),
-    npc("healer-2", "inferno.jad_healer", 37, 27),
-  ]),
-  example("boss-brawl", { name: "Boss Brawl", description: "Vardorvis, Sol Heredit and the Doom, and you in the middle: everyone fights everyone." }, "doom_deep", "ffa", meleeGear, [
-    npc("vardorvis", "vardorvis", 24, 40),
-    npc("sol", "sol_heredit", 35, 40),
-    npc("doom", "doom", 29, 31),
-  ], { playerStart: [31, 46] }),
-  example("nibbler-swarm", { name: "Nibbler Swarm", description: "Ten nibblers in Zebak's room. Bring something that hits many." }, "zebak", "versus", mageGear, [
-    npc("nib-1", "inferno.nibbler", 25, 38), npc("nib-2", "inferno.nibbler", 27, 38), npc("nib-3", "inferno.nibbler", 29, 38),
-    npc("nib-4", "inferno.nibbler", 31, 38), npc("nib-5", "inferno.nibbler", 33, 38), npc("nib-6", "inferno.nibbler", 25, 26),
-    npc("nib-7", "inferno.nibbler", 27, 26), npc("nib-8", "inferno.nibbler", 29, 26), npc("nib-9", "inferno.nibbler", 31, 26),
-    npc("nib-10", "inferno.nibbler", 33, 26),
-  ]),
-  example("clearing-skirmish", { name: "Red against Blue", description: "Two teams in Vardorvis' clearing; the player only watches." }, "vardorvis", "ffa", mageGear, [
-    npc("red-jaguar", "colosseum.jaguar", 34, 30, { team: "red" }),
-    npc("red-archer", "warband.archer", 33, 33, { team: "red" }),
-    npc("red-seer", "warband.seer", 36, 33, { team: "red" }),
-    npc("blue-minotaur", "colosseum.minotaur", 45, 30, { team: "blue" }),
-    npc("blue-shaman", "colosseum.shaman", 47, 26, { team: "blue" }),
-    npc("blue-bat", "inferno.bat", 44, 20, { team: "blue" }),
-  ], { ffaIncludesPlayer: false }),
-  example("mage-hall", { name: "Hall of Mages", description: "Magic from every side in the nexus of the Tombs of Amascut." }, "toa_nexus", "versus", rangedGear, [
-    npc("shaman-1", "colosseum.shaman", 24, 35),
-    npc("shaman-2", "colosseum.shaman", 38, 35),
-    npc("seer-1", "warband.seer", 27, 24),
-    npc("seer-2", "warband.seer", 35, 24),
-    npc("shockwave", "colosseum.shockwave", 30, 34),
-  ]),
-  example("minotaur-pit", { name: "The Minotaur's Pit", description: "A minotaur, two jaguars and a javelin colossus in the Doom's first room, with doubled hitpoints." }, "doom", "versus", meleeGear, [
-    npc("minotaur", "colosseum.minotaur", 30, 40, { hp: 450 }),
-    npc("jaguar-1", "colosseum.jaguar", 24, 36, { hp: 250 }),
-    npc("jaguar-2", "colosseum.jaguar", 37, 36, { hp: 250 }),
-    npc("javelin", "colosseum.javelin", 30, 45, { hp: 440 }),
-  ]),
-
-  // --- harder ---------------------------------------------------------------
-  example("sols-gauntlet", { name: "Sol's Gauntlet", description: "Sol Heredit with all his mechanics, while two javelin colossi and a serpent shaman shoot from the edges." }, "sol_heredit", "versus", meleeGear, [
-    npc("javelin-west", "colosseum.javelin", 26, 37),
-    npc("javelin-east", "colosseum.javelin", 37, 37),
-    npc("shaman", "colosseum.shaman", 29, 29),
+  example("sun-and-flame", { name: "Sun and Flame", description: "Sol Heredit with all his mechanics while JalTok-Jad switches styles from the corner." }, "sol_heredit", "versus", rangedGear, [
+    npc("jad", "inferno.jad", 26, 29),
   ], { bossMechanics: true }),
-  example("yamas-court", { name: "Yama's Court", description: "Yama with his fireballs, waves and void flares, and JalTok-Jad with his healers at his side." }, "yama", "versus", rangedGear, [
+  example("sun-and-shadow", { name: "Sun and Shadow", description: "Sol Heredit with all his mechanics, and Yama walking in from the other side." }, "sol_heredit", "versus", meleeGear, [
+    npc("yama", "yama", 34, 29),
+  ], { bossMechanics: true, playerStart: [30, 33] }),
+  example("yamas-court", { name: "Yama's Court", description: "Yama with his fireballs, waves and void flares, JalTok-Jad on his left and Vardorvis on his right." }, "yama", "versus", rangedGear, [
     npc("jad", "inferno.jad", 19, 30),
-    npc("healer-1", "inferno.jad_healer", 25, 36),
-    npc("healer-2", "inferno.jad_healer", 38, 36),
+    npc("vardorvis", "vardorvis", 39, 33),
   ], { bossMechanics: true, playerStart: [31, 37] }),
-  example("vardorvis-pack", { name: "Vardorvis and the Pack", description: "Vardorvis with his axes, spikes and strangle, two jaguar warriors and a minotaur." }, "vardorvis", "versus", meleeGear, [
-    npc("jaguar-1", "colosseum.jaguar", 34, 29),
-    npc("jaguar-2", "colosseum.jaguar", 46, 29),
-    npc("minotaur", "colosseum.minotaur", 45, 19),
+  example("yama-and-zuk", { name: "Two Lords of Fire", description: "Yama with all his mechanics, and TzKal-Zuk casting from the far side of the room." }, "yama", "versus", rangedGear, [
+    npc("zuk", "inferno.zuk", 19, 22),
+  ], { bossMechanics: true, playerStart: [31, 37] }),
+  example("vardorvis-pack", { name: "The Stranglewood Hunt", description: "Vardorvis with his axes, spikes and strangle, while Sol Heredit and the Doom close in." }, "vardorvis", "versus", meleeGear, [
+    npc("sol", "sol_heredit", 32, 29),
+    npc("doom", "doom", 45, 29),
   ], { bossMechanics: true }),
-  example("dooms-swarm", { name: "Doom's Swarm", description: "The Doom of Mokhaiotl's first delve, with nibblers at your feet and bats overhead." }, "doom", "versus", rangedGear, [
-    npc("nib-1", "inferno.nibbler", 24, 29), npc("nib-2", "inferno.nibbler", 25, 31),
-    npc("nib-3", "inferno.nibbler", 37, 29), npc("nib-4", "inferno.nibbler", 38, 31),
-    npc("bat-1", "inferno.bat", 23, 42), npc("bat-2", "inferno.bat", 37, 42),
+  example("three-heads", { name: "Three Heads", description: "Vardorvis with all his mechanics, and two more of him." }, "vardorvis", "versus", meleeGear, [
+    npc("vardorvis-2", "vardorvis", 34, 30),
+    npc("vardorvis-3", "vardorvis", 46, 30),
   ], { bossMechanics: true }),
-  example("abyss-below", { name: "The Abyss Below", description: "The Doom's deeper delves, with an Inferno mager and ranger on the ledges." }, "doom_deep", "versus", mageGear, [
-    npc("mager", "inferno.mager", 21, 40),
-    npc("ranger", "inferno.ranger", 38, 40),
+  example("dooms-jads", { name: "The Doom and Two Jads", description: "The Doom of Mokhaiotl's first delve, with a JalTok-Jad at each side of the room." }, "doom", "versus", rangedGear, [
+    npc("jad-west", "inferno.jad", 21, 40),
+    npc("jad-east", "inferno.jad", 37, 40),
   ], { bossMechanics: true }),
-  example("zebak-frenzy", { name: "Zebak's Feeding Frenzy", description: "Zebak with his roars, waves and blood clouds, and six nibblers that will not leave you alone." }, "zebak", "versus", rangedGear, [
-    npc("nib-1", "inferno.nibbler", 33, 25), npc("nib-2", "inferno.nibbler", 35, 27), npc("nib-3", "inferno.nibbler", 36, 30),
-    npc("nib-4", "inferno.nibbler", 36, 34), npc("nib-5", "inferno.nibbler", 35, 37), npc("nib-6", "inferno.nibbler", 33, 39),
+  example("abyss-below", { name: "The Abyss Below", description: "The Doom's deeper delves, with Yama and Vardorvis on the ledges." }, "doom_deep", "versus", mageGear, [
+    npc("yama", "yama", 20, 40),
+    npc("vardorvis", "vardorvis", 39, 41),
   ], { bossMechanics: true }),
-  example("inferno-finale", { name: "Inferno Finale", description: "Jad and his healers, a mager, a ranger, a meleer and two bats, all at once and no pillars." }, "inferno", "versus", rangedGear, [
-    npc("jad", "inferno.jad", 29, 40),
-    npc("healer-1", "inferno.jad_healer", 26, 43),
-    npc("healer-2", "inferno.jad_healer", 36, 43),
-    npc("mager", "inferno.mager", 18, 38),
-    npc("ranger", "inferno.ranger", 40, 38),
-    npc("meleer", "inferno.meleer", 36, 23),
-    npc("bat-1", "inferno.bat", 20, 26),
-    npc("bat-2", "inferno.bat", 41, 27),
+  example("depths-of-fire", { name: "Depths of Fire", description: "The Doom's deeper delves, TzKal-Zuk at the back of the room and JalTok-Jad at your side." }, "doom_deep", "versus", rangedGear, [
+    npc("zuk", "inferno.zuk", 28, 42),
+    npc("jad", "inferno.jad", 21, 33),
+  ], { bossMechanics: true }),
+  example("zebak-and-sol", { name: "Jaws and Spear", description: "Zebak with his roars, waves and blood clouds, while Sol Heredit hunts you on the bank." }, "zebak", "versus", meleeGear, [
+    npc("sol", "sol_heredit", 32, 35),
+  ], { bossMechanics: true }),
+
+  // --- bosses together -----------------------------------------------------------
+  example("zuks-set", { name: "Zuk's Set", description: "TzKal-Zuk with two JalTok-Jads, an Inferno mager and ranger, and no pillars to hide behind." }, "inferno", "versus", rangedGear, [
+    npc("zuk", "inferno.zuk", 27, 39),
+    npc("jad-west", "inferno.jad", 18, 33),
+    npc("jad-east", "inferno.jad", 39, 33),
+    npc("mager", "inferno.mager", 20, 40),
+    npc("ranger", "inferno.ranger", 36, 41),
   ]),
-  example("last-team-standing", { name: "Last Team Standing", description: "You and the warband against three teams of the Colosseum's monsters, who fight each other too." }, "colosseum", "ffa", rangedGear, [
-    npc("berserker", "warband.berserker", 25, 36, { team: "player" }),
-    npc("archer", "warband.archer", 24, 33, { team: "player" }),
-    npc("seer", "warband.seer", 24, 39, { team: "player" }),
-    npc("red-jaguar-1", "colosseum.jaguar", 40, 45, { team: "red" }),
-    npc("red-jaguar-2", "colosseum.jaguar", 43, 45, { team: "red" }),
-    npc("red-jaguar-3", "colosseum.jaguar", 37, 43, { team: "red" }),
-    npc("blue-minotaur", "colosseum.minotaur", 40, 22, { team: "blue" }),
-    npc("blue-shaman-1", "colosseum.shaman", 38, 26, { team: "blue" }),
-    npc("blue-shaman-2", "colosseum.shaman", 44, 26, { team: "blue" }),
-    npc("green-javelin", "colosseum.javelin", 30, 46, { team: "green" }),
-    npc("green-manticore", "colosseum.manticore", 30, 21, { team: "green" }),
+  example("triple-jad", { name: "Triple Jad", description: "Three JalTok-Jads at once, each on his own timer." }, "inferno", "versus", rangedGear, [
+    npc("jad-1", "inferno.jad", 18, 38),
+    npc("jad-2", "inferno.jad", 28, 40),
+    npc("jad-3", "inferno.jad", 38, 38),
   ]),
+  example("boss-rush", { name: "Boss Rush", description: "Sol Heredit, Yama, the Doom and Vardorvis in the Colosseum, all after you." }, "colosseum", "versus", meleeGear, [
+    npc("sol", "sol_heredit", 27, 44),
+    npc("yama", "yama", 40, 44),
+    npc("doom", "doom", 21, 21),
+    npc("vardorvis", "vardorvis", 42, 22),
+  ]),
+  example("royal-rumble", { name: "Royal Rumble", description: "Six bosses in the Colosseum, every one for itself, and you in the middle." }, "colosseum", "ffa", meleeGear, [
+    npc("sol", "sol_heredit", 21, 44),
+    npc("yama", "yama", 40, 44),
+    npc("doom", "doom", 21, 21),
+    npc("jad", "inferno.jad", 39, 21),
+    npc("vardorvis", "vardorvis", 30, 46),
+    npc("zuk", "inferno.zuk", 29, 19),
+  ]),
+  example("champions-stand", { name: "The Champions' Stand", description: "Sol Heredit and Vardorvis fight for you against Yama, JalTok-Jad and the Doom." }, "colosseum", "ffa", rangedGear, [
+    npc("sol", "sol_heredit", 26, 34, { team: "player" }),
+    npc("vardorvis", "vardorvis", 27, 39, { team: "player" }),
+    npc("yama", "yama", 40, 44, { team: "enemies" }),
+    npc("jad", "inferno.jad", 40, 32, { team: "enemies" }),
+    npc("doom", "doom", 36, 20, { team: "enemies" }),
+  ]),
+  example("clash-of-titans", { name: "Clash of Titans", description: "Sol Heredit and Vardorvis against Yama and the Doom. You only watch." }, "colosseum", "ffa", mageGear, [
+    npc("red-sol", "sol_heredit", 18, 30, { team: "red" }),
+    npc("red-vardorvis", "vardorvis", 20, 40, { team: "red" }),
+    npc("blue-yama", "yama", 40, 29, { team: "blue" }),
+    npc("blue-doom", "doom", 42, 35, { team: "blue" }),
+  ], { ffaIncludesPlayer: false }),
   example("boss-royale", { name: "Boss Royale", description: "Sol Heredit, the Doom, JalTok-Jad and Vardorvis in the Tombs' nexus. Every one for itself; you watch." }, "toa_nexus", "ffa", mageGear, [
     npc("sol", "sol_heredit", 24, 28),
     npc("doom", "doom", 34, 28),
     npc("jad", "inferno.jad", 28, 17),
     npc("vardorvis", "vardorvis", 34, 20),
   ], { ffaIncludesPlayer: false }),
-  example("colossi-barrage", { name: "Colossi Barrage", description: "Three javelin colossi, two shockwave colossi and a manticore with half again their hitpoints." }, "colosseum", "versus", rangedGear, [
-    npc("javelin-1", "colosseum.javelin", 20, 45, { hp: 330 }),
-    npc("javelin-2", "colosseum.javelin", 32, 47, { hp: 330 }),
-    npc("javelin-3", "colosseum.javelin", 43, 44, { hp: 330 }),
-    npc("shockwave-1", "colosseum.shockwave", 20, 22, { hp: 190 }),
-    npc("shockwave-2", "colosseum.shockwave", 42, 22, { hp: 190 }),
-    npc("manticore", "colosseum.manticore", 32, 20, { hp: 375 }),
+  example("tomb-raiders", { name: "Tomb Raiders", description: "JalTok-Jad, the Doom and Vardorvis come for you in the nexus of the Tombs of Amascut." }, "toa_nexus", "versus", mageGear, [
+    npc("jad", "inferno.jad", 24, 28),
+    npc("doom", "doom", 34, 28),
+    npc("vardorvis", "vardorvis", 30, 19),
+  ]),
+  example("twin-flames", { name: "Twin Flames", description: "Two TzKal-Zuks at the far end of the Inferno and two JalTok-Jads walking up to you." }, "inferno", "versus", rangedGear, [
+    npc("zuk-west", "inferno.zuk", 18, 38),
+    npc("zuk-east", "inferno.zuk", 36, 38),
+    npc("jad-west", "inferno.jad", 18, 26),
+    npc("jad-east", "inferno.jad", 38, 26),
   ]),
 ];
 
