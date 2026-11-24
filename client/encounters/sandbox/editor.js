@@ -855,15 +855,24 @@ function syncClockButton() {
   ui.clockButton.classList.toggle("sbx-start", sandboxClock.state !== "running");
 }
 
-// How a run ended, in the top bar: who won a free-for-all (the encounter's
-// snapshot, encounter.js), or that every monster is down.
+// How a run ended, in the top bar (the encounter's snapshot, encounter.js).
+// With the player in it ("versus", or a free-for-all that includes him):
+// "You died" when he dies (the run's outcome stays "active": the
+// application shows his death), else, once it is won, "Every monster is
+// down" or "You win". With the player left out of a free-for-all: the
+// winner, or that no one is left standing.
 function syncResult(simulationState) {
   const sandbox = simulationState?.encounter?.sandbox;
   const phase = simulationState?.encounterOutcome?.phase;
   let text = "";
-  if (sandbox && phase && phase !== "active") {
-    if (sandbox.mode === "ffa") text = sandbox.winner ? `Winner: ${sandbox.winner}` : "No one is left standing";
-    else if (phase === "victory") text = "Every monster is down";
+  if (sandbox) {
+    const playerIsIn = sandbox.mode !== "ffa" || sandbox.ffaIncludesPlayer !== false;
+    if (playerIsIn) {
+      if (simulationState.isAlive === false) text = "You died";
+      else if (phase && phase !== "active") text = sandbox.mode === "ffa" ? "You win" : "Every monster is down";
+    } else if (phase && phase !== "active") {
+      text = sandbox.winner ? `Winner: ${sandbox.winner}` : "No one is left standing";
+    }
   }
   if (ui.result.textContent !== text) ui.result.textContent = text;
   ui.result.hidden = text === "";

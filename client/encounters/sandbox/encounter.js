@@ -273,7 +273,9 @@ export class SandboxEncounter {
       name: this.scenario.meta.name,
       npcsAlive: alive,
       npcsTotal: this.npcIds.length,
+      // Set only when the player is left out of a free-for-all.
       winner: this.winner,
+      ffaIncludesPlayer: this.scenario.options.ffaIncludesPlayer,
     };
     if (this.host) return { ...this.host.getSnapshot(input), sandbox };
     return { kind: this.kind, state: sandbox, sandbox, visuals: {} };
