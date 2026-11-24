@@ -2,7 +2,7 @@ import { zebakSoundNames } from "/toa/zebak/sounds.js";
 import { nexusKind, doorAt } from "/toa/nexus.js";
 import { soundEffectResponse, soundEffectUrl } from "/audio/soundEffects.js";
 import { colosseumLobbyLabel, getLobbyFights } from "/encounters/colosseum/lobby.js";
-import { loadSandboxCode } from "/encounters/sandbox/menuImport.js";
+import { loadSandboxCode, sandboxEntryKind } from "/encounters/sandbox/menuImport.js";
 import { attackRangesOptions, attackRangesDefaults, updateAttackRanges, listenForAttackRangesHotkey, describeHotkey } from "/plugins/attackRanges.js";
 import { thrallSpells, THRALL_END_SOUND_ID } from "/engine/thralls.js";
 const zebakSoundSearch = location.pathname === "/zebak/" ? new URLSearchParams(location.search).get("sound") : null;
@@ -36476,15 +36476,26 @@ function Tbe({
                 }),
               ],
             }),
-            (0, jsxRuntime.jsx)("div", {
+            (0, jsxRuntime.jsxs)("div", {
               className: "victory-modal-actions",
-              children: (0, jsxRuntime.jsx)(cX, {
-                controls: replayPractice,
-                encounterSession: encounterSession,
-                onRestart: onRestart,
-                onReplay: h9 ? onEnterReplay : undefined,
-                onReturnToLobby: onReturnToLobby,
-              }),
+              children: [
+                (0, jsxRuntime.jsx)(cX, {
+                  controls: replayPractice,
+                  encounterSession: encounterSession,
+                  onRestart: onRestart,
+                  onReplay: h9 ? onEnterReplay : undefined,
+                  onReturnToLobby: onReturnToLobby,
+                }),
+                // The sandbox (its snapshot has "sandbox"): its editor opens
+                // over this screen (client/encounters/sandbox/editor.js listens).
+                simulationState.encounter?.sandbox &&
+                  (0, jsxRuntime.jsx)("button", {
+                    type: "button",
+                    className: "osrs-btn osrs-btn--default",
+                    onClick: () => window.dispatchEvent(new CustomEvent("sandbox-open-editor")),
+                    children: "Sandbox editor",
+                  }),
+              ],
             }),
           ],
         }),
@@ -41117,6 +41128,15 @@ function qwe({
       (iq, ir, is, it) => {
         const iu = ak(iq);
         const iv = iu?.kind ?? iq;
+        // The sandbox has no setup window from the menus: its arena is
+        // entered with its editor open at its start screen
+        // (encounters/sandbox/menuImport.js; the "sandbox-request" listener
+        // below enters it).
+        if (iv === "sandbox") {
+          const encounterKind = sandboxEntryKind();
+          window.dispatchEvent(new CustomEvent("sandbox-request", { detail: { type: "enter", payload: { encounterKind }, accept() {}, resolve() {}, reject() {} } }));
+          return;
+        }
         ia(iv, {
           ...iu?.mechanics,
           ...it,
@@ -53741,7 +53761,8 @@ function eCe({ devHarness: devHarness } = {}) {
           isOpen: hz,
           onClose: r8,
           onEnter: (sP) => {
-            s9(sP);
+            // The sandbox: the arena of the player's scenario, the editor at its start screen.
+            s9(sP === "sandbox" ? sandboxEntryKind() : sP);
             hA(false);
           },
           onConfigure: (sP, sQ, sR) => {

@@ -1,5 +1,9 @@
 // The sandbox's editor: the one place to build and play a scenario, a panel
-// over the page in three steps.
+// over the page: a start screen and three steps.
+//   Start        the one box that loads a code, a link, JSON or a file; go on
+//                with the scenario, a new one, or the examples. The menus
+//                and the lobby's gateway open the editor here
+//                (menuImport.js, sandboxEntryKind).
 //   1 Arena      the scenario's name and mode, the examples, the library
 //                (scenarios/) and the saved scenarios, and the arena.
 //                Another arena is another route (/sandbox/<arena>): the
@@ -14,13 +18,13 @@
 //                marker, dragged the same way.
 //   3 Gear & share   the scenario's gear (chosen in the application's setup
 //                window), save in this browser, export a file, copy a share
-//                code or a link, and the one box that imports a code, a link,
-//                JSON or a file.
+//                code or a link.
 // The top bar holds "Start encounter" (which then pauses and resumes the
 // run: clock.js) and the editor's toggle. "Apply & restart", the editor's
 // one primary action, applies the scenario: the run restarts with it and,
 // as every run of the sandbox, waits for "Start encounter". When a run
-// ends, the top bar says how: who won a free-for-all.
+// ends, the top bar says how: who won a free-for-all; the victory screen
+// has a "Sandbox editor" button that opens the panel over it.
 //
 // Every change is applied to the active scenario (activeScenario.js) at
 // once, so that a reload keeps it; the fight on screen changes only when it
@@ -33,6 +37,7 @@ import { getSandboxNpcEntry, sandboxNpcCatalog } from "./catalog.js";
 import { sandboxExamples } from "./examples.js";
 import { libraryScenarios } from "./scenarios/index.js";
 import { requestApp } from "./bridge.js";
+import { editorReopenKey as reopenKey } from "./menuImport.js";
 import {
   createEmptyScenario,
   encodeShareCode,
@@ -49,12 +54,13 @@ import { deleteSavedScenario, listSavedScenarios, saveScenario } from "./storage
 import { sandboxClock, startSandbox, toggleSandboxPause } from "./clock.js";
 import { isHostedVisit } from "./visit.js";
 
-const reopenKey = "openscim.sandbox.editorStep";
 const style = `
 .sbx-hud { position: fixed; top: 8px; right: 232px; z-index: 40; display: flex; gap: 6px; }
 .sbx-countdown { position: fixed; top: 32%; left: 50%; transform: translate(-50%, -50%); z-index: 39; pointer-events: none;
   font: 64px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f); text-shadow: 2px 2px 0 #000, 0 0 12px rgb(0 0 0 / 0.8); }
 .sbx-countdown[hidden] { display: none; }
+.sbx-front .sbx-hud, .sbx-front .sbx-panel { z-index: 100001; }
+.sbx-start-lead { margin: 10px 0 4px; font-size: 13px; }
 .sbx-hud .sbx-start { box-shadow: 0 0 0 2px var(--color-primary, #ff981f); }
 .sbx-result { align-self: center; padding: 3px 8px; font: 13px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f);
   background: var(--color-bg-solid, #1e1812); border: 1px solid var(--color-primary, #ff981f); border-radius: 3px; }
@@ -780,6 +786,8 @@ function gearSection() {
       // The application's setup window for this arena: loadout and presets;
       // its Start Encounter restarts the run with them.
       button("Choose gear…", () => {
+        // The setup window is the application's: the panel goes back behind it.
+        ui.root.classList.remove("sbx-front");
         requestApp("open-setup", {
           encounterKind: ui.kind, displayName: "Sandbox",
           description: `Your loadout for ${ui.arena.name}. Start Encounter restarts the run with it; "Use my current gear" in the editor keeps it in the scenario.`,
@@ -851,8 +859,14 @@ function stepShare() {
   nodes.push(codeBox);
   nodes.push(el("div", { class: "sbx-row" }, [button("Copy code", () => copy(code, "Code")), button("Copy link", () => copy(link, "Link"), "ghost")]));
   nodes.push(el("p", { class: "sbx-note", text: `${code.length} characters. Anyone who opens the link gets this scenario.` }));
-  // The one import: a code, a link or JSON pasted, or a file read into it.
-  nodes.push(el("h3", { text: "Import" }));
+  return nodes;
+}
+
+// The start screen: the one import (a code, a link or JSON pasted, or a
+// file read into it), then where to go on from.
+function stepStart() {
+  const nodes = [el("p", { class: "sbx-start-lead", text: "Build a fight of your own, or load one someone shared." })];
+  nodes.push(el("h3", { text: "Load a scenario" }));
   const paste = el("textarea", { rows: 3, placeholder: "A code (OSB1...), a link (.../#sbx=...) or a scenario's JSON" });
   const importText = (value) => {
     try {
@@ -869,11 +883,20 @@ function stepShare() {
     importText(paste.value);
   });
   nodes.push(paste);
-  nodes.push(el("div", { class: "sbx-row" }, [button("Import", () => importText(paste.value)), button("From a file…", () => fileInput.click(), "ghost"), fileInput]));
+  nodes.push(el("div", { class: "sbx-row" }, [button("Load", () => importText(paste.value)), button("From a file…", () => fileInput.click(), "ghost"), fileInput]));
+  nodes.push(el("h3", { text: "Or" }));
+  const card = (title, text, onclick) => el("button", { class: "sbx-card", type: "button", onclick }, [el("b", { text: title }), el("small", { text })]);
+  nodes.push(el("div", { class: "sbx-grid" }, [
+    card("Go on", `"${ui.draft.meta.name}" · ${getSandboxArena(ui.draft.arena).name}`, () => (isDraftInThisArena() ? showStep(2) : goToArena(ui.draft.arena, 2))),
+    card("New scenario", `An empty one in ${ui.arena.name}`, () => loadDraft(createEmptyScenario(ui.arena.id))),
+    card("Examples", "Ten against you, ten free-for-alls", () => showStep(1)),
+  ]));
   return nodes;
 }
 
+// Step 0 is the start screen; 1 to 3 are numbered.
 const steps = [
+  { title: "Start", render: stepStart },
   { title: "1 Arena", render: stepArena },
   { title: "2 Monsters", render: stepMonsters },
   { title: "3 Gear & share", render: stepShare },
@@ -883,9 +906,9 @@ function renderBody() {
   if (!ui.body) return;
   const scroll = ui.body.scrollTop;
   ui.canvas = null;
-  ui.body.replaceChildren(...steps[ui.step - 1].render());
+  ui.body.replaceChildren(...steps[ui.step].render());
   ui.body.scrollTop = scroll;
-  ui.stepButtons.forEach((node, index) => node.setAttribute("aria-current", index + 1 === ui.step ? "step" : "false"));
+  ui.stepButtons.forEach((node, index) => node.setAttribute("aria-current", index === ui.step ? "step" : "false"));
 }
 function showStep(step) {
   ui.step = step;
@@ -907,15 +930,15 @@ function create(kind) {
   ui.hostedVisit = isHostedVisit(ui.arena);
   ui.status = el("div", { class: "sbx-status", role: "status" });
   ui.body = el("div", { class: "sbx-body" });
-  ui.stepButtons = steps.map((step, index) => button(step.title, () => showStep(index + 1), "ghost"));
+  ui.stepButtons = steps.map((step, index) => button(step.title, () => showStep(index), "ghost"));
   ui.panel = el("section", { class: "sbx-panel", "aria-label": "Sandbox editor", hidden: true }, [
     el("div", { class: "sbx-head" }, [el("h2", { text: `Sandbox · ${ui.arena.name}` }), button("Close", () => setOpen(false), "ghost")]),
     el("div", { class: "sbx-steps" }, ui.stepButtons),
     ui.body,
     el("div", { class: "sbx-foot" }, [
       el("div", { class: "sbx-grow" }, ui.status),
-      button("Back", () => showStep(Math.max(1, ui.step - 1)), "ghost"),
-      button("Next", () => showStep(Math.min(steps.length, ui.step + 1)), "ghost"),
+      button("Back", () => showStep(Math.max(0, ui.step - 1)), "ghost"),
+      button("Next", () => showStep(Math.min(steps.length - 1, ui.step + 1)), "ghost"),
       button("Apply & restart", play, "primary"),
     ]),
   ]);
@@ -931,10 +954,19 @@ function create(kind) {
   // Keys typed in the panel are the panel's, not the game's hotkeys.
   for (const type of ["keydown", "keyup", "keypress", "wheel"]) ui.root.addEventListener(type, (event) => event.stopPropagation());
   document.body.append(ui.root);
+  // The victory screen's "Sandbox editor" (assets/application.js): the panel
+  // opens over it, in front of everything until it is closed.
+  ui.onOpenRequest = () => {
+    ui.root.classList.add("sbx-front");
+    setOpen(true);
+  };
+  globalThis.addEventListener("sandbox-open-editor", ui.onOpenRequest);
   let reopenStep = null;
   try {
-    reopenStep = Number(globalThis.sessionStorage?.getItem(reopenKey)) || null;
+    const stored = globalThis.sessionStorage?.getItem(reopenKey);
     globalThis.sessionStorage?.removeItem(reopenKey);
+    const step = stored === null || stored === undefined ? NaN : Number(stored);
+    reopenStep = Number.isInteger(step) && step >= 0 && step < steps.length ? step : null;
   } catch {
     reopenStep = null;
   }
@@ -950,6 +982,7 @@ function create(kind) {
 
 function setOpen(open) {
   ui.panel.hidden = !open;
+  if (!open) ui.root.classList.remove("sbx-front");
   ui.toggle.textContent = open ? "Hide sandbox editor" : "Sandbox editor";
   if (open) renderBody();
 }
@@ -1012,7 +1045,8 @@ export function syncSandboxEditor(kind, simulationState) {
 }
 
 export function closeSandboxEditor() {
+  if (ui.onOpenRequest) globalThis.removeEventListener("sandbox-open-editor", ui.onOpenRequest);
   ui.drag?.ghost?.remove();
   ui.root?.remove();
-  Object.assign(ui, { root: null, toggle: null, result: null, countdown: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
+  Object.assign(ui, { root: null, onOpenRequest: null, toggle: null, result: null, countdown: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
 }
