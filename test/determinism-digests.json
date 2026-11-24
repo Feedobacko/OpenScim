@@ -2084,8 +2084,8 @@
   "sandbox/ffa-spectator": {
    "ticks": 131,
    "outcome": "victory",
-   "final": "8058a874d15b31df56901b53284651f39904b2b275f5b4647bf164d3ba2476b9",
-   "perTick": "43453eb55e cd58047032 b837beeed1 c8ffd5e3ba 20222289a4 209b0d9fc4 a56d57d28a 5c455b6a02 691968146c c7e48b6c04 6f95ae3312 64f069a5e1 bf73dfecb5 0ddf3317b8 70722c6e50 0da9218181 0df25d17a2 4d49c4bcbb b948a44fca 8f38b6dac0 7de2f61221 dfaf808a08 3ebcf1cb68 3012bb9971 2424051d68 ca0b853856 b4a1690c66 773867360e 4b5498c3e1 a759d3df26 faa9a293a0 7f11cdecf1 3a1b54dc49 1509c7f462 8df024f5bd 8cf1698c1d 14cd60e929 36776d16d1 918e2c8d23 2af4e7d2b4 e269a82317 b029a4a295 4169967776 8eec7b6993 4f353d1696 ad3e211266 e59555fda0 5959aa2fa8 1b46091249 e0ab675929 3df0a15fe9 e1c574fed5 cb6f7137ed 3b085d15d4 e406bc2a15 78dbbcd5d6 29de2cca12 5c274adff1 f4df6498d9 ec7e41cb39 4f983504fb 30d2fe2407 e551098749 34d373b519 ac31fc42e9 d0974943a4 4bbfd459ed 846d4e03a2 b552fe8823 aae5ee00a4 404dfc4b8b a0716f8546 56be61eef7 ef49a41ed3 dd9df3c4a3 ac194b09c9 85fe7d99cc 7e0cba3e68 a95ed182b7 72066229df 920972c222 f990a5f883 316120a80c 1e37a30f11 7ca1903109 0748f5b96a 8a67eed69d 9d3555723a 8d2179eb6b cbe6b104ab 77caa411a8 fd3ea518f6 c27bc8c4a9 ad232eec41 46eb3e560b 5801897984 458550c018 4da7d697a3 5a7b62c875 32b7ed8006 993984cc3d bc6229accc 736431a1d6 5b40a4523d 68bb37f1ed 1791264be0 18b0fcccc6 049891bc39 1e3ed23327 c1cab2b41d c7843f3214 00a2c126cc 43229316d3 f0e7a66c42 3ca2a33bd3 579e924a6f 3d53b62993 1842f53955 ee7732b371 a96bf42ab9 c61f437602 592cf1e7f7 3ba9d72db9 0818825d6f cb3a5f2952 1c5324d603 1975e5b573 5ac00b058f a4c7359bac 607c3f85aa eb35721239 017cf25f55",
+   "final": "393036ee70079b1fbae8dd0116c86511cdca8ca5b33dbf77f832c35b4c41af61",
+   "perTick": "dbe6fa52e5 ed968153a2 bcdce053c0 2badc95424 8b55d1d1c4 8ff1faa479 4537c45865 7742aa7e21 9519dfc62d 8caffa8b28 e5a66bf439 e756a73e44 b6c59d62de 2f3e77cbb9 5fbe55340e 3e5044f645 19898151e8 395ac7e39c 8e7cb14fb3 e4034889dc 3f71a49460 5d1e661bc4 40342416c0 f2bf76ef6a ef9436a409 216a7eab0d c30c139953 520478530d fb762cc416 c4fdc50ab2 b91511d751 bdafe6fed1 5c79274678 c539ff16bb 2e77bb33fe b0b8fbae53 34ee007ff9 7735eb4c4a 2fc8ae96b1 af2ab42899 6f7d893e19 9432feb076 a361dbb661 d6759bcd1d 4dbf01494e 5304ae289f 975c1fc84c 05f13baaa4 3ab9dd8c45 6d686ade8b 8c1596129b 5aa8a2c785 ff1b62fa88 04b0cebc6c eec2f63c8b 23a53d04be eef9b6d699 3b7bbb23e0 4a9dcd98a4 c89b591b72 6d2c587592 f2f10a78ce b074d87ca4 d551fbfb15 73ab02a47a c24e0cbaba 85c0d68127 38640eeaf2 ff5a076b4f 49a58ed692 c74927fe73 7ea2919621 fd2ecf3a4d c0dd1c7338 fd8f0d6793 8b526acf15 5536dcfe1e 9739780733 9f46945b09 e90878de92 8778ec0583 16e780a277 ade1a10b40 6ce7cc4e37 1e7562fd77 6172388bfc 57ad0a7c63 933ccbc38a df0a014cb3 980c994fd9 052efa5840 b66d9d3d41 fe437d718d 251d05c97a 7ed0481d26 df45ae3ff5 a62c16fd83 0967fc791c 76f4a40431 651b7faecd 9284ecc827 2cce3a8aa2 7613ac4e03 7b7eb0b0b7 6e3d6a5975 ea9361caa4 cee10ffb91 666507c46c bd363ecbe1 cd3c12941f 37c9526783 4cda37c0da bb9df579c6 3ed7763a6e 94f04bda94 f341c449c1 de0dea3316 ab64b71fa6 d13bf2dfcf 182bc59e53 d7dbcf7d0a 8fffa51e70 c7470f78b5 d1879abb0d fc45a80572 928b425cf1 bb30fbc2eb f2674d9052 a458fffd04 2a05a7418a b974031082 d2c8fa933d",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2093,16 +2093,16 @@
    },
    "replayRebuild": {
     "frame": 65,
-    "digest": "f27c3b15d8bec1e6",
-    "final": "9da5b4ac3830f74a",
+    "digest": "d26c3ce6d53b457a",
+    "final": "8b54fdec81b724b8",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/ffa-allies": {
    "ticks": 39,
    "outcome": "victory",
-   "final": "b3e26bbe36beaebc575128c2de54ed610196aaf0afecd1eb07a2ceacdc266011",
-   "perTick": "08436461d4 9d6cb33793 eaf3713a4c 7460ef1d6c d85f3f26b5 20ac42c0df f869763d39 adde157a52 363ffc84b1 ee6d008da1 2ac7516418 eb7db1051e 16f0b61909 63c0557800 f0079ecd58 74f1d8ce97 5b16136085 1c9d56c8af 2559be6bce f5f95872ed b0cea698e6 e521449ffc 8eca0381b6 e61fac0902 1f39370c36 477ffa1236 4f19276959 c7e0f55bf5 10670bb148 c448f0fcfa 3eb7ad1752 a9619f17d5 49a4affc08 f311ba3f68 de66fcfcc6 948843b27f 1f4552a636 f27e949bb0 cd352c6e6a f10995a005",
+   "final": "66fcc9b488ad390edb672159899fac40b3e0ec17103a5106d8f69145e0f80832",
+   "perTick": "f3089bd34d 6c216c29f3 9bf7b1dd0c 34e491bd61 ee15755dc3 29043f8977 8200310a8a 189cb8e031 13cdd33d48 3e239d7e2b 7f63e40d6f bd3cd12532 7f3fda6bc1 e3c7082fa0 d5ee370603 fca5f6b872 6f23cd64c6 0dc84b68ad 6704942183 288e938b57 35bbe107cd efdd770e9f f7bd1d09d3 7a8a7ca71b 6491d3327e 15b464c327 8d9ab7bcd8 df38ffa368 4f2503aa3e b5b844d325 0a51bfbd97 ad6a6d78f0 f49bed7959 39349800f1 fa1d600ff8 adf9f99fda df076c19b5 cb3b51b85b 924251df59 2fa711bc13",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2110,8 +2110,8 @@
    },
    "replayRebuild": {
     "frame": 19,
-    "digest": "e8b59103ff694c89",
-    "final": "f49e3d7e5dd7bbf7",
+    "digest": "92430d8b29195d79",
+    "final": "8ba65d5335f5f8ec",
     "endsLikeLiveRun": true
    }
   },
@@ -2220,8 +2220,8 @@
   "sandbox/example/two-suns": {
    "ticks": 12,
    "outcome": "active",
-   "final": "5ab2fd1d959be81c6a9c8fe505ddfffec7374a9f337e6d99eab99e3793acd96e",
-   "perTick": "9dfe66e4de d58f2a52bc 8a6cb0aacb b5f27caf2b 38d3389b3f f683776b88 9fff984b89 dd0c781182 6d712df17c 67f5abb2c1 6b6e52d338 0522b44cef e167da9983",
+   "final": "c60a075ecafa34849bfe118978ad9e1ea4c72e2170490fe6cf6e2b78adba8813",
+   "perTick": "81cb8aa7fa dc6ee69a7f 01ffb01221 5a994a5c6e 84ce903f63 6269f9a14f ce05697b8d c2e1d5631c 5fa796f405 2c01b9ddef d758515f85 267a71b4c0 e04180a156",
    "unseededRandomCalls": {
     "setup": 2,
     "ticks": 0,
@@ -2229,16 +2229,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "43b78c802e41bef2",
-    "final": "691b81fda20a57e6",
+    "digest": "c480a1c00d0c9492",
+    "final": "629e262e93740cb5",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/inferno-gauntlet": {
    "ticks": 12,
    "outcome": "active",
-   "final": "10149c42eb7df11acb639cbb4370c98e9a566929ab9ca7c69f7392979e686b36",
-   "perTick": "2bad25a972 9cbb0f0748 195549e1c7 36f7c71b65 d63dd21ec4 538330474b 33110ab708 eb57172a96 75b618e3a5 cbc17b0424 45a56ed697 ec079b97b8 74dbccef07",
+   "final": "aa52cbc5cb29015b112b34d88cc76074bd7641eca04c9c2219ae490e2f16fe78",
+   "perTick": "bc5ed678e7 247f8280ad 502b415c28 19a04e251c ef503df566 2ec19fb550 1cfbe2e41a 6422d37f37 ae2931b583 5ddb0e6369 f1a8464ace 2c687d2bc1 37417de26e",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2246,16 +2246,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "b6fcf78886eacd85",
-    "final": "90b49869407a7c4f",
+    "digest": "5db42f6feecf4de3",
+    "final": "2ff43755588aadda",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/colosseum-royale": {
    "ticks": 12,
    "outcome": "active",
-   "final": "f0c2b12949d3210f0445cbd4bfeb3599caf8acb965f233cc2bccd3b78b4543e4",
-   "perTick": "7becbde58f a928b96593 9110946798 76ffee1de2 9cee4a52ab fb9882df02 06649a836a b59792d367 ba48458d0e 72550d121b 2d36566787 55330cbb2c e5fdebab89",
+   "final": "0113cacd6b1e2d99e950249dab70809b65b73db00625f490526576e2e6a9bb43",
+   "perTick": "64c2808f97 f6d53ebaac 610058fb56 5086f4a5f4 47512c446b 84a25e3be1 643ad6d7e3 e60b59d883 48cee21ac7 a78dcc8b80 924208711f 6439d37944 07f683b5f4",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2263,16 +2263,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "fb44f9355b31d6de",
-    "final": "2ea990e6d4262d6d",
+    "digest": "3c353202d90f08e8",
+    "final": "040e4d44cb97b530",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/warband-stand": {
    "ticks": 12,
    "outcome": "active",
-   "final": "254aa031f5681a3235d536c373e8c706e5accf41885066e89d189b6964185d11",
-   "perTick": "5523eff318 569a15f576 c2f9e2a614 60350ec35f c2386656ee 73d6a6e303 72a32ddd2e 4fb81d4ea0 0e8b038242 3b55d17990 d037711634 0e1c893810 7f9514885a",
+   "final": "70ff03b3812f66dbc97834b8a892a4af6a8f99992a31f18e2d8a65a9841b2c84",
+   "perTick": "aad51ea670 c037e0c0b0 516d439efa f6645f3158 dac3e380c1 d66326e911 87e1ab95a4 f0a965e442 d5e5dfaf02 e8cc3aec95 cd01b43899 28d4807f65 bdf6ab923e",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2280,16 +2280,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "7100e70c6d698434",
-    "final": "b311e4f964c57fa6",
+    "digest": "83131939f0de23e0",
+    "final": "c7de18f316ec030d",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/jad-duel": {
    "ticks": 12,
    "outcome": "active",
-   "final": "027f02308c31bc60ed81937026cf31bcc35a3b309c7af4ceb617c8f0d17088bc",
-   "perTick": "31305321bf dc681dadc4 c38b4d44ad b7be685390 ea46d50ba2 9462b55f2f aae89d9bb6 745c5fc552 06442122ce 8365ac8132 46bac34b7b a29d13e983 5afaec1333",
+   "final": "453d48442dbc1db8ac9491d8252d0d514072ee7665baaa6ac335bbb9db16769e",
+   "perTick": "d9dd26c6a4 94b7471bd7 b2ff359939 ec9a687701 7c4fed5e50 d70143f26a 14be92f04d 747cd40c6d 3fb226b205 47f2649d07 e38678d0dd 1b4c2f7017 9a5c88b9b5",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2297,16 +2297,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "a5e6bb5d0024468e",
-    "final": "b9d86ee4bcabcca5",
+    "digest": "d018c1d901611462",
+    "final": "bea75cc232fcf216",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/boss-brawl": {
    "ticks": 12,
    "outcome": "active",
-   "final": "5e75e01e512b2ea397bced252d7c7c8152f4ad4ebb6d118819deca315e9dbc02",
-   "perTick": "2244e55e25 07dd7c4879 066bcae8ae 13e2be6a45 cddeff3870 a36a13cf3d 9aee62b5ae 14b8a9c2b6 5d2bf0c7e7 2430485f4b 7c863bdd28 19790a2547 1407b9523f",
+   "final": "e20e0adf5d531def88281c54d939df6be7abddede25c64f9b56391dd0a327c5a",
+   "perTick": "9b0ec6b74d 18f10bb8de 0dd4c1f195 3c5293acf7 3a3f162cf9 408b6f9744 67617ae7e9 4cecc89c01 66bc1c4f6a 635ba3beba b1af3677f1 9ce1696fb7 3985d93396",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2314,16 +2314,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "5c09f062ce5ca2a2",
-    "final": "d5cc374cf601aa06",
+    "digest": "06336b79c54ccdf7",
+    "final": "c6f42e1ca960af96",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/nibbler-swarm": {
    "ticks": 12,
    "outcome": "active",
-   "final": "7c95921ccc021081ae69160ee7a089f1e44b13bb0a9da110695591a1d5bbb13a",
-   "perTick": "1d2fab3732 800d8cbf77 c7fa47a39e 0d71b4cce0 8e14cfdce0 f63134520e 9b4a558896 3fc9b317e4 95a761611c bc85930f9e c02ccfe7fc 0644fec0d7 05deec4d14",
+   "final": "518fc7e9df26a4916d7ae47ec88e8ea7e598235f3d9ca25f43b8ce71c32ec9c9",
+   "perTick": "e1c6523874 56d34a5128 ff0e197d1d ce954a4165 b68b8fd2a9 74400fd2bc 0c0d8e6f4a c5cc1a96a0 4951bf0b3c ad4553859c d1fa3ab516 3158515da8 4f2948cd78",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2331,16 +2331,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "10d8b05dd954bf37",
-    "final": "b70cfcaa6045c1b6",
+    "digest": "2f6e010a1db026f8",
+    "final": "36401686ebbf9802",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/clearing-skirmish": {
    "ticks": 12,
    "outcome": "active",
-   "final": "fa2f8af45ced2b90f631b0266297cfb60f3a17db495f357b11481bf3a3429ca0",
-   "perTick": "c14c5137a8 f0958846c2 4f91624072 a9d7d3e8d7 538ffc1485 f9227b497b 7fc41cb6e5 555c2bdfc3 ad97d3b4e6 9f1e14fce5 f49de3a7ee c2e96e347c 6229baa0f7",
+   "final": "71a9999e901284cc7984be6353cefd12c294eb0c3386155a2a758543d2a5023d",
+   "perTick": "8c1225bc4f 077bd088ad 52dc000ecc f8e0512961 284920c511 5113c757f7 110242e0fd c91035704e 4d7d7eadec 6c3f66b915 76086b4419 e678bbf20c af3593d0ae",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2348,16 +2348,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "f6b5f825534ed3b5",
-    "final": "171e1930db1168b5",
+    "digest": "69323f4b7dc8e543",
+    "final": "75c1b24767651a01",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/mage-hall": {
    "ticks": 12,
    "outcome": "active",
-   "final": "0a07f29a36b7ce92545f42b09765bbe666158a09c46f881cee3eea55825f572e",
-   "perTick": "3f2439f0d2 8a79a5b05d b773a118ac f962352338 2065384aa3 a397fd1ef7 cb02eb6965 58300bba60 725d9fd6d0 62d3f25c64 09486b28b5 62cc52bccc fd5e79b590",
+   "final": "2f336b896ab0546dec935d464dad487706f53c858d8b8c4c811b72f5b3801d9e",
+   "perTick": "52e906854b 5372ef4443 426ceea0ec 2360c8de8b 829aec3764 f8aa1476af d27996be60 f5debef19d efd12924cd 673c54dba6 83461f3010 1b9e234d7f ef68b9552e",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2365,16 +2365,16 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "4670d7ed595a5c2b",
-    "final": "6f1d5a04fd63e9c3",
+    "digest": "0a4a900f9371c099",
+    "final": "def4f6bfda495020",
     "endsLikeLiveRun": true
    }
   },
   "sandbox/example/minotaur-pit": {
    "ticks": 12,
    "outcome": "active",
-   "final": "faf6b7845d007211534780bae11fb2e84d5c895ebc1be6691e92784810ead722",
-   "perTick": "07d0136e5f d587df3285 d7d7329acb 8b7f894aed a28ac0b425 5f2978c96c c78e1ffcaa 709e0fc6ab 76d44d446d f924ba165b d1de2b2d94 fde3b74565 c2e61c0b8b",
+   "final": "6d63bcb66d23c760161ebf92dc07bb63fe56539ee6eb279ef9003936453b58cf",
+   "perTick": "5519e5b07d 63718fbc66 c773c01b04 71c6764662 dd4ceeb67d fa9ae6df90 0989fc8c80 153913b228 55d2b2856a dc79f79153 fbd9acb1e7 3fb0fa6c29 752fa62830",
    "unseededRandomCalls": {
     "setup": 1,
     "ticks": 0,
@@ -2382,8 +2382,178 @@
    },
    "replayRebuild": {
     "frame": 6,
-    "digest": "e2e68fe5f278aead",
-    "final": "830b21c12995ac23",
+    "digest": "181e357a6749434e",
+    "final": "a83f1aaf36d72385",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/sols-gauntlet": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "fd315b8599fe4e162094b59e457e3768e601e2c4fb2e4cf69f7289299c3110bc",
+   "perTick": "067be677e5 6a6d846d30 79293c6057 b2e66dd58b 969bf3d915 97eaf79f86 e73077f761 a019bbfd93 9e4f939206 3cf3a6fd8b f7ed615c2b 74492c635f b9fc5117e7",
+   "unseededRandomCalls": {
+    "setup": 2,
+    "ticks": 0,
+    "rebuild": 3
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "218ca3eb7b0e5046",
+    "final": "5dc10bf801cd0c82",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/yamas-court": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "66073f1739baae3f5229ea176eafa5556650d7431a41af32a403cafdf07d255b",
+   "perTick": "327b48cfeb 05a4b5f2c8 7343edec23 410db9b608 08f7818643 9c450dc1bf 2074e60396 33e365cc8c 5532bbfed9 893e0ae98d e42523e51e d54d5db417 64dd387838",
+   "unseededRandomCalls": {
+    "setup": 2,
+    "ticks": 0,
+    "rebuild": 3
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "189b319015cebcf1",
+    "final": "c50ebe72360257b2",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/vardorvis-pack": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "c1c047fd40ac552f9ba51a88144f2cec30d11b0988e717d6f9ad0009a7589018",
+   "perTick": "34bb495f9b 83d01ae7d0 4146486d1c c435ffe86d ee1db06a8f b2f26ee31b ffd1cc23b5 96e1c9227b 67c9cfc78b ab0657ea24 c0d39d29a5 8e07958143 d8cc157a09",
+   "unseededRandomCalls": {
+    "setup": 2,
+    "ticks": 0,
+    "rebuild": 3
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "189af8371b5eea86",
+    "final": "ddb101799582c944",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/dooms-swarm": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "ca8da5bf277ae332b82cc836a29b29ccd438379afaa02f862520dd9285757243",
+   "perTick": "ba1e8d92ab 6d7295f934 131b3d8b67 b225721586 d2b85b7240 deec46fe7e cf85a812f2 0e26369cb3 298873d982 3b03ad3379 dd1ee59b24 1a16214bc0 73c4ec86bf",
+   "unseededRandomCalls": {
+    "setup": 2,
+    "ticks": 0,
+    "rebuild": 3
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "acd81369b954235b",
+    "final": "08c88e0d394e72e6",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/abyss-below": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "f41370556ffc7606745208c63e2d549c7b1772cfb74a51fb7be6006d224237f6",
+   "perTick": "d4d0237914 a73ddd8f75 2c1bcd4bb1 0175bbd217 2e1cdef256 dddf7f98f0 29ad73cd43 ebaddc04c9 dbaf9d3044 d0533a49e7 707508d127 cf19bbad26 3d8625185e",
+   "unseededRandomCalls": {
+    "setup": 2,
+    "ticks": 0,
+    "rebuild": 3
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "b06cd0e63f4b18a8",
+    "final": "958744eec4729d8b",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/zebak-frenzy": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "3c86f7ea1540a32f63ccbd8175a40d3cc76741d6e5d580f670515e1819900ce2",
+   "perTick": "7e869d342a 141e0496ae f61da6c725 642535a6b1 444c5b8b1f a90a59438f 8ae1e9c1a1 24d0c007f8 1236270f8d 89e916e2d9 d219e264f4 eb23580b46 a7a4223aef",
+   "unseededRandomCalls": {
+    "setup": 2,
+    "ticks": 0,
+    "rebuild": 3
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "ffa68637822b3d84",
+    "final": "018048c6d9b3a2f2",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/inferno-finale": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "e76fc4172758c564af97b21064c2f60f4cdb08e568faf71b72b895bdeb97fcff",
+   "perTick": "38e6540b28 909275260d 0e1586f822 1029539061 e6d09a23b5 66d9fa4ff8 adae3525ca c5f88df37c 5b411d2a8b 91df2577c0 46df7dbfb9 d58312b960 e6b22129a4",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "19473d747905a416",
+    "final": "d3df9e144b75993e",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/last-team-standing": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "f679b456f973d72464d94d37702d8c281b5a253128e8d3230d658ba49dba3113",
+   "perTick": "295134c6fa f1f9523522 f3b912874f af108b7c46 f11e08e53f 0eafef37ff bac88e37a6 2a83acec1f 3bb8a923de 7740852d8a 6af3bc7732 a213fcab53 888b4aac76",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "c397574484feebcc",
+    "final": "d2fa621f7248fb85",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/boss-royale": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "f734ff7f797cf840fa044d9d30e30ea41811d1f49c3d1d59d7d572a5352ddbdf",
+   "perTick": "dc6e25cf0b 642b885577 9829256e83 decdfb5af9 f4b0b55b0d b615c1a166 3eb18e0b46 96212da0eb 1b35a189bf bff2a5c200 ee9a5844c9 e382060acc 86b617fc3f",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "13c450d26f234e8e",
+    "final": "fb61ecf9dfcbaa77",
+    "endsLikeLiveRun": true
+   }
+  },
+  "sandbox/example/colossi-barrage": {
+   "ticks": 12,
+   "outcome": "active",
+   "final": "3255d4623081366cb41117d55b85da06b38f7eeedbd0c00ab87cf5a3fb7ae60d",
+   "perTick": "3e2dd6d2f0 196e2ae477 3986a52083 4025cbdedb 63739089b6 ecb7808d2c 6b68c0f14b d5f286af6e f3680c1686 7be70a1fb8 dcc7bc99a9 5a5454e82e 0f4e6a8f71",
+   "unseededRandomCalls": {
+    "setup": 1,
+    "ticks": 0,
+    "rebuild": 1
+   },
+   "replayRebuild": {
+    "frame": 6,
+    "digest": "2b45873ed21a630d",
+    "final": "b81681418bda5a6e",
     "endsLikeLiveRun": true
    }
   }

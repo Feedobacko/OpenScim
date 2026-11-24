@@ -12,9 +12,9 @@ const { sandboxArenas } = await import("../client/encounters/sandbox/arenas.js")
 
 const { normalizeScenario, encodeShareCode, decodeShareCode, importScenarioText, scenarioToJson, ScenarioError } = scenario;
 
-// Ten examples, every one valid, in more than one arena and both modes; one has two Sol Heredits.
-assert.equal(sandboxExamples.length, 10);
-assert.equal(new Set(sandboxExamples.map((entry) => entry.key)).size, 10);
+// Twenty examples, every one valid, in more than one arena and both modes; one has two Sol Heredits.
+assert.equal(sandboxExamples.length, 20);
+assert.equal(new Set(sandboxExamples.map((entry) => entry.key)).size, 20);
 assert.ok(new Set(sandboxExamples.map((entry) => entry.scenario.arena)).size >= 6);
 assert.deepEqual(new Set(sandboxExamples.map((entry) => entry.scenario.mode)), new Set(["versus", "ffa"]));
 // Two Suns: the real Sol Heredit (the arena's host, bossMechanics) and a second one of the sandbox's.
