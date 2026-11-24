@@ -15,19 +15,23 @@ Routes: `/sandbox/` and `/sandbox/<arena>` (e.g. `/sandbox/inferno`).
 
 ## Using it
 
-The editor is the one place to build and play a scenario. The top bar holds
-**Start encounter** and the **Sandbox editor** button, which opens a panel in
-three steps:
+The editor is the one place to build and play a scenario. The top bar, on
+the right beside the minimap, holds **Start encounter** and the **Sandbox
+editor** button, which opens a panel in three steps:
 
 1. **Arena**: the scenario's name, author and description; the arena (another
    arena is another route, which the application enters without loading the
-   page; the editor reopens at step 2); the mode; the twenty examples; the
-   library; the scenarios saved in this browser.
+   page; the editor reopens at step 2); the mode, and the ten examples of
+   that mode; the library; the scenarios saved in this browser.
 2. **Monsters**: a map of the arena's walkable tiles. Drag a monster from the
    list onto its starting tile, drag it on the map to move it, click it to
    edit its hitpoints, max hit, attack speed, levels and team, duplicate it or
    remove it. The blue **P** is the player's starting tile; drag it the same
-   way. A footprint must stand on walkable tiles and on no one else.
+   way. A footprint must stand on walkable tiles and on no one else. In a
+   free-for-all each monster shows its team's number in a corner; a right
+   click gives it the next team (none, 1 to 4, then **A**, the player's side).
+   **Boulders** (obstacles) are dragged from the same list, one tile each,
+   and a right click takes one away.
 3. **Gear & share**: the scenario's gear ("Choose gear…" opens the
    application's setup window for the arena, with the presets of every
    fight; "Use my current gear" keeps what you wear in the scenario; "Remove
@@ -55,10 +59,30 @@ run start that wants the other scene (a replay or a restart with the boss
 set the other way), the page reloads into it.
 
 Every run waits: nothing moves until **Start encounter** at the top of the
-screen, which then becomes **Pause** / **Resume**. The start-of-fight
-countdown (Settings) counts after Start, not before. The application's tick
+screen, which then becomes **Pause** / **Resume**. The application's tick
 loop asks the encounter (`isPaused`, a seam in `assets/Grid.js`); the engine
 never does, so replays, rebuilds and the determinism harness are untouched.
+
+After Start the sandbox counts down itself (`options.countdownTicks`, 3 by
+default; a scenario's JSON may set 0 to 10, the editor does not show it): the run ticks, so the player can walk, pray,
+switch gear and drop things, while the scenario's monsters neither move nor
+act and nobody can be attacked (`targetableFromTick`) until the count ends;
+the number shows in the middle of the screen. The encounter tells the
+application with `ownsCountdown()`, and the application's own start-of-fight
+countdown, which would hold every tick, is left out (`assets/Grid.js`). With
+the arena's boss the application's countdown holds the run as before, since
+the boss's own clock starts at once.
+
+## Obstacles
+
+`obstacles` in a scenario are boulders, one tile each, at most 60
+(`obstacles.js`). Each is drawn as Zebak's boulder (NPC 11737, whose model
+the cache list now holds: `tools/assets/cache-groups.json`), never acts,
+cannot be attacked, and its tile is flagged in the arena's collision as the
+Inferno's pillars are (an object that also stops projectiles), through
+`refineArenaConfig`, on the host's arena too. The player, the monsters'
+pursuit and their route search walk around them; ranged and magic attacks
+need a line past them.
 
 ## The arena's boss
 
@@ -180,7 +204,8 @@ top. In short:
   "meta": { "name": "Two Suns", "author": "OpenScim", "description": "..." },
   "arena": "sol_heredit",
   "mode": "versus",
-  "options": { "playerStart": null, "ffaIncludesPlayer": true, "bossMechanics": true },
+  "options": { "playerStart": null, "ffaIncludesPlayer": true, "bossMechanics": true, "countdownTicks": 3 },
+  "obstacles": [[30, 33], [31, 33], [32, 33]],
   "gear": {
     "name": "Max melee",
     "equipment": { "weapon": 26219, "shield": 22322, "head": 26382 },
@@ -240,15 +265,23 @@ nor hands its host (`sandboxHostHooks` in `encounter.js`), and when
 
 ## The examples
 
-Twenty, bosses only, each with its gear (max ranged, melee or magic). Eleven
-fight the arena's real boss with all its mechanics and other bosses beside
-it (Two Suns, Sun and Flame, Sun and Shadow, Yama's Court, Two Lords of
-Fire, The Stranglewood Hunt, Three Heads, The Doom and Two Jads, The Abyss
-Below, Depths of Fire, Jaws and Spear); nine put the catalog's bosses
-together: Zuk's Set, Triple Jad, Boss Rush, Twin Flames (all against you),
-Royal Rumble (every one for itself), The Champions' Stand (two bosses on
-your side), Clash of Titans and Boss Royale (bosses against each other
-while you watch), Tomb Raiders.
+Twenty, each with its gear (max ranged, melee or magic): ten against the
+player and ten free-for-alls; step 1 shows those of the mode chosen. They
+mix the Inferno's, the Colosseum's and the Stranglewood's monsters with the
+bosses, and few use Sol Heredit or Yama, whose hitpoints make long fights.
+
+- All against you: Inferno Rush, Colosseum Gauntlet, Jad Pincer,
+  Stranglewood Ambush (Vardorvis as the host), Doom and Company (the Doom as
+  the host), Boulder Maze, Zuk's Court, Jaws and Claws (Zebak as the host),
+  Sol's Last Stand, The Hunt.
+- Free for all: Inferno vs Colosseum, Battle Royale, Three Kingdoms,
+  Bodyguards (allies on your side), Spells vs Arrows, King of the Hill,
+  Titan Clash, Allies Against the Doom (the deeper room's host), Warband
+  Civil War, Four Corners.
+
+Six have boulders. The harness runs each for a few ticks, and three of them
+further: Inferno vs Colosseum to its winner, Bodyguards with the player
+shooting, Boulder Maze with the monsters walking around its walls.
 
 ## The library
 
@@ -268,6 +301,7 @@ sharing; the library is reviewed, permanent and one click away.
 | `catalog.js` | the monsters, gathered from each encounter's `sandbox.js`, and the exclusions |
 | `scenario.js` | the format: `normalizeScenario`, JSON, share codes |
 | `examples.js` | the twenty examples and their gear |
+| `obstacles.js` | the boulders: their NPC, their collision |
 | `brawler.js` | the NPC definition every sandbox NPC has |
 | `encounter.js` | `SandboxEncounter`, the modes, the definition with its variants |
 | `activeScenario.js` | the scenario the next run starts with (localStorage, `#sbx=` links) |
