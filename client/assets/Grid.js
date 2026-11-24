@@ -20675,6 +20675,16 @@ function mse({
     [playerConfig, gM.displayState.playerEquipment, gM.replayMode],
   );
   const gO = aC(fj.getEncounterKind(), fo.mechanicsConfig);
+  // While the encounter holds the run (the sandbox before its Start), the
+  // start-of-fight countdown waits as it does under a modal, and counts once
+  // the hold ends; "sandbox-clock" says the hold changed.
+  const [, gOClock] = (0, pn.useState)(0);
+  (0, pn.useEffect)(() => {
+    const onClock = () => gOClock((count) => count + 1);
+    window.addEventListener("sandbox-clock", onClock);
+    return () => window.removeEventListener("sandbox-clock", onClock);
+  }, []);
+  const gOHeld = fj.encounter?.isPaused?.() === true;
   const gP = (function ({
     countdownTicks: countdownTicks,
     speedMultiplier: hF,
@@ -20823,7 +20833,7 @@ function mse({
   })({
     countdownTicks: autoAdvance ? fightStartCountdownTicks : null,
     speedMultiplier: speedMultiplier,
-    covered: modalPaused || fg || eE,
+    covered: modalPaused || fg || eE || gOHeld,
     introActive: fo.introActive,
     waitForIntro: gO,
     getIntroRemainingMs: (hE) => getIntroAnimationRemainingMs?.(hE),
