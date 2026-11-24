@@ -41,7 +41,10 @@ heard in `assets/application.js`).
 own restart; a reload when the boss was switched on or off, because the
 scene is chosen as a visit starts). Every change is kept at once as the
 active scenario (localStorage), so a reload keeps it; the fight on screen
-only changes on a restart.
+only changes on a restart. The scene follows the scenario of the run, not
+the editor's: the encounter notes it as it resets (`visit.js`), and should a
+run start that wants the other scene (a replay or a restart with the boss
+set the other way), the page reloads into it.
 
 Every run waits: nothing moves until **Start encounter** at the top of the
 screen, which then becomes **Pause** / **Resume**. The start-of-fight
@@ -184,8 +187,24 @@ top. In short:
 
 `normalizeScenario` checks every value and is where a later version would
 read an older one. Arena ids are in `arenas.js`, NPC ids in `catalog.js`;
-neither may be renamed once shared. A share code is `OSB1.` and the
-deflated JSON (pako, `deflateRaw`) in base64url.
+neither may be renamed once shared. `gear.supplies` keeps only what the
+application reads of a loadout's supplies (ammunition, quiver, rune pouch,
+blowpipe, spell, spellbook), parsed as `engine/supplies.js` parses them. A
+scenario NPC whose id is a host NPC's is renamed (`yama-2`), not left out.
+
+A share code is `OSB1.` and the deflated JSON (pako, `deflateRaw`) in
+base64url. The largest scenario is about 13 KB of JSON and 1,200 characters
+of code; a code over 16K characters is refused before it is decoded, and its
+JSON is not inflated past 64 KB, so that a crafted code cannot exhaust the
+tab. The import box goes by the first character: `{` is JSON, `OSB` a code,
+anything else is searched for a `#sbx=` link.
+
+Opening a `#sbx=` link shows what it holds (name, author, arena, monsters)
+and asks before it replaces the player's scenario, and again before its gear
+replaces their loadout and restarts the run. The code leaves the address in
+every case, and one that cannot be read says why. Saved scenarios this
+client cannot read (from a newer version, or naming a renamed catalog id)
+are not listed but are kept as they were.
 
 Sharing through a server later needs no change of the format: store the JSON
 or the code, and open `/sandbox/<arena>#sbx=<code>`.
@@ -243,5 +262,6 @@ and presets that the menus do not list) and the sandbox's presets, every
 fight's, the scenario code field of the setup window, and the window
 events of the Gear button and of a scenario's gear (`application.js`);
 `presentationOf(kind)` handed to the presentations written in modules, and
-Yama's scene playing other NPCs' "colosseum_visual" animations
+Yama's scene playing other NPCs' "colosseum_visual" animations, projectiles
+and graphics, cleared on a replay jump, a despawn and when the scene goes
 (`rendering.js`).
