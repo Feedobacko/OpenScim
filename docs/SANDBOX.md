@@ -44,7 +44,8 @@ active scenario (localStorage), so a reload keeps it; the fight on screen
 only changes on a restart.
 
 Every run waits: nothing moves until **Start encounter** at the top of the
-screen, which then becomes **Pause** / **Resume**. The application's tick
+screen, which then becomes **Pause** / **Resume**. The start-of-fight
+countdown (Settings) counts after Start, not before. The application's tick
 loop asks the encounter (`isPaused`, a seam in `assets/Grid.js`); the engine
 never does, so replays, rebuilds and the determinism harness are untouched.
 
@@ -94,8 +95,11 @@ other.
   catalog keeps its look and the shape of its attacks: JalTok-Jad winds up
   for three ticks and throws his three-part magic or his ranged boulder (the
   style to pray against shows in the animation, but he picks it at random),
-  TzKal-Zuk does not move, the Doom throws his orbs; Sol Heredit's spears,
-  Yama's fireballs or Vardorvis' axes come only with the host.
+  TzKal-Zuk does not move, the Doom throws his orbs, Sol Heredit's spear and
+  shield land three ticks after their telegraph on tiles (a plus or a 3 by 3
+  around where the target stood), with his stomp on each, and can be walked
+  out of (`strike` in `catalog.js`, landed by `encounter.js`); Yama's
+  fireballs or Vardorvis' axes come only with the host.
 - The catalog is the monsters whose models and sequences the trimmed cache
   already holds and whose stats are in the monster table
   (`client/data/monsters.js`). Its bosses: Sol Heredit, Yama, Vardorvis, the
@@ -105,16 +109,46 @@ other.
   are named with their source in `catalog.js`; several are "inferred".
 - What an attack looks like is announced as an "inferno_visual" event
   (the default scene) and a "colosseum_visual" one (Sol Heredit's and
-  Yama's scenes, which the hosts draw with; Yama's plays them since a seam
-  in `assets/rendering.js`). Yama's scene plays the animations only, not
-  the projectiles.
+  Yama's scenes, which the hosts draw with; Yama's plays them, with their
+  projectiles and graphics, since a seam in `assets/rendering.js`). Both
+  scenes also load the spot animations of the sandbox's render config.
 - Arenas: the lobby is left out (its floor and walls are drawn by its own
   scene in `rendering.js`). The Inferno's has no pillars.
-- Ranged and magic attacks without a projectile of their own (the blob,
-  Yama, the shockwave colossus) land after a fixed delay and show only the
-  attack animation.
+- Yama from the catalog shows the effect on his target but no projectile
+  (his own are drawn by his scene from his fight's events).
 - The share code goes in the address (`#sbx=`); there is no server. A
   scenario of 40 monsters makes a code of about 800 characters.
+
+## New encounters' monsters
+
+The catalog follows the encounters by itself. `tools/sandbox-catalog.mjs`
+reads the render config of every presentation written in modules (the way
+every new encounter is added) and finds each NPC it draws that has stats in
+the monster table and an attack clip. One that the curated catalog
+(`catalog.js`) neither holds nor excludes (`sandboxCatalogExclusions`, each
+with its reason) becomes an entry of `discovered.js`, a generated file:
+its size and attack speed from the table, the style its levels and bonuses
+favour, its sequences from the render config. The sandbox's catalog is the
+curated entries and these.
+
+- `npm run sandbox:catalog` (or `node tools/sandbox-catalog.mjs --write`)
+  writes `discovered.js`; without `--write` it lists every NPC found and
+  where it went.
+- `test/test-sandbox-catalog.mjs` (part of `npm test`) fails while
+  `discovered.js` is out of date, checks the discovery on a made-up
+  encounter, and fights every entry, curated or discovered: it must have
+  stats, its clips, be loaded by the scene and attack the player within 40
+  ticks. A monster that cannot fight as a plain sandbox NPC (Zebak, nine
+  tiles of head and tail, fails here) goes to the exclusions with its
+  reason, or to the curated catalog with its own numbers.
+- The determinism harness has a scenario per entry (`sandbox/catalog/<id>`):
+  a new one needs its digests recorded
+  (`node tools/determinism/harness.mjs --update --only sandbox/catalog/`).
+- `.github/workflows/sandbox-catalog.yml`: on a pull request it fails when
+  `discovered.js` is out of date; on a push to `main` it regenerates it and,
+  when it changed, opens a pull request with the new entries, whose body
+  says to run the catalog test and record the digests before merging (the
+  workflow has no game cache, so it cannot fight them itself).
 
 ## Format
 
@@ -195,6 +229,7 @@ while you watch), Tomb Raiders.
 | `clock.js` | whether the run may tick: waiting for Start, running, paused |
 | `visit.js` | whether a visit fights the host (and draws its scene) |
 | `gateway.js` | the gateway in the lobby (`client/lobby/gateways.js` lists it) |
+| `discovered.js` | the generated part of the catalog (`tools/sandbox-catalog.mjs`, `tools/sandbox/discover.mjs`) |
 
 What needed `client/assets/`, each a few lines: the tick loop asks
 `encounter.isPaused()` (`Grid.js`); `routeVariants` (variants with a route
