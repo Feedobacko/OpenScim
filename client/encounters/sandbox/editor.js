@@ -16,7 +16,8 @@
 // The top bar holds "Start encounter" (which then pauses and resumes the
 // run: clock.js) and the editor's toggle. "Apply & restart", the editor's
 // one primary action, applies the scenario: the run restarts with it and,
-// as every run of the sandbox, waits for "Start encounter".
+// as every run of the sandbox, waits for "Start encounter". When a run
+// ends, the top bar says how: who won a free-for-all.
 //
 // Every change is applied to the active scenario (activeScenario.js) at
 // once, so that a reload keeps it; the fight on screen changes only when it
@@ -46,6 +47,9 @@ const reopenKey = "openscim.sandbox.editorStep";
 const style = `
 .sbx-hud { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 40; display: flex; gap: 6px; }
 .sbx-hud .sbx-start { box-shadow: 0 0 0 2px var(--color-primary, #ff981f); }
+.sbx-result { align-self: center; padding: 3px 8px; font: 13px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f);
+  background: var(--color-bg-solid, #1e1812); border: 1px solid var(--color-primary, #ff981f); border-radius: 3px; }
+.sbx-result[hidden] { display: none; }
 .sbx-panel { position: fixed; top: 48px; right: 12px; z-index: 40; width: min(440px, calc(100vw - 24px)); max-height: calc(100vh - 64px);
   display: flex; flex-direction: column; color: var(--color-text-body, #e6dcc8); background: var(--color-bg-solid, #1e1812);
   border: 1px solid var(--modal-card-border, var(--color-border, #5d5245)); border-radius: var(--modal-radius, 6px);
@@ -813,7 +817,8 @@ function create(kind) {
     else toggleSandboxPause();
     syncClockButton();
   }, "primary");
-  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle]), ui.panel]);
+  ui.result = el("span", { class: "sbx-result", role: "status", hidden: true });
+  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle, ui.result]), ui.panel]);
   // Keys typed in the panel are the panel's, not the game's hotkeys.
   for (const type of ["keydown", "keyup", "keypress", "wheel"]) ui.root.addEventListener(type, (event) => event.stopPropagation());
   document.body.append(ui.root);
@@ -848,6 +853,20 @@ function syncClockButton() {
   ui.clockButton.classList.toggle("sbx-start", sandboxClock.state !== "running");
 }
 
+// How a run ended, in the top bar: who won a free-for-all (the encounter's
+// snapshot, encounter.js), or that every monster is down.
+function syncResult(simulationState) {
+  const sandbox = simulationState?.encounter?.sandbox;
+  const phase = simulationState?.encounterOutcome?.phase;
+  let text = "";
+  if (sandbox && phase && phase !== "active") {
+    if (sandbox.mode === "ffa") text = sandbox.winner ? `Winner: ${sandbox.winner}` : "No one is left standing";
+    else if (phase === "victory") text = "Every monster is down";
+  }
+  if (ui.result.textContent !== text) ui.result.textContent = text;
+  ui.result.hidden = text === "";
+}
+
 export function syncSandboxEditor(kind, simulationState) {
   if (typeof document === "undefined") return;
   if (ui.root && ui.kind !== kind) closeSandboxEditor();
@@ -856,10 +875,11 @@ export function syncSandboxEditor(kind, simulationState) {
   if (refreshTiles() && ui.step === 2 && !ui.panel.hidden) renderBody();
   ui.simulationState = simulationState;
   syncClockButton();
+  syncResult(simulationState);
 }
 
 export function closeSandboxEditor() {
   ui.drag?.ghost?.remove();
   ui.root?.remove();
-  Object.assign(ui, { root: null, toggle: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
+  Object.assign(ui, { root: null, toggle: null, result: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
 }

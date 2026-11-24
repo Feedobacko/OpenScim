@@ -260,23 +260,23 @@ export class SandboxEncounter {
     if (hostOutcome.phase === "active") return hostOutcome;
     return this.npcIds.length === 0 || this.outcome.phase !== "active" ? hostOutcome : { phase: "active" };
   }
+  // The sandbox's own state (its monsters alive, the free-for-all's winner)
+  // is under `sandbox` in every snapshot, the host's included, whose scene
+  // reads the rest; the editor names the winner from it (editor.js).
   getSnapshot(input = {}) {
-    // The host's scene reads the host's snapshot.
-    if (this.host) return this.host.getSnapshot(input);
     const world = input.world;
-    const alive = world ? world.getNpcs().filter(isActorAlive).length : 0;
-    return {
-      kind: this.kind,
-      state: {
-        arena: this.arena.id,
-        mode: this.scenario.mode,
-        name: this.scenario.meta.name,
-        npcsAlive: alive,
-        npcsTotal: this.npcIds.length,
-        winner: this.winner,
-      },
-      visuals: {},
+    const ownIds = new Set(this.npcIds);
+    const alive = world ? world.getNpcs().filter((npc) => ownIds.has(npc.id) && isActorAlive(npc)).length : 0;
+    const sandbox = {
+      arena: this.arena.id,
+      mode: this.scenario.mode,
+      name: this.scenario.meta.name,
+      npcsAlive: alive,
+      npcsTotal: this.npcIds.length,
+      winner: this.winner,
     };
+    if (this.host) return { ...this.host.getSnapshot(input), sandbox };
+    return { kind: this.kind, state: sandbox, sandbox, visuals: {} };
   }
   getNpcDamageSourceLabel(npcId) {
     const npc = this.ownNpcs.find((candidate) => candidate.id === npcId);
