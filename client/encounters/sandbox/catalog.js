@@ -84,10 +84,13 @@ export const sandboxPreloadNpcTypes = sandboxNpcCatalog.map((entry) => ({
   attackClips: entry.clips,
   deathSeqId: entry.deathSeqId,
 }));
+// An attack's parts too: a volley's orbs fly as its own (the manticore's).
+const attackAndParts = (attack) => [attack, ...(attack.volley ?? [])];
 export const sandboxSpotAnimIds = [
   ...new Set(
     sandboxNpcCatalog.flatMap((entry) =>
       entry.attacks
+        .flatMap(attackAndParts)
         .flatMap((attack) => [
           attack.projectile?.spotAnimId,
           attack.flight?.spotAnimId,

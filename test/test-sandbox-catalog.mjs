@@ -5,7 +5,8 @@
 //   2. the discovery itself, on an encounter made up here: a new monster
 //      becomes an entry, an excluded one and one without stats do not;
 //   3. every entry, curated or discovered, has stats in the monster table,
-//      a unique id, attacks whose clips it has, and is loaded by the scene;
+//      a unique id, attacks whose clips it has, and is loaded by the scene
+//      with every spot animation its attacks use;
 //   4. every entry, placed alone in the Colosseum, starts an attack on the
 //      player within 40 ticks of the engine (an animation of it in the
 //      tick's events).
@@ -20,7 +21,7 @@ const check = spawnSync(process.execPath, ["tools/sandbox-catalog.mjs", "--check
 assert.equal(check.status, 0, "discovered.js is out of date: run node tools/sandbox-catalog.mjs --write\n" + check.stdout + check.stderr);
 
 const { engineModule, objTypeLoader, prepareArena } = await loadEnvironment();
-const { sandboxNpcCatalog, curatedNpcCatalog, sandboxPreloadNpcTypes } = await import("../client/encounters/sandbox/catalog.js");
+const { sandboxNpcCatalog, curatedNpcCatalog, sandboxPreloadNpcTypes, sandboxSpotAnimIds } = await import("../client/encounters/sandbox/catalog.js");
 const { monsterByNpcTypeId } = await import("../client/data/monsters.js");
 const { getMonsterFormulaStats, getMonsterHitpoints } = await import("../client/engine/monsterStats.js");
 const { sandboxVariantKind } = await import("../client/encounters/sandbox/arenas.js");
@@ -60,6 +61,13 @@ for (const entry of sandboxNpcCatalog) {
     assert.ok(entry.clips[attack.clip] !== undefined, `${entry.id}: clip ${attack.clip}`);
   }
   assert.ok(sandboxPreloadNpcTypes.some((npcType) => npcType.npcTypeId === entry.npcTypeId), `${entry.id}: loaded by the scene`);
+  // Every spot animation its attacks fly or draw, a volley's parts included
+  // (the manticore's orbs), is loaded by the scene: one that is not is never drawn.
+  for (const attack of entry.attacks.flatMap((attack) => [attack, ...(attack.volley ?? [])])) {
+    for (const id of [attack.projectile?.spotAnimId, attack.flight?.spotAnimId, attack.targetGraphic?.spotAnimId, ...(attack.parts?.spotAnims.map((part) => part.spotAnimId) ?? []), ...(attack.special?.spotAnimIds ?? [])]) {
+      if (id !== undefined) assert.ok(sandboxSpotAnimIds.includes(id), `${entry.id}: spot animation ${id} is loaded by the scene`);
+    }
+  }
 }
 
 // 4.
