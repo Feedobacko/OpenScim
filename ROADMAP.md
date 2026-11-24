@@ -79,6 +79,15 @@ State on 2026-11-21. Sizes: S = hours, M = days, L = weeks.
 - [x] 144 interface images are decoded from cache sprites (index 8) by the
       fetcher. `tools/assets/match-sprites.mjs` finds such matches; only
       pixel-equal ones count.
+- [x] Stand-ins for the 62 below (`tools/assets/standins.mjs`, the
+      `standIn` recipe of each manifest entry): written where a file is
+      absent, marked with a PNG text chunk so the fetcher tells them from
+      originals. Hitsplats, overheads, staff icons and the click markers
+      are the cache sprites, the health bars RuneLite's default bars
+      (darkened behind), the soulreaper axe orb the item's icon; the
+      encounter pictures, mobile and reset buttons are empty pictures and
+      the site images a plain colour. The click markers are PNG (an
+      animated PNG for the cursor) under their `.webp` names.
 - [ ] 62 images have no source and exist only in working copies and backups:
       - 16 are cache sprites that were altered. Overhead prayers magic, melee
         and missiles are sprites 440/2, 440/0 and 440/1 with colours off by

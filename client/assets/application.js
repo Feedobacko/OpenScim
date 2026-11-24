@@ -2,6 +2,7 @@ import { zebakSoundNames } from "/toa/zebak/sounds.js";
 import { nexusKind, doorAt } from "/toa/nexus.js";
 import { soundEffectResponse, soundEffectUrl } from "/audio/soundEffects.js";
 import { colosseumLobbyLabel, getLobbyFights } from "/encounters/colosseum/lobby.js";
+import { loadSandboxCode } from "/encounters/sandbox/menuImport.js";
 import { attackRangesOptions, attackRangesDefaults, updateAttackRanges, listenForAttackRangesHotkey, describeHotkey } from "/plugins/attackRanges.js";
 import { thrallSpells, THRALL_END_SOUND_ID } from "/engine/thralls.js";
 const zebakSoundSearch = location.pathname === "/zebak/" ? new URLSearchParams(location.search).get("sound") : null;
@@ -4138,7 +4139,8 @@ var Nle = ({
   );
 };
 function xle(h2, h3) {
-  return h3?.find((h4) => h4.encounterKind === h2)?.presetsKey ?? h2;
+  // routeVariants: variants that have a route and presets but no place in the menus (the sandbox's arenas).
+  return (h3 ?? cE.getDescriptorOfKindOrVariant(h2)?.routeVariants)?.find((h4) => h4.encounterKind === h2)?.presetsKey ?? h2;
 }
 var Tle = {
   27291: {attack: 80},
@@ -7111,6 +7113,13 @@ for (const e of new Set(Object.values(_le))) {
     }
   }
 }
+// The sandbox (client/encounters/sandbox/) offers the presets of every fight.
+_le.sandbox = Object.fromEntries(
+  Object.entries(_le)
+    .filter(([kind]) => !/^yama_p3_/.test(kind))
+    .flatMap(([kind, presets]) => Object.entries(presets).filter(([key]) => key !== "naked").map(([key, preset]) => [kind + "__" + key, { ...preset, name: preset.name + " (" + (cE.getDescriptor(kind)?.displayName ?? kind) + ")" }])),
+);
+_le.sandbox.naked = Ple;
 var Hle = "yama_p3";
 var qle = "learner-mage";
 var Ble = gT([
@@ -17038,6 +17047,7 @@ var gpe = ({
                     },
                     hD.CkFau(baseEncounterKind, encounterKind),
                   ),
+                  baseEncounterKind === "sandbox" && (0, jsxRuntime.jsx)(SandboxCodeField, { onVariantChange: onVariantChange, onLoadoutChange: onLoadoutChange }),
                   hZ &&
                     (0, jsxRuntime.jsx)("section", {
                       className: "rail-section configurer-encounter-setup",
@@ -40215,6 +40225,39 @@ function $we(h2, h3) {
     h4.length === Object.keys(h3).length && h4.every((h5) => h2[h5] === h3[h5])
   );
 }
+// The sandbox's setup window: paste a scenario's code, link or JSON
+// (client/encounters/sandbox/menuImport.js); the window switches to its arena.
+function SandboxCodeField({ onVariantChange, onLoadoutChange }) {
+  const [text, setText] = (0, React.useState)("");
+  const [message, setMessage] = (0, React.useState)(null);
+  const load = () => {
+    try {
+      const loaded = loadSandboxCode(text);
+      onVariantChange?.(loaded.encounterKind);
+      if (loaded.gear) onLoadoutChange?.(loaded.gear);
+      setMessage({ ok: true, text: 'Loaded "' + loaded.name + '" (' + loaded.arenaName + ", " + loaded.npcCount + " monsters). Start Encounter plays it." });
+    } catch (error) {
+      setMessage({ ok: false, text: error.message });
+    }
+  };
+  return (0, jsxRuntime.jsxs)("section", {
+    className: "rail-section sandbox-code-field",
+    "aria-label": "Load a scenario",
+    children: [
+      (0, jsxRuntime.jsx)("h3", { className: "section-label", children: "Load a scenario" }),
+      (0, jsxRuntime.jsx)("textarea", {
+        value: text,
+        rows: 3,
+        placeholder: "Paste a code (OSB1...), a link or JSON",
+        onChange: (event) => setText(event.target.value),
+        onKeyDown: (event) => event.stopPropagation(),
+        style: { width: "100%", boxSizing: "border-box", resize: "vertical", font: "inherit", color: "inherit", background: "var(--color-surface-inset, #14100c)", border: "1px solid var(--color-border, #5d5245)", borderRadius: 3, padding: "4px 6px" },
+      }),
+      (0, jsxRuntime.jsx)("button", { type: "button", className: "osrs-btn osrs-btn--default", disabled: text.trim() === "", onClick: load, style: { marginTop: 6 }, children: "Load scenario" }),
+      message && (0, jsxRuntime.jsx)("p", { role: "status", style: { margin: "6px 0 0", fontSize: 12, color: message.ok ? "var(--color-success, #5fd35f)" : "var(--color-error, #ff5a4f)" }, children: message.text }),
+    ],
+  });
+}
 function _we(h2) {
   return xle(h2, cE.getDescriptorOfKindOrVariant(h2)?.variants);
 }
@@ -42715,7 +42758,7 @@ function Ike(h2, h3) {
   if (h2 === h6) {
     return h7;
   }
-  const h8 = h5?.variants?.find((h9) => h9.encounterKind === h2);
+  const h8 = (h5?.variants ?? h5?.routeVariants)?.find((h9) => h9.encounterKind === h2);
   if (h8) {
     if (h8.encounterKind === h6) {
       return h7;
@@ -42812,7 +42855,7 @@ function Ake(h2, h3, h4, h5, h6, h7 = Mke) {
         }
         const hs = hk[1];
         const ht = hs.replace(/-/g, "_");
-        const hu = descriptor.variants?.find((hv) => hv.id === ht);
+        const hu = (descriptor.variants ?? descriptor.routeVariants)?.find((hv) => hv.id === ht);
         if (hu) {
           return hu.encounterKind;
         } else {
@@ -50086,6 +50129,42 @@ function eCe({ devHarness: devHarness } = {}) {
     updateStartingHpPerEncounter: lK,
     devHarness: h5,
   });
+  // The sandbox (client/encounters/sandbox/editor.js) reaches the loadout
+  // through three window events: "sandbox-open-setup" opens the setup window
+  // of a kind (loadout, presets, Start Encounter); "sandbox-get-loadout"
+  // hands detail.reply the sandbox's loadout; "sandbox-apply-loadout" sets
+  // the loadout a scenario carries and enters detail.encounterKind with it.
+  const sandboxEnterRef = (0, React.useRef)(null);
+  (0, React.useEffect)(() => {
+    const open = (event) => setSelectedLobbyEncounter(event.detail);
+    const get = (event) => event.detail.reply(getLoadout("sandbox"));
+    const apply = (event) => {
+      setLoadout("sandbox", event.detail.loadout);
+      sandboxEnterRef.current = event.detail.encounterKind;
+      // Entered once the loadout is in the state (below), or at the latest now.
+      setTimeout(() => {
+        if (sandboxEnterRef.current) {
+          const kind = sandboxEnterRef.current;
+          sandboxEnterRef.current = null;
+          enterEncounter(kind);
+        }
+      }, 50);
+    };
+    window.addEventListener("sandbox-open-setup", open);
+    window.addEventListener("sandbox-get-loadout", get);
+    window.addEventListener("sandbox-apply-loadout", apply);
+    return () => {
+      window.removeEventListener("sandbox-open-setup", open);
+      window.removeEventListener("sandbox-get-loadout", get);
+      window.removeEventListener("sandbox-apply-loadout", apply);
+    };
+  }, [setSelectedLobbyEncounter, getLoadout, setLoadout, enterEncounter]);
+  (0, React.useEffect)(() => {
+    if (!sandboxEnterRef.current) return;
+    const kind = sandboxEnterRef.current;
+    sandboxEnterRef.current = null;
+    enterEncounter(kind);
+  }, [enterEncounter]);
   const mm =
     "encounter" === sceneState.kind
       ? sceneState.encounterKind

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { awakenedKind, bosses } from "../client/dt2/bosses.js";
 import * as dt2 from "../client/dt2/gateway.js";
 import * as toa from "../client/toa/gateway.js";
+import * as sandbox from "../client/encounters/sandbox/gateway.js";
 import { gatewayFloor, gatewayPortals } from "../client/lobby/gateways.js";
 
 // The four bosses, one ancient element each.
@@ -25,7 +26,13 @@ for (const { position: [x, y], open, encounterKind } of dt2.gatewayPortals) {
   assert.ok(x >= 0 && x < 64 && y >= 0 && y < 64, "portal tile " + x + "," + y + " lies on the lobby map");
   assert.ok(!toaTiles.has(x + "," + y), "portal tile " + x + "," + y + " belongs to one gateway");
 }
-assert.equal(gatewayPortals.length, toa.gatewayPortals.length + dt2.gatewayPortals.length);
+assert.equal(gatewayPortals.length, toa.gatewayPortals.length + dt2.gatewayPortals.length + sandbox.gatewayPortals.length);
+// The sandbox's dais shares no tile with the other two gateways.
+const dt2Tiles = new Set(dt2.gatewayPortals.map(({ position }) => position.join(",")));
+for (const { position, open } of sandbox.gatewayPortals) {
+  assert.equal(typeof open, "function");
+  assert.ok(!toaTiles.has(position.join(",")) && !dt2Tiles.has(position.join(",")), "sandbox portal tile " + position + " belongs to one gateway");
+}
 
 // Build the lobby's walkable disc the way the lobby does, add the gateway,
 // and walk from the spawn tile to a tile that opens the chooser.

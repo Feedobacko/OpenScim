@@ -409,10 +409,14 @@ export function difference(name, recorded, actual) {
 }
 
 /** The scenario files, or the one named (so that a file being edited cannot break the others). */
-export const scenarioFiles = ["engine", "shared", "yama", "inferno", "sol-heredit", "zebak", "fixture", "colosseum", "vardorvis", "doom-of-mokhaiotl"];
+export const scenarioFiles = ["engine", "shared", "yama", "inferno", "sol-heredit", "zebak", "fixture", "colosseum", "vardorvis", "doom-of-mokhaiotl", "sandbox"];
 export async function loadScenarios(file) {
   const lists = await Promise.all((file ? [file] : scenarioFiles).map((name) => import(`./scenarios/${name}.mjs`)));
-  const scenarios = lists.flatMap((module) => module.scenarios);
+  // A file whose scenarios need client modules that Node loads only through
+  // the module hooks (vendor.js) exports a function: it is called once the
+  // environment is loaded.
+  const resolved = await Promise.all(lists.map(async (module) => (typeof module.scenarios === "function" ? (await loadEnvironment(), module.scenarios()) : module.scenarios)));
+  const scenarios = resolved.flat();
   if (new Set(scenarios.map((scenario) => scenario.name)).size !== scenarios.length) throw new Error("two scenarios share a name");
   return scenarios;
 }

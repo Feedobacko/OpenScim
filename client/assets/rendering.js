@@ -54807,7 +54807,8 @@ var iN = class extends SceneCompositor {
     return this.npcInstanceManager.LA(e, a * 20) ?? 0;
   }
   async UD(e) {
-    this.spotAnimRenderer.preload(e, [...ox]);
+    // With those of the render config: the sandbox's monsters beside Sol (client/encounters/sandbox/).
+    this.spotAnimRenderer.preload(e, [...ox, ...(this.encounterRenderConfig?.spotAnimIds ?? [])]);
   }
   OD() {
     return ox.every((e) => this.spotAnimRenderer.isLoaded(e));
@@ -55644,6 +55645,10 @@ function KN(e, a, t, n, s = 0) {
 var qN = class extends SceneCompositor {
   constructor() {
     super();
+    // The animations other NPCs announce as "colosseum_visual" events, as
+    // Sol Heredit's scene plays them: the sandbox's monsters beside Yama
+    // (client/encounters/sandbox/brawler.js).
+    ce(this, "visuals", new OE(this.spotAnimRenderer));
     ce(this, "waveController", new jN());
     ce(this, "attackController", new ZW());
     ce(this, "fireballController", new IN());
@@ -55671,8 +55676,13 @@ var qN = class extends SceneCompositor {
     this.fD("yama-frame-audio", () => {
       this.frameSoundTracker?.reset();
     });
+    // The other NPCs' visuals go on a replay jump, as Sol Heredit's scene clears them.
+    this.fD("yama-other-visuals", () => {
+      this.visuals.clear();
+    });
   }
   dispose() {
+    this.visuals.clear();
     this.waveController.Sz(this.spotAnimRenderer);
     this.attackController.Sz(this.spotAnimRenderer);
     this.fireballController.Sz(this.spotAnimRenderer);
@@ -55714,6 +55724,11 @@ var qN = class extends SceneCompositor {
       this.waveController.consumeEvents(e);
       this.attackController.consumeEvents(e);
       this.voidFlareController.consumeEvents(e);
+      this.visuals.consume(e);
+    }
+    // A despawned NPC's pending animations and graphics go with it, as in Sol Heredit's scene.
+    for (const event of e) {
+      if (mB(event, "actor_despawned")) this.visuals.oM(event.actorId);
     }
   }
   KD(e) {
@@ -55841,9 +55856,37 @@ var qN = class extends SceneCompositor {
     );
   }
   lH(e, a) {
+    // The other NPCs' animations (see the constructor), as Sol Heredit's scene starts them.
+    // Nothing changes for Yama's own fight, which has no such events.
+    const cycle = (a ?? e.currentTick) * 30;
+    let played = false;
+    for (const cue of this.visuals.gM(cycle)) {
+      const npc = e.npcs.find((candidate) => candidate.id === cue.cue.actorId);
+      if (!npc || !TR(npc, cue.cycle)) continue;
+      if (this.encounterRenderConfig?.preloadNpcTypes?.find((entry) => entry.npcTypeId === npc.npcTypeId)?.attackClips?.[cue.cue.clipId] === undefined) continue;
+      this.bD(cue.cycle);
+      this.npcInstanceManager.PA(0, 1, [{ actorId: this.getNpcRenderInstanceId(cue.cue.actorId), trigger: "attack", clipId: cue.cue.clipId, tick: cue.cycle / 30 }]);
+      played = true;
+    }
+    if (played) this.bD(cycle);
+    // Their graphics, where an NPC or the player is drawn now (as Sol Heredit's scene finds them).
+    this.visuals.render(cycle, this.terrainHeights, (actorId) => {
+      if (actorId === "player") {
+        const tile = this.otherVisualsPlayerTile;
+        return tile ? { position: [tile[0] + 0.5, tile[1] + 0.5, -Nb(this.terrainHeights, tile[0] + 0.5, tile[1] + 0.5) / 128] } : null;
+      }
+      if (!e.npcs.some((npc) => npc.id === actorId && TR(npc, this.primaryCycle))) return null;
+      const matrix = this.npcInstanceManager.Gg(this.getNpcRenderInstanceId(actorId));
+      return matrix ? { position: [matrix[12], matrix[13], matrix[14]], yaw2048: (Math.atan2(matrix[8], matrix[0]) * 2048) / (Math.PI * 2) } : null;
+    });
     return WR(e);
   }
   oH(e, a, t, n, s, r, i, l) {
+    // The other NPCs' projectiles (see the constructor), as Sol Heredit's scene flies them.
+    this.otherVisualsPlayerTile = [...t];
+    if (!l) {
+      this.visuals.mM({ cycle: this.primaryCycle, resolveActor: this.aH(t), terrainHeights: this.terrainHeights, resolveSurfaceHeight: this.resolveSurfaceHeight }, undefined, this.replayProjectileWork);
+    }
     if (l || i?.yamaMageRange === false) {
       this.attackController.Sz(this.spotAnimRenderer);
     } else {
@@ -55908,7 +55951,8 @@ var qN = class extends SceneCompositor {
   }
   async MM(e) {
     this.spotAnimModelLoader = e;
-    this.spotAnimRenderer.preload(e, ON);
+    // With those of the render config: the sandbox's monsters beside Yama (client/encounters/sandbox/).
+    this.spotAnimRenderer.preload(e, [...ON, ...(this.encounterRenderConfig?.spotAnimIds ?? [])]);
     await this.xM(e);
   }
   HM() {
@@ -57580,7 +57624,8 @@ var VV = {
 var KV = [
   // The presentations written in modules (encounters/presentations.js), each
   // a function of the base scene; the chunk's own four follow.
-  ...presentationBuilders.map((buildPresentation) => buildPresentation(InfernoScene, packHsl, { widgetModelView })),
+  // presentationOf(kind): another kind's presentation, looked up when called (the sandbox draws a host's scene).
+  ...presentationBuilders.map((buildPresentation) => buildPresentation(InfernoScene, packHsl, { widgetModelView, presentationOf: (kind) => ZV(kind) })),
   {
     kind: "yama_p3",
     sceneBuilder: (e) => new ZN(e),

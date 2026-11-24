@@ -786,3 +786,10 @@ What still needs an edit in a bundle, each with its reason:
    its digests recorded.
 7. The harness, the import graph check, `npm test`, `npm run build`, the
    route in a browser.
+8. The sandbox: `npm run sandbox:catalog` adds your monsters to its catalog
+   (`client/encounters/sandbox/discovered.js`); `node
+   test/test-sandbox-catalog.mjs` fights each, and `node
+   tools/determinism/harness.mjs --update --only sandbox/catalog/` records
+   their digests. A monster that is not one to place on its own goes to
+   `sandboxCatalogExclusions` in `client/encounters/sandbox/catalog.js`
+   with its reason (`docs/SANDBOX.md`, "New encounters' monsters").

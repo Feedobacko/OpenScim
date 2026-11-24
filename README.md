@@ -24,7 +24,7 @@ npm run assets       # game cache and media from public sources (about 230 MB do
 npm run dev          # http://127.0.0.1:5173/
 ```
 
-Encounters: `/` (menu), `/yama/`, `/inferno/`, `/sol-heredit/`, `/zebak/`.
+Encounters: `/` (menu), `/yama/`, `/inferno/`, `/sol-heredit/`, `/zebak/`, `/sandbox/` (a fight of your own: `docs/SANDBOX.md`).
 `/toa/` is the Tombs of Amascut nexus, also reached through the gateway in the lobby.
 The lobby's Desert Treasure II gate opens a chooser for its four bosses: Vardorvis (`/vardorvis/`) has a fight, the other three are not built yet ("Coming Soon").
 The waves of the Fortis Colosseum are at `/colosseum/`, the Doom of Mokhaiotl at `/doom-of-mokhaiotl/`.
@@ -36,7 +36,11 @@ cache from OpenRS2, decodes the interface sprites it holds, and fetches the
 other images from RuneLite and the RuneLite resource-pack repositories.
 Sound effects are not files: the client synthesizes them from the cache
 (`client/audio/soundEffects.js`). 62 images have no public source yet; the
-command lists them, and `ROADMAP.md`, phase 3, says what they are.
+command lists them, and `ROADMAP.md`, phase 3, says what they are. Where one
+is absent the command writes a stand-in made from what is public (the cache
+sprite it was recoloured from, a recoloured RuneLite bar, an item icon, or an
+empty picture; `tools/assets/standins.mjs`), so that the client shows no
+broken image. An original put back from a backup is never replaced.
 
 After pulling a change to `tools/assets/cache-groups.json`, run
 `npm run assets -- --force` to rebuild the trimmed cache.
