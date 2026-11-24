@@ -8,13 +8,16 @@
 // Heredit's and Yama's scenes are in client/assets/rendering.js, which hands
 // every presentation `presentationOf(kind)` to reach them; the render config
 // is the host's with the catalog's NPCs added. Which scene a visit gets is
-// decided when it is built, so the editor reloads the page when the boss is
-// switched on or off (editor.js).
+// decided when it is built, from the scenario of the run (visit.js), so the
+// editor reloads the page when the boss is switched on or off (editor.js);
+// and should a run start whose scenario wants the other scene (a replay or
+// a restart with the boss set the other way), the page reloads into it.
 import { buildScene } from "../shared/buildScene.js";
 import { sandboxArenas, sandboxVariantKind } from "./arenas.js";
 import { sandboxPreloadNpcTypes, sandboxSpotAnimIds } from "./catalog.js";
 import { closeSandboxEditor, syncSandboxEditor } from "./editor.js";
-import { isHostedVisit } from "./visit.js";
+import { setActiveScenario } from "./activeScenario.js";
+import { getRunningScenario, isHostedVisit } from "./visit.js";
 
 const withCatalog = (renderConfig) => ({
   ...renderConfig,
@@ -25,11 +28,19 @@ const withCatalog = (renderConfig) => ({
   spotAnimIds: [...new Set([...(renderConfig.spotAnimIds ?? []), ...sandboxSpotAnimIds])],
 });
 
-// Brings the editor in step with a scene of any class, the host's included.
-function withEditor(scene, kind) {
+// Brings the editor in step with a scene of any class, the host's included,
+// and the page to the other scene when the run is not the one it was built for.
+function withEditor(scene, kind, arena, builtHosted) {
   const build = scene.build.bind(scene);
   const dispose = scene.dispose?.bind(scene);
+  let reloading = false;
   scene.build = (input, ...rest) => {
+    if (!reloading && isHostedVisit(arena) !== builtHosted) {
+      reloading = true;
+      const running = getRunningScenario(arena.id);
+      if (running) setActiveScenario(running);
+      globalThis.location?.reload();
+    }
     syncSandboxEditor(kind, input.simulationState);
     return build(input, ...rest);
   };
@@ -60,8 +71,8 @@ const presentationOf = (arena) => (BaseScene, packHsl, { presentationOf: present
       return (hostRenderConfig ??= withCatalog(host().renderConfig ?? {}));
     },
     sceneBuilder(context) {
-      if (hosted()) return withEditor(host().sceneBuilder(context), kind);
-      return withEditor(buildScene(BaseScene, ownRenderConfig, context), kind);
+      if (hosted()) return withEditor(host().sceneBuilder(context), kind, arena, true);
+      return withEditor(buildScene(BaseScene, ownRenderConfig, context), kind, arena, false);
     },
     // The host's camera where the arena has one: it looks at the boss.
     get defaultCamera() {

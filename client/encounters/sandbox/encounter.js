@@ -40,6 +40,7 @@ import { getSandboxArena, sandboxArenas, sandboxKind, sandboxVariantKind } from 
 import { createEmptyScenario, normalizeScenario, playerTeam } from "./scenario.js";
 import { getActiveScenario } from "./activeScenario.js";
 import { holdSandboxForStart, isSandboxHeld } from "./clock.js";
+import { noteRunningScenario } from "./visit.js";
 import { isArenaTileWalkable } from "../../engine/arena.js";
 import { buildGroundAttackArea, getGroundAttackDelayCycles } from "../sol-heredit/bossAttacks.js";
 import { colosseumSpotAnimIds, emitColosseumVisual } from "../sol-heredit/constants.js";
@@ -90,6 +91,8 @@ export class SandboxEncounter {
     this.seed = seeds?.encounterSeed ?? Math.floor(Math.random() * 2 ** 32);
     this.random = createSeededRandom(this.seed);
     this.scenario = seeds?.scenario ? normalizeScenario(seeds.scenario) : this.pickScenario();
+    // The scene follows the run's scenario, not the editor's (visit.js).
+    noteRunningScenario(this.arena.id, this.scenario);
     this.outcome = { phase: "active" };
     this.winner = null;
     this.npcIds = [];
