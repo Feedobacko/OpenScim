@@ -20,7 +20,10 @@
 //                 (the hit lands on the tick it ends), `parts` a projectile
 //                 of several spot animations on one timing (Jad's magic),
 //                 `targetGraphic` a spot animation on the target's tile;
-//                 `windupTicks` delays all of it and the hit (Jad's three)
+//                 `windupTicks` delays all of it and the hit (Jad's three);
+//                 `strike` { delayTicks, shape, spotAnimIds } lands on tiles
+//                 instead of a target, and can be walked out of (Sol
+//                 Heredit's spear and shield: brawler.js)
 //   immobile      true: never moves (TzKal-Zuk)
 //   idleSeqId, walkSeqId?, deathSeqId, clips   the sequences the scene loads
 //
@@ -30,9 +33,16 @@
 // manticore's charge, the healers), the entry is the plain version, and its
 // speed or reach is "inferred" from the original.
 import { infernoNpcTypeIds } from "../inferno/constants.js";
-import { colosseumMonsters, shamanSpotAnimIds, javelinProjectileSpotAnimId } from "../colosseum/constants.js";
+import {
+  colosseumMonsters,
+  shamanSpotAnimIds,
+  javelinProjectileSpotAnimId,
+  manticoreOrbSpotAnimIds,
+  shockwaveProjectileSpotAnimId,
+} from "../colosseum/constants.js";
 import {
   colosseumSeqIds,
+  colosseumSpotAnimIds,
   warbandProjectileFlights,
   warbandArcherNpcTypeId,
   warbandSeerNpcTypeId,
@@ -42,6 +52,8 @@ import {
 import { ids as vardorvisIds, seqs as vardorvisSeqs } from "../vardorvis/encounter.js";
 import { npcTypeIds as doomNpcTypeIds, seqIds as doomSeqIds, spotAnims as doomSpotAnims } from "../doom-of-mokhaiotl/delves.js";
 import { yamaNpcTypeId } from "../yama/constants.js";
+import { spotAnimIds } from "../../data/spotAnimIds.js";
+import { discoveredNpcCatalog } from "./discovered.js";
 
 // The Inferno's sequences: the table of its render config in
 // client/assets/rendering.js (CACHE), as docs/ADDING-AN-ENCOUNTER.md,
@@ -64,6 +76,15 @@ const jadMagicParts = {
   spotAnims: [{ spotAnimId: 448, start: 2, end: 2 }, { spotAnimId: 449, start: 6, end: 6 }, { spotAnimId: 450, start: 10, end: 12 }],
   slope: 16, startOffset: 32, startHeight: 512, endHeight: 124,
 };
+// inferno/blob.js: the blob's two projectiles.
+const blobProjectile = (spotAnimId, timing) => ({ spotAnimId, timing, slope: 16, startHeight: 160, endHeight: 124 });
+// colosseum/shockwave.js: leaves after 50 cycles, 26 and 8 a tile more.
+const shockwaveProjectile = { spotAnimId: shockwaveProjectileSpotAnimId, timing: { delay: 50, lengthAdjustment: 26, stepMultiplier: 8, progress: 40 }, slope: 0, startHeight: 158, endHeight: 100 };
+// colosseum/manticore.js: an orb flies 30 cycles and lands a tick later.
+const manticoreOrb = (spotAnimId) => ({ spotAnimId, startDelayCycles: 0, endDelayCycles: 30, slope: 127, startOffset: 0, startHeight: 400, endHeight: 50 });
+// sol-heredit/bossAttacks.js and boss.js: a spear or a shield lands three
+// ticks after its telegraph, on tiles, with the melee spot animations on them.
+const solStrike = (shape) => ({ delayTicks: 3, shape, spotAnimIds: colosseumSpotAnimIds.solMelee });
 // inferno/zuk.js: 16 cycles and 10 a tile.
 const zukProjectile = { spotAnimId: 1375, timing: { delay: 16, lengthAdjustment: 0, stepMultiplier: 10, progress: 128 }, slope: 0, startHeight: 390, endHeight: 124 };
 // doom-of-mokhaiotl/encounter.js: an orb leaves after 55 cycles; it lands
@@ -106,7 +127,7 @@ const warband = (key, npcTypeId, style, range, flight) => ({
   clips: { attack: colosseumSeqIds.warband[key].attack },
 });
 
-export const sandboxNpcCatalog = [
+export const curatedNpcCatalog = [
   // The Inferno: inferno/actors.js, waveMonsters.js and each monster's module.
   {
     id: "inferno.nibbler", name: "Jal-Nib (nibbler)", group: "The Inferno", npcTypeId: infernoNpcTypeIds.nibbler, size: 1, attackSpeed: 4,
@@ -122,8 +143,8 @@ export const sandboxNpcCatalog = [
     id: "inferno.blob", name: "Jal-Ak (blob)", group: "The Inferno", npcTypeId: infernoNpcTypeIds.blob, size: 3, attackSpeed: 6,
     attacks: [
       { style: "melee", range: 1, clip: "melee" },
-      { style: "range", range: 15, clip: "range", impactDelayTicks: 2 }, // inferred
-      { style: "magic", range: 15, clip: "magic", impactDelayTicks: 2 }, // inferred
+      { style: "range", range: 15, clip: "range", projectile: blobProjectile(1378, { delay: 10, lengthAdjustment: 22, stepMultiplier: 8, progress: 32 }) },
+      { style: "magic", range: 15, clip: "magic", projectile: blobProjectile(1380, { delay: 28, lengthAdjustment: 0, stepMultiplier: 8, progress: 32 }) },
     ],
     idleSeqId: infernoSeqs.blob.idle, walkSeqId: infernoSeqs.blob.walk, deathSeqId: infernoSeqs.blob.death,
     clips: { melee: infernoSeqs.blob.melee, range: infernoSeqs.blob.range, magic: infernoSeqs.blob.magic },
@@ -171,8 +192,17 @@ export const sandboxNpcCatalog = [
   colosseum("shaman", { clip: "attack", maxHit: 28, flight: shamanFlight }), // colosseum/shaman.js
   colosseum("jaguar", { clip: "attack" }),
   colosseum("javelin", { clip: "attack", maxHit: 48, flight: javelinFlight }), // colosseum/javelin.js
-  { ...colosseum("manticore", { clip: "throw", impactDelayTicks: 3 }), attackSpeed: 5 }, // inferred: the plain throw, without the charge
-  colosseum("shockwave", { clip: "attack", impactDelayTicks: 2 }), // inferred
+  // The manticore throws one orb of a style at a time (inferred: without the charge of three).
+  {
+    ...colosseum("manticore", { clip: "throw", flight: manticoreOrb(manticoreOrbSpotAnimIds.range) }),
+    attackSpeed: 5,
+    attacks: [
+      { style: "range", range: 15, clip: "throw", flight: manticoreOrb(manticoreOrbSpotAnimIds.range) },
+      { style: "magic", range: 15, clip: "throw", flight: manticoreOrb(manticoreOrbSpotAnimIds.magic) },
+      { style: "melee", range: 15, clip: "throw", flight: manticoreOrb(manticoreOrbSpotAnimIds.melee) },
+    ],
+  },
+  colosseum("shockwave", { clip: "attack", projectile: shockwaveProjectile }),
   colosseum("minotaur", { clip: "attack" }),
   // Sol Heredit's warband: sol-heredit/constants.js.
   warband("berserker", warbandBerserkerNpcTypeId, "melee", 1),
@@ -180,9 +210,12 @@ export const sandboxNpcCatalog = [
   warband("seer", warbandSeerNpcTypeId, "magic", 10, warbandProjectileFlights.seer),
   {
     id: "sol_heredit", name: "Sol Heredit", group: "Bosses", npcTypeId: solHereditNpcTypeId, size: 5, attackSpeed: 7, // inferred
-    attacks: [{ style: "melee", range: 1, clip: "attack" }],
+    attacks: [
+      { style: "melee", range: 2, clip: "spear", strike: solStrike("plus") },
+      { style: "melee", range: 2, clip: "shield", strike: solStrike("square") },
+    ],
     idleSeqId: colosseumSeqIds.sol.idle, walkSeqId: colosseumSeqIds.sol.walk, deathSeqId: colosseumSeqIds.sol.death,
-    clips: { attack: colosseumSeqIds.sol.spearTelegraph },
+    clips: { attack: colosseumSeqIds.sol.spearTelegraph, spear: colosseumSeqIds.sol.spearTelegraph, shield: colosseumSeqIds.sol.shieldTelegraph },
   },
   // Vardorvis: vardorvis/encounter.js.
   {
@@ -208,8 +241,9 @@ export const sandboxNpcCatalog = [
     id: "yama", name: "Yama", group: "Bosses", npcTypeId: yamaNpcTypeId, size: 5, attackSpeed: 7, // inferred: a beat
     attacks: [
       { style: "melee", range: 1, clip: "default" },
-      { style: "magic", range: 15, clip: "secondary", windupTicks: 3, impactDelayTicks: 1 }, // yama/boss.js: a windup of 3
-      { style: "range", range: 15, clip: "secondary", windupTicks: 3, impactDelayTicks: 1 },
+      // yama/boss.js: a windup of 3; the effects on the target are the cache's (spotAnimIds.js).
+      { style: "magic", range: 15, clip: "secondary", windupTicks: 3, impactDelayTicks: 1, targetGraphic: { spotAnimId: spotAnimIds.VFX_PLAYER_YAMA_MAGIC_SHADOW_IMPACT01, height: 0 } },
+      { style: "range", range: 15, clip: "secondary", windupTicks: 3, impactDelayTicks: 1, targetGraphic: { spotAnimId: spotAnimIds.VFX_PLAYER_YAMA_MAGIC_FIRE_IMPACT01, height: 0 } },
     ],
     deathSeqId: 12161, clips: { default: 12144, secondary: 12146 },
   },
@@ -220,6 +254,19 @@ export const sandboxNpcCatalog = [
     idleSeqId: infernoSeqs.zuk.idle, deathSeqId: infernoSeqs.zuk.death, clips: { attack: infernoSeqs.zuk.attack },
   },
 ];
+
+// What the encounters draw that is not a monster to place, each with its
+// reason; tools/sandbox-catalog.mjs leaves these out of discovered.js.
+export const sandboxCatalogExclusions = {
+  11730: "Zebak is a head and a tail of nine tiles with mechanics of his own: he is fought as the host of his room",
+  11732: "Zebak, enraged: as above",
+  12825: "the healing totem of a Colosseum modifier: it heals and never moves",
+};
+
+// The curated entries and those tools/sandbox-catalog.mjs found in the
+// encounters' presentations (discovered.js): a new encounter's monsters
+// join the sandbox without an entry written by hand.
+export const sandboxNpcCatalog = [...curatedNpcCatalog, ...discoveredNpcCatalog];
 
 const catalogById = new Map(sandboxNpcCatalog.map((entry) => [entry.id, entry]));
 export const getSandboxNpcEntry = (id) => catalogById.get(id);
@@ -235,7 +282,15 @@ export const sandboxPreloadNpcTypes = sandboxNpcCatalog.map((entry) => ({
 export const sandboxSpotAnimIds = [
   ...new Set(
     sandboxNpcCatalog.flatMap((entry) =>
-      entry.attacks.flatMap((attack) => [attack.projectile?.spotAnimId, attack.flight?.spotAnimId, attack.targetGraphic?.spotAnimId, ...(attack.parts?.spotAnims.map((part) => part.spotAnimId) ?? [])]).filter((id) => id !== undefined),
+      entry.attacks
+        .flatMap((attack) => [
+          attack.projectile?.spotAnimId,
+          attack.flight?.spotAnimId,
+          attack.targetGraphic?.spotAnimId,
+          ...(attack.parts?.spotAnims.map((part) => part.spotAnimId) ?? []),
+          ...(attack.strike?.spotAnimIds ?? []),
+        ])
+        .filter((id) => id !== undefined),
     ),
   ),
 ];
