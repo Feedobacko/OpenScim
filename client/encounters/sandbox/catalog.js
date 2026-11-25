@@ -64,6 +64,7 @@ export const sandboxCatalogExclusions = {
   12191: "Duke Sucellus never leaves his seat and has no walk: he is fought in his own asylum",
   12214: "the Leviathan never leaves its pool and has no walk: it is fought in its own arena",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
+  14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
 };
 
 // The curated entries and those tools/sandbox-catalog.mjs found in the
