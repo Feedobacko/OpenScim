@@ -78,6 +78,8 @@ export const sandboxCatalogExclusions = {
   13671: "the Mirrorback Araxyte takes a share of what Araxxor is dealt and throws it back: alone it has nothing to share",
   13673: "the Ruptura Araxyte never attacks: it walks up to the player and explodes",
   14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
+  15742: "the Maggot King fights from behind a row of bones, and most of his attacks are his floor's (bile, carrion, slams): he is fought in his own lair",
+  15743: "the Ur-maggot larvae have no attack of their own: they fly in from the King's screeches and leech a player under them",
 };
 
 export const sandboxNpcCatalog = curatedNpcCatalog;
