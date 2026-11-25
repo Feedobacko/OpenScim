@@ -30030,7 +30030,8 @@ function $fe({ isOpen: isOpen, onClose: onClose, onLoad: onLoad }) {
   const h6 = (0, React.useRef)(null);
   yle(h6, isOpen);
   const h7 = bpe(h6, onClose);
-  const [h8, h9] = (0, React.useState)(Sfe());
+  // Lazy: the stored index was read and parsed on every render, closed or not.
+  const [h8, h9] = (0, React.useState)(Sfe);
   const [ha, hb] = (0, React.useState)([]);
   const [hc, hd] = (0, React.useState)("loading");
   const [hf, hg] = (0, React.useState)(0);
@@ -31255,7 +31256,9 @@ function dye(h2) {
 function uye(h2) {
   return dye(h2.canonicalPath ?? h2.path);
 }
-function hye({ path: path }) {
+// memo: a pure function of `path` (the encounter list is fixed at load);
+// it rebuilt the whole route list with every tick.
+var hye = (0, React.memo)(function hye({ path: path }) {
   const h4 = lye(path);
   const h5 = sye().filter((h6) => !h6.noindex);
   return (0, jsxRuntime.jsxs)("section", {
@@ -31288,7 +31291,7 @@ function hye({ path: path }) {
       }),
     ],
   });
-}
+});
 function pye({ doc: h2, className: h3 = "" }) {
   return (0, jsxRuntime.jsx)("a", {
     className: ("legal-links__link " + h3).trim(),
@@ -49761,13 +49764,18 @@ function eCe({ devHarness: devHarness } = {}) {
         return t0 <= t1;
       },
     };
-    const sY = (0, React.useRef)(
-      new by(Swe, ...O(), {
+    // Made once: `useRef(new ...)` built (and threw away) both on every render.
+    const sY = (0, React.useRef)(null);
+    if (sY.current === null) {
+      sY.current = new by(Swe, ...O(), {
         name: "core",
         rules: wwe,
-      }),
-    );
-    const sZ = (0, React.useRef)(new kwe(Swe));
+      });
+    }
+    const sZ = (0, React.useRef)(null);
+    if (sZ.current === null) {
+      sZ.current = new kwe(Swe);
+    }
     (0, React.useEffect)(() => {
       // Creating the audio context blocks for 40ms and more. Done here, behind
       // the loading screen, it starts suspended and the first click only has
