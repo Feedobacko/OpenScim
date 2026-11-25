@@ -90,6 +90,7 @@ const style = `
 .sbx-panel textarea { resize: vertical; min-height: 48px; }
 .sbx-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: end; }
 .sbx-row > label { flex: 1; }
+.sbx-panel label.sbx-row { display: flex; align-items: center; gap: 8px; color: var(--color-text-body, #e6dcc8); font-size: 13px; }
 .sbx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 6px; }
 .sbx-card { display: grid; gap: 2px; text-align: left; padding: 6px 8px; cursor: pointer; color: inherit; font: inherit;
   background: var(--color-surface, #2a221a); border: 1px solid var(--color-border, #5d5245); border-radius: 4px; }
