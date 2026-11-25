@@ -69,6 +69,7 @@ const presentationOf = (arena) => (BaseScene, packHsl, { presentationOf: present
     terrainMapSquare: arena.mapSquare,
     ...(arena.mapSquareOffsets ? { mapSquareOffsets: arena.mapSquareOffsets } : {}),
     locRender: arena.locRender,
+    ...(arena.sceneObjects ? { createSceneObjectController: arena.sceneObjects } : {}),
     preloadNpcTypes: sandboxPreloadNpcTypes,
     spotAnimIds: sandboxSpotAnimIds,
   };
@@ -92,7 +93,13 @@ const presentationOf = (arena) => (BaseScene, packHsl, { presentationOf: present
         scene.setEncounterRenderConfig?.(hostedRenderConfig());
         return withEditor(scene, kind, arena, true);
       }
-      return withEditor(buildScene(sceneOfArena[arena.id]?.(BaseScene) ?? BaseScene, ownRenderConfig, context), kind, arena, false);
+      // What the arena draws besides the map (the open arena's wall): the
+      // context's render config is the application's copy, without it (as
+      // corrupted-hunllef/presentation.js hands its floor back).
+      const config = arena.sceneObjects
+        ? { ...(context?.encounterRenderConfig ?? ownRenderConfig), createSceneObjectController: arena.sceneObjects }
+        : context?.encounterRenderConfig ?? ownRenderConfig;
+      return withEditor(buildScene(sceneOfArena[arena.id]?.(BaseScene) ?? BaseScene, config, { ...context, encounterRenderConfig: config }), kind, arena, false);
     },
     // The host's camera where the arena has one: it looks at the boss.
     get defaultCamera() {

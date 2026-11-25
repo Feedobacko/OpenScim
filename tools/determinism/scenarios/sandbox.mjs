@@ -40,12 +40,13 @@ const hostedArenas = [
   { arena: "corrupted_hunllef", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [52, 52] }, { id: "jaguar", npc: "colosseum.jaguar", position: [59, 52] }] },
 ];
 // The arenas whose floor is not the map's as it is (arenas.js: Duke's ice,
-// the Leviathan's bridge, the Corrupted Hunllef's room), without their boss:
+// the Leviathan's bridge, the Corrupted Hunllef's room, the open arena), without their boss:
 // a free-for-all over a boulder.
 const ownFloorArenas = [
   { arena: "duke", obstacles: [[31, 44]], npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [28, 42] }, { id: "minotaur", npc: "colosseum.minotaur", position: [33, 48] }] },
   { arena: "leviathan", obstacles: [[24, 36]], npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [24, 41] }, { id: "minotaur", npc: "colosseum.minotaur", position: [39, 34] }] },
   { arena: "corrupted_hunllef", obstacles: [[55, 55]], npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [52, 52] }, { id: "minotaur", npc: "colosseum.minotaur", position: [58, 58] }] },
+  { arena: "open", obstacles: [[31, 31]], npcs: [{ id: "jaguar", npc: "colosseum.jaguar", position: [24, 24] }, { id: "minotaur", npc: "colosseum.minotaur", position: [38, 38] }] },
 ];
 
 // The sandbox's modules reach vendor.js, which Node loads only through the
