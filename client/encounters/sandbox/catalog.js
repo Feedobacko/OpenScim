@@ -265,6 +265,7 @@ export const sandboxCatalogExclusions = {
   11732: "Zebak, enraged: as above",
   12167: "Duke Sucellus asleep: only drawn until he wakes, and has no attack",
   12191: "Duke Sucellus never leaves his seat and has no walk: he is fought in his own asylum",
+  12214: "the Leviathan never leaves its pool and has no walk: it is fought in its own arena",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
 };
 
