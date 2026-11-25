@@ -812,3 +812,7 @@ Every step adds files of your own; none edits a list.
    with its reason; one that needs numbers of its own gets an entry in your
    encounter's `sandbox.js`, gathered by that catalog (`docs/SANDBOX.md`,
    "New encounters' monsters").
+6. For a boss, its equipment and inventory setups, before it is pushed: the
+   descriptor's `loadouts` (section 3), from the Equipment section of its
+   wiki strategies page (`<boss>/Strategies`, as
+   https://oldschool.runescape.wiki/w/The_Leviathan/Strategies).
