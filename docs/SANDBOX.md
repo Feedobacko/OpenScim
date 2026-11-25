@@ -254,6 +254,13 @@ other.
   Yama's scenes, which the hosts draw with; Yama's plays them, with their
   projectiles and graphics, since a seam in `assets/rendering.js`). Both
   scenes also load the spot animations of the sandbox's render config.
+- The open arena (`open`, `openArena.js`) is 50 x 50 tiles of one floor
+  inside a wall, and nothing else: the middle of map square 25,96, which is
+  one textured floor at one height with no map object at all, and the Tombs
+  of Amascut's sandstone wall (loc 44999) drawn around it by the scene
+  (`sceneObjects`). Its square and the three around it that exist are in
+  `tools/assets/cache-groups/sandbox.json`; the scene loads the squares
+  around an arena for its terrain.
 - Arenas: the lobby is left out (its floor and walls are drawn by its own
   scene in `rendering.js`). The Inferno's has no pillars.
 - Yama from the catalog shows the effect on his target but no projectile
@@ -397,6 +404,7 @@ sharing; the library is reviewed, permanent and one click away.
 | File | Contents |
 |---|---|
 | `arenas.js` | the arenas: map square, collision, start tile, camera; the variant kind of each |
+| `openArena.js` | the open arena: its 50 x 50 floor and its wall |
 | `catalog.js` | the monsters, gathered from each encounter's `sandbox.js`, and the exclusions |
 | `scenario.js` | the format: `normalizeScenario`, JSON, share codes |
 | `examples.js` | the twenty-six examples and their gear |
