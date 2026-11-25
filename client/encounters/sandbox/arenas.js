@@ -19,7 +19,8 @@
 //   refineArena?  what the encounter makes of the arena the map gives
 //                 (Duke's asylum adds its ice), with or without its boss
 //   arenaConfig?  with collision "custom": the arena itself, not read from
-//                 the map (the Leviathan's bridge)
+//                 the map (the Leviathan's bridge, the open arena)
+//   sceneObjects? what the scene draws besides the map (the open arena's wall)
 // The arena of the lobby is left out: its floor and walls are drawn by its
 // own scene (in client/assets/rendering.js), which the sandbox cannot use.
 import { solMapSquare, solPlayerStart } from "../sol-heredit/constants.js";
@@ -29,6 +30,7 @@ import { infernoMapSquare, infernoMapSquareOffsets, infernoPlayerStart, infernoE
 import { vardorvisMapSquare } from "../vardorvis/encounter.js";
 import { arenaSeed as dukeArenaSeed, dukeMapSquare, dukeRoomArena, playerStart as dukePlayerStart } from "../duke-sucellus/encounter.js";
 import { leviathanFloorArena, leviathanMapSquare, playerStart as leviathanPlayerStart } from "../leviathan/encounter.js";
+import { openArenaFloor, openArenaMapSquare, openArenaPlayerStart, openArenaSceneObjects } from "./openArena.js";
 import { araxxorMapSquare, araxxorMapSquareOffsets, playerStart as araxxorPlayerStart } from "../araxxor/encounter.js";
 import { maggotKingMapSquare } from "../maggot-king/encounter.js";
 import { playerStart as maggotKingPlayerStart } from "../maggot-king/ids.js";
@@ -174,6 +176,17 @@ export const sandboxArenas = [
     arenaConfig: hunllefFloorArena,
     locRender: { bounds: null, levels: [0, 1, 2, 3] }, // corrupted-hunllef/presentation.js
     camera: { yaw: 180, pitch: -55, zoom: 260 }, // corrupted-hunllef/presentation.js (defaultCamera)
+  },
+  {
+    id: "open",
+    name: "Open arena (50 x 50)",
+    mapSquare: openArenaMapSquare,
+    playerStart: [...openArenaPlayerStart],
+    collision: { mode: "custom" }, // openArena.js: the middle 50 x 50 of the square
+    arenaConfig: openArenaFloor,
+    sceneObjects: openArenaSceneObjects,
+    locRender: { bounds: null, levels: [0] },
+    camera: { yaw: 0, pitch: -60, zoom: 460 }, // inferred: the whole floor in view from the south
   },
   {
     id: "toa_nexus",
