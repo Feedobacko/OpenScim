@@ -980,7 +980,7 @@ function stepStart() {
   nodes.push(el("div", { class: "sbx-grid" }, [
     card("Go on", `"${ui.draft.meta.name}" · ${getSandboxArena(ui.draft.arena).name}`, () => (isDraftInThisArena() ? showStep(2) : goToArena(ui.draft.arena, 2))),
     card("New scenario", `An empty one in ${ui.arena.name}`, () => loadDraft(createEmptyScenario(ui.arena.id))),
-    card("Examples", "Ten against you, ten free-for-alls", () => showStep(1)),
+    card("Examples", "Thirteen against you, thirteen free-for-alls", () => showStep(1)),
   ]));
   return nodes;
 }
