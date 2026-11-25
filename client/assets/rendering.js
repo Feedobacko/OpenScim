@@ -37510,7 +37510,10 @@ var sP = class {
     ce(this, "config", undefined);
     ce(this, "cycle", undefined);
     ce(this, "motion", null);
-    this.config = e;
+    // The plugin Projectile Override (client/plugins/projectileOverride.js):
+    // the spot animation this flight is drawn with, settled as it starts.
+    const spotAnimId = overrideProjectile(e.spotAnimId, e.instanceId);
+    this.config = spotAnimId === e.spotAnimId ? e : { ...e, spotAnimId, overridden: true };
     this.cycle = e.startCycle;
   }
   sample(e) {
@@ -37630,6 +37633,11 @@ var sP = class {
         e.despawn(instanceId);
         return t.kind;
       case "active": {
+        // An override is not among the fight's spot animations: it is loaded
+        // the first time it flies, from the loader the renderer was given.
+        if (this.config.overridden && !e.isLoaded(spotAnimId) && e.boundLoader) {
+          e.xv(e.boundLoader, spotAnimId);
+        }
         if (!e.isLoaded(spotAnimId)) {
           e.despawn(instanceId);
           return "active";
@@ -56883,6 +56891,11 @@ var cG = class {
               };
             },
           },
+          // A graphic flat on the floor (a shadow, a marker) asks to be drawn
+          // over the terrain it lies on, as the other scenes' tile graphics
+          // are: without the bias it fights the floor and all but vanishes
+          // (the Doom of Mokhaiotl's: client/encounters/doom-of-mokhaiotl/).
+          ...(n.onGround === true ? { style: { depthBias: _R } } : {}),
           heightOffsetMode: "actor",
           fallbackDurationCycles: 0,
         },
@@ -57376,6 +57389,7 @@ import {scaleToaAccuracyRoll} from "/toa/zebak/rules.js";
 import {gatewayMeshes, gatewayPortals, gatewayCovers, gatewayFloor, extendLobbyArena, loadGatewayObjects, drawGatewayObjects} from "/lobby/gateways.js";
 import {toaFragmentShader} from "/toa/shader.js";
 import {getAttackRangeOverlay} from "/plugins/attackRanges.js";
+import {overrideProjectile} from "/plugins/projectileOverride.js";
 import {dt2FragmentShader} from "/dt2/shader.js";
 import { LobbyEncounter } from "../encounters/lobby/LobbyEncounter.js";
 import { divineSeveranceContract, forfeitBreathContract, sensoryCloudingContract, bloodiedBlowsContract, glyphicAttenuationContract, yamaContractVariants } from "../encounters/yama/contracts.js";

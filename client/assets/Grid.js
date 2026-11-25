@@ -1,6 +1,7 @@
 import { toEsModule } from "./rolldown-runtime.js";
 import { parseDisplayMode } from "./deployment.js";
 import { attackRangesDefaults, readAttackRangesSettings, isAttackDragProtected } from "/plugins/attackRanges.js";
+import { projectileOverrideDefaults, readProjectileOverrideSettings } from "/plugins/projectileOverride.js";
 import {
   pako,
   requireJsxRuntime,
@@ -13782,6 +13783,9 @@ var Yse = {
   interfaceStylesHdHealthBars: false,
   attackRangesEnabled: true,
   attackRanges: attackRangesDefaults,
+  // Every boss at Default: on, it draws nothing differently until one is chosen.
+  projectileOverrideEnabled: true,
+  projectileOverride: projectileOverrideDefaults,
   prayerEnabled: true,
   prayerFlickOrbEnabled: true,
   prayerFlickAlwaysOn: false,
@@ -14200,6 +14204,8 @@ var kRe = {
   ),
   attackRangesEnabled: zBoolean().catch(Yse.attackRangesEnabled),
   attackRanges: zUnknown().transform(readAttackRangesSettings),
+  projectileOverrideEnabled: zBoolean().catch(Yse.projectileOverrideEnabled),
+  projectileOverride: zUnknown().transform(readProjectileOverrideSettings),
   prayerEnabled: zBoolean().catch(Yse.prayerEnabled),
   prayerFlickOrbEnabled: zBoolean().catch(Yse.prayerFlickOrbEnabled),
   prayerFlickAlwaysOn: zBoolean().catch(Yse.prayerFlickAlwaysOn),
@@ -39167,6 +39173,11 @@ function eHe(ez, eA) {
   if (eD) {
     eC.push(eD);
   }
+  // An encounter's own, from its snapshot: { id, spriteUrl, text, tooltipTitle,
+  // tooltipDetail } (the Doom of Mokhaiotl's Larva Tracker counter).
+  for (const encounterInfobox of ez.encounter?.state?.infoboxes ?? []) {
+    eC.push(encounterInfobox);
+  }
   const eE = eA?.showTickCounterInfobox ?? true;
   const eG = eA?.tickCounterMax ?? 4;
   if (eE && eG > 0) {
@@ -54558,18 +54569,21 @@ var mn = (ez) => {
   const m1 = (0, pn.useMemo)(() => {
     const n2 = iy && iz ? (n4) => Xae(ix, n4) : undefined;
     const n3 = hV?.recolorMenu ? hV : null;
-    if (n2 || n3) {
-      return (n4, n5) => {
-        if (n3 && n5 !== undefined) {
-          const n6 = m0.current.find((n8) => n8.id === n5);
-          const n7 = n6 ? ac(n6, n3) : undefined;
-          if (n7) {
-            return n7;
-          }
+    return (n4, n5) => {
+      const n6 = n5 === undefined ? undefined : m0.current.find((n8) => n8.id === n5);
+      // A colour of the NPC's own, set by its encounter (the Doom of
+      // Mokhaiotl's Larva Tracker: client/encounters/doom-of-mokhaiotl/larvaTracker.js).
+      if (n6?.menuColor) {
+        return n6.menuColor;
+      }
+      if (n3 && n6) {
+        const n7 = ac(n6, n3);
+        if (n7) {
+          return n7;
         }
-        return n2?.(n4);
-      };
-    }
+      }
+      return n2?.(n4);
+    };
   }, [iy, iz, ix, hV]);
   const m2 = (0, pn.useMemo)(() => {
     if (mapLocs && locModelLoader) {

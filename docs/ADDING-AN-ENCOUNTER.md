@@ -774,7 +774,12 @@ Without touching a bundle, an encounter gets:
 - restarts, replays of the player's inputs, the victory screen, the death
   screen;
 - the default scene, visual events, an audio layer of its own (sections 5
-  and 6).
+  and 6). A graphic of a visual event with `onGround: true` lies on the
+  floor and is drawn over it, not into it (the Doom's falling-rock shadows);
+- a colour for an NPC's name in the menus: `menuColor` ("#RRGGBB") on its
+  actor, as the Doom's Larva Tracker sets it (`larvaTracker.js`);
+- infoboxes beside the Inferno's: `infoboxes` in the state of its snapshot,
+  each `{ id, spriteUrl, text, tooltipTitle, tooltipDetail }`.
 
 What still needs an edit in a bundle, each with its reason:
 
@@ -811,3 +816,7 @@ Every step adds files of your own; none edits a list.
    each entry; `node tools/determinism/harness.mjs --update --only
    sandbox/catalog/` records their digests (`docs/SANDBOX.md`, "New
    encounters' monsters").
+6. For a boss, its equipment and inventory setups, before it is pushed: the
+   descriptor's `loadouts` (section 3), from the Equipment section of its
+   wiki strategies page (`<boss>/Strategies`, as
+   https://oldschool.runescape.wiki/w/The_Leviathan/Strategies).

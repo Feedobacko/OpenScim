@@ -489,15 +489,25 @@ timing open, record it from the game itself.
 - [ ] Desert Treasure II bosses, each with its awakened version. Vardorvis is
       in (`client/encounters/vardorvis/`); his awakened version follows the
       wiki, is inferred where the wiki is silent, and has not been recorded.
-      Duke Sucellus, the Whisperer and the Leviathan do not exist yet: their
-      kinds and their lobby entry are `client/dt2/` (`bosses.js`; the
-      engine's table of kinds has them with `registered: false`).
+      Duke Sucellus is in (`client/encounters/duke-sucellus/`), from the
+      wiki, RSPSApp's reading of rsprox recordings and three recordings of
+      the normal fight; his awakened version has not been recorded, and its
+      orb and bile are not in.
+      The Leviathan's post-quest fight is in (`client/encounters/leviathan/`),
+      from the wiki and RSPSApp's reading of rsprox recordings and videos;
+      its lightning damage, the smoke's 59 or 60, the stun's 25%, the width of
+      its weak spot and the rounding of its special's reduction wait for a
+      recording, and its awakened version is not written. The Whisperer
+      does not exist yet: its kind and its lobby entry are `client/dt2/`
+      (`bosses.js`; the engine's table of kinds has it with
+      `registered: false`).
 - [ ] Doom of Mokhaiotl
       (https://oldschool.runescape.wiki/w/Doom_of_Mokhaiotl/Strategies).
-      Delves 1 to 8 can be fought (`client/encounters/doom-of-mokhaiotl/`).
-      Open, as its `encounter.js` says: burrowing (delve 5 on), giant larvae
-      (delve 8), holy water, the shield's own hitpoint bar, the acid's venom,
-      sounds.
+      Delves 1 to 8 can be fought (`client/encounters/doom-of-mokhaiotl/`),
+      their timings checked against 20 recorded runs (`delves.js`, OBS), with
+      the burrow of delve 5 on, giant larvae and the Plugin Hub's Larva
+      Tracker. Open, as its `encounter.js` says: the shield's own hitpoint
+      bar, the acid's venom, sounds.
 - [ ] Nex (https://oldschool.runescape.wiki/w/Nex/Strategies).
 - [ ] Tumeken's Warden, Tombs of Amascut
       (https://oldschool.runescape.wiki/w/Tumeken%27s_Warden), next to Zebak
