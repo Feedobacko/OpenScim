@@ -61,6 +61,7 @@ import { createObstacleActor, isObstacle, obstacleNpcDefinition, withObstacles }
 import { isArenaTileWalkable } from "../../engine/arena.js";
 import { emitColosseumVisual } from "../sol-heredit/constants.js";
 import { emitInfernoVisual } from "../inferno/events.js";
+import { companionNpcDefinition, createCompanionActor, createTornadoActor, isCompanion, isTornado, tornadoNpcDefinition, tornadoStep } from "./bodies.js";
 
 // inferred: a body stays four ticks after the kill (the Colosseum's monsters stay three or four).
 const deathTicks = 4;
@@ -77,8 +78,17 @@ const footprintGap = (a, b) => {
   return Math.max(dx, dy);
 };
 const isBrawler = (npc) => npc?.definition?.id === brawlerNpcDefinition.id;
-// The scenario's own NPCs: its monsters and its obstacles (obstacles.js).
-const isOwn = (npc) => isBrawler(npc) || isObstacle(npc);
+// The scenario's own NPCs: its monsters, its obstacles (obstacles.js), and
+// what its monsters bring (bodies.js: Zebak's tail, the Hunllef's tornadoes).
+const isOwn = (npc) => isBrawler(npc) || isObstacle(npc) || isCompanion(npc) || isTornado(npc);
+const protectionStyles = ["melee", "range", "magic"];
+const randomBetween = (random, [least, most]) => least + Math.floor(random() * (most - least + 1));
+// A monster's stats from the table, of a set of its own if it names one, with the scenario's levels over them.
+function statsOf(npcTypeId, version, levels) {
+  const stats = structuredClone(getMonsterFormulaStats(npcTypeId, version));
+  if (levels) stats.levels = { ...stats.levels, ...levels };
+  return stats;
+}
 
 // The host's hooks the engine calls only if they are there: the sandbox has
 // each exactly when its host has it. Those that name an NPC skip the
@@ -122,6 +132,15 @@ export class SandboxEncounter {
       onHurt: (actor, damage, context) => this.onHurt(actor, damage, context),
       corpsesFor: (actor, of) => this.corpses.filter((corpse) => of.includes(corpse.npc) && corpse.team === actor.state.team),
       revive: (corpse, spot, context, firstAction) => this.revive(corpse, spot, context, firstAction),
+      isProtected: (target, style) => this.isProtected(target, style),
+      echo: (actor, clipId, context) => this.echo(actor, clipId, context),
+      summonTornadoes: (actor, target, context) => this.summonTornadoes(actor, target, context),
+      onScreech: (actor, target, screech, context) => this.onScreech(actor, target, screech, context),
+      blast: (actor, explodes, context) => this.blast(actor, explodes, context),
+    });
+    this.companions = companionNpcDefinition.register(undefined);
+    this.tornadoDefinitions = tornadoNpcDefinition.register({
+      step: (actor, context) => tornadoStep(actor, this.tornadoTarget(actor, context), context),
     });
     this.reset();
   }
@@ -144,6 +163,12 @@ export class SandboxEncounter {
     this.heals = [];
     // The dead a mager may bring back: { id, npc, team, size }.
     this.corpses = [];
+    // Tornadoes about to come (catalog.js, tornadoes): { at, ownerId, count, targetPosition }.
+    this.pendingTornadoes = [];
+    // What lands on the player next tick, as damage to apply (a blast, a recoil).
+    this.playerDamages = [];
+    // Screeches going on (catalog.js, an attack's screech): { ownerId, targetId, from, to }.
+    this.screeches = [];
     this.spawned = 0;
     // In "ffa", the enemy the host's boss fights; bossId: the host's NPC that strikes.
     this.bossTargetId = null;
@@ -165,7 +190,7 @@ export class SandboxEncounter {
     if (host && hostSeeds) host.reset(hostSeeds);
     for (const name of [...hostHooks, ...Object.keys(hostNpcHooks), "onNpcDefeated", "moveNpc", "runStartMechanicsKeys"]) delete this[name];
     const hostDefinitions = host?.getNpcDefinitions?.();
-    this.definitions = new NpcDefinitionRegistry([...(hostDefinitions?.registrations.values() ?? []), this.brawlers, this.obstacleRegistration]);
+    this.definitions = new NpcDefinitionRegistry([...(hostDefinitions?.registrations.values() ?? []), this.brawlers, this.obstacleRegistration, this.companions, this.tornadoDefinitions]);
     if (!host) return;
     for (const name of hostHooks) if (host[name]) this[name] = (...args) => host[name](...args);
     // The host's engine rules, with the sandbox's (getEngineRules) beside them.
@@ -269,17 +294,21 @@ export class SandboxEncounter {
       taken.add(id);
       return createObstacleActor(id, position);
     });
-    return [...hostNpcs, ...own.map((npc) => this.createNpcActor(npc)), ...obstacles];
+    const monsters = own.map((npc) => this.createNpcActor(npc));
+    return [...hostNpcs, ...monsters, ...monsters.flatMap((actor) => this.companionsOf(actor)), ...obstacles];
   }
   // `startTick`: the tick it may act from, two ticks before its first attack
   // (the countdown's end for those placed); `extra`: more of its state.
   createNpcActor(npc, startTick = this.countdownUntil, extra = {}) {
     const entry = getSandboxNpcEntry(npc.npc);
-    const formulaStats = structuredClone(getMonsterFormulaStats(entry.npcTypeId));
-    if (npc.levels) formulaStats.levels = { ...formulaStats.levels, ...npc.levels };
+    // A set of its stats of its own when the table has several (the Maggot King's "Far").
+    const formulaStats = statsOf(entry.npcTypeId, entry.statsVersion, npc.levels);
     const hitpoints = npc.hp ?? getMonsterHitpoints(entry.npcTypeId);
     const attackSpeed = npc.attackSpeed ?? entry.attackSpeed;
-    return brawlerNpcDefinition.createActor(
+    // A prayer of its own (the Corrupted Hunllef's): one of the three at
+    // random, the form that shows it, its overhead.
+    const protection = entry.protects ? protectionStyles[Math.floor(this.random() * protectionStyles.length)] : null;
+    const actor = brawlerNpcDefinition.createActor(
       {
         id: npc.id,
         kind: "npc",
@@ -291,7 +320,9 @@ export class SandboxEncounter {
         alive: true,
         position: [...npc.position],
         previousPosition: [...npc.position],
-        facing: 0,
+        // One that faces one way in its own fight always does (Zebak).
+        facing: entry.lockedFacing ?? 0,
+        ...(entry.lockedFacing === undefined ? {} : { lockedFacing: entry.lockedFacing }),
         history: new Map(),
         vitals: { hp: hitpoints, maxHp: hitpoints },
         formulaStats,
@@ -308,12 +339,205 @@ export class SandboxEncounter {
         },
       },
       {
-        entryId: entry.id, team: this.teamOf(npc), maxHit: npc.maxHit, lastAttackerId: null, immobileUntilTick: startTick,
+        entryId: entry.id, team: this.teamOf(npc), maxHit: npc.maxHit, levels: npc.levels, lastAttackerId: null, immobileUntilTick: startTick,
         // inferno/waveMonsters.js: the meleer first looks whether to dig 50 ticks after it comes.
         ...(entry.digs ? { nextDigCheckTick: startTick + 50 } : {}),
+        ...(protection ? { protection, offProtectionHits: 0 } : {}),
         ...extra,
       },
     );
+    if (protection) {
+      actor.npcTypeId = entry.protects.forms[protection];
+      actor.overheadPrayers = [protection];
+    }
+    return actor;
+  }
+  // What a body brings along (catalog.js, companion: Zebak's tail), where it is.
+  companionsOf(actor) {
+    const companion = getSandboxNpcEntry(actor.state.entryId).companion;
+    return companion ? [createCompanionActor(`${actor.id}~${companion.name}`, actor, companion)] : [];
+  }
+  // An animation of a body plays on what it brought along too, by the same clip.
+  echo(actor, clipId, context) {
+    const companion = getSandboxNpcEntry(actor.state.entryId)?.companion;
+    if (!companion || !clipId) return;
+    const animations = [{ actorId: `${actor.id}~${companion.name}`, clipId, delayCycles: 0 }];
+    emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+    emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+  }
+
+  // --- the Corrupted Hunllef's prayer (catalog.js, protects) ----------------
+  // A hit of the style its prayer covers does nothing; every other hit of a
+  // protectable style counts, a zero too, and the sixth makes it pray
+  // against that style (corrupted-hunllef/encounter.js, getEngineRules).
+  isProtected(target, style) {
+    const protects = isBrawler(target) ? getSandboxNpcEntry(target.state.entryId)?.protects : null;
+    if (!protects || !protectionStyles.includes(style)) return false;
+    if (target.state.protection === style) return true;
+    if (++target.state.offProtectionHits >= protects.switchAfter) {
+      target.state.protection = style;
+      target.state.offProtectionHits = 0;
+      target.npcTypeId = protects.forms[style];
+      target.overheadPrayers = [style];
+    }
+    return false;
+  }
+
+  // --- the Corrupted Hunllef's tornadoes (catalog.js, tornadoes) ------------
+  // As he calls them: `delayTicks` later, as many as his hitpoints' third
+  // says, on free tiles around him, never on his target's.
+  summonTornadoes(actor, target, context) {
+    const tornadoes = getSandboxNpcEntry(actor.state.entryId).tornadoes;
+    const third = actor.vitals.hp > (actor.vitals.maxHp * 2) / 3 ? 0 : actor.vitals.hp > actor.vitals.maxHp / 3 ? 1 : 2;
+    this.pendingTornadoes.push({ at: context.tick + tornadoes.delayTicks, ownerId: actor.id, count: tornadoes.counts[third], avoid: [...target.position] });
+  }
+  spawnTornadoes(context) {
+    const due = this.pendingTornadoes.filter((pending) => pending.at <= context.tick);
+    this.pendingTornadoes = this.pendingTornadoes.filter((pending) => pending.at > context.tick);
+    for (const { ownerId, count, avoid } of due) {
+      const owner = context.world.getNpc(ownerId);
+      if (!owner || !isNpcAlive(owner)) continue;
+      const tornadoes = getSandboxNpcEntry(owner.state.entryId).tornadoes;
+      const spots = findOpenSpots(context, owner, 1, { min: 1, max: tornadoes.spread }).filter(([x, y]) => x !== avoid[0] || y !== avoid[1]);
+      for (let n = 0; n < count && spots.length > 0; n++) {
+        const [spot] = spots.splice(Math.floor(this.random() * spots.length), 1);
+        let id;
+        do id = `tornado-${++this.spawned}`;
+        while (context.world.actors.has(id));
+        context.spawnNpc(createTornadoActor(id, spot, owner, tornadoes, context.tick));
+      }
+    }
+  }
+  // Whom a tornado chases: its owner's target, else the nearest enemy of its owner.
+  tornadoTarget(tornado, context) {
+    const owner = context.world.getNpc(tornado.state.ownerId);
+    if (!owner || !isNpcAlive(owner)) return null;
+    const current = owner.combat.targetId ? context.world.actors.get(owner.combat.targetId) : null;
+    return current && this.isEnemy(owner, current) ? current : this.selectPlainTarget(owner, context);
+  }
+  // A tornado hurts each enemy of its owner it stands on, every tick
+  // (corrupted-hunllef/encounter.js: the player on its tile), and goes when its time is up.
+  tornadoHits(context) {
+    const damages = [];
+    for (const tornado of context.world.getNpcs().filter(isTornado)) {
+      const owner = context.world.getNpc(tornado.state.ownerId);
+      if (!owner || !isNpcAlive(owner) || context.tick >= tornado.state.expiresAt) {
+        context.despawnNpc(tornado.id);
+        continue;
+      }
+      const { damage, impactSpotAnimId } = getSandboxNpcEntry(owner.state.entryId).tornadoes;
+      const [x, y] = tornado.position;
+      for (const victim of [context.world.getPlayer(), ...context.world.getNpcs()]) {
+        if (!victim || !this.isEnemy(owner, victim)) continue;
+        const size = victim.size ?? 1;
+        if (x < victim.position[0] || x >= victim.position[0] + size || y < victim.position[1] || y >= victim.position[1] + size) continue;
+        const amount = randomBetween(this.random, damage);
+        const graphics = [{ spotAnimId: impactSpotAnimId, target: { kind: "tile", position: [x, y] }, height: 0, delayCycles: 0 }];
+        emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics });
+        emitColosseumVisual(context.tickEvents, { animations: [], graphics: [{ spotAnimId: impactSpotAnimId, position: [x, y], delayCycles: 0 }] });
+        if (victim.kind === "player") damages.push({ baseDamage: amount, attackType: "typeless", source: `${this.getNpcDamageSourceLabel(owner.id)}'s tornado`, playerPosition: [...victim.position] });
+        else context.queueNpcHit({ attackerId: owner.id, targetId: victim.id, style: "typeless", attackKind: "typeless", rolledDamage: amount, accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "persist" });
+      }
+    }
+    return damages;
+  }
+
+  // --- the Maggot King's screech (catalog.js, an attack's screech) ----------
+  // A player who prays against an attack style is hurt (maggot-king: the
+  // screech's damage); below a mark of his hitpoints a larva comes beside
+  // the target, his to heal.
+  onScreech(actor, target, screech, context) {
+    this.screeches.push({ ownerId: actor.id, targetId: target.id, from: context.tick + screech.window[0], to: context.tick + screech.window[1] });
+    // His stats while he screeches (the table's "Roaring": Defence 100).
+    if (screech.roaringStats) actor.formulaStats = statsOf(actor.npcTypeId, screech.roaringStats, actor.state.levels);
+    const larva = screech.larva;
+    if (!larva || actor.vitals.hp > actor.vitals.maxHp * larva.belowFraction) return;
+    const size = getSandboxNpcEntry(larva.npc).size;
+    const spots = findOpenSpots(context, { position: target.position, size: target.size ?? 1 }, size, { min: 1, max: 4 });
+    if (spots.length === 0) return;
+    const spot = spots[Math.floor(this.random() * spots.length)];
+    this.spawnOwn(larva.npc, spot, actor.state.team, context, { extra: { summonerId: actor.id } });
+  }
+
+  // Each tick of a screech's window, a player praying against a style is
+  // hurt (maggot-king/encounter.js: 15 to 25 a tick); after it, the
+  // screecher's stats are those of his phase again.
+  screechHits(context) {
+    const damages = [];
+    for (const screech of this.screeches) {
+      const owner = context.world.getNpc(screech.ownerId);
+      const entry = owner && getSandboxNpcEntry(owner.state.entryId);
+      const attack = entry?.attacks.find((candidate) => candidate.screech);
+      if (!owner || !isNpcAlive(owner) || !attack) continue;
+      if (context.tick > screech.to) {
+        owner.formulaStats = statsOf(owner.npcTypeId, owner.state.closedIn ? entry.closesIn.statsVersion : entry.statsVersion, owner.state.levels);
+        continue;
+      }
+      const player = context.world.getPlayer();
+      if (context.tick < screech.from || screech.targetId !== player?.id || !player.alive) continue;
+      if (player.activePrayer && /^Protect(Magic|Range|Melee)$/.test(player.activePrayer)) {
+        damages.push({ baseDamage: randomBetween(this.random, attack.screech.prayerDamage), attackType: "typeless", source: "Screech", playerPosition: [...player.position] });
+      }
+    }
+    this.screeches = this.screeches.filter((screech) => context.tick <= screech.to && context.world.getNpc(screech.ownerId));
+    return damages;
+  }
+
+  // --- the Ruptura Araxyte's blast (catalog.js, explodes) -------------------
+  // Everyone near it is hurt by how far away they are (araxxor/encounter.js:
+  // the player by `onPlayer`, an NPC by `onNpc`, beside it first), and it dies.
+  blast(actor, explodes, context) {
+    const graphics = [{ spotAnimId: explodes.spotAnimId, target: { kind: "tile", position: [...actor.position] }, height: 0, delayCycles: 0 }];
+    emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics });
+    emitColosseumVisual(context.tickEvents, { animations: [], graphics: [{ spotAnimId: explodes.spotAnimId, position: [...actor.position], delayCycles: 0 }] });
+    const player = context.world.getPlayer();
+    if (player?.alive && this.isEnemy(actor, player)) {
+      const gap = footprintGap(actor, { position: player.position, size: 1 });
+      if (gap < explodes.onPlayer.length) this.playerDamages.push({ baseDamage: explodes.onPlayer[gap], attackType: "typeless", source: this.getNpcDamageSourceLabel(actor.id), playerPosition: [...player.position] });
+    }
+    for (const npc of context.world.getNpcs()) {
+      if (npc === actor || !isActorAlive(npc) || npc.untargetable || isObstacle(npc)) continue;
+      const gap = footprintGap(actor, npc);
+      if (gap >= explodes.onNpc.length) continue;
+      context.queueNpcHit({ attackerId: actor.id, targetId: npc.id, style: "typeless", attackKind: "typeless", rolledDamage: explodes.onNpc[gap], accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "persist" });
+    }
+    context.queueNpcHit({ attackerId: actor.id, targetId: actor.id, style: "typeless", attackKind: "typeless", rolledDamage: actor.vitals.hp, accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "persist" });
+  }
+
+  // Every tick: what a monster does by the clock (catalog.js, spawnsEvery:
+  // Araxxor's araxytes), and the bodies brought along follow theirs.
+  clockwork(context) {
+    for (const npc of context.world.getNpcs()) {
+      if (isCompanion(npc)) {
+        const owner = context.world.getNpc(npc.state.ownerId);
+        if (!owner || owner.death !== undefined || !isActorAlive(owner)) {
+          context.despawnNpc(npc.id);
+          continue;
+        }
+        npc.previousPosition = [...npc.position];
+        npc.position = [...owner.position];
+        npc.facing = owner.facing;
+        continue;
+      }
+      if (!isBrawler(npc) || !isNpcAlive(npc) || context.tick < this.countdownUntil) continue;
+      const spawns = getSandboxNpcEntry(npc.state.entryId).spawnsEvery;
+      if (!spawns) continue;
+      npc.state.nextSpawnTick ??= context.tick + spawns.firstTicks;
+      npc.state.spawnedCount ??= 0;
+      if (context.tick < npc.state.nextSpawnTick || npc.state.spawnedCount >= spawns.max) continue;
+      npc.state.nextSpawnTick = context.tick + spawns.everyTicks;
+      const entryId = spawns.cycle[npc.state.spawnedCount % spawns.cycle.length];
+      const size = getSandboxNpcEntry(entryId).size;
+      const spots = findOpenSpots(context, npc, size, spawns.distance);
+      if (spots.length === 0) continue;
+      npc.state.spawnedCount++;
+      const spot = spots[Math.floor(this.random() * spots.length)];
+      const child = this.spawnOwn(entryId, spot, npc.state.team, context, { extra: { summonerId: npc.id } });
+      if (spawns.graphic) {
+        const graphics = [{ spotAnimId: spawns.graphic[entryId], target: { kind: "tile", position: [...child.position] }, height: 0, delayCycles: 0 }];
+        if (graphics[0].spotAnimId !== undefined) emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics });
+      }
+    }
   }
   // A monster the run makes (a summons, a split, one brought back): of the
   // team given, on `position`, acting `firstActionAfterSpawn` ticks later
@@ -330,6 +554,7 @@ export class SandboxEncounter {
     actor.spawnTick = context.tick;
     if (hp !== undefined) actor.vitals = { ...actor.vitals, hp };
     context.spawnNpc(actor);
+    for (const companion of this.companionsOf(actor)) context.spawnNpc(companion);
     return actor;
   }
   // As a monster is hurt: it summons below its marks (catalog.js, summons),
@@ -338,6 +563,31 @@ export class SandboxEncounter {
     const source = damage?.sourceId ? context.world.actors.get(damage.sourceId) : null;
     if (isBrawler(source)) this.healFromDamage(source, damage.effectiveDamage, context.tickEvents);
     const entry = getSandboxNpcEntry(actor.state.entryId);
+    // The Mirrorback's back: part of a melee hit goes back to who dealt it (araxxor/encounter.js).
+    const recoil = entry.recoils && /^melee/.test(damage?.attackType ?? "") ? Math.floor((damage.effectiveDamage ?? 0) * entry.recoils.melee) : 0;
+    if (recoil > 0 && source && isActorAlive(source)) {
+      if (source.kind === "player") this.playerDamages.push({ baseDamage: recoil, attackType: "typeless", source: this.getNpcDamageSourceLabel(actor.id), playerPosition: [...source.position] });
+      else context.queueNpcHit?.({ attackerId: actor.id, targetId: source.id, style: "typeless", attackKind: "typeless", rolledDamage: recoil, accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "persist" });
+    }
+    // Below a mark it comes in to fight beside its target, with the stats of
+    // that phase (the Maggot King's near rotations).
+    if (entry.closesIn && !actor.state.closedIn && damage?.hpAfter > 0 && damage.hpAfter <= actor.vitals.maxHp * entry.closesIn.belowFraction) {
+      actor.state.closedIn = true;
+      actor.combat.attackRange = 1;
+      if (!this.screeches.some((screech) => screech.ownerId === actor.id)) actor.formulaStats = statsOf(actor.npcTypeId, entry.closesIn.statsVersion, actor.state.levels);
+    }
+    // Enraged below a mark: faster, with its cue and form (Araxxor's, Zebak's).
+    if (entry.enrage && !actor.state.enraged && damage?.hpAfter > 0 && damage.hpAfter <= actor.vitals.maxHp * entry.enrage.belowFraction) {
+      actor.state.enraged = true;
+      actor.combat.attackSpeed = entry.enrage.attackSpeed;
+      if (entry.enrage.npcTypeId) actor.npcTypeId = entry.enrage.npcTypeId;
+      if (entry.enrage.clip) {
+        const animations = [{ actorId: actor.id, clipId: entry.enrage.clip, delayCycles: 0 }];
+        emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+        emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+        this.echo(actor, entry.enrage.clip, context);
+      }
+    }
     if (!entry.summons || !(damage?.hpAfter > 0)) return;
     actor.state.summoned ??= [];
     entry.summons.forEach((summons, index) => {
@@ -392,6 +642,16 @@ export class SandboxEncounter {
         if (isBrawler(source) && this.tickEvents) this.healFromDamage(source, hit.effectiveDamage, this.tickEvents);
         return host.onPlayerDamageTaken?.(hit, rules);
       },
+      // A monster's prayer (the Corrupted Hunllef's) turns the player's attacks of its style away.
+      isPlayerAttackProtected: (style, target, ...rest) =>
+        isBrawler(target) ? Boolean(getSandboxNpcEntry(target.state.entryId)?.protects) && target.state.protection === style : (host.isPlayerAttackProtected?.(style, target, ...rest) ?? false),
+      playerDamageOnNpc: (damage, details, ...rest) => {
+        const { target, attack } = details;
+        if (!isBrawler(target)) return host.playerDamageOnNpc ? host.playerDamageOnNpc(damage, details, ...rest) : damage;
+        if (!getSandboxNpcEntry(target.state.entryId)?.protects) return damage;
+        if (attack.protectedByNpcPrayer) return 0;
+        return this.isProtected(target, attack.style) ? 0 : damage;
+      },
     };
   }
   resolveHazards(context, mechanics) {
@@ -407,7 +667,11 @@ export class SandboxEncounter {
     }
     const focused = this.host ? this.hostContext(context) : null;
     const hostDamages = focused ? this.strikeFocus(this.host.resolveHazards(focused, mechanics), context) : [];
-    return [...hostDamages, ...this.landStrikes(context)];
+    this.clockwork(context);
+    this.spawnTornadoes(context);
+    const ownDamages = this.playerDamages;
+    this.playerDamages = [];
+    return [...hostDamages, ...this.landStrikes(context), ...this.tornadoHits(context), ...this.screechHits(context), ...ownDamages];
   }
 
   // --- the arena's boss in a free-for-all ----------------------------------
