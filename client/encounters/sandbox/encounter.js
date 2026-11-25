@@ -150,10 +150,15 @@ export class SandboxEncounter {
   ownsCountdown() {
     return !this.host;
   }
-  // The obstacles' tiles block the way (obstacles.js), on the host's arena too.
+  // The arena's own when it has one (arenas.js, arenaConfig: whatever the map
+  // gave), or what it makes of the map's (refineArena); then the obstacles'
+  // tiles block the way (obstacles.js), on the host's arena too. The host is
+  // handed the arena with the obstacles in it, so that an arena it sets again
+  // later (the Leviathan's, as its rocks fall) keeps them.
   refineArenaConfig(arena) {
-    const base = this.host?.refineArenaConfig?.(arena) ?? arena;
-    return withObstacles(base, this.scenario.obstacles ?? []);
+    const obstacles = this.scenario.obstacles ?? [];
+    const own = withObstacles(this.arena.arenaConfig?.() ?? this.arena.refineArena?.(arena) ?? arena, obstacles);
+    return withObstacles(this.host?.refineArenaConfig?.(own) ?? own, obstacles);
   }
   // The editor's scenario when it is for this arena; otherwise an empty one,
   // and the editor offers to go to the arena of its own.
@@ -176,7 +181,7 @@ export class SandboxEncounter {
     return null;
   }
   getArenaConfig() {
-    return this.host?.getArenaConfig() ?? { bounds: null, collisionMap: null, walkableTiles: null };
+    return this.host?.getArenaConfig() ?? this.arena.arenaConfig?.() ?? { bounds: null, collisionMap: null, walkableTiles: null };
   }
   createNpcs(startTile) {
     const hostNpcs = this.host?.createNpcs(startTile) ?? [];
@@ -335,7 +340,8 @@ export class SandboxEncounter {
     return this.scenario.mode === "versus" || this.scenario.options.ffaIncludesPlayer;
   }
   isEnemy(actor, other) {
-    if (other === actor || !isActorAlive(other) || isObstacle(other)) return false;
+    // Nor one that cannot be attacked (the Leviathan's pathfinder).
+    if (other === actor || !isActorAlive(other) || isObstacle(other) || other.untargetable) return false;
     if (other.kind === "player") return actor.state.team !== playerTeam && this.playerIsFair();
     if (this.scenario.mode !== "ffa") return false;
     const team = isBrawler(other) ? other.state.team : bossTeam;

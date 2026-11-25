@@ -133,6 +133,7 @@ const ui = {
   selectedId: null,
   tiles: null,
   tilesSource: null,
+  tilesFor: null,
   bounds: null,
   canvas: null,
   drag: null,
@@ -252,8 +253,15 @@ async function play() {
 
 // --- the map -----------------------------------------------------------------
 function refreshTiles() {
-  const arena = getRegisteredArenaConfig(sandboxKind);
-  const source = arena?.walkableTiles ?? null;
+  // The arena's own (the Leviathan's bridge), or the map's as it refines it
+  // (Duke's ice), as the run's (encounter.js, refineArenaConfig); made again
+  // only when the arena or the map's changes.
+  const registered = getRegisteredArenaConfig(sandboxKind);
+  if (ui.tilesFor?.arena !== ui.arena || ui.tilesFor?.registered !== registered) {
+    const own = ui.arena.arenaConfig?.() ?? (registered && (ui.arena.refineArena?.(registered) ?? registered));
+    ui.tilesFor = { arena: ui.arena, registered, walkableTiles: own?.walkableTiles ?? null };
+  }
+  const source = ui.tilesFor.walkableTiles;
   if (source === ui.tilesSource) return false;
   ui.tilesSource = source;
   if (!source || source.size === 0) {
