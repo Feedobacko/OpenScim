@@ -25,7 +25,7 @@ editor** button, which opens a panel: a start screen and three steps.
 
 1. **Arena**: the scenario's name, author and description; the arena (another
    arena is another route, which the application enters without loading the
-   page; the editor reopens at step 2); the mode, and the ten examples of
+   page; the editor reopens at step 2); the mode, and the thirteen examples of
    that mode; the library; the scenarios saved in this browser.
 2. **Monsters**: a map of the arena's walkable tiles. Drag a monster from the
    list onto its starting tile, drag it on the map to move it, click it to
@@ -197,15 +197,47 @@ other.
   that no prayer stops, 7 or 6 ticks between attacks. His triple attack,
   grapple and phases, Yama's fireballs or Vardorvis' axes come only with
   the host.
+- The bosses of the newer fights are in the catalog too, with what of
+  theirs does not need their room (each encounter's `sandbox.js` names the
+  numbers and what is left out):
+  - The Leviathan, Duke Sucellus and Zebak never move (`immobile`), wherever
+    they are placed. The Leviathan throws its orbs (magic, ranged, and
+    every third one melee) and bites beside it. Duke slams beside him and
+    casts, faster once enraged. Zebak bites and spits, and enrages below a
+    quarter (`enrage`: faster, NPC 11732). His tail comes along as a second
+    body that plays his clips (`companion`, `bodies.js`).
+  - Araxxor walks, bites, shoots and casts, and enrages below a quarter.
+    Every 42 ticks an araxyte comes beside him, nine in all, in the order
+    acidic, mirrorback, ruptura (`spawnsEvery`). The Mirrorback throws back
+    half of a melee hit (`recoils`). The Ruptura walks up and blows up two
+    ticks later: 64 to an NPC beside it, 80 under it, less further away
+    (`explodes`).
+  - The Maggot King spits ranged and magic from afar and slams beside him.
+    Every sixth attack is a screech (`screech`): it hurts a player who prays
+    against a style, and below 85 % of his hitpoints a larva comes. A larva
+    leeches its target, one more each attack while the target stays put
+    (up to 10), and the King heals as much (`leech`).
+  - The Corrupted Hunllef walks and keeps to one style for four attacks,
+    then switches with its cue (`rotation`). It prays against one style,
+    its form showing which: hits of that style, the player's or a
+    monster's, do nothing, and six of another make it pray against that one
+    (`protects`). Every 56 ticks it calls 2 to 4 tornadoes by the third of
+    its hitpoints. They chase its target for 20 ticks and hurt 15 to 30 a
+    tick to whoever of its enemies they stand on (`tornadoes`,
+    `bodies.js`). The floor's tiles are its room's only.
+  What is left out is what needs the room: the Leviathan's rocks, lightning
+  and smoke, Duke's gaze and gas, Zebak's roar, waves and acid, Araxxor's
+  eggs and acid, the Maggot King's bile and carrion, and the Hunllef's
+  floor.
 - In a free-for-all a host boss's mechanics are aimed at one enemy at a
   time; its specials that strike the whole room (Sol's, Yama's) strike only
   that one.
 - The catalog is the monsters whose models and sequences the trimmed cache
   already holds and whose stats are in the monster table
   (`client/data/monsters.js`). Its bosses: Sol Heredit, Yama, Vardorvis, the
-  Doom of Mokhaiotl, JalTok-Jad and TzKal-Zuk. The Doom's larvae are left
-  out (not in the table), and Zebak (a head and a tail of nine tiles) is
-  only the host of his room. A monster's numbers that are not the table's
+  Doom of Mokhaiotl, JalTok-Jad, TzKal-Zuk, the Leviathan, Duke Sucellus,
+  Zebak, Araxxor, the Maggot King and the Corrupted Hunllef. The Doom's
+  larvae are left out (not in the table). A monster's numbers that are not the table's
   are named with their source in its encounter's `sandbox.js`; several are
   "inferred".
 - What an attack looks like is announced as an "inferno_visual" event
@@ -224,7 +256,8 @@ other.
 
 Each encounter keeps its monsters' catalog entries in its own
 `client/encounters/<encounter>/sandbox.js` (the Inferno, the Colosseum, Sol
-Heredit, Vardorvis, the Doom, Yama), beside the ids, sequences and
+Heredit, Vardorvis, the Doom, Yama, the Leviathan, Duke Sucellus, Zebak in
+`tombs-of-amascut/`, Araxxor, the Maggot King, the Corrupted Hunllef), beside the ids, sequences and
 projectiles they copy; `catalog.js` gathers them.
 
 `test/test-sandbox-catalog.mjs` (part of `npm test`) keeps the catalog in
@@ -235,8 +268,8 @@ table and an attack clip, and that the catalog neither holds nor excludes
 message lists every NPC found and where it stands
 (`tools/sandbox/discover.mjs`). So a new encounter's monsters reach the
 sandbox with the pull request that adds them: an entry in its
-`sandbox.js`, or a reason to leave one out (Zebak, nine tiles of head and
-tail, is the host of his room only). The same test fights every entry: it
+`sandbox.js`, or a reason to leave one out (a form another entry turns
+into, a boss asleep). The same test fights every entry: it
 must have stats, its clips, be loaded by the scene with every spot
 animation its attacks use, and attack the player within 40 ticks.
 
@@ -308,7 +341,7 @@ seeded generator.
 `tools/determinism/scenarios/sandbox.mjs` runs both modes, each host with
 two of the sandbox's monsters, and each example.
 `test/test-sandbox-scenario.mjs` checks the format, the codes and the
-examples; `test/test-sandbox-examples.mjs` that each of the twenty, and each
+examples; `test/test-sandbox-examples.mjs` that each of the twenty-six, and each
 scenario of the library, stands on walkable tiles, clear of the others, of
 the host's NPCs and of the player. `test/test-sandbox-wiring.mjs` fails when
 the engine calls a hook of an encounter that the sandbox neither implements
@@ -317,19 +350,24 @@ nor hands its host (`sandboxHostHooks` in `encounter.js`), and when
 
 ## The examples
 
-Twenty, each with its gear (max ranged, melee or magic): ten against the
-player and ten free-for-alls; step 1 shows those of the mode chosen. They
+Twenty-six, each with its gear (max ranged, melee or magic): thirteen against the
+player and thirteen free-for-alls; step 1 shows those of the mode chosen. They
 mix the Inferno's, the Colosseum's and the Stranglewood's monsters with the
 bosses, and few use Sol Heredit or Yama, whose hitpoints make long fights.
 
 - All against you: Inferno Rush, Colosseum Gauntlet, Jad Pincer,
   Stranglewood Ambush (Vardorvis as the host), Doom and Company (the Doom as
   the host), Boulder Maze, Zuk's Court, Jaws and Claws (Zebak as the host),
-  Sol's Last Stand, The Hunt.
+  Sol's Last Stand, The Hunt, Spider's Nest (Araxxor as the host), Corrupted
+  Storm (the Hunllef from the catalog, in the Colosseum), Maggot Feast (the
+  Maggot King as the host).
 - Free for all: Inferno vs Colosseum, Battle Royale, Three Kingdoms,
   Bodyguards (allies on your side), Spells vs Arrows, King of the Hill,
   Titan Clash, Allies Against the Doom (the deeper room's host), Warband
-  Civil War, Four Corners.
+  Civil War, Four Corners, Immovable Titans (the Leviathan, Zebak and Duke
+  standing, the Hunllef walking among them), Brood War (Araxxor's araxytes
+  against the Maggot King's larvae), Hunllef Hunting Party (the Hunllef as
+  the host, two allies on your side).
 
 Six have boulders. The harness runs each for a few ticks, and three of them
 further: Inferno vs Colosseum to its winner, Bodyguards with the player
@@ -352,9 +390,10 @@ sharing; the library is reviewed, permanent and one click away.
 | `arenas.js` | the arenas: map square, collision, start tile, camera; the variant kind of each |
 | `catalog.js` | the monsters, gathered from each encounter's `sandbox.js`, and the exclusions |
 | `scenario.js` | the format: `normalizeScenario`, JSON, share codes |
-| `examples.js` | the twenty examples and their gear |
+| `examples.js` | the twenty-six examples and their gear |
 | `obstacles.js` | the boulders: their NPC, their collision |
 | `brawler.js` | the NPC definition every sandbox NPC has |
+| `bodies.js` | what a monster brings along: a second body (Zebak's tail) and the Corrupted Hunllef's tornadoes |
 | `encounter.js` | `SandboxEncounter`, the modes, the definition with its variants |
 | `activeScenario.js` | the scenario the next run starts with (localStorage, `#sbx=` links) |
 | `storage.js` | the saved scenarios (localStorage) |
