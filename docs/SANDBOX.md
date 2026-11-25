@@ -97,9 +97,10 @@ need a line past them.
 Step 1 has "Fight this arena's boss with all its mechanics" in the arenas
 that have one (`hostKind` in `arenas.js`): Sol Heredit's arena, Yama's room,
 Zebak's room, Vardorvis' clearing, both rooms of the Doom of Mokhaiotl,
-Duke Sucellus' asylum and the Leviathan's Scar (its bridge is the arena's
-own, `arenaConfig`, and Duke's ice is added to the map's, `refineArena`,
-with or without the boss).
+Duke Sucellus' asylum, the Leviathan's Scar, Araxxor's lair, the Maggot
+King's lair and the Corrupted Hunllef's room (the Leviathan's bridge and the
+Hunllef's floor are the arena's own, `arenaConfig`, and Duke's ice is added
+to the map's, `refineArena`, with or without the boss).
 The scenario's `options.bossMechanics` then makes the arena's own encounter
 the sandbox's host (`encounter.js`): it is made by its own factory and runs
 inside the sandbox with everything it has (attacks, phases, hazards, adds,
