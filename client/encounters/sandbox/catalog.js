@@ -68,6 +68,9 @@ export const curatedNpcCatalog = [
 // catalog does not hold: a new encounter gives its monsters entries in its
 // own sandbox.js, or reasons here.
 export const sandboxCatalogExclusions = {
+  9035: "the Corrupted Hunllef, the form that turns melee away: its three types are its protection prayers, and its style switch, tornadoes and floor are its room's: it is fought in its own room",
+  9036: "the Corrupted Hunllef, the form that turns ranged away: as above",
+  9037: "the Corrupted Hunllef, the form that turns magic away: as above",
   11730: "Zebak is a head and a tail of nine tiles with mechanics of his own: he is fought as the host of his room",
   11732: "Zebak, enraged: as above",
   12167: "Duke Sucellus asleep: only drawn until he wakes, and has no attack",

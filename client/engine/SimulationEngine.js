@@ -2500,6 +2500,8 @@ var SimulationEngine = class {
           : {
               sourceNpcTypeId: hit.sourceNpcTypeId,
             }),
+        // The actor that dealt it, for the encounter's rules (the sandbox's Vardorvis heals off it).
+        ...(undefined === hit.sourceId ? {} : { sourceId: hit.sourceId }),
       });
     }
     this.syncVitalsToStats();

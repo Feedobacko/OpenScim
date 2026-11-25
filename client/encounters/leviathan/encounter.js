@@ -65,7 +65,7 @@ const bossSize = 7; // CACHE, WIKI
 const centre = [33, 36]; // the middle of its 7 x 7
 // Beside the handholds the player climbs in by (CACHE: 22,32); the tile is
 // RSPSApp's (inferred).
-const playerStart = [24, 34];
+export const playerStart = [24, 34];
 const pool = { minX: 29, maxX: 37, minY: 32, maxY: 40 }; // CACHE
 // OBS: the pathfinder's corners, the middle of its 3 x 3, clockwise from the
 // north-west: north-west, north-east and south-east recorded, south-west the
@@ -262,6 +262,18 @@ function lineBetween(from, to) {
   return tiles;
 }
 
+// The bridge's open tiles (floorRows), with a collision map of its own: the
+// fight's arena, and the sandbox's on the Scar (sandbox/arenas.js).
+export function leviathanFloorArena() {
+  const walkableTiles = new Set();
+  for (const [y, runs] of Object.entries(floorRows)) for (const [from, to] of runs) for (let x = from; x <= to; x++) walkableTiles.add(key([x, Number(y)]));
+  const tiles = [...walkableTiles].map((tile) => tile.split(",").map(Number));
+  const [minX, maxX] = [Math.min(...tiles.map(([x]) => x)), Math.max(...tiles.map(([x]) => x))];
+  const [minY, maxY] = [Math.min(...tiles.map(([, y]) => y)), Math.max(...tiles.map(([, y]) => y))];
+  const bounds = { minX, maxX, minY, maxY, width: maxX - minX + 1, height: maxY - minY + 1 };
+  return { bounds, walkableTiles, collisionMap: createCollisionMap(64, 64) };
+}
+
 // A fallen rock blocks the way and the line of sight (WIKI) as an object does.
 const rubbleFlags = CollisionFlag.OBJECT | CollisionFlag.OBJECT_PROJECTILE_BLOCKER;
 // The arena's collision with the rubble on it, the base's left as it is.
@@ -344,13 +356,7 @@ class LeviathanEncounter {
     return null;
   }
   getArenaConfig() {
-    const walkableTiles = new Set();
-    for (const [y, runs] of Object.entries(floorRows)) for (const [from, to] of runs) for (let x = from; x <= to; x++) walkableTiles.add(key([x, Number(y)]));
-    const tiles = [...walkableTiles].map((tile) => tile.split(",").map(Number));
-    const [minX, maxX] = [Math.min(...tiles.map(([x]) => x)), Math.max(...tiles.map(([x]) => x))];
-    const [minY, maxY] = [Math.min(...tiles.map(([, y]) => y)), Math.max(...tiles.map(([, y]) => y))];
-    const bounds = { minX, maxX, minY, maxY, width: maxX - minX + 1, height: maxY - minY + 1 };
-    return { bounds, walkableTiles, collisionMap: createCollisionMap(64, 64) };
+    return leviathanFloorArena();
   }
   refineArenaConfig(arena) {
     this.arenaBase = arena;
