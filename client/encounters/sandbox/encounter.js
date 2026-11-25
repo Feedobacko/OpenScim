@@ -150,6 +150,9 @@ export class SandboxEncounter {
     this.bossFocus = undefined;
     this.bossId = null;
     this.bossRoused = false;
+    // Where the host's NPCs that can be fought start, for the editor's map:
+    // [{ id, name, position, size }].
+    this.bossStarts = [];
     const hosted = this.scenario.options.bossMechanics && this.arena.hostKind && this.createHost;
     this.setHost(hosted ? this.createHost(this.arena.hostKind) : null, seeds?.host);
     // The sandbox's own countdown (ownsCountdown): its monsters wait until this tick.
@@ -246,6 +249,9 @@ export class SandboxEncounter {
   }
   createNpcs(startTile) {
     const hostNpcs = this.host?.createNpcs(startTile) ?? [];
+    this.bossStarts = hostNpcs
+      .filter((npc) => !npc.untargetable)
+      .map((npc) => ({ id: npc.id, name: this.host.getNpcDamageSourceLabel(npc.id), position: [...npc.position], size: npc.size }));
     // A scenario NPC whose id is a host NPC's (one called "yama", say) is
     // renamed, as normalizeNpc renames duplicates, never left out.
     const taken = new Set(hostNpcs.map((npc) => npc.id));
@@ -392,7 +398,9 @@ export class SandboxEncounter {
     this.tickEvents = context.tickEvents;
     this.world = context.world;
     this.landHeals(context);
+    const previousId = this.bossTargetId;
     this.bossFocus = this.focusOfBoss(context);
+    if (this.bossFocus !== undefined) this.aimHost(context.world, previousId);
     if (this.host && this.scenario.mode === "ffa" && !this.bossRoused) {
       this.bossRoused = true;
       this.host.wakeBoss?.(context);
@@ -430,6 +438,17 @@ export class SandboxEncounter {
     this.bossTargetId = best?.id ?? null;
     return best;
   }
+  // The host's NPCs aim at the boss's enemy: those whose target was the
+  // player or the enemy before (Sol Heredit walks to his and strikes only it).
+  aimHost(world, previousId) {
+    const focus = this.bossFocus;
+    if (!focus) return;
+    for (const npc of world.getNpcs()) {
+      if (isOwn(npc) || !npc.combat) continue;
+      const aimed = npc.combat.targetId;
+      if (aimed === "player" || (previousId && aimed === previousId)) npc.combat.targetId = focus.id;
+    }
+  }
   // The context a host's hook is handed: the engine's when the boss fights the
   // player (or there is no free-for-all); else one whose player is its enemy,
   // with the player's own controls (prayers, teleports) out of its reach; null
@@ -447,7 +466,7 @@ export class SandboxEncounter {
         return typeof value === "function" ? value.bind(target) : value;
       },
     });
-    return { ...this.sparingOwn(context), world, playerPos: [...focus.position], setProtectionPrayer: () => {}, disableProtectionPrayersUntil: () => {}, teleportPlayer: () => {} };
+    return { ...this.sparingOwn(context), world, playerPos: [...view.position], setProtectionPrayer: () => {}, disableProtectionPrayersUntil: () => {}, teleportPlayer: () => {} };
   }
   // A monster as a host sees its player: itself, with what only a player has
   // in its place, neutral (no gear, no prayer, no timers running, its levels
@@ -465,10 +484,28 @@ export class SandboxEncounter {
       prayerState: { prayerActivationTicks: {} }, runEnergy: { energy: 10000 }, activePrayer: null, offensivePrayer: null,
       activeEffects: [], inventory: [],
     };
+    // As big as a player: the tile of its body nearest the boss's middle,
+    // where the host's rules of tiles (Duke's slam and gas, the Leviathan's
+    // bite beside its pool, Yama's fireballs) look for him. A move the host
+    // makes of it (a knock-back) moves the whole of it.
+    const aim = () => {
+      const boss = this.bossId ? this.world?.getNpc(this.bossId) : null;
+      if (!boss || npc.size <= 1) return npc.position;
+      const middle = [boss.position[0] + (boss.size - 1) / 2, boss.position[1] + (boss.size - 1) / 2];
+      const clamp = (value, low, size) => Math.min(low + size - 1, Math.max(low, Math.round(value)));
+      return [clamp(middle[0], npc.position[0], npc.size), clamp(middle[1], npc.position[1], npc.size)];
+    };
     view = new Proxy(npc, {
-      get: (target, key) => (key in target ? target[key] : defaults[key]),
+      get: (target, key) => {
+        if (key === "position") return aim();
+        if (key === "size") return 1;
+        return key in target ? target[key] : defaults[key];
+      },
       set: (target, key, value) => {
-        if (!(key in target) && key in defaults) defaults[key] = value;
+        if (key === "position") {
+          const [x, y] = aim();
+          target.position = [target.position[0] + value[0] - x, target.position[1] + value[1] - y];
+        } else if (!(key in target) && key in defaults) defaults[key] = value;
         else target[key] = value;
         return true;
       },
@@ -596,6 +633,8 @@ export class SandboxEncounter {
       winner: this.winner,
       ffaIncludesPlayer: this.scenario.options.ffaIncludesPlayer,
       countdownUntil: this.countdownUntil,
+      // The host's boss where it starts (editor.js draws it on the map).
+      ...(this.bossStarts.length ? { bosses: structuredClone(this.bossStarts) } : {}),
     };
     if (this.host) return { ...this.host.getSnapshot(input), sandbox };
     return { kind: this.kind, state: sandbox, sandbox, visuals: {} };

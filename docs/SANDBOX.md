@@ -111,10 +111,14 @@ fight is won and the scenario's monsters are beaten.
 
 In "ffa" the host's NPCs are one team: their own ("boss"), or the one
 `options.bossTeam` names (step 1, "Boss team"; `player` to fight for the
-player, who then cannot attack it). The boss fights the nearest enemy, a
+player, who then cannot attack it). The boss shows on step 2's map where its fight puts it
+(the snapshot's `sandbox.bosses`), dashed: it cannot be moved, and a right
+click gives it the next team. The boss fights the nearest enemy, a
 monster or the player, with its own mechanics: each of the host's hooks that
 acts is handed a world whose player is that enemy (`hostContext`), seen with
-a player's fields in neutral (`playerView`); its attacks are rolled with the
+a player's fields in neutral and as the tile of its body nearest the boss
+(`playerView`), and the host's NPCs that aimed at the player aim at it
+(`aimHost`); its attacks are rolled with the
 enemy's own stats, and what would land on the player's tile lands on it as a
 hit of the boss (`strikeFocus`). With no enemy left it rests. Duke Sucellus
 and Vardorvis, who wait for the player in their fights, start at once

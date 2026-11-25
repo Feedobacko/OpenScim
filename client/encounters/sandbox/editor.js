@@ -316,6 +316,7 @@ function canPlace(position, size, ignoreId) {
     if (tiles.some((tile) => covers(npc.position, otherSize, tile))) return false;
   }
   if (ignoreId !== playerTeam && tiles.some((tile) => covers(playerStartOf(ui.draft), 1, tile))) return false;
+  if (bossesOnMap().some((boss) => tiles.some((tile) => covers(boss.position, boss.size, tile)))) return false;
   return true;
 }
 
@@ -338,6 +339,24 @@ function cycleTeam(npc) {
   if (next === undefined) delete npc.team;
   else npc.team = next;
   setStatus(`${getSandboxNpcEntry(npc.npc).name}: ${next === undefined ? "no team (fights everyone)" : next === playerTeam ? "on your side" : `team ${next}`}.`);
+  commit();
+}
+
+// The arena's boss, with its mechanics on: where its NPCs start, from the
+// run's snapshot (encounter.js, bosses) when the run is of this arena. It is
+// drawn on the map, cannot be moved, and its team (free-for-all) goes round
+// with a right click, as a monster's does.
+function bossesOnMap() {
+  const sandbox = ui.simulationState?.encounter?.sandbox;
+  if (!ui.draft.options.bossMechanics || !getSandboxArena(ui.draft.arena).hostKind || sandbox?.arena !== ui.draft.arena) return [];
+  return sandbox.bosses ?? [];
+}
+const bossAt = (tile) => bossesOnMap().find((boss) => covers(boss.position, boss.size, tile)) ?? null;
+function cycleBossTeam(boss) {
+  const { bossTeam, ...rest } = ui.draft.options;
+  const next = teamCycle[(teamCycle.indexOf(bossTeam) + 1) % teamCycle.length];
+  ui.draft.options = next === undefined ? rest : { ...rest, bossTeam: next };
+  setStatus(`${boss.name}: ${next === undefined ? "a team of its own" : next === playerTeam ? "on your side" : `team ${next}`}.`);
   commit();
 }
 
@@ -379,6 +398,36 @@ function drawMap() {
     g.lineWidth = 1.5 * ratio;
     g.strokeRect(px + 1, py + 1, obstacleSize * size - 2, obstacleSize * size - 2);
   });
+  // The boss: dashed, as it is not the scenario's to move.
+  for (const boss of bossesOnMap()) {
+    const [px, py] = toPixel(boss.position[0], boss.position[1] + boss.size - 1);
+    const team = ui.draft.options.bossTeam;
+    const colour = ui.draft.mode === "ffa" && team !== undefined ? teamColours[team] ?? colourOf(team) : "#c23b2e";
+    const side = boss.size * size - 2;
+    g.fillStyle = colour + "44";
+    g.fillRect(px + 1, py + 1, side, side);
+    g.setLineDash([4 * ratio, 3 * ratio]);
+    g.strokeStyle = colour;
+    g.lineWidth = 2 * ratio;
+    g.strokeRect(px + 1, py + 1, side, side);
+    g.setLineDash([]);
+    g.fillStyle = "#ffffff";
+    g.font = `${font}px "RuneScape Bold 12", sans-serif`;
+    g.fillText(abbreviation(boss.name), px + (boss.size * size) / 2, py + (boss.size * size) / 2);
+    const label = ui.draft.mode === "ffa" ? (team === undefined ? "B" : teamLabel(team)) : "";
+    if (label) {
+      const badgeFont = Math.round(font * 1.4);
+      const badge = Math.round(badgeFont * 1.3);
+      g.fillStyle = "#000000dd";
+      g.fillRect(px - badge / 3, py - badge / 3, badge, badge);
+      g.strokeStyle = colour;
+      g.lineWidth = 1.5 * ratio;
+      g.strokeRect(px - badge / 3, py - badge / 3, badge, badge);
+      g.fillStyle = colour;
+      g.font = `${badgeFont}px "RuneScape Bold 12", sans-serif`;
+      g.fillText(label, px - badge / 3 + badge / 2, py - badge / 3 + badge / 2);
+    }
+  }
   for (const npc of ui.draft.npcs) {
     if (ui.drag?.id === npc.id && ui.drag.moved) continue;
     const entry = getSandboxNpcEntry(npc.npc);
@@ -501,7 +550,7 @@ function drop(drag, position) {
   commit();
 }
 
-// A right click: the next team for a monster (free-for-all), or a boulder away.
+// A right click: the next team for a monster or the boss (free-for-all), or a boulder away.
 function onMapContextMenu(event) {
   event.preventDefault();
   const tile = tileAtPointer(event);
@@ -513,6 +562,15 @@ function onMapContextMenu(event) {
       return;
     }
     cycleTeam(npc);
+    return;
+  }
+  const boss = bossAt(tile);
+  if (boss) {
+    if (ui.draft.mode !== "ffa") {
+      setStatus("Teams count in Free for all (step 1).", true);
+      return;
+    }
+    cycleBossTeam(boss);
     return;
   }
   const rock = obstacleAt(tile);
@@ -535,6 +593,11 @@ function onMapPointerDown(event) {
     return;
   }
   const npc = npcAt(tile);
+  const boss = npc ? null : bossAt(tile);
+  if (boss) {
+    setStatus(`${boss.name} starts here, where its own fight puts it; it cannot be moved.${ui.draft.mode === "ffa" ? " Right click: its team." : ""}`);
+    return;
+  }
   const rock = npc ? -1 : obstacleAt(tile);
   if (rock >= 0) {
     const position = ui.draft.obstacles[rock];
@@ -1067,6 +1130,12 @@ export function syncSandboxEditor(kind, simulationState) {
   // The arena is built from the cache after the scene: the map follows when it is there.
   if (refreshTiles() && ui.step === 2 && !ui.panel.hidden) renderBody();
   ui.simulationState = simulationState;
+  // The map shows the boss once the run that has it is there.
+  const bosses = JSON.stringify(bossesOnMap());
+  if (bosses !== ui.bossesDrawn) {
+    ui.bossesDrawn = bosses;
+    if (ui.step === 2 && !ui.panel.hidden) drawMap();
+  }
   syncClockButton();
   syncResult(simulationState);
   syncCountdown(simulationState);
