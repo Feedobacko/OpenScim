@@ -1,8 +1,8 @@
 // The sandbox's gateway in the lobby: the platform's own floor reaches out
 // along a spoke to a round dais, ringed by beams of light in the colours of
-// the fights whose monsters the sandbox borrows. A click on the dais opens
-// the sandbox's setup window (the loadout presets), as the Desert Treasure II
-// vault opens its chooser. No object of the cache is placed.
+// the fights whose monsters the sandbox borrows. A click on the dais enters
+// the sandbox, as the menus do, with its editor at its start screen
+// (menuImport.js, sandboxEntryKind). No object of the cache is placed.
 import { centerX, lobbyGateway, rimY } from "../../lobby/gateway.js";
 import { toaMesh, toaShaderModes } from "../../toa/shader.js";
 
@@ -24,10 +24,9 @@ export { gatewayLocs, turnGatewayObject };
 
 export const sandboxGatewayLabel = "Sandbox";
 const select = (open) =>
-  // offerScenarioCode: the setup window shows "Load a scenario" (application.js), the way in for someone holding a code.
-  open({ encounterKind: sandboxKind, displayName: "Sandbox", description: "Build a fight of your own: an arena, monsters of the other fights, and their bosses.", offerScenarioCode: true });
+  open({ encounterKind: sandboxKind, displayName: "Sandbox", description: "Build a fight of your own: an arena, monsters of the other fights, and their bosses." });
 
-// The dais's tiles: a click on one opens the setup window.
+// The dais's tiles: a click on one enters the sandbox.
 const daisTiles = tilesIn(centerX - 2, dais.y - 2, centerX + 2, dais.y + 2);
 export const gatewayPortals = daisTiles.map((position) => ({ position, displayName: sandboxGatewayLabel, open: select }));
 

@@ -20731,6 +20731,9 @@ function mse({
     return () => window.removeEventListener("sandbox-clock", onClock);
   }, []);
   const gOHeld = fj.encounter?.isPaused?.() === true;
+  // An encounter that counts down itself, in ticks of its run (the sandbox:
+  // its monsters wait while the player acts), has no start-of-fight countdown.
+  const gOOwnCountdown = fj.encounter?.ownsCountdown?.() === true;
   const gP = (function ({
     countdownTicks: countdownTicks,
     speedMultiplier: hF,
@@ -20877,7 +20880,7 @@ function mse({
       finish: hW,
     };
   })({
-    countdownTicks: autoAdvance ? fightStartCountdownTicks : null,
+    countdownTicks: autoAdvance && !gOOwnCountdown ? fightStartCountdownTicks : null,
     speedMultiplier: speedMultiplier,
     covered: modalPaused || fg || eE || gOHeld,
     introActive: fo.introActive,
@@ -20885,7 +20888,7 @@ function mse({
     getIntroRemainingMs: (hE) => getIntroAnimationRemainingMs?.(hE),
   });
   const gQ = (0, pn.useRef)(null);
-  gQ.current = autoAdvance ? fightStartCountdownTicks : null;
+  gQ.current = autoAdvance && !gOOwnCountdown ? fightStartCountdownTicks : null;
   const gR = (0, pn.useRef)(null);
   const gT = (0, pn.useRef)(null);
   const gU = (0, pn.useCallback)(() => {

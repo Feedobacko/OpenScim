@@ -24,11 +24,17 @@
 //                 of several spot animations on one timing (Jad's magic),
 //                 `targetGraphic` a spot animation on the target's tile;
 //                 `windupTicks` delays all of it and the hit (Jad's three);
+//                 `chargedVolley` a charge that shows the orbs it will throw,
+//                 then one a tick (the manticore's: colosseum/sandbox.js);
 //                 `special` an attack of the encounter's own that lands on
 //                 tiles and can be walked out of ({ id, spotAnimIds, start,
 //                 land }: Sol Heredit's spear and shield, in
 //                 sol-heredit/sandbox.js; brawler.js starts it and
 //                 encounter.js lands it)
+//                 `everyNth` makes an attack come on that attack of the count
+//                 and only then (the javelin colossus's high throw)
+//   heal          { belowFraction, range, clip, graphic }: out of reach of
+//                 its target it heals one of its side (the minotaur)
 //   immobile      true: never moves (TzKal-Zuk)
 //   idleSeqId, walkSeqId?, deathSeqId, clips   the sequences the scene loads
 //
@@ -44,7 +50,6 @@ import { solHereditSandboxEntries } from "../sol-heredit/sandbox.js";
 import { vardorvisSandboxEntries } from "../vardorvis/sandbox.js";
 import { doomSandboxEntries } from "../doom-of-mokhaiotl/sandbox.js";
 import { yamaSandboxEntries } from "../yama/sandbox.js";
-import { discoveredNpcCatalog } from "./discovered.js";
 
 export const curatedNpcCatalog = [
   ...infernoSandboxEntries,
@@ -56,7 +61,10 @@ export const curatedNpcCatalog = [
 ];
 
 // What the encounters draw that is not a monster to place, each with its
-// reason; tools/sandbox-catalog.mjs leaves these out of discovered.js.
+// reason. test/test-sandbox-catalog.mjs fails for any other NPC an encounter
+// draws (with stats in the monster table and an attack clip) that the
+// catalog does not hold: a new encounter gives its monsters entries in its
+// own sandbox.js, or reasons here.
 export const sandboxCatalogExclusions = {
   11730: "Zebak is a head and a tail of nine tiles with mechanics of his own: he is fought as the host of his room",
   11732: "Zebak, enraged: as above",
@@ -67,10 +75,7 @@ export const sandboxCatalogExclusions = {
   14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
 };
 
-// The curated entries and those tools/sandbox-catalog.mjs found in the
-// encounters' presentations (discovered.js): a new encounter's monsters
-// join the sandbox without an entry written by hand.
-export const sandboxNpcCatalog = [...curatedNpcCatalog, ...discoveredNpcCatalog];
+export const sandboxNpcCatalog = curatedNpcCatalog;
 
 const catalogById = new Map(sandboxNpcCatalog.map((entry) => [entry.id, entry]));
 export const getSandboxNpcEntry = (id) => catalogById.get(id);
@@ -88,10 +93,18 @@ export const sandboxPreloadNpcTypes = sandboxNpcCatalog.map((entry) => ({
   attackClips: entry.clips,
   deathSeqId: entry.deathSeqId,
 }));
+// An attack's parts too: a volley's orbs fly as its own, and a charged
+// volley holds, throws and lands its orbs (the manticore's).
+const attackAndParts = (attack) => [
+  attack,
+  ...(attack.volley ?? []),
+  ...Object.values(attack.chargedVolley?.orbs ?? {}).map((orb) => ({ flight: { spotAnimId: orb.spotAnimId }, targetGraphic: { spotAnimId: orb.impactSpotAnimId } })),
+];
 export const sandboxSpotAnimIds = [
   ...new Set(
     sandboxNpcCatalog.flatMap((entry) =>
       entry.attacks
+        .flatMap(attackAndParts)
         .flatMap((attack) => [
           attack.projectile?.spotAnimId,
           attack.flight?.spotAnimId,

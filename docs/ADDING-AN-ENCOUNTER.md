@@ -808,15 +808,14 @@ Every step adds files of your own; none edits a list.
    (`test/determinism-digests/<name>/`).
 4. The harness, the import graph check, `npm test`, `npm run build`, the
    route in a browser.
-5. The sandbox: `npm run sandbox:catalog` adds your monsters to its catalog
-   (`client/encounters/sandbox/discovered.js`); `node
-   test/test-sandbox-catalog.mjs` fights each, and `node
-   tools/determinism/harness.mjs --update --only sandbox/catalog/` records
-   their digests. A monster that is not one to place on its own goes to
-   `sandboxCatalogExclusions` in `client/encounters/sandbox/catalog.js`
-   with its reason; one that needs numbers of its own gets an entry in your
-   encounter's `sandbox.js`, gathered by that catalog (`docs/SANDBOX.md`,
-   "New encounters' monsters").
+5. The sandbox: `test/test-sandbox-catalog.mjs` fails until each monster
+   your encounter draws is in the sandbox's catalog, an entry in your
+   encounter's own `sandbox.js` (as `client/encounters/colosseum/sandbox.js`
+   writes them, gathered by `client/encounters/sandbox/catalog.js`), or left
+   out with its reason in `sandboxCatalogExclusions` there. The test fights
+   each entry; `node tools/determinism/harness.mjs --update --only
+   sandbox/catalog/` records their digests (`docs/SANDBOX.md`, "New
+   encounters' monsters").
 6. For a boss, its equipment and inventory setups, before it is pushed: the
    descriptor's `loadouts` (section 3), from the Equipment section of its
    wiki strategies page (`<boss>/Strategies`, as

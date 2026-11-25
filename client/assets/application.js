@@ -2,7 +2,7 @@ import { zebakSoundNames } from "/toa/zebak/sounds.js";
 import { nexusKind, doorAt } from "/toa/nexus.js";
 import { soundEffectResponse, soundEffectUrl } from "/audio/soundEffects.js";
 import { colosseumLobbyLabel, getLobbyFights } from "/encounters/colosseum/lobby.js";
-import { loadSandboxCode } from "/encounters/sandbox/menuImport.js";
+import { sandboxEntryKind } from "/encounters/sandbox/menuImport.js";
 import { attackRangesOptions, attackRangesDefaults, updateAttackRanges, listenForAttackRangesHotkey, describeHotkey } from "/plugins/attackRanges.js";
 import { projectileOverrideOptions, projectileOverrideDefaults, updateProjectileOverride } from "/plugins/projectileOverride.js";
 import { thrallSpells, THRALL_END_SOUND_ID } from "/engine/thralls.js";
@@ -16669,7 +16669,6 @@ var gpe = ({
   variantLabel: variantLabel,
   onVariantChange: onVariantChange,
   baseEncounterKind: baseEncounterKind,
-  offerScenarioCode: offerScenarioCode = false,
   modifiers: modifiers,
   modifierSelection: modifierSelection,
   onModifierSelectionChange: onModifierSelectionChange,
@@ -17066,7 +17065,6 @@ var gpe = ({
                     },
                     hD.CkFau(baseEncounterKind, encounterKind),
                   ),
-                  baseEncounterKind === "sandbox" && offerScenarioCode && (0, jsxRuntime.jsx)(SandboxCodeField, { onVariantChange: onVariantChange, onLoadoutChange: onLoadoutChange }),
                   hZ &&
                     (0, jsxRuntime.jsx)("section", {
                       className: "rail-section configurer-encounter-setup",
@@ -36516,15 +36514,26 @@ function Tbe({
                 }),
               ],
             }),
-            (0, jsxRuntime.jsx)("div", {
+            (0, jsxRuntime.jsxs)("div", {
               className: "victory-modal-actions",
-              children: (0, jsxRuntime.jsx)(cX, {
-                controls: replayPractice,
-                encounterSession: encounterSession,
-                onRestart: onRestart,
-                onReplay: h9 ? onEnterReplay : undefined,
-                onReturnToLobby: onReturnToLobby,
-              }),
+              children: [
+                (0, jsxRuntime.jsx)(cX, {
+                  controls: replayPractice,
+                  encounterSession: encounterSession,
+                  onRestart: onRestart,
+                  onReplay: h9 ? onEnterReplay : undefined,
+                  onReturnToLobby: onReturnToLobby,
+                }),
+                // The sandbox (its snapshot has "sandbox"): its editor opens
+                // over this screen (client/encounters/sandbox/editor.js listens).
+                simulationState.encounter?.sandbox &&
+                  (0, jsxRuntime.jsx)("button", {
+                    type: "button",
+                    className: "osrs-btn osrs-btn--default",
+                    onClick: () => window.dispatchEvent(new CustomEvent("sandbox-open-editor")),
+                    children: "Sandbox editor",
+                  }),
+              ],
             }),
           ],
         }),
@@ -40307,39 +40316,6 @@ function $we(h2, h3) {
     h4.length === Object.keys(h3).length && h4.every((h5) => h2[h5] === h3[h5])
   );
 }
-// The sandbox's setup window: paste a scenario's code, link or JSON
-// (client/encounters/sandbox/menuImport.js); the window switches to its arena.
-function SandboxCodeField({ onVariantChange, onLoadoutChange }) {
-  const [text, setText] = (0, React.useState)("");
-  const [message, setMessage] = (0, React.useState)(null);
-  const load = () => {
-    try {
-      const loaded = loadSandboxCode(text);
-      onVariantChange?.(loaded.encounterKind);
-      if (loaded.gear) onLoadoutChange?.(loaded.gear);
-      setMessage({ ok: true, text: 'Loaded "' + loaded.name + '" (' + loaded.arenaName + ", " + loaded.npcCount + " monsters). Start Encounter plays it." });
-    } catch (error) {
-      setMessage({ ok: false, text: error.message });
-    }
-  };
-  return (0, jsxRuntime.jsxs)("section", {
-    className: "rail-section sandbox-code-field",
-    "aria-label": "Load a scenario",
-    children: [
-      (0, jsxRuntime.jsx)("h3", { className: "section-label", children: "Load a scenario" }),
-      (0, jsxRuntime.jsx)("textarea", {
-        value: text,
-        rows: 3,
-        placeholder: "Paste a code (OSB1...), a link or JSON",
-        onChange: (event) => setText(event.target.value),
-        onKeyDown: (event) => event.stopPropagation(),
-        style: { width: "100%", boxSizing: "border-box", resize: "vertical", font: "inherit", color: "inherit", background: "var(--color-surface-inset, #14100c)", border: "1px solid var(--color-border, #5d5245)", borderRadius: 3, padding: "4px 6px" },
-      }),
-      (0, jsxRuntime.jsx)("button", { type: "button", className: "osrs-btn osrs-btn--default", disabled: text.trim() === "", onClick: load, style: { marginTop: 6 }, children: "Load scenario" }),
-      message && (0, jsxRuntime.jsx)("p", { role: "status", style: { margin: "6px 0 0", fontSize: 12, color: message.ok ? "var(--color-success, #5fd35f)" : "var(--color-error, #ff5a4f)" }, children: message.text }),
-    ],
-  });
-}
 function _we(h2) {
   return xle(h2, cE.getDescriptorOfKindOrVariant(h2)?.variants);
 }
@@ -41157,6 +41133,15 @@ function qwe({
       (iq, ir, is, it) => {
         const iu = ak(iq);
         const iv = iu?.kind ?? iq;
+        // The sandbox has no setup window from the menus: its arena is
+        // entered with its editor open at its start screen
+        // (encounters/sandbox/menuImport.js; the "sandbox-request" listener
+        // below enters it).
+        if (iv === "sandbox") {
+          const encounterKind = sandboxEntryKind();
+          window.dispatchEvent(new CustomEvent("sandbox-request", { detail: { type: "enter", payload: { encounterKind }, accept() {}, resolve() {}, reject() {} } }));
+          return;
+        }
         ia(iv, {
           ...iu?.mechanics,
           ...it,
@@ -53682,8 +53667,6 @@ function eCe({ devHarness: devHarness } = {}) {
               encounterKind: selectedLobbyEncounter.encounterKind,
               displayName: selectedLobbyEncounter.displayName,
               description: selectedLobbyEncounter.description,
-              // The sandbox's "Load a scenario" field: offered by the lobby's gateway only.
-              offerScenarioCode: selectedLobbyEncounter.offerScenarioCode === true,
               isAvailable: cE.isRegistered(sR) && (sT?.available ?? true),
               isWorkInProgress: sQ?.isWorkInProgress ?? false,
               playerConfig: hm,
@@ -53786,7 +53769,8 @@ function eCe({ devHarness: devHarness } = {}) {
           isOpen: hz,
           onClose: r8,
           onEnter: (sP) => {
-            s9(sP);
+            // The sandbox: the arena of the player's scenario, the editor at its start screen.
+            s9(sP === "sandbox" ? sandboxEntryKind() : sP);
             hA(false);
           },
           onConfigure: (sP, sQ, sR) => {

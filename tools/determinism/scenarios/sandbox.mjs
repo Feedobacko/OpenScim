@@ -9,7 +9,7 @@ const shootNearest = (accept) => (tick, api) => {
   const npc = nearestNpc(api, accept);
   if (npc) attack(api, npc.id);
 };
-const allies = new Set(["sol", "vardorvis"]);
+const allies = new Set(["jaguar-west", "jaguar-east", "minotaur"]);
 
 const versus = {
   format: "openscim-sandbox",
@@ -54,23 +54,34 @@ export async function scenarios() {
       script: shootNearest(),
     },
     {
-      // Two teams of bosses, the player left out: they fight until one team is left.
+      // Two teams, the player left out: they fight until one team is left.
       name: "sandbox/ffa-spectator",
       kind: sandboxVariantKind("colosseum"),
       seed: 5,
       ticks: 2500,
-      options: { scenario: example("clash-of-titans") },
+      options: { scenario: example("inferno-vs-colosseum") },
     },
     {
-      // Teams: Sol Heredit and Vardorvis on the player's side against three bosses; the player helps.
+      // Teams: two jaguars and a minotaur on the player's side against an Inferno wave; the player helps.
       name: "sandbox/ffa-allies",
-      kind: sandboxVariantKind("colosseum"),
+      kind: sandboxVariantKind("inferno"),
       seed: 9,
       ticks: 2500,
       mechanics: { infiniteHealth: true },
-      options: { scenario: example("champions-stand") },
+      options: { scenario: example("bodyguards") },
       ...rangedGear,
       script: shootNearest((npc) => !allies.has(npc.id)),
+    },
+    {
+      // Walls of boulders: the monsters walk around them, and the player shoots past them.
+      name: "sandbox/obstacles",
+      kind: sandboxVariantKind("colosseum"),
+      seed: 13,
+      ticks: 300,
+      mechanics: { infiniteHealth: true },
+      options: { scenario: example("boulder-maze") },
+      ...rangedGear,
+      script: shootNearest(),
     },
     // Each arena's boss as the host, with two of the sandbox's NPCs beside it;
     // the player shoots whatever is nearest.
@@ -84,7 +95,7 @@ export async function scenarios() {
       ...rangedGear,
       script: shootNearest(),
     })),
-    // Each monster of the catalog, curated or discovered (tools/sandbox-catalog.mjs),
+    // Each monster of the catalog (each encounter's sandbox.js),
     // alone against the player: a new one needs its digests recorded.
     ...sandboxNpcCatalog.map((entry) => ({
       name: `sandbox/catalog/${entry.id}`,

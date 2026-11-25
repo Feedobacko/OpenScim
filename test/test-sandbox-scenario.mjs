@@ -12,16 +12,20 @@ const { sandboxArenas } = await import("../client/encounters/sandbox/arenas.js")
 
 const { normalizeScenario, encodeShareCode, decodeShareCode, importScenarioText, scenarioToJson, ScenarioError } = scenario;
 
-// Twenty examples, every one valid, in more than one arena and both modes; one has two Sol Heredits.
+// Twenty examples, every one valid, in more than one arena: ten against the
+// player and ten free-for-alls (the editor shows those of the mode chosen).
 assert.equal(sandboxExamples.length, 20);
 assert.equal(new Set(sandboxExamples.map((entry) => entry.key)).size, 20);
 assert.ok(new Set(sandboxExamples.map((entry) => entry.scenario.arena)).size >= 6);
-assert.deepEqual(new Set(sandboxExamples.map((entry) => entry.scenario.mode)), new Set(["versus", "ffa"]));
-// Two Suns: the real Sol Heredit (the arena's host, bossMechanics) and a second one of the sandbox's.
-const twoSuns = sandboxExamples.find((entry) => entry.key === "two-suns").scenario;
-assert.equal(twoSuns.arena, "sol_heredit");
-assert.equal(twoSuns.options.bossMechanics, true);
-assert.equal(twoSuns.npcs.filter((npc) => npc.npc === "sol_heredit").length, 1);
+assert.equal(sandboxExamples.filter((entry) => entry.scenario.mode === "versus").length, 10);
+assert.equal(sandboxExamples.filter((entry) => entry.scenario.mode === "ffa").length, 10);
+// Few Sol Heredits and Yamas (their hitpoints make long fights); some with
+// boulders, some with the arena's own boss, some with teams.
+const using = (id) => sandboxExamples.filter((entry) => entry.scenario.npcs.some((npc) => npc.npc === id)).length;
+assert.ok(using("sol_heredit") <= 2 && using("yama") <= 2);
+assert.ok(sandboxExamples.filter((entry) => entry.scenario.obstacles).length >= 4);
+assert.ok(sandboxExamples.filter((entry) => entry.scenario.options.bossMechanics).length >= 3);
+assert.ok(sandboxExamples.filter((entry) => entry.scenario.npcs.some((npc) => npc.team)).length >= 5);
 for (const { scenario: example } of sandboxExamples) assert.deepEqual(normalizeScenario(example), example);
 
 // A share code, a link that carries one, and the JSON all read back the same scenario.
@@ -39,7 +43,7 @@ assert.equal(minimal.format, "openscim-sandbox");
 assert.equal(minimal.version, 1);
 assert.equal(minimal.mode, "versus");
 assert.equal(minimal.meta.name, "Untitled");
-assert.deepEqual(minimal.options, { playerStart: null, ffaIncludesPlayer: true, bossMechanics: false });
+assert.deepEqual(minimal.options, { playerStart: null, ffaIncludesPlayer: true, bossMechanics: false, countdownTicks: 3 });
 assert.deepEqual(minimal.npcs, [{ id: "npc-1", npc: "inferno.bat", position: [30, 30], team: "red", levels: { magic: 99 } }]);
 
 // Refused, each with a message.
@@ -51,6 +55,14 @@ refuses({ arena: "yama", format: "other" }, /Not a sandbox scenario/);
 refuses({ arena: "yama", npcs: [{ npc: "nobody", position: [1, 1] }] }, /unknown NPC/);
 refuses({ arena: "yama", npcs: [{ npc: "inferno.bat", position: [1] }] }, /position/);
 refuses({ arena: "yama", npcs: Array.from({ length: 41 }, () => ({ npc: "inferno.bat", position: [1, 1] })) }, /At most 40/);
+refuses({ arena: "yama", obstacles: Array.from({ length: 61 }, () => [1, 1]) }, /At most 60/);
+refuses({ arena: "yama", obstacles: [[1]] }, /Obstacle 1/);
+// The countdown: 3 ticks unless said, 0 to 10.
+assert.equal(normalizeScenario({ arena: "yama", options: { countdownTicks: 7 } }).options.countdownTicks, 7);
+assert.equal(normalizeScenario({ arena: "yama", options: { countdownTicks: 99 } }).options.countdownTicks, 3);
+assert.deepEqual(normalizeScenario({ arena: "yama", obstacles: [[30, 30]] }).obstacles, [[30, 30]]);
+// A low obstacle keeps its kind; any other third value is a boulder.
+assert.deepEqual(normalizeScenario({ arena: "yama", obstacles: [[30, 30, "low"], [31, 30, "tall"]] }).obstacles, [[30, 30, "low"], [31, 30]]);
 assert.throws(() => decodeShareCode("OSB1.!!!"), ScenarioError);
 assert.throws(() => decodeShareCode("OSB1.AAAA"), ScenarioError);
 assert.throws(() => importScenarioText("{ not json"), /Not valid JSON/);
