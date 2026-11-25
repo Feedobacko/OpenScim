@@ -29,6 +29,10 @@ import { infernoMapSquare, infernoMapSquareOffsets, infernoPlayerStart, infernoE
 import { vardorvisMapSquare } from "../vardorvis/encounter.js";
 import { arenaSeed as dukeArenaSeed, dukeMapSquare, dukeRoomArena, playerStart as dukePlayerStart } from "../duke-sucellus/encounter.js";
 import { leviathanFloorArena, leviathanMapSquare, playerStart as leviathanPlayerStart } from "../leviathan/encounter.js";
+import { araxxorMapSquare, araxxorMapSquareOffsets, playerStart as araxxorPlayerStart } from "../araxxor/encounter.js";
+import { maggotKingMapSquare } from "../maggot-king/encounter.js";
+import { playerStart as maggotKingPlayerStart } from "../maggot-king/ids.js";
+import { hunllefFloorArena, mapSquare as hunllefMapSquare, playerStart as hunllefPlayerStart } from "../corrupted-hunllef/encounter.js";
 
 export const sandboxKind = "sandbox";
 export const sandboxVariantKind = (arenaId) => (arenaId === sandboxArenas[0].id ? sandboxKind : `${sandboxKind}_${arenaId}`);
@@ -138,6 +142,38 @@ export const sandboxArenas = [
     arenaConfig: leviathanFloorArena,
     locRender: { bounds: null, levels: [0, 1] },
     camera: { yaw: 270, pitch: -45, zoom: 330 }, // leviathan/presentation.js (defaultCamera)
+  },
+  {
+    id: "araxxor",
+    hostKind: "araxxor",
+    name: "Araxxor's lair",
+    mapSquare: araxxorMapSquare,
+    mapSquareOffsets: araxxorMapSquareOffsets,
+    playerStart: [...araxxorPlayerStart], // araxxor/encounter.js
+    collision: { mode: "auto", seed: [...araxxorPlayerStart] }, // as araxxor/encounter.js seeds it
+    locRender: { bounds: null, levels: [0, 1] },
+    camera: { yaw: 90, pitch: -70, zoom: 330 }, // araxxor/presentation.js (defaultCamera)
+  },
+  {
+    id: "maggot_king",
+    hostKind: "maggot_king",
+    name: "The Maggot King's lair",
+    mapSquare: maggotKingMapSquare,
+    playerStart: [...maggotKingPlayerStart], // maggot-king/ids.js
+    collision: { mode: "auto", seed: [...maggotKingPlayerStart] }, // as maggot-king/encounter.js seeds it
+    locRender: { bounds: null, levels: [0, 1] },
+    camera: { yaw: 0, pitch: -40, zoom: 380 }, // maggot-king/presentation.js (defaultCamera)
+  },
+  {
+    id: "corrupted_hunllef",
+    hostKind: "corrupted_hunllef",
+    name: "The Corrupted Hunllef's room",
+    mapSquare: hunllefMapSquare,
+    playerStart: [...hunllefPlayerStart], // corrupted-hunllef/encounter.js
+    collision: { mode: "custom" }, // corrupted-hunllef/encounter.js: its 12 x 12 floor
+    arenaConfig: hunllefFloorArena,
+    locRender: { bounds: null, levels: [0, 1, 2, 3] }, // corrupted-hunllef/presentation.js
+    camera: { yaw: 180, pitch: -55, zoom: 260 }, // corrupted-hunllef/presentation.js (defaultCamera)
   },
   {
     id: "toa_nexus",

@@ -68,7 +68,7 @@ export const curatedNpcCatalog = [
 // catalog does not hold: a new encounter gives its monsters entries in its
 // own sandbox.js, or reasons here.
 export const sandboxCatalogExclusions = {
-  9035: "the Corrupted Hunllef, the form that turns melee away: its three types are its protection prayers, and its style switch, tornadoes and floor are its room's: it is fought in its own room",
+  9035: "the Corrupted Hunllef, the form that turns melee away: its three types are its protection prayers, and its style switch, tornadoes and floor are its room's: it is fought as the host of its room (arenas.js)",
   9036: "the Corrupted Hunllef, the form that turns ranged away: as above",
   9037: "the Corrupted Hunllef, the form that turns magic away: as above",
   11730: "Zebak is a head and a tail of nine tiles with mechanics of his own: he is fought as the host of his room",
@@ -77,11 +77,11 @@ export const sandboxCatalogExclusions = {
   12191: "Duke Sucellus never leaves his seat and has no walk: he is fought in his own asylum",
   12214: "the Leviathan never leaves its pool and has no walk: it is fought in its own arena",
   12825: "the healing totem of a Colosseum modifier: it heals and never moves",
-  13668: "Araxxor is 7 x 7 and cannot reach the player in the sandbox's arenas; his eggs, specials and enrage are his lair's",
+  13668: "Araxxor is 7 x 7 and cannot reach the player in the sandbox's arenas; his eggs, specials and enrage are his lair's: he is fought as the host of his lair (arenas.js)",
   13671: "the Mirrorback Araxyte takes a share of what Araxxor is dealt and throws it back: alone it has nothing to share",
   13673: "the Ruptura Araxyte never attacks: it walks up to the player and explodes",
   14709: "the Doom of Mokhaiotl burrowed: the Doom himself under the floor, between his shield and his surfacing",
-  15742: "the Maggot King fights from behind a row of bones, and most of his attacks are his floor's (bile, carrion, slams): he is fought in his own lair",
+  15742: "the Maggot King fights from behind a row of bones, and most of his attacks are his floor's (bile, carrion, slams): he is fought as the host of his lair (arenas.js)",
   15743: "the Ur-maggot larvae have no attack of their own: they fly in from the King's screeches and leech a player under them",
 };
 
