@@ -9,8 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node tools/run-tests.mjs",
-    "assets": "node tools/fetch-assets.mjs",
-    "sandbox:catalog": "node tools/sandbox-catalog.mjs --write"
+    "assets": "node tools/fetch-assets.mjs"
   },
   "devDependencies": {
     "@babel/parser": "^8.1.3",

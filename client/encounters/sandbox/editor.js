@@ -1,18 +1,30 @@
-// The sandbox's editor: a panel over the page, in three steps.
-//   1 Arena      the scenario's name and mode, the examples and the saved
-//                scenarios, and the arena. Another arena is another route
-//                (/sandbox/<arena>): the page goes there and the editor
-//                opens again at step 2.
-//   2 Monsters   a map of the arena's walkable tiles. Monsters are dragged
-//                from the list onto their starting tiles, moved by dragging
-//                them, and edited below the map; the player's starting tile
-//                is the "P" marker, dragged the same way.
-//   3 Save & share   save in this browser, export and import a file, copy a
-//                share code or a link.
-// "Gear" opens the application's setup window for the arena (loadout and
-// presets). "Apply & restart" applies the scenario: the run restarts with it, and, as
-// every run of the sandbox, waits for "Start encounter" (clock.js); the same
-// button pauses and resumes it.
+// The sandbox's editor: the one place to build and play a scenario, a panel
+// over the page: a start screen and three steps.
+//   Start        the one box that loads a code, a link, JSON or a file; go on
+//                with the scenario, a new one, or the examples. The menus
+//                and the lobby's gateway open the editor here
+//                (menuImport.js, sandboxEntryKind).
+//   1 Arena      the scenario's name and mode, the examples, the library
+//                (scenarios/) and the saved scenarios, and the arena.
+//                Another arena is another route (/sandbox/<arena>): the
+//                application enters it (bridge.js) and the editor opens
+//                again at step 2.
+//   2 Monsters   a map of the arena's walkable tiles. Monsters and boulders
+//                (obstacles.js) are dragged from the list onto the map and
+//                moved by dragging them; a monster is edited below the map.
+//                In a free-for-all each monster shows its team's number, and
+//                a right click gives it the next team; a right click on a
+//                boulder takes it away. The player's starting tile is the "P"
+//                marker, dragged the same way.
+//   3 Gear & share   the scenario's gear (chosen in the application's setup
+//                window), save in this browser, export a file, copy a share
+//                code or a link.
+// The top bar holds "Start encounter" (which then pauses and resumes the
+// run: clock.js) and the editor's toggle. "Apply & restart", the editor's
+// one primary action, applies the scenario: the run restarts with it and,
+// as every run of the sandbox, waits for "Start encounter". When a run
+// ends, the top bar says how: who won a free-for-all; the victory screen
+// has a "Sandbox editor" button that opens the panel over it.
 //
 // Every change is applied to the active scenario (activeScenario.js) at
 // once, so that a reload keeps it; the fight on screen changes only when it
@@ -20,26 +32,39 @@
 // panel is plain elements of the page, not one of the application's panels.
 import { getRegisteredArenaConfig } from "../../engine/arena.js";
 import { getActiveScenario, setActiveScenario, takeAgreedLinkGear } from "./activeScenario.js";
-import { getSandboxArena, getSandboxArenaOfKind, sandboxArenas, sandboxKind } from "./arenas.js";
+import { getSandboxArena, getSandboxArenaOfKind, sandboxArenas, sandboxKind, sandboxVariantKind } from "./arenas.js";
 import { getSandboxNpcEntry, sandboxNpcCatalog } from "./catalog.js";
 import { sandboxExamples } from "./examples.js";
+import { libraryScenarios } from "./scenarios/index.js";
+import { requestApp } from "./bridge.js";
+import { editorReopenKey as reopenKey } from "./menuImport.js";
 import {
   createEmptyScenario,
   encodeShareCode,
   importScenarioText,
   maxScenarioNpcs,
+  maxScenarioObstacles,
   normalizeScenario,
+  obstacleSize,
   playerTeam,
   scenarioToJson,
 } from "./scenario.js";
+import { obstacleTiles } from "./obstacles.js";
 import { deleteSavedScenario, listSavedScenarios, saveScenario } from "./storage.js";
 import { sandboxClock, startSandbox, toggleSandboxPause } from "./clock.js";
 import { isHostedVisit } from "./visit.js";
 
-const reopenKey = "openscim.sandbox.editorStep";
 const style = `
-.sbx-hud { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 40; display: flex; gap: 6px; }
+.sbx-hud { position: fixed; top: 8px; right: 232px; z-index: 40; display: flex; gap: 6px; }
+.sbx-countdown { position: fixed; top: 32%; left: 50%; transform: translate(-50%, -50%); z-index: 39; pointer-events: none;
+  font: 64px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f); text-shadow: 2px 2px 0 #000, 0 0 12px rgb(0 0 0 / 0.8); }
+.sbx-countdown[hidden] { display: none; }
+.sbx-front .sbx-hud, .sbx-front .sbx-panel { z-index: 100001; }
+.sbx-start-lead { margin: 10px 0 4px; font-size: 13px; }
 .sbx-hud .sbx-start { box-shadow: 0 0 0 2px var(--color-primary, #ff981f); }
+.sbx-result { align-self: center; padding: 3px 8px; font: 13px "RuneScape Bold 12", sans-serif; color: var(--color-heading, #ff981f);
+  background: var(--color-bg-solid, #1e1812); border: 1px solid var(--color-primary, #ff981f); border-radius: 3px; }
+.sbx-result[hidden] { display: none; }
 .sbx-panel { position: fixed; top: 48px; right: 12px; z-index: 40; width: min(440px, calc(100vw - 24px)); max-height: calc(100vh - 64px);
   display: flex; flex-direction: column; color: var(--color-text-body, #e6dcc8); background: var(--color-bg-solid, #1e1812);
   border: 1px solid var(--modal-card-border, var(--color-border, #5d5245)); border-radius: var(--modal-radius, 6px);
@@ -163,15 +188,26 @@ function loadDraft(scenario, savedId = null) {
   setStatus(`Loaded "${ui.draft.meta.name}". Press Apply & restart to load it.`);
 }
 
-// Another arena is another route: the page goes there, the editor reopens.
-function goToArena(arenaId, step) {
-  ui.draft = setActiveScenario({ ...ui.draft, arena: arenaId });
+// The step the editor opens at when it is made again: after the application
+// enters another arena (or the same one, for the other scene), and after a
+// page load (presentation.js reloads when a run wants the other scene).
+function reopenAt(step) {
   try {
     globalThis.sessionStorage?.setItem(reopenKey, String(step));
   } catch {
-    // The editor simply opens at step 1 on the other side.
+    // The editor simply opens at step 1.
   }
-  globalThis.location.assign(`/${sandboxKind}/${arenaId.replace(/_/g, "-")}`);
+}
+
+// Another arena is another route, which the application enters (bridge.js)
+// without loading the page again; the editor reopens there.
+function goToArena(arenaId, step) {
+  ui.draft = setActiveScenario({ ...ui.draft, arena: arenaId });
+  reopenAt(step);
+  requestApp("enter", { encounterKind: sandboxVariantKind(arenaId) }).catch(() =>
+    // An application that cannot take it: the route, by a page load.
+    globalThis.location.assign(`/${sandboxKind}/${arenaId.replace(/_/g, "-")}`),
+  );
 }
 
 // The application's own restart ("Restart Simulation", Ctrl+R, or the
@@ -187,39 +223,31 @@ function restartFight() {
 }
 
 // The scenario's gear goes to the application's loadout of the sandbox
-// (assets/application.js listens); with `encounterKind` the application then
-// enters that kind with it, which restarts the run.
+// (bridge.js); the application then enters the arena with it, which
+// restarts the run, and the promise settles once it has.
 const loadoutOf = (gear) => ({ equipment: gear.equipment, inventory: gear.inventory, supplies: gear.supplies });
-function applyGear(gear, encounterKind) {
-  globalThis.dispatchEvent(new CustomEvent("sandbox-apply-loadout", { detail: { loadout: loadoutOf(gear), encounterKind } }));
-}
-function readCurrentGear() {
-  let loadout = null;
-  globalThis.dispatchEvent(new CustomEvent("sandbox-get-loadout", { detail: { reply: (value) => (loadout = value) } }));
-  return loadout;
-}
+const applyGear = (gear, encounterKind) => requestApp("apply-loadout", { loadout: loadoutOf(gear), encounterKind });
 
-function play() {
+async function play() {
   ui.draft = setActiveScenario(ui.draft);
   if (!isDraftInThisArena()) {
     goToArena(ui.draft.arena, 2);
     return;
   }
-  // The boss's scene or the sandbox's is chosen as a visit starts (presentation.js).
-  if (isHostedVisit(ui.arena) !== ui.hostedVisit) {
-    try {
-      globalThis.sessionStorage?.setItem(reopenKey, "2");
-    } catch {
-      // The editor opens at step 1 instead.
-    }
-    if (ui.draft.gear) applyGear(ui.draft.gear);
-    // The loadout is kept by the application before the page goes.
-    setTimeout(() => globalThis.location.reload(), ui.draft.gear ? 300 : 0);
-    return;
+  // The boss's scene or the sandbox's is chosen as a visit starts
+  // (presentation.js): entering the arena again starts one. The scene on
+  // screen is the running scenario's (visit.js); the draft says the next.
+  const sceneChanges = Boolean(ui.arena.hostKind && ui.draft.options.bossMechanics) !== ui.hostedVisit;
+  // Entering the arena makes the editor again: it reopens where it was.
+  if (sceneChanges || ui.draft.gear) reopenAt(ui.step);
+  try {
+    if (ui.draft.gear) await applyGear(ui.draft.gear, ui.kind);
+    else if (sceneChanges) await requestApp("enter", { encounterKind: ui.kind });
+    else restartFight();
+    setStatus("Restarted with the scenario. Press Start encounter.");
+  } catch (error) {
+    setStatus(error.message, true);
   }
-  setStatus("Restarted with the scenario. Press Start encounter.");
-  if (ui.draft.gear) applyGear(ui.draft.gear, ui.kind);
-  else restartFight();
 }
 
 // --- the map -----------------------------------------------------------------
@@ -260,9 +288,20 @@ const footprintTiles = ([x, y], size) => Array.from({ length: size * size }, (_,
 const covers = (position, size, [x, y]) => x >= position[0] && x < position[0] + size && y >= position[1] && y < position[1] + size;
 
 // Can a footprint (or the player, size 1) stand there: walkable, and on no one else.
+const obstacleId = (index) => `rock:${index}`;
+function obstacleAt(tile) {
+  const obstacles = ui.draft.obstacles ?? [];
+  for (let index = obstacles.length - 1; index >= 0; index--) if (covers(obstacles[index], obstacleSize, tile)) return index;
+  return -1;
+}
 function canPlace(position, size, ignoreId) {
   const tiles = footprintTiles(position, size);
   if (!tiles.every(([x, y]) => isWalkable(x, y))) return false;
+  const obstacles = ui.draft.obstacles ?? [];
+  for (let index = 0; index < obstacles.length; index++) {
+    if (obstacleId(index) === ignoreId) continue;
+    if (tiles.some((tile) => covers(obstacles[index], obstacleSize, tile))) return false;
+  }
   for (const npc of ui.draft.npcs) {
     if (npc.id === ignoreId) continue;
     const otherSize = getSandboxNpcEntry(npc.npc).size;
@@ -279,7 +318,20 @@ function npcAt(tile) {
   }
   return null;
 }
-const npcColour = (npc) => colourOf(ui.draft.mode === "ffa" ? npc.team ?? npc.id : getSandboxNpcEntry(npc.npc).group);
+// The teams a right click goes through in a free-for-all: none (each for
+// itself), 1 to 4, and the player's side.
+const teamCycle = [undefined, "1", "2", "3", "4", playerTeam];
+const teamColours = { 1: "#e0533d", 2: "#3d8fe0", 3: "#5fc45f", 4: "#e0b83d", [playerTeam]: "#2ec4ff" };
+const teamLabel = (team) => (team === playerTeam ? "A" : team === undefined ? "" : String(team).slice(0, 2));
+const npcColour = (npc) =>
+  ui.draft.mode === "ffa" ? teamColours[npc.team] ?? colourOf(npc.team ?? npc.id) : colourOf(getSandboxNpcEntry(npc.npc).group);
+function cycleTeam(npc) {
+  const next = teamCycle[(teamCycle.indexOf(npc.team) + 1) % teamCycle.length];
+  if (next === undefined) delete npc.team;
+  else npc.team = next;
+  setStatus(`${getSandboxNpcEntry(npc.npc).name}: ${next === undefined ? "no team (fights everyone)" : next === playerTeam ? "on your side" : `team ${next}`}.`);
+  commit();
+}
 
 function cssColour(name, fallback) {
   const value = getComputedStyle(ui.panel).getPropertyValue(name).trim();
@@ -309,6 +361,16 @@ function drawMap() {
   const font = Math.max(9, Math.round(size * 0.7));
   g.textAlign = "center";
   g.textBaseline = "middle";
+  (ui.draft.obstacles ?? []).forEach((position, index) => {
+    if (ui.drag?.id === obstacleId(index) && ui.drag.moved) return;
+    const [px, py] = toPixel(position[0], position[1] + obstacleSize - 1);
+    // A boulder grey, a low obstacle (a jug) the colour of clay.
+    g.fillStyle = position[2] === "low" ? "#b07a48" : "#6b6157";
+    g.fillRect(px + 1, py + 1, obstacleSize * size - 2, obstacleSize * size - 2);
+    g.strokeStyle = "#2a241e";
+    g.lineWidth = 1.5 * ratio;
+    g.strokeRect(px + 1, py + 1, obstacleSize * size - 2, obstacleSize * size - 2);
+  });
   for (const npc of ui.draft.npcs) {
     if (ui.drag?.id === npc.id && ui.drag.moved) continue;
     const entry = getSandboxNpcEntry(npc.npc);
@@ -322,6 +384,20 @@ function drawMap() {
     g.fillStyle = "#ffffff";
     g.font = `${font}px "RuneScape Bold 12", sans-serif`;
     g.fillText(abbreviation(entry.name), px + (entry.size * size) / 2, py + (entry.size * size) / 2);
+    // Its team, in a free-for-all: a number in the corner (A: the player's side).
+    const label = ui.draft.mode === "ffa" ? teamLabel(npc.team) : "";
+    if (label) {
+      const badgeFont = Math.round(font * 1.4);
+      const badge = Math.round(badgeFont * 1.3);
+      g.fillStyle = "#000000dd";
+      g.fillRect(px - badge / 3, py - badge / 3, badge, badge);
+      g.strokeStyle = teamColours[npc.team] ?? "#ffffff";
+      g.lineWidth = 1.5 * ratio;
+      g.strokeRect(px - badge / 3, py - badge / 3, badge, badge);
+      g.fillStyle = teamColours[npc.team] ?? "#ffffff";
+      g.font = `${badgeFont}px "RuneScape Bold 12", sans-serif`;
+      g.fillText(label, px - badge / 3 + badge / 2, py - badge / 3 + badge / 2);
+    }
   }
   if (!(ui.drag?.id === playerTeam && ui.drag.moved)) {
     const [px, py] = toPixel(...playerStartOf(ui.draft));
@@ -384,6 +460,18 @@ function drop(drag, position) {
   if (drag.id === playerTeam) {
     ui.draft.options = { ...ui.draft.options, playerStart: position };
     setStatus(`Player starts at ${position.join(", ")}.`);
+  } else if (drag.id?.startsWith("rock:")) {
+    const index = Number(drag.id.slice(5));
+    ui.draft.obstacles[index] = [...position, ...ui.draft.obstacles[index].slice(2)];
+  } else if (drag.obstacle) {
+    const obstacles = ui.draft.obstacles ?? [];
+    if (obstacles.length >= maxScenarioObstacles) {
+      setStatus(`At most ${maxScenarioObstacles} boulders.`, true);
+      drawMap();
+      return;
+    }
+    ui.draft.obstacles = [...obstacles, drag.low ? [...position, "low"] : position];
+    setStatus(`Placed ${drag.low ? "a jug" : "a boulder"}. Right-click it to take it away.`);
   } else if (drag.id) {
     draftNpc(drag.id).position = position;
     ui.selectedId = drag.id;
@@ -405,7 +493,32 @@ function drop(drag, position) {
   commit();
 }
 
+// A right click: the next team for a monster (free-for-all), or a boulder away.
+function onMapContextMenu(event) {
+  event.preventDefault();
+  const tile = tileAtPointer(event);
+  if (!tile) return;
+  const npc = npcAt(tile);
+  if (npc) {
+    if (ui.draft.mode !== "ffa") {
+      setStatus("Teams count in Free for all (step 1).", true);
+      return;
+    }
+    cycleTeam(npc);
+    return;
+  }
+  const rock = obstacleAt(tile);
+  if (rock >= 0) {
+    ui.draft.obstacles = ui.draft.obstacles.filter((_, index) => index !== rock);
+    if (ui.draft.obstacles.length === 0) delete ui.draft.obstacles;
+    setStatus("Took it away.");
+    commit();
+  }
+}
+
 function onMapPointerDown(event) {
+  // The right button is the context menu's (onMapContextMenu).
+  if (event.button === 2) return;
   const tile = tileAtPointer(event);
   if (!tile) return;
   const start = playerStartOf(ui.draft);
@@ -414,6 +527,12 @@ function onMapPointerDown(event) {
     return;
   }
   const npc = npcAt(tile);
+  const rock = npc ? -1 : obstacleAt(tile);
+  if (rock >= 0) {
+    const position = ui.draft.obstacles[rock];
+    startDrag(event, { id: obstacleId(rock), size: obstacleSize, offset: [tile[0] - position[0], tile[1] - position[1]], label: "Boulder" });
+    return;
+  }
   if (!npc) {
     if (ui.selectedId) {
       ui.selectedId = null;
@@ -479,13 +598,26 @@ function stepArena() {
     nodes.push(el("p", { class: "sbx-note", text: "The boss starts where its own fight puts it, with its own attacks, phases and hazards; your monsters fight beside it. The run is won when both are beaten." }));
   }
 
-  nodes.push(el("h3", { text: "Examples" }));
-  nodes.push(el("div", { class: "sbx-grid" }, sandboxExamples.map(({ scenario }) =>
+  // The examples of the mode chosen above.
+  const shown = sandboxExamples.filter(({ scenario }) => scenario.mode === draft.mode);
+  nodes.push(el("h3", { text: `Examples · ${draft.mode === "ffa" ? "Free for all" : "All against you"} (${shown.length})` }));
+  nodes.push(el("div", { class: "sbx-grid" }, shown.map(({ scenario }) =>
     el("button", { class: "sbx-card", type: "button", title: scenario.meta.description, onclick: () => loadDraft(scenario) }, [
       el("b", { text: scenario.meta.name }),
-      el("small", { text: `${getSandboxArena(scenario.arena).name} · ${scenario.mode === "ffa" ? "FFA" : "Versus"} · ${scenario.npcs.length}` }),
+      el("small", { text: `${getSandboxArena(scenario.arena).name} · ${scenario.npcs.length} monsters${scenario.obstacles ? ` · ${scenario.obstacles.length} rocks` : ""}` }),
     ]),
   )));
+
+  if (libraryScenarios.length > 0) {
+    nodes.push(el("h3", { text: "Library" }));
+    nodes.push(el("p", { class: "sbx-note", text: "Scenarios players added to OpenScim (client/encounters/sandbox/scenarios/)." }));
+    nodes.push(el("div", { class: "sbx-grid" }, libraryScenarios.map(({ scenario }) =>
+      el("button", { class: "sbx-card", type: "button", title: scenario.meta.description, onclick: () => loadDraft(scenario) }, [
+        el("b", { text: scenario.meta.name }),
+        el("small", { text: `${scenario.meta.author ? `by ${scenario.meta.author} · ` : ""}${getSandboxArena(scenario.arena).name} · ${scenario.npcs.length}` }),
+      ]),
+    )));
+  }
 
   const saved = listSavedScenarios();
   nodes.push(el("h3", { text: "Saved in this browser" }));
@@ -508,8 +640,10 @@ function stepMonsters() {
     nodes.push(button(`Go to ${getSandboxArena(draft.arena).name}`, () => goToArena(draft.arena, 2)));
     return nodes;
   }
-  nodes.push(el("p", { class: "sbx-note", text: "Drag a monster or the player (P) onto its starting tile. Drag on the map to move; click to edit." }));
-  ui.canvas = el("canvas", { class: "sbx-map", onpointerdown: onMapPointerDown });
+  nodes.push(el("p", { class: "sbx-note", text: draft.mode === "ffa"
+    ? "Drag a monster, a rock or the player (P) onto the map; drag to move, click to edit. Right-click a monster for its next team (the number; A is your side), a rock to take it away."
+    : "Drag a monster, a rock or the player (P) onto the map; drag to move, click to edit. Right-click a rock to take it away." }));
+  ui.canvas = el("canvas", { class: "sbx-map", onpointerdown: onMapPointerDown, oncontextmenu: onMapContextMenu });
   nodes.push(el("div", { class: "sbx-map-wrap" }, ui.canvas));
   if (!ui.tiles) nodes.push(el("p", { class: "sbx-note", text: "The arena's tiles are still loading; every tile is shown as open." }));
 
@@ -517,7 +651,15 @@ function stepMonsters() {
   const chips = [el("div", {
     class: "sbx-chip sbx-chip--player",
     onpointerdown: (event) => startDrag(event, { id: playerTeam, size: 1, offset: [0, 0], label: "Player start" }),
-  }, [el("i"), "Player start"])];
+  }, [el("i"), "Player start"]),
+  el("div", {
+    class: "sbx-chip", title: "A boulder: blocks the way and the line of sight. Several make a wall.",
+    onpointerdown: (event) => startDrag(event, { id: null, obstacle: true, size: obstacleSize, offset: [0, 0], label: "Boulder" }),
+  }, [el("i", { style: "background: #6b6157" }), "Boulder (obstacle)"]),
+  el("div", {
+    class: "sbx-chip", title: "A jug: blocks the way, but attacks from afar pass over it, as over a table.",
+    onpointerdown: (event) => startDrag(event, { id: null, obstacle: true, low: true, size: obstacleSize, offset: [0, 0], label: "Jug" }),
+  }, [el("i", { style: "background: #b07a48" }), "Jug (low obstacle)"])];
   for (const entry of sandboxNpcCatalog) {
     chips.push(el("div", {
       class: "sbx-chip", title: `${entry.group} · ${entry.size}×${entry.size}`,
@@ -645,12 +787,24 @@ function gearSection() {
     el("h3", { text: "Gear" }),
     el("p", { class: "sbx-note", text: gear
       ? `"${gear.name}": ${Object.keys(gear.equipment).length} worn, ${gear.inventory.filter(Boolean).length} in the inventory. Set when you press Apply & restart, and saved, exported and shared with the scenario.`
-      : "None: the scenario is played with whatever you wear. Choose a loadout with Gear at the top, then keep it here." }),
+      : "None: the scenario is played with whatever you wear. Choose a loadout, then keep it here." }),
     el("div", { class: "sbx-row" }, [
-      button(gear ? "Replace with my current gear" : "Use my current gear", () => {
-        const loadout = readCurrentGear();
-        if (!loadout) {
-          setStatus("The application did not answer; reload the page and try again.", true);
+      // The application's setup window for this arena: loadout and presets;
+      // its Start Encounter restarts the run with them.
+      button("Choose gear…", () => {
+        // The setup window is the application's: the panel goes back behind it.
+        ui.root.classList.remove("sbx-front");
+        requestApp("open-setup", {
+          encounterKind: ui.kind, displayName: "Sandbox",
+          description: `Your loadout for ${ui.arena.name}. Start Encounter restarts the run with it; "Use my current gear" in the editor keeps it in the scenario.`,
+        }).catch((error) => setStatus(error.message, true));
+      }),
+      button(gear ? "Replace with my current gear" : "Use my current gear", async () => {
+        let loadout;
+        try {
+          loadout = await requestApp("get-loadout");
+        } catch (error) {
+          setStatus(error.message, true);
           return;
         }
         try {
@@ -692,17 +846,6 @@ function stepShare() {
       }
     }, "ghost") : null,
   ]));
-  nodes.push(el("h3", { text: "File" }));
-  const fileInput = el("input", { type: "file", accept: ".json,application/json", hidden: true });
-  fileInput.addEventListener("change", async () => {
-    const file = fileInput.files?.[0];
-    if (!file) return;
-    try {
-      loadDraft(importScenarioText(await file.text()));
-    } catch (error) {
-      setStatus(error.message, true);
-    }
-  });
   nodes.push(el("div", { class: "sbx-row" }, [
     button("Export .json", () => {
       const blob = new Blob([scenarioToJson(ui.draft)], { type: "application/json" });
@@ -710,8 +853,6 @@ function stepShare() {
       link.click();
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
     }),
-    button("Import .json", () => fileInput.click(), "ghost"),
-    fileInput,
   ]));
   nodes.push(el("h3", { text: "Share" }));
   const code = encodeShareCode(ui.draft);
@@ -724,32 +865,56 @@ function stepShare() {
   nodes.push(codeBox);
   nodes.push(el("div", { class: "sbx-row" }, [button("Copy code", () => copy(code, "Code")), button("Copy link", () => copy(link, "Link"), "ghost")]));
   nodes.push(el("p", { class: "sbx-note", text: `${code.length} characters. Anyone who opens the link gets this scenario.` }));
-  nodes.push(el("h3", { text: "Import a code, a link or JSON" }));
-  const paste = el("textarea", { rows: 3, placeholder: "OSB1.... or https://.../#sbx=... or { ... }" });
-  nodes.push(paste);
-  nodes.push(el("div", { class: "sbx-row" }, [button("Import", () => {
-    try {
-      loadDraft(importScenarioText(paste.value));
-    } catch (error) {
-      setStatus(error.message, true);
-    }
-  })]));
   return nodes;
 }
 
+// The start screen: the one import (a code, a link or JSON pasted, or a
+// file read into it), then where to go on from.
+function stepStart() {
+  const nodes = [el("p", { class: "sbx-start-lead", text: "Build a fight of your own, or load one someone shared." })];
+  nodes.push(el("h3", { text: "Load a scenario" }));
+  const paste = el("textarea", { rows: 3, placeholder: "A code (OSB1...), a link (.../#sbx=...) or a scenario's JSON" });
+  const importText = (value) => {
+    try {
+      loadDraft(importScenarioText(value));
+    } catch (error) {
+      setStatus(error.message, true);
+    }
+  };
+  const fileInput = el("input", { type: "file", accept: ".json,application/json", hidden: true });
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    paste.value = await file.text();
+    importText(paste.value);
+  });
+  nodes.push(paste);
+  nodes.push(el("div", { class: "sbx-row" }, [button("Load", () => importText(paste.value)), button("From a file…", () => fileInput.click(), "ghost"), fileInput]));
+  nodes.push(el("h3", { text: "Or" }));
+  const card = (title, text, onclick) => el("button", { class: "sbx-card", type: "button", onclick }, [el("b", { text: title }), el("small", { text })]);
+  nodes.push(el("div", { class: "sbx-grid" }, [
+    card("Go on", `"${ui.draft.meta.name}" · ${getSandboxArena(ui.draft.arena).name}`, () => (isDraftInThisArena() ? showStep(2) : goToArena(ui.draft.arena, 2))),
+    card("New scenario", `An empty one in ${ui.arena.name}`, () => loadDraft(createEmptyScenario(ui.arena.id))),
+    card("Examples", "Ten against you, ten free-for-alls", () => showStep(1)),
+  ]));
+  return nodes;
+}
+
+// Step 0 is the start screen; 1 to 3 are numbered.
 const steps = [
+  { title: "Start", render: stepStart },
   { title: "1 Arena", render: stepArena },
   { title: "2 Monsters", render: stepMonsters },
-  { title: "3 Save & share", render: stepShare },
+  { title: "3 Gear & share", render: stepShare },
 ];
 
 function renderBody() {
   if (!ui.body) return;
   const scroll = ui.body.scrollTop;
   ui.canvas = null;
-  ui.body.replaceChildren(...steps[ui.step - 1].render());
+  ui.body.replaceChildren(...steps[ui.step].render());
   ui.body.scrollTop = scroll;
-  ui.stepButtons.forEach((node, index) => node.setAttribute("aria-current", index + 1 === ui.step ? "step" : "false"));
+  ui.stepButtons.forEach((node, index) => node.setAttribute("aria-current", index === ui.step ? "step" : "false"));
 }
 function showStep(step) {
   ui.step = step;
@@ -771,15 +936,15 @@ function create(kind) {
   ui.hostedVisit = isHostedVisit(ui.arena);
   ui.status = el("div", { class: "sbx-status", role: "status" });
   ui.body = el("div", { class: "sbx-body" });
-  ui.stepButtons = steps.map((step, index) => button(step.title, () => showStep(index + 1), "ghost"));
+  ui.stepButtons = steps.map((step, index) => button(step.title, () => showStep(index), "ghost"));
   ui.panel = el("section", { class: "sbx-panel", "aria-label": "Sandbox editor", hidden: true }, [
     el("div", { class: "sbx-head" }, [el("h2", { text: `Sandbox · ${ui.arena.name}` }), button("Close", () => setOpen(false), "ghost")]),
     el("div", { class: "sbx-steps" }, ui.stepButtons),
     ui.body,
     el("div", { class: "sbx-foot" }, [
       el("div", { class: "sbx-grow" }, ui.status),
-      button("Back", () => showStep(Math.max(1, ui.step - 1)), "ghost"),
-      button("Next", () => showStep(Math.min(steps.length, ui.step + 1)), "ghost"),
+      button("Back", () => showStep(Math.max(0, ui.step - 1)), "ghost"),
+      button("Next", () => showStep(Math.min(steps.length - 1, ui.step + 1)), "ghost"),
       button("Apply & restart", play, "primary"),
     ]),
   ]);
@@ -789,21 +954,25 @@ function create(kind) {
     else toggleSandboxPause();
     syncClockButton();
   }, "primary");
-  // The application's setup window for this arena (assets/application.js
-  // listens): loadout and presets; its Start Encounter restarts with them.
-  ui.gearButton = button("Gear", () => {
-    globalThis.dispatchEvent(new CustomEvent("sandbox-open-setup", {
-      detail: { encounterKind: ui.kind, displayName: "Sandbox", description: `Your loadout for ${ui.arena.name}. Start Encounter restarts the run with it.` },
-    }));
-  }, "default");
-  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.gearButton, ui.toggle]), ui.panel]);
+  ui.result = el("span", { class: "sbx-result", role: "status", hidden: true });
+  ui.countdown = el("div", { class: "sbx-countdown", "aria-live": "polite", hidden: true });
+  ui.root = el("div", { class: "sbx-root" }, [el("div", { class: "sbx-hud" }, [ui.clockButton, ui.toggle, ui.result]), ui.countdown, ui.panel]);
   // Keys typed in the panel are the panel's, not the game's hotkeys.
   for (const type of ["keydown", "keyup", "keypress", "wheel"]) ui.root.addEventListener(type, (event) => event.stopPropagation());
   document.body.append(ui.root);
+  // The victory screen's "Sandbox editor" (assets/application.js): the panel
+  // opens over it, in front of everything until it is closed.
+  ui.onOpenRequest = () => {
+    ui.root.classList.add("sbx-front");
+    setOpen(true);
+  };
+  globalThis.addEventListener("sandbox-open-editor", ui.onOpenRequest);
   let reopenStep = null;
   try {
-    reopenStep = Number(globalThis.sessionStorage?.getItem(reopenKey)) || null;
+    const stored = globalThis.sessionStorage?.getItem(reopenKey);
     globalThis.sessionStorage?.removeItem(reopenKey);
+    const step = stored === null || stored === undefined ? NaN : Number(stored);
+    reopenStep = Number.isInteger(step) && step >= 0 && step < steps.length ? step : null;
   } catch {
     reopenStep = null;
   }
@@ -811,7 +980,7 @@ function create(kind) {
   renderBody();
   // A share link brought the scenario and the player agreed to its gear: it
   // goes on now, and the run starts again with it.
-  if (takeAgreedLinkGear() && ui.draft.gear && isDraftInThisArena()) applyGear(ui.draft.gear, ui.kind);
+  if (takeAgreedLinkGear() && ui.draft.gear && isDraftInThisArena()) applyGear(ui.draft.gear, ui.kind).catch((error) => setStatus(error.message, true));
   // Open when the editor sent the page here, when there is nothing to fight,
   // and when the scenario is for another arena (the fight here is empty).
   setOpen(reopenStep !== null || ui.draft.npcs.length === 0 || !isDraftInThisArena());
@@ -819,6 +988,7 @@ function create(kind) {
 
 function setOpen(open) {
   ui.panel.hidden = !open;
+  if (!open) ui.root.classList.remove("sbx-front");
   ui.toggle.textContent = open ? "Hide sandbox editor" : "Sandbox editor";
   if (open) renderBody();
 }
@@ -831,6 +1001,43 @@ function syncClockButton() {
   ui.clockButton.classList.toggle("sbx-start", sandboxClock.state !== "running");
 }
 
+// How a run ended, in the top bar (the encounter's snapshot, encounter.js).
+// With the player in it ("versus", or a free-for-all that includes him):
+// "You died" when he dies (the run's outcome stays "active": the
+// application shows his death), else, once it is won, "Every monster is
+// down" or "You win". With the player left out of a free-for-all: the
+// winner, or that no one is left standing.
+function syncResult(simulationState) {
+  const sandbox = simulationState?.encounter?.sandbox;
+  const phase = simulationState?.encounterOutcome?.phase;
+  let text = "";
+  if (sandbox) {
+    const playerIsIn = sandbox.mode !== "ffa" || sandbox.ffaIncludesPlayer !== false;
+    if (playerIsIn) {
+      if (simulationState.isAlive === false) text = "You died";
+      else if (phase && phase !== "active") text = sandbox.mode === "ffa" ? "You win" : "Every monster is down";
+    } else if (phase && phase !== "active") {
+      text = sandbox.winner ? `Winner: ${sandbox.winner}` : "No one is left standing";
+    }
+  }
+  if (ui.result.textContent !== text) ui.result.textContent = text;
+  ui.result.hidden = text === "";
+}
+
+// The sandbox's own countdown (encounter.js, countdownUntil): the ticks left
+// before the monsters act, then "Fight!" for a tick.
+function syncCountdown(simulationState) {
+  const until = simulationState?.encounter?.sandbox?.countdownUntil ?? 0;
+  const tick = simulationState?.currentTick ?? 0;
+  let text = "";
+  if (sandboxClock.state !== "waiting" && until > 0) {
+    if (tick < until) text = String(until - tick);
+    else if (tick === until) text = "Fight!";
+  }
+  if (ui.countdown.textContent !== text) ui.countdown.textContent = text;
+  ui.countdown.hidden = text === "";
+}
+
 export function syncSandboxEditor(kind, simulationState) {
   if (typeof document === "undefined") return;
   if (ui.root && ui.kind !== kind) closeSandboxEditor();
@@ -839,10 +1046,13 @@ export function syncSandboxEditor(kind, simulationState) {
   if (refreshTiles() && ui.step === 2 && !ui.panel.hidden) renderBody();
   ui.simulationState = simulationState;
   syncClockButton();
+  syncResult(simulationState);
+  syncCountdown(simulationState);
 }
 
 export function closeSandboxEditor() {
+  if (ui.onOpenRequest) globalThis.removeEventListener("sandbox-open-editor", ui.onOpenRequest);
   ui.drag?.ghost?.remove();
   ui.root?.remove();
-  Object.assign(ui, { root: null, toggle: null, gearButton: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
+  Object.assign(ui, { root: null, onOpenRequest: null, toggle: null, result: null, countdown: null, clockButton: null, clockState: null, panel: null, body: null, status: null, kind: null, canvas: null, drag: null });
 }

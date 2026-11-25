@@ -22,6 +22,9 @@ import { rollNpcAttack, isNpcInAttackRange, getDistanceFromNpcCentre } from "../
 import { scheduleNextActionTick, buildNpcProjectileVisual, getProjectileSourcePosition, buildActorVisualTarget, faceActorToward } from "../shared/npcHelpers.js";
 import { emitInfernoNpcAttack, emitInfernoVisual } from "../inferno/events.js";
 import { emitColosseumVisual } from "../sol-heredit/constants.js";
+import { isCorrectProtectionPrayer } from "../../engine/damage.js";
+import { hasLineOfSight } from "../../engine/attackRange.js";
+import { healNpc } from "../shared/npcHelpers.js";
 
 // What the formulas and the events call each style.
 const planOfStyle = {
@@ -35,15 +38,6 @@ const cyclesPerTick = 30;
 // inferred: a graphic on a target tile at a body's height, as JalTok-Jad's ranged
 // graphic (inferno/jad.js) and Zuk's (inferno/zukFight.js) are drawn.
 const defaultTargetGraphicHeight = 92;
-
-// The tiles a strike lands on, around the target's tile as the attack starts:
-// "square" the 3 by 3 around it, "plus" it and its four neighbours.
-function strikeTiles(shape, [x, y]) {
-  const offsets = shape === "square"
-    ? [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy) => [dx, dy]))
-    : [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]];
-  return offsets.map(([dx, dy]) => [x + dx, y + dy]);
-}
 
 /** The reach that brings an NPC close enough for its longest attack. */
 export const getApproachRange = (entry) => Math.max(...entry.attacks.map((attack) => attack.range));
@@ -148,7 +142,7 @@ export const brawlerNpcDefinition = defineNpc({
     const target = config.selectTarget(actor, context);
     actor.combat.targetId = target?.id ?? null;
     if (!target) return [];
-    // Sol Heredit stands still while a spear or a shield is on its way (solGround).
+    // Still while an attack of tiles is on its way (special: Sol Heredit's spear and shield).
     if (context.tick < (actor.state.immobileUntilTick ?? 0)) return [];
     const moves = getNpcPursuitMoves(actor, context, target);
     if (moves.length > 0 || isNpcInAttackRange(actor, target, actor.combat.attackRange)) return moves;
@@ -156,16 +150,28 @@ export const brawlerNpcDefinition = defineNpc({
   },
   tick: ({ actor, context, config }) => {
     const idle = { environmentalDamages: [] };
-    if (!canNpcActAtTick(actor, context.tick) || !isActorAlive(actor) || context.tick < actor.combat.nextActionTick) return idle;
+    if (!canNpcActAtTick(actor, context.tick) || !isActorAlive(actor)) return idle;
+    // A charged volley (the manticore's) runs on every tick: it draws its charge.
+    const charged = config.entryOf(actor).attacks.find((attack) => attack.chargedVolley);
+    if (charged) return chargedVolley(actor, charged, context, config);
+    if (context.tick < actor.combat.nextActionTick) return idle;
     const target = config.selectTarget(actor, context);
     actor.combat.targetId = target?.id ?? null;
     if (!target) return idle;
     const entry = config.entryOf(actor);
-    const inReach = entry.attacks.filter((attack) => isNpcInAttackRange(actor, target, attack.range));
-    if (inReach.length === 0) return idle;
-    const attack = inReach.length === 1 ? inReach[0] : inReach[Math.floor(context.random() * inReach.length)];
-    if (attack.solGround) return solGround(actor, target, attack, context, config);
-    if (attack.strike) return strike(actor, target, attack, context, config);
+    // An attack of `everyNth` comes on that attack of the count, and only then
+    // (the javelin colossus's fifth); the others are drawn among the rest.
+    const count = (actor.state.attackCount ?? 0) + 1;
+    const inReach = entry.attacks.filter((attack) => isNpcInAttackRange(actor, target, attack.range) && (attack.everyNth ? count % attack.everyNth === 0 : true));
+    const due = inReach.find((attack) => attack.everyNth);
+    const plain = inReach.filter((attack) => !attack.everyNth);
+    if (!due && plain.length === 0) {
+      // Out of reach: a healer heals one of its side instead (the minotaur).
+      return entry.heal ? heal(actor, target, entry.heal, context, config) : idle;
+    }
+    actor.state.attackCount = count;
+    const attack = due ?? (plain.length === 1 ? plain[0] : plain[Math.floor(context.random() * plain.length)]);
+    if (attack.special) return special(actor, target, attack, context, config);
     // One attack may be several hits, each rolled on its own and with a
     // hitsplat of its own: `hits` at once (the jaguar's three claws), or a
     // `volley` a tick apart (the manticore's three orbs). The engine
@@ -208,57 +214,176 @@ export const brawlerNpcDefinition = defineNpc({
   },
 });
 
-// Sol Heredit's regular attack, as his own fight makes it
-// (sol-heredit/bossAttacks.js, scheduleSolAttack; boss.js, tryLaunchSolAttack):
-// a spear or a shield at even odds, the first always a spear, the variant
-// alternating when he repeats one; the telegraph now, the ground attack three
-// ticks later on the tiles his position and the target's then give
-// (encounter.js lands it with buildGroundAttackArea); still for 6 ticks after
-// a spear and 4 after a shield; the next attack 7 or 6 ticks later.
-function solGround(actor, target, attack, context, config) {
-  const memory = actor.state.solMemory ?? { lastAction: null, lastVariant: 1, attacked: false };
-  const style = !memory.attacked || context.random() < 0.5 ? "spear" : "shield";
-  const variant = memory.lastAction !== style ? 1 : memory.lastVariant === 1 ? 2 : 1;
-  actor.state.solMemory = { lastAction: style, lastVariant: variant, attacked: true };
-  config.queueStrike({ landsAt: context.tick + 3, solGround: { style, variant }, attackerId: actor.id, targetId: target.id });
-  actor.state.immobileUntilTick = context.tick + (style === "spear" ? 6 : 4);
-  faceActorToward(actor, target);
-  const animations = [{ actorId: actor.id, clipId: style, delayCycles: 0 }];
-  emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
-  emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
-  actor.combat.attackStyle = "melee";
-  actor.combat.lastAttackTick = context.tick;
-  scheduleNextActionTick(actor.combat, context.tick, style === "spear" ? 7 : 6);
-  return { environmentalDamages: [] };
+// With its target out of reach, a healer (`heal`, the minotaur's:
+// colosseum/sandbox.js) heals to full, on its attack timer, the first NPC of
+// its own side below `belowFraction` of its hitpoints whose centre is in
+// sight and within `range` of its own.
+const centreTile = (npc) => [npc.position[0] + Math.floor(npc.size / 2), npc.position[1] + Math.floor(npc.size / 2)];
+function heal(actor, target, config_, context, config) {
+  const idle = { environmentalDamages: [] };
+  const [x, y] = centreTile(actor);
+  const wounded = context.world.getNpcs().find((npc) => {
+    if (npc === actor || !isActorAlive(npc) || npc.death !== undefined || !config.isAlly(actor, npc)) return false;
+    if (npc.vitals.hp >= npc.vitals.maxHp * config_.belowFraction) return false;
+    const [otherX, otherY] = centreTile(npc);
+    return Math.max(Math.abs(otherX - x), Math.abs(otherY - y)) <= config_.range && hasLineOfSight(x, y, otherX, otherY);
+  });
+  if (!wounded) return idle;
+  faceActorToward(actor, wounded);
+  const animations = [{ actorId: actor.id, clipId: config_.clip, delayCycles: 0 }];
+  emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [{ ...config_.graphic, target: buildActorVisualTarget(wounded), delayCycles: 0 }] });
+  emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [{ ...config_.graphic, actorId: wounded.id, delayCycles: 0 }] });
+  healNpc(wounded, wounded.vitals.maxHp - wounded.vitals.hp, context.tickEvents);
+  scheduleNextActionTick(actor.combat, context.tick, actor.combat.attackSpeed);
+  return idle;
 }
 
-// A strike on tiles: the attack is rolled
-// now and lands `delayTicks` later on the tiles it was aimed at, on whoever
-// still stands there (the encounter lands it: encounter.js, strikes). The
-// telegraph is the attack's clip; the stomp is a spot animation on every
-// tile as it lands.
-function strike(actor, target, attack, context, config) {
+// A charged volley (`chargedVolley`, the manticore's: colosseum/sandbox.js,
+// after colosseum/manticore.js). With a target in reach for the first time
+// it chooses the order of its orbs, once, and charges for its attack speed;
+// the charge animation and the orbs it holds over itself show as the charge
+// runs out; then it throws one orb a tick at the target of the first, each
+// rolled and with a hitsplat of its own, and charges again. It walks on as
+// it charges, and holds its volley until a target is in reach.
+function chargedVolley(actor, attack, context, config) {
   const idle = { environmentalDamages: [] };
-  const plan = { ...planOfStyle[attack.style], impactDelayTicks: 0, sourceDeathPolicy: "cancel-before-impact" };
-  const maxHit = actor.state.maxHit ?? attack.maxHit;
+  const charge = attack.chargedVolley;
+  const state = actor.state;
+  // The second and third orb leave one and two ticks after the first, at its target.
+  if (state.volleyTick !== undefined && state.volleyTick !== null) {
+    const orbIndex = context.tick - state.volleyTick;
+    if (orbIndex >= 2) state.volleyTick = null;
+    if (orbIndex === 1 || orbIndex === 2) {
+      const volleyTarget = context.world.actors.get(state.volleyTargetId);
+      return volleyTarget && isActorAlive(volleyTarget) ? throwOrb(actor, volleyTarget, orbIndex, attack, context) : idle;
+    }
+  }
+  const target = config.selectTarget(actor, context);
+  actor.combat.targetId = target?.id ?? null;
+  const inReach = target !== null && target !== undefined && isNpcInAttackRange(actor, target, attack.range);
+  if (!state.orbOrder) {
+    if (inReach && context.tick >= actor.combat.nextActionTick) {
+      state.orbOrder = [...charge.orders[Math.floor(context.random() * charge.orders.length)]];
+      state.orbShownTicks = [];
+      actor.combat.nextActionTick = context.tick + actor.combat.attackSpeed;
+    }
+    return idle;
+  }
+  const ticksLeft = actor.combat.nextActionTick - context.tick;
+  if (ticksLeft === charge.chargeClipTicksLeft) {
+    const animations = [{ actorId: actor.id, clipId: charge.chargeClip, delayCycles: 0 }];
+    emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+    emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+  }
+  if (ticksLeft > 0 || !inReach) {
+    drawHeldOrbs(actor, charge, ticksLeft, context);
+    return idle;
+  }
+  actor.combat.nextActionTick = context.tick + actor.combat.attackSpeed;
+  state.volleyTick = context.tick;
+  state.volleyTargetId = target.id;
+  state.orbShownTicks = [];
+  faceActorToward(actor, target);
+  // The third orb leaves two ticks from now: its last drawing over the manticore.
+  return throwOrb(actor, target, 0, attack, context, [heldOrbGraphic(actor, charge, 2)]);
+}
+
+const heldOrbGraphic = (actor, charge, orbIndex) => ({
+  spotAnimId: charge.orbs[actor.state.orbOrder[orbIndex]].spotAnimId,
+  actorId: actor.id,
+  height: charge.heights[orbIndex],
+});
+
+// The orbs held over it as the charge runs out, one more at each of the
+// last ticks; a held orb is drawn every `heldOrbGraphicTicks`, and once more
+// before it leaves (colosseum/manticore.js, drawHeldOrbs).
+function drawHeldOrbs(actor, charge, ticksLeft, context) {
+  const state = actor.state;
+  state.orbShownTicks ??= [];
+  while (state.orbShownTicks.length < state.orbOrder.length && ticksLeft <= charge.firstOrbShownTicksLeft - state.orbShownTicks.length) {
+    state.orbShownTicks.push(context.tick);
+  }
+  const held = state.orbShownTicks.flatMap((shownTick, orbIndex) => {
+    const ticksUntilItLeaves = ticksLeft > 0 ? ticksLeft + orbIndex : Infinity;
+    const isDrawn = (context.tick - shownTick) % charge.heldOrbGraphicTicks === 0
+      ? ticksUntilItLeaves >= charge.heldOrbGraphicTicks
+      : ticksUntilItLeaves === charge.heldOrbGraphicTicks;
+    return isDrawn ? [heldOrbGraphic(actor, charge, orbIndex)] : [];
+  });
+  if (held.length > 0) emitHeldGraphics(context, held);
+}
+
+// Graphics on an actor, in both schemas: the default scene's (a target) and
+// the hosts' scenes' (an actor id).
+function emitHeldGraphics(context, graphics, projectiles = [], animations = []) {
+  emitInfernoVisual(context.tickEvents, {
+    animations: [],
+    projectiles,
+    graphics: graphics.map(({ spotAnimId, actorId, height, delayCycles }) => ({ spotAnimId, target: buildActorVisualTarget(context.world.actors.get(actorId)), height, delayCycles: delayCycles ?? 0 })),
+  });
+  emitColosseumVisual(context.tickEvents, {
+    animations,
+    projectiles,
+    graphics: graphics.map(({ spotAnimId, actorId, height, delayCycles }) => ({ spotAnimId, actorId, height, delayCycles: delayCycles ?? 0 })),
+  });
+}
+
+// One orb leaves: an attack of its own, its projectile, and its impact on a
+// target that does not pray against it.
+function throwOrb(actor, target, orbIndex, attack, context, graphics = []) {
+  const charge = attack.chargedVolley;
+  const orb = charge.orbs[actor.state.orbOrder[orbIndex]];
+  const plan = { ...planOfStyle[orb.style], impactDelayTicks: charge.impactDelayTicks, sourceDeathPolicy: "persist" };
+  const maxHit = actor.state.maxHit ?? orb.maxHit;
   if (maxHit !== undefined) plan.maxHit = maxHit;
   const rolled = rollNpcAttack({ attacker: actor, target, plan, random: context.random });
-  if (!rolled) return idle;
-  const { delayTicks, shape, spotAnimIds } = attack.strike;
-  const tiles = strikeTiles(shape, target.position);
-  config.queueStrike({ landsAt: context.tick + delayTicks, tiles, attack: rolled });
+  if (!rolled) return { environmentalDamages: [] };
+  const projectile = {
+    ...charge.flight,
+    spotAnimId: orb.spotAnimId,
+    startOffset: charge.startOffsets[orbIndex],
+    startHeight: charge.heights[orbIndex],
+    sourcePosition: getProjectileSourcePosition(actor),
+    target: buildActorVisualTarget(target),
+  };
+  const prayedAgainst = target.kind === "player" && isCorrectProtectionPrayer(planOfStyle[orb.style].damageType, target.activePrayer);
+  if (!prayedAgainst) graphics.push({ spotAnimId: orb.impactSpotAnimId, actorId: target.id, height: charge.impactHeight, delayCycles: charge.flight.endDelayCycles });
+  if (orbIndex === 0) {
+    emitInfernoNpcAttack(context, { actor, target, clipId: attack.clip, kind: "sandbox_volley", impactDelayTicks: plan.impactDelayTicks, projectiles: [projectile] });
+    emitHeldGraphics(context, graphics, [], []);
+    emitColosseumVisual(context.tickEvents, { animations: [{ actorId: actor.id, clipId: attack.clip, delayCycles: 0 }], projectiles: [projectile], graphics: [] });
+  } else {
+    emitHeldGraphics(context, graphics, [projectile]);
+  }
+  actor.combat.attackStyle = orb.style;
+  actor.combat.lastAttackTick = context.tick;
+  return { environmentalDamages: [], npcAttacks: [rolled] };
+}
+
+// An attack of the encounter's own that lands on tiles (`special`: Sol
+// Heredit's spear and shield, sol-heredit/sandbox.js). It decides now; the
+// encounter lands it when it is due (encounter.js, landStrikes) and draws
+// it. The NPC stands still `holdTicks` and acts again `nextActionTicks` later.
+function special(actor, target, attack, context, config) {
+  const started = attack.special.start({ actor, target, random: context.random });
+  config.queueStrike({ landsAt: context.tick + started.landsInTicks, special: attack.special.id, data: started.data, attackerId: actor.id, targetId: target.id });
+  actor.state.immobileUntilTick = context.tick + started.holdTicks;
   faceActorToward(actor, target);
-  const delayCycles = delayTicks * cyclesPerTick;
-  const graphics = tiles.map((tile, index) => ({ spotAnimId: spotAnimIds[index % spotAnimIds.length], target: { kind: "tile", position: tile }, height: 0, delayCycles }));
-  const animations = [{ actorId: actor.id, clipId: attack.clip, delayCycles: 0 }];
-  emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics });
+  const animations = [{ actorId: actor.id, clipId: started.clipId, delayCycles: 0 }];
+  // What it draws as it starts: on itself (`on: "self"`) or on a tile.
+  const graphics = started.graphics ?? [];
+  emitInfernoVisual(context.tickEvents, {
+    animations,
+    projectiles: [],
+    graphics: graphics.map(({ spotAnimId, on, tile, height, delayCycles }) => ({ spotAnimId, target: on === "self" ? buildActorVisualTarget(actor) : { kind: "tile", position: [...tile] }, height, delayCycles })),
+  });
   emitColosseumVisual(context.tickEvents, {
     animations,
     projectiles: [],
-    graphics: graphics.map(({ spotAnimId, target: on, height, delayCycles: delay }) => ({ spotAnimId, position: [...on.position], delayCycles: delay, height })),
+    graphics: graphics.map(({ spotAnimId, on, tile, height, delayCycles }) => (on === "self" ? { spotAnimId, actorId: actor.id, height, delayCycles } : { spotAnimId, position: [...tile], height, delayCycles })),
   });
   actor.combat.attackStyle = attack.style;
   actor.combat.lastAttackTick = context.tick;
-  scheduleNextActionTick(actor.combat, context.tick, actor.combat.attackSpeed);
-  return idle;
+  scheduleNextActionTick(actor.combat, context.tick, started.nextActionTicks);
+  return { environmentalDamages: [] };
 }

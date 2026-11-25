@@ -35,15 +35,15 @@ import { createSeededRandom } from "../../engine/random.js";
 import { isActorAlive } from "../../engine/npcState.js";
 import { NpcDefinitionRegistry } from "../shared/npcDefinitions.js";
 import { brawlerNpcDefinition, getApproachRange } from "./brawler.js";
-import { getSandboxNpcEntry, sandboxNpcCatalog } from "./catalog.js";
+import { getSandboxNpcEntry, getSandboxSpecialAttack, sandboxNpcCatalog } from "./catalog.js";
 import { getSandboxArena, sandboxArenas, sandboxKind, sandboxVariantKind } from "./arenas.js";
 import { createEmptyScenario, normalizeScenario, playerTeam } from "./scenario.js";
 import { getActiveScenario } from "./activeScenario.js";
 import { holdSandboxForStart, isSandboxHeld } from "./clock.js";
 import { noteRunningScenario } from "./visit.js";
+import { createObstacleActor, isObstacle, obstacleNpcDefinition, withObstacles } from "./obstacles.js";
 import { isArenaTileWalkable } from "../../engine/arena.js";
-import { buildGroundAttackArea, getGroundAttackDelayCycles } from "../sol-heredit/bossAttacks.js";
-import { colosseumSpotAnimIds, emitColosseumVisual } from "../sol-heredit/constants.js";
+import { emitColosseumVisual } from "../sol-heredit/constants.js";
 import { emitInfernoVisual } from "../inferno/events.js";
 
 // inferred: a body stays four ticks after the kill (the Colosseum's monsters stay three or four).
@@ -61,6 +61,8 @@ const footprintGap = (a, b) => {
   return Math.max(dx, dy);
 };
 const isBrawler = (npc) => npc?.definition?.id === brawlerNpcDefinition.id;
+// The scenario's own NPCs: its monsters and its obstacles (obstacles.js).
+const isOwn = (npc) => isBrawler(npc) || isObstacle(npc);
 
 // The host's hooks the engine calls only if they are there: the sandbox has
 // each exactly when its host has it. Those that name an NPC skip the
@@ -68,9 +70,13 @@ const isBrawler = (npc) => npc?.definition?.id === brawlerNpcDefinition.id;
 const hostHooks = [
   "prepareNpcBand", "completeNpcBand", "onPlayerAttackStarted", "onPlayerAttackResolved", "executeCommand", "acceptsInput",
   "approachRange", "moveDisplacedPlayer", "syncBossHp", "enterBossHpPhase", "planPracticeRestart", "planRestartStart",
-  "getEngineRules", "refineArenaConfig", "configureRunStart",
+  "getEngineRules", "configureRunStart",
 ];
 const hostNpcHooks = { removeNpcIfDue: undefined, resolveNpcLocalEffects: [] };
+// Every hook the sandbox hands its host: test/test-sandbox-wiring.mjs checks
+// that each method the engine calls on an encounter is the sandbox's own or
+// one of these, so that a hook the engine calls later is not skipped.
+export const sandboxHostHooks = [...hostHooks, ...Object.keys(hostNpcHooks), "onNpcDefeated", "moveNpc"];
 
 export class SandboxEncounter {
   // `createHost(kind)` makes the encounter of a kind (registry.js hands it in).
@@ -80,8 +86,11 @@ export class SandboxEncounter {
     this.createHost = createHost;
     // A scenario handed to the factory (the harness, a test) wins over the editor's.
     this.givenScenario = options?.scenario ? normalizeScenario(options.scenario) : null;
+    this.obstacleRegistration = obstacleNpcDefinition.register(undefined);
     this.brawlers = brawlerNpcDefinition.register({
       selectTarget: (actor, context) => this.selectTarget(actor, context),
+      // Of its side: an NPC it does not fight (in "versus", every monster); never a boulder.
+      isAlly: (actor, other) => other.kind === "npc" && !isObstacle(other) && !this.isEnemy(actor, other),
       entryOf: (actor) => getSandboxNpcEntry(actor.state.entryId),
       queueStrike: (pending) => this.strikes.push(pending),
     });
@@ -99,10 +108,13 @@ export class SandboxEncounter {
     this.winner = null;
     this.npcIds = [];
     this.ownNpcs = [];
-    // Strikes on tiles that have not landed yet (brawler.js): { landsAt, tiles, attack }.
+    // Attacks of tiles that have not landed yet (brawler.js, special):
+    // { landsAt, special, data, attackerId, targetId }.
     this.strikes = [];
     const hosted = this.scenario.options.bossMechanics && this.arena.hostKind && this.createHost;
     this.setHost(hosted ? this.createHost(this.arena.hostKind) : null, seeds?.host);
+    // The sandbox's own countdown (ownsCountdown): its monsters wait until this tick.
+    this.countdownUntil = this.host ? 0 : this.scenario.options.countdownTicks;
     // A new run or a restart waits for "Start encounter" (clock.js).
     holdSandboxForStart();
   }
@@ -111,24 +123,37 @@ export class SandboxEncounter {
     if (host && hostSeeds) host.reset(hostSeeds);
     for (const name of [...hostHooks, ...Object.keys(hostNpcHooks), "onNpcDefeated", "moveNpc", "runStartMechanicsKeys"]) delete this[name];
     const hostDefinitions = host?.getNpcDefinitions?.();
-    this.definitions = new NpcDefinitionRegistry([...(hostDefinitions?.registrations.values() ?? []), this.brawlers]);
+    this.definitions = new NpcDefinitionRegistry([...(hostDefinitions?.registrations.values() ?? []), this.brawlers, this.obstacleRegistration]);
     if (!host) return;
     for (const name of hostHooks) if (host[name]) this[name] = (...args) => host[name](...args);
     for (const [name, answerForOwn] of Object.entries(hostNpcHooks)) {
-      if (host[name]) this[name] = (npc, ...rest) => (isBrawler(npc) ? answerForOwn : host[name](npc, ...rest));
+      if (host[name]) this[name] = (npc, ...rest) => (isOwn(npc) ? answerForOwn : host[name](npc, ...rest));
     }
     if (host.onNpcDefeated) {
       this.onNpcDefeated = (defeat, ...rest) => (this.npcIds.includes(defeat.npcId) ? undefined : host.onNpcDefeated(defeat, ...rest));
     }
     if (host.moveNpc) {
       this.moveNpc = (npc, context, mechanics) =>
-        isBrawler(npc) ? this.definitions.move(npc, { ...context, random: this.random }) : host.moveNpc(npc, context, mechanics);
+        isBrawler(npc) ? this.definitions.move(npc, { ...context, random: this.random }) : isObstacle(npc) ? [] : host.moveNpc(npc, context, mechanics);
     }
     if (host.runStartMechanicsKeys) this.runStartMechanicsKeys = host.runStartMechanicsKeys;
   }
   // Asked by the application's tick loop only (not by the engine).
   isPaused() {
     return isSandboxHeld();
+  }
+  // Asked by the application (assets/Grid.js): without the arena's boss the
+  // sandbox counts down itself, in ticks of the run, so that the player can
+  // move, pray, switch gear and drop things while its monsters wait
+  // (countdownUntil); with the boss, the application's countdown holds the
+  // run as for any fight, since the boss's own clock starts at once.
+  ownsCountdown() {
+    return !this.host;
+  }
+  // The obstacles' tiles block the way (obstacles.js), on the host's arena too.
+  refineArenaConfig(arena) {
+    const base = this.host?.refineArenaConfig?.(arena) ?? arena;
+    return withObstacles(base, this.scenario.obstacles ?? []);
   }
   // The editor's scenario when it is for this arena; otherwise an empty one,
   // and the editor offers to go to the arena of its own.
@@ -166,7 +191,13 @@ export class SandboxEncounter {
     });
     this.ownNpcs = own;
     this.npcIds = own.map((npc) => npc.id);
-    return [...hostNpcs, ...own.map((npc) => this.createNpcActor(npc))];
+    const obstacles = (this.scenario.obstacles ?? []).map((position, index) => {
+      let id = `obstacle-${index + 1}`;
+      while (taken.has(id)) id += "x";
+      taken.add(id);
+      return createObstacleActor(id, position);
+    });
+    return [...hostNpcs, ...own.map((npc) => this.createNpcActor(npc)), ...obstacles];
   }
   createNpcActor(npc) {
     const entry = getSandboxNpcEntry(npc.npc);
@@ -190,84 +221,53 @@ export class SandboxEncounter {
         history: new Map(),
         vitals: { hp: hitpoints, maxHp: hitpoints },
         formulaStats,
+        // While the sandbox counts down, nobody can be attacked; the bar shows.
+        ...(this.countdownUntil > 0 ? { targetableFromTick: this.countdownUntil, healthBarWhenUntargetable: true } : {}),
         combat: {
           attackSpeed,
           attackRange: getApproachRange(entry),
           attackStyle: entry.attacks[0].style,
-          nextActionTick: firstActionTick,
+          nextActionTick: this.countdownUntil + firstActionTick,
           targetId: null,
           lastAttackTick: null,
           animations: { idle: null, walk: null, run: null, attack: null, death: null },
         },
       },
-      { entryId: entry.id, team: this.teamOf(npc), maxHit: npc.maxHit, lastAttackerId: null },
+      { entryId: entry.id, team: this.teamOf(npc), maxHit: npc.maxHit, lastAttackerId: null, immobileUntilTick: this.countdownUntil },
     );
   }
   resolveHazards(context, mechanics) {
     return [...(this.host?.resolveHazards(context, mechanics) ?? []), ...this.landStrikes(context)];
   }
-  // The strikes due now land on whoever stands on their tiles: the player as
-  // damage to apply, an NPC as a hit of the attacker. A strike whose attacker
-  // died first does not land.
+  // The attacks of tiles due now land (brawler.js, special): the special's
+  // own rules (catalog.js, getSandboxSpecialAttack) give the tiles, their
+  // stomps and the damage, on the arena's floor; the stomps are drawn in
+  // either scene, and the damage goes to the player as damage to apply, to an
+  // NPC as a hit of the attacker. One whose attacker died first does not land.
   landStrikes(context) {
     const damages = [];
     const due = this.strikes.filter((pending) => pending.landsAt <= context.tick);
     this.strikes = this.strikes.filter((pending) => pending.landsAt > context.tick);
-    for (const pending of due) {
-      if (pending.solGround) {
-        damages.push(...this.landSolGround(pending, context));
+    for (const { special, data, attackerId, targetId } of due) {
+      const attacker = context.world.getNpc(attackerId);
+      if (!attacker || !isActorAlive(attacker)) continue;
+      const found = context.world.actors.get(targetId);
+      const target = found && isActorAlive(found) ? found : null;
+      // A target that died is still aimed at (where it fell), but not hit.
+      const landed = getSandboxSpecialAttack(special).land({ data, attacker, target: found ?? null, targetAlive: target !== null, random: this.random, isTileWalkable: isArenaTileWalkable });
+      emitColosseumVisual(context.tickEvents, { animations: [], graphics: landed.stomps.map(({ spotAnimId, tile, delayCycles }) => ({ spotAnimId, position: [...tile], delayCycles })) });
+      emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: landed.stomps.map(({ spotAnimId, tile, delayCycles }) => ({ spotAnimId, target: { kind: "tile", position: [...tile] }, height: 0, delayCycles })) });
+      if (!target || landed.damage === null) continue;
+      if (target.kind === "player") {
+        damages.push({ baseDamage: landed.damage, attackType: "typeless", source: this.getNpcDamageSourceLabel(attackerId), playerPosition: [...target.position] });
         continue;
       }
-      const { tiles, attack } = pending;
-      const attacker = context.world.getNpc(attack.attackerId);
-      const target = context.world.actors.get(attack.targetId);
-      if (!attacker || !isActorAlive(attacker) || !target || !isActorAlive(target)) continue;
-      const size = target.size ?? 1;
-      const covered = tiles.some(([x, y]) => x >= target.position[0] && x < target.position[0] + size && y >= target.position[1] && y < target.position[1] + size);
-      if (!covered) continue;
-      if (target.kind === "player") {
-        damages.push({ baseDamage: attack.accuracySucceeded ? attack.rolledDamage : 0, attackType: attack.style, source: this.getNpcDamageSourceLabel(attack.attackerId), playerPosition: [...target.position] });
-      } else {
-        context.queueNpcHit({ ...attack, impactDelayTicks: 0 });
-      }
+      context.queueNpcHit({
+        attackerId, targetId, style: "typeless", attackKind: "typeless", rolledDamage: landed.damage,
+        accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "cancel-before-impact",
+      });
     }
     return damages;
-  }
-  // Sol Heredit's spear or shield lands (brawler.js, solGround): the tiles are
-  // those of his own fight (buildGroundAttackArea), from where he and his
-  // target stand now, within 10 tiles of his centre and on the arena's floor;
-  // the stomp goes out from his centre as in his scene
-  // (getGroundAttackDelayCycles). A target on them takes the larger of two
-  // rolls of 0 to 44, which no prayer stops (sol-heredit/boss.js).
-  landSolGround({ solGround, attackerId, targetId }, context) {
-    const attacker = context.world.getNpc(attackerId);
-    const target = context.world.actors.get(targetId);
-    if (!attacker || !isActorAlive(attacker)) return [];
-    const [x, y] = attacker.position;
-    const window = { minX: x - 10, maxX: x + 14, minY: y - 10, maxY: y + 14 };
-    const area = buildGroundAttackArea(solGround, { position: attacker.position, target: target?.position ?? [x + 2, y - 1], arena: window });
-    const tiles = area.tiles.filter(([tileX, tileY]) => isArenaTileWalkable(tileX, tileY));
-    const graphics = tiles.map((tile, index) => ({
-      spotAnimId: colosseumSpotAnimIds.solMelee[index % colosseumSpotAnimIds.solMelee.length],
-      tile,
-      delayCycles: getGroundAttackDelayCycles(tile, area.centre),
-    }));
-    emitColosseumVisual(context.tickEvents, { animations: [], graphics: graphics.map(({ spotAnimId, tile, delayCycles }) => ({ spotAnimId, position: [...tile], delayCycles })) });
-    emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics: graphics.map(({ spotAnimId, tile, delayCycles }) => ({ spotAnimId, target: { kind: "tile", position: [...tile] }, height: 0, delayCycles })) });
-    if (!target || !isActorAlive(target)) return [];
-    const size = target.size ?? 1;
-    const struck = tiles.some(([tileX, tileY]) => tileX >= target.position[0] && tileX < target.position[0] + size && tileY >= target.position[1] && tileY < target.position[1] + size);
-    if (!struck) return [];
-    const roll = () => Math.floor(this.random() * 45);
-    const damage = Math.max(roll(), roll());
-    if (target.kind === "player") {
-      return [{ baseDamage: damage, attackType: "typeless", source: this.getNpcDamageSourceLabel(attackerId), playerPosition: [...target.position] }];
-    }
-    context.queueNpcHit({
-      attackerId, targetId, style: "typeless", attackKind: "typeless", rolledDamage: damage,
-      accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "cancel-before-impact",
-    });
-    return [];
   }
   processPostTick(context, mechanics) {
     const damages = this.host?.processPostTick(context, mechanics) ?? [];
@@ -289,23 +289,26 @@ export class SandboxEncounter {
     if (hostOutcome.phase === "active") return hostOutcome;
     return this.npcIds.length === 0 || this.outcome.phase !== "active" ? hostOutcome : { phase: "active" };
   }
+  // The sandbox's own state (its monsters alive, the free-for-all's winner)
+  // is under `sandbox` in every snapshot, the host's included, whose scene
+  // reads the rest; the editor names the winner from it (editor.js).
   getSnapshot(input = {}) {
-    // The host's scene reads the host's snapshot.
-    if (this.host) return this.host.getSnapshot(input);
     const world = input.world;
-    const alive = world ? world.getNpcs().filter(isActorAlive).length : 0;
-    return {
-      kind: this.kind,
-      state: {
-        arena: this.arena.id,
-        mode: this.scenario.mode,
-        name: this.scenario.meta.name,
-        npcsAlive: alive,
-        npcsTotal: this.npcIds.length,
-        winner: this.winner,
-      },
-      visuals: {},
+    const ownIds = new Set(this.npcIds);
+    const alive = world ? world.getNpcs().filter((npc) => ownIds.has(npc.id) && isActorAlive(npc)).length : 0;
+    const sandbox = {
+      arena: this.arena.id,
+      mode: this.scenario.mode,
+      name: this.scenario.meta.name,
+      npcsAlive: alive,
+      npcsTotal: this.npcIds.length,
+      // Set only when the player is left out of a free-for-all.
+      winner: this.winner,
+      ffaIncludesPlayer: this.scenario.options.ffaIncludesPlayer,
+      countdownUntil: this.countdownUntil,
     };
+    if (this.host) return { ...this.host.getSnapshot(input), sandbox };
+    return { kind: this.kind, state: sandbox, sandbox, visuals: {} };
   }
   getNpcDamageSourceLabel(npcId) {
     const npc = this.ownNpcs.find((candidate) => candidate.id === npcId);
@@ -319,6 +322,7 @@ export class SandboxEncounter {
   }
   processNpcTick(npc, context, mechanics) {
     if (isBrawler(npc)) return this.definitions.tick(npc, { ...context, random: this.random });
+    if (isObstacle(npc)) return { environmentalDamages: [] };
     return this.host?.processNpcTick?.(npc, context, mechanics);
   }
 
@@ -331,7 +335,7 @@ export class SandboxEncounter {
     return this.scenario.mode === "versus" || this.scenario.options.ffaIncludesPlayer;
   }
   isEnemy(actor, other) {
-    if (other === actor || !isActorAlive(other)) return false;
+    if (other === actor || !isActorAlive(other) || isObstacle(other)) return false;
     if (other.kind === "player") return actor.state.team !== playerTeam && this.playerIsFair();
     if (this.scenario.mode !== "ffa") return false;
     const team = isBrawler(other) ? other.state.team : bossTeam;

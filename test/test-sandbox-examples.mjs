@@ -2,17 +2,31 @@
 // of its monsters stands on walkable tiles of the arena's collision (built
 // from the cache, as the application builds it), no two footprints overlap,
 // none covers a host boss's NPC or the player's start, and the run starts.
+// The same for every scenario of the library (sandbox/scenarios/), each file
+// of which must be listed there and read as a scenario.
 // Plain Node with the harness's module hooks and the trimmed cache.
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
 import { loadEnvironment } from "../tools/determinism/harness.mjs";
 
 const { prepareArena, rendering, engineModule, objTypeLoader } = await loadEnvironment();
 const { sandboxExamples } = await import("../client/encounters/sandbox/examples.js");
 const { sandboxVariantKind } = await import("../client/encounters/sandbox/arenas.js");
 const { getSandboxNpcEntry } = await import("../client/encounters/sandbox/catalog.js");
+const { libraryScenarios, libraryScenarioFiles } = await import("../client/encounters/sandbox/scenarios/index.js");
+const { normalizeScenario } = await import("../client/encounters/sandbox/scenario.js");
 
 assert.equal(sandboxExamples.length, 20);
-for (const { key, scenario } of sandboxExamples) {
+// The library: every JSON file listed, every one a scenario.
+const libraryDirectory = new URL("../client/encounters/sandbox/scenarios/", import.meta.url);
+const libraryFiles = readdirSync(libraryDirectory).filter((name) => name.endsWith(".json")).sort();
+assert.deepEqual([...libraryScenarioFiles].sort(), libraryFiles, "every file of sandbox/scenarios/ is listed in its index.js, and every listed file is there");
+for (const file of libraryFiles) {
+  const json = JSON.parse(readFileSync(new URL(file, libraryDirectory), "utf8"));
+  assert.doesNotThrow(() => normalizeScenario(json), `sandbox/scenarios/${file} is a scenario`);
+}
+assert.equal(libraryScenarios.length, libraryFiles.length);
+for (const { key, scenario } of [...sandboxExamples, ...libraryScenarios]) {
   const kind = sandboxVariantKind(scenario.arena);
   await prepareArena(kind);
   const walkable = rendering.getRegisteredArenaConfig("sandbox").walkableTiles;
@@ -30,6 +44,13 @@ for (const { key, scenario } of sandboxExamples) {
   assert.ok(scenario.gear, `${key}: has gear`);
 
   const taken = new Map([[start.join(","), "the player's start"]]);
+  // The boulders: walkable tiles, one each, before the monsters.
+  for (const position of scenario.obstacles ?? []) {
+    const tile = position.slice(0, 2).join(",");
+    assert.ok(walkable.has(tile), `${key}: a boulder on ${tile}, which is not walkable`);
+    assert.ok(!taken.has(tile), `${key}: a boulder on ${taken.get(tile)} at ${tile}`);
+    taken.set(tile, "a boulder");
+  }
   // The host's NPCs first: they stand where their fight puts them (Zebak in his water).
   for (const actor of [...actors.filter((a) => !own.has(a.id)), ...actors.filter((a) => own.has(a.id))]) {
     const size = own.has(actor.id) ? getSandboxNpcEntry(scenario.npcs.find((npc) => npc.id === actor.id).npc).size : actor.size;
@@ -60,5 +81,5 @@ for (const { key, scenario } of sandboxExamples) {
   assert.equal(ids.length, hostIds.length + 1, "the clashing monster is placed");
   assert.ok(ids.includes(`${hostIds[0]}-2`), "under a new id");
 }
-console.log("sandbox examples: 20 placed");
+console.log(`sandbox examples: 20 placed; library: ${libraryScenarios.length} placed`);
 process.exit(0);

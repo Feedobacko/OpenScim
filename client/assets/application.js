@@ -2,7 +2,7 @@ import { zebakSoundNames } from "/toa/zebak/sounds.js";
 import { nexusKind, doorAt } from "/toa/nexus.js";
 import { soundEffectResponse, soundEffectUrl } from "/audio/soundEffects.js";
 import { colosseumLobbyLabel, getLobbyFights } from "/encounters/colosseum/lobby.js";
-import { loadSandboxCode } from "/encounters/sandbox/menuImport.js";
+import { sandboxEntryKind } from "/encounters/sandbox/menuImport.js";
 import { attackRangesOptions, attackRangesDefaults, updateAttackRanges, listenForAttackRangesHotkey, describeHotkey } from "/plugins/attackRanges.js";
 import { projectileOverrideOptions, projectileOverrideDefaults, updateProjectileOverride } from "/plugins/projectileOverride.js";
 import { thrallSpells, THRALL_END_SOUND_ID } from "/engine/thralls.js";
@@ -17065,7 +17065,6 @@ var gpe = ({
                     },
                     hD.CkFau(baseEncounterKind, encounterKind),
                   ),
-                  baseEncounterKind === "sandbox" && (0, jsxRuntime.jsx)(SandboxCodeField, { onVariantChange: onVariantChange, onLoadoutChange: onLoadoutChange }),
                   hZ &&
                     (0, jsxRuntime.jsx)("section", {
                       className: "rail-section configurer-encounter-setup",
@@ -36515,15 +36514,26 @@ function Tbe({
                 }),
               ],
             }),
-            (0, jsxRuntime.jsx)("div", {
+            (0, jsxRuntime.jsxs)("div", {
               className: "victory-modal-actions",
-              children: (0, jsxRuntime.jsx)(cX, {
-                controls: replayPractice,
-                encounterSession: encounterSession,
-                onRestart: onRestart,
-                onReplay: h9 ? onEnterReplay : undefined,
-                onReturnToLobby: onReturnToLobby,
-              }),
+              children: [
+                (0, jsxRuntime.jsx)(cX, {
+                  controls: replayPractice,
+                  encounterSession: encounterSession,
+                  onRestart: onRestart,
+                  onReplay: h9 ? onEnterReplay : undefined,
+                  onReturnToLobby: onReturnToLobby,
+                }),
+                // The sandbox (its snapshot has "sandbox"): its editor opens
+                // over this screen (client/encounters/sandbox/editor.js listens).
+                simulationState.encounter?.sandbox &&
+                  (0, jsxRuntime.jsx)("button", {
+                    type: "button",
+                    className: "osrs-btn osrs-btn--default",
+                    onClick: () => window.dispatchEvent(new CustomEvent("sandbox-open-editor")),
+                    children: "Sandbox editor",
+                  }),
+              ],
             }),
           ],
         }),
@@ -40306,39 +40316,6 @@ function $we(h2, h3) {
     h4.length === Object.keys(h3).length && h4.every((h5) => h2[h5] === h3[h5])
   );
 }
-// The sandbox's setup window: paste a scenario's code, link or JSON
-// (client/encounters/sandbox/menuImport.js); the window switches to its arena.
-function SandboxCodeField({ onVariantChange, onLoadoutChange }) {
-  const [text, setText] = (0, React.useState)("");
-  const [message, setMessage] = (0, React.useState)(null);
-  const load = () => {
-    try {
-      const loaded = loadSandboxCode(text);
-      onVariantChange?.(loaded.encounterKind);
-      if (loaded.gear) onLoadoutChange?.(loaded.gear);
-      setMessage({ ok: true, text: 'Loaded "' + loaded.name + '" (' + loaded.arenaName + ", " + loaded.npcCount + " monsters). Start Encounter plays it." });
-    } catch (error) {
-      setMessage({ ok: false, text: error.message });
-    }
-  };
-  return (0, jsxRuntime.jsxs)("section", {
-    className: "rail-section sandbox-code-field",
-    "aria-label": "Load a scenario",
-    children: [
-      (0, jsxRuntime.jsx)("h3", { className: "section-label", children: "Load a scenario" }),
-      (0, jsxRuntime.jsx)("textarea", {
-        value: text,
-        rows: 3,
-        placeholder: "Paste a code (OSB1...), a link or JSON",
-        onChange: (event) => setText(event.target.value),
-        onKeyDown: (event) => event.stopPropagation(),
-        style: { width: "100%", boxSizing: "border-box", resize: "vertical", font: "inherit", color: "inherit", background: "var(--color-surface-inset, #14100c)", border: "1px solid var(--color-border, #5d5245)", borderRadius: 3, padding: "4px 6px" },
-      }),
-      (0, jsxRuntime.jsx)("button", { type: "button", className: "osrs-btn osrs-btn--default", disabled: text.trim() === "", onClick: load, style: { marginTop: 6 }, children: "Load scenario" }),
-      message && (0, jsxRuntime.jsx)("p", { role: "status", style: { margin: "6px 0 0", fontSize: 12, color: message.ok ? "var(--color-success, #5fd35f)" : "var(--color-error, #ff5a4f)" }, children: message.text }),
-    ],
-  });
-}
 function _we(h2) {
   return xle(h2, cE.getDescriptorOfKindOrVariant(h2)?.variants);
 }
@@ -41156,6 +41133,15 @@ function qwe({
       (iq, ir, is, it) => {
         const iu = ak(iq);
         const iv = iu?.kind ?? iq;
+        // The sandbox has no setup window from the menus: its arena is
+        // entered with its editor open at its start screen
+        // (encounters/sandbox/menuImport.js; the "sandbox-request" listener
+        // below enters it).
+        if (iv === "sandbox") {
+          const encounterKind = sandboxEntryKind();
+          window.dispatchEvent(new CustomEvent("sandbox-request", { detail: { type: "enter", payload: { encounterKind }, accept() {}, resolve() {}, reject() {} } }));
+          return;
+        }
         ia(iv, {
           ...iu?.mechanics,
           ...it,
@@ -50212,42 +50198,59 @@ function eCe({ devHarness: devHarness } = {}) {
     updateStartingHpPerEncounter: lK,
     devHarness: h5,
   });
-  // The sandbox (client/encounters/sandbox/editor.js) reaches the loadout
-  // through three window events: "sandbox-open-setup" opens the setup window
-  // of a kind (loadout, presets, Start Encounter); "sandbox-get-loadout"
-  // hands detail.reply the sandbox's loadout; "sandbox-apply-loadout" sets
-  // the loadout a scenario carries and enters detail.encounterKind with it.
-  const sandboxEnterRef = (0, React.useRef)(null);
+  // The sandbox (client/encounters/sandbox/bridge.js) asks through one window
+  // event, "sandbox-request": each request is taken at once
+  // (detail.accept()) and settled when it is done. "open-setup" opens the
+  // setup window of a kind (loadout, presets, Start Encounter); "get-loadout"
+  // answers the sandbox's loadout; "apply-loadout" sets the loadout a
+  // scenario carries and, in the render that holds it, enters
+  // payload.encounterKind with it; "enter" enters an arena of the sandbox.
+  const sandboxApplyRef = (0, React.useRef)(null);
+  const [sandboxApplied, setSandboxApplied] = (0, React.useState)(0);
   (0, React.useEffect)(() => {
-    const open = (event) => setSelectedLobbyEncounter(event.detail);
-    const get = (event) => event.detail.reply(getLoadout("sandbox"));
-    const apply = (event) => {
-      setLoadout("sandbox", event.detail.loadout);
-      sandboxEnterRef.current = event.detail.encounterKind;
-      // Entered once the loadout is in the state (below), or at the latest now.
-      setTimeout(() => {
-        if (sandboxEnterRef.current) {
-          const kind = sandboxEnterRef.current;
-          sandboxEnterRef.current = null;
-          enterEncounter(kind);
-        }
-      }, 50);
+    const onRequest = (event) => {
+      const { type, payload, accept, resolve, reject } = event.detail;
+      // A request taken and then failed settles with the error, never hangs.
+      try {
+      if (type === "open-setup") {
+        accept();
+        setSelectedLobbyEncounter(payload);
+        resolve();
+      } else if (type === "get-loadout") {
+        accept();
+        resolve(getLoadout("sandbox"));
+      } else if (type === "apply-loadout") {
+        accept();
+        // A newer request takes the place of one not yet entered.
+        sandboxApplyRef.current?.resolve();
+        sandboxApplyRef.current = { encounterKind: payload.encounterKind ?? null, resolve, reject };
+        setLoadout("sandbox", payload.loadout);
+        setSandboxApplied((count) => count + 1);
+      } else if (type === "enter") {
+        accept();
+        enterEncounter(payload.encounterKind);
+        resolve();
+      }
+      } catch (error) {
+        if (sandboxApplyRef.current?.resolve === resolve) sandboxApplyRef.current = null;
+        reject(error);
+      }
     };
-    window.addEventListener("sandbox-open-setup", open);
-    window.addEventListener("sandbox-get-loadout", get);
-    window.addEventListener("sandbox-apply-loadout", apply);
-    return () => {
-      window.removeEventListener("sandbox-open-setup", open);
-      window.removeEventListener("sandbox-get-loadout", get);
-      window.removeEventListener("sandbox-apply-loadout", apply);
-    };
+    window.addEventListener("sandbox-request", onRequest);
+    return () => window.removeEventListener("sandbox-request", onRequest);
   }, [setSelectedLobbyEncounter, getLoadout, setLoadout, enterEncounter]);
+  // The render that holds the applied loadout: its enterEncounter enters with it.
   (0, React.useEffect)(() => {
-    if (!sandboxEnterRef.current) return;
-    const kind = sandboxEnterRef.current;
-    sandboxEnterRef.current = null;
-    enterEncounter(kind);
-  }, [enterEncounter]);
+    const pending = sandboxApplyRef.current;
+    if (!pending) return;
+    sandboxApplyRef.current = null;
+    try {
+      if (pending.encounterKind) enterEncounter(pending.encounterKind);
+      pending.resolve();
+    } catch (error) {
+      pending.reject(error);
+    }
+  }, [sandboxApplied]);
   const mm =
     "encounter" === sceneState.kind
       ? sceneState.encounterKind
@@ -53766,7 +53769,8 @@ function eCe({ devHarness: devHarness } = {}) {
           isOpen: hz,
           onClose: r8,
           onEnter: (sP) => {
-            s9(sP);
+            // The sandbox: the arena of the player's scenario, the editor at its start screen.
+            s9(sP === "sandbox" ? sandboxEntryKind() : sP);
             hA(false);
           },
           onConfigure: (sP, sQ, sR) => {
