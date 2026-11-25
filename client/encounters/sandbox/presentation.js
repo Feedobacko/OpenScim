@@ -8,10 +8,11 @@
 // Heredit's and Yama's scenes are in client/assets/rendering.js, which hands
 // every presentation `presentationOf(kind)` to reach them; the render config
 // is the host's with the catalog's NPCs added. Which scene a visit gets is
-// decided when it is built, from the scenario of the run (visit.js), so the
-// editor reloads the page when the boss is switched on or off (editor.js);
-// and should a run start whose scenario wants the other scene (a replay or
-// a restart with the boss set the other way), the page reloads into it.
+// decided when it is built, from the scenario of the run (visit.js), so
+// when the boss is switched on or off the editor has the application enter
+// the arena again (editor.js, requestApp("enter")); and should a run start
+// whose scenario wants the other scene (a replay or a restart with the boss
+// set the other way), the page reloads into it.
 import { buildScene } from "../shared/buildScene.js";
 import { sandboxArenas, sandboxVariantKind } from "./arenas.js";
 import { sandboxPreloadNpcTypes, sandboxSpotAnimIds } from "./catalog.js";

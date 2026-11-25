@@ -24,7 +24,8 @@ export { gatewayLocs, turnGatewayObject };
 
 export const sandboxGatewayLabel = "Sandbox";
 const select = (open) =>
-  open({ encounterKind: sandboxKind, displayName: "Sandbox", description: "Build a fight of your own: an arena, monsters of the other fights, and their bosses." });
+  // offerScenarioCode: the setup window shows "Load a scenario" (application.js), the way in for someone holding a code.
+  open({ encounterKind: sandboxKind, displayName: "Sandbox", description: "Build a fight of your own: an arena, monsters of the other fights, and their bosses.", offerScenarioCode: true });
 
 // The dais's tiles: a click on one opens the setup window.
 const daisTiles = tilesIn(centerX - 2, dais.y - 2, centerX + 2, dais.y + 2);
