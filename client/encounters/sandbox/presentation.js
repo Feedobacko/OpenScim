@@ -67,6 +67,7 @@ const presentationOf = (arena) => (BaseScene, packHsl, { presentationOf: present
   const kind = sandboxVariantKind(arena.id);
   const ownRenderConfig = {
     terrainMapSquare: arena.mapSquare,
+    ...(arena.mapSquareOffsets ? { mapSquareOffsets: arena.mapSquareOffsets } : {}),
     locRender: arena.locRender,
     preloadNpcTypes: sandboxPreloadNpcTypes,
     spotAnimIds: sandboxSpotAnimIds,

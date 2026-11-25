@@ -153,6 +153,7 @@ const spectating = { mode: "ffa", options: { ffaIncludesPlayer: false } };
   const jaguarAt = {
     sol_heredit: [28, 30], yama: [26, 33], zebak: [27, 36], vardorvis: [36, 22],
     doom: [26, 26], doom_deep: [26, 27], duke: [27, 46], leviathan: [25, 30],
+    araxxor: [56, 20], maggot_king: [27, 34], corrupted_hunllef: [52, 52],
   };
   for (const arena of sandboxArenas.filter((candidate) => candidate.hostKind)) {
     const arenaKind = sandboxVariantKind(arena.id);
