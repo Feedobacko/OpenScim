@@ -43933,6 +43933,44 @@ var X_ = class e {
       }
     }
   }
+  // The plugin Defence Tracker (client/plugins/defenceTracker.js): the
+  // Defence of each NPC it tracks, written where its options say: over the
+  // health bar (clear of the bar and of TzHaar HP Tracker's number), right
+  // of it, at the height of the hitsplats, or at the feet.
+  npcDefenceTexts(a, t, n, r, i) {
+    for (const l of n) {
+      const d = l.alive ? getDefenceOverhead(l.id) : null;
+      if (!d) continue;
+      const { cx, cy } = this.ML(l, r, i);
+      const h = this.npcOverlayHeights.get(l.id);
+      const base = h?.baseHeight ?? -Nb(this.terrainHeights, cx, cy) / 128;
+      const onBar = d.position === "ABOVE_HP_BAR" || d.position === "RIGHT_OF_HP_BAR";
+      const p = t.tileToScreen({ x: cx, y: cy, level: base + (onBar ? (h?.healthBarHeight ?? 1.5) : d.position === "CENTRE_OF_NPC" ? (h?.hitsplatHeight ?? 1) : 0) });
+      if (!p) continue;
+      // The bar is drawn 5 px tall with its bottom edge at the anchor
+      // (measured in the page): the text sits 3 px over its top, or starts
+      // 4 px right of it on its middle line; at the centre and the feet it
+      // is centred on the point.
+      const bar = 5;
+      const [dx, dy, transform] =
+        d.position === "ABOVE_HP_BAR"
+          ? [0, -bar - 3, "translate(-50%, -100%)"]
+          : d.position === "RIGHT_OF_HP_BAR"
+            ? [(h?.healthBarWidth ?? e.OSRS_HEALTHBAR_WIDTH) / 2 + 4, -bar / 2, "translate(0, -50%)"]
+            : [0, 0, "translate(-50%, -50%)"];
+      a.overheadTexts ||= [];
+      a.overheadTexts.push({
+        screenX: p.x + dx,
+        screenY: p.y + dy - d.yOffset,
+        transform,
+        text: d.text,
+        textColor: d.textColor,
+        segments: d.segments,
+        fontSize: e.OSRS_OVERHEAD_TEXT_FONT_SIZE,
+        key: "npc-defence-" + l.id,
+      });
+    }
+  }
   WL(a, t, n, s, r = 0, i = s - r) {
     for (const l of n) {
       const n = CW(l, s);
@@ -47621,6 +47659,7 @@ var SceneCompositor = class e {
       simulationState.currentTick,
     );
     this.uiOverlayRenderer.npcOverheadsAndBars(n, uiCamera, J.npcs, interpolatedTick ?? currentTick, this.npcInterpFraction, simulationState.currentTick);
+    this.uiOverlayRenderer.npcDefenceTexts(n, uiCamera, J.npcs, this.npcInterpFraction, simulationState.currentTick);
     if (options.showNpcAttackTimerMetronome) {
       this.uiOverlayRenderer.PL(
         n,
@@ -57598,6 +57637,7 @@ import {overrideProjectile} from "/plugins/projectileOverride.js";
 // The plugins Blindfold and Skybox (client/plugins/): what the scene leaves out, and the colour of the sky.
 import {getBlindfold} from "/plugins/blindfold.js";
 import {getSkyboxColor} from "/plugins/skybox.js";
+import {getDefenceOverhead} from "/plugins/defenceTracker.js";
 import {dt2FragmentShader} from "/dt2/shader.js";
 import { LobbyEncounter } from "../encounters/lobby/LobbyEncounter.js";
 import { divineSeveranceContract, forfeitBreathContract, sensoryCloudingContract, bloodiedBlowsContract, glyphicAttenuationContract, yamaContractVariants } from "../encounters/yama/contracts.js";
@@ -59915,13 +59955,21 @@ var rZ = class {
 function iZ(e, a) {
   const t = a.segments && a.segments.length > 0 ? a.segments : null;
   const n = t
-    ? `s:${t.map((e) => `${e.color ?? ""}\0${e.text}`).join("")}`
+    ? `s:${t.map((e) => `${e.color ?? ""}\0${e.icon ?? ""}\0${e.text}`).join("")}`
     : `t:${a.text}`;
   if (e.dataset.content !== n) {
     e.dataset.content = n;
     if (t) {
       e.textContent = "";
       for (const a of t) {
+        // A picture in the line of the text (Defence Tracker's skill icon), as tall as the text.
+        if (a.icon) {
+          const icon = document.createElement("img");
+          icon.src = a.icon;
+          icon.style.cssText = "height:1em;width:auto;vertical-align:top;margin-right:3px;image-rendering:pixelated";
+          e.appendChild(icon);
+          continue;
+        }
         const t = document.createElement("span");
         t.textContent = a.text;
         if (a.color) {
@@ -60266,6 +60314,7 @@ var dZ = ({
         s.style.top = `${n.screenY}px`;
         s.style.color = n.textColor;
         s.style.fontSize = `${n.fontSize}px`;
+        s.style.transform = n.transform ?? "translate(-50%, -100%)"; // Defence Tracker says how its text hangs from its point
         iZ(s, n);
       }
     } else if (t) {
@@ -62173,6 +62222,7 @@ var bZ = ({
         s.style.top = `${n.screenY}px`;
         s.style.color = n.textColor;
         s.style.fontSize = `${n.fontSize}px`;
+        s.style.transform = n.transform ?? "translate(-50%, -100%)"; // Defence Tracker says how its text hangs from its point
         iZ(s, n);
       }
     } else if (t) {
