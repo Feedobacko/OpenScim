@@ -1,0 +1,17 @@
+{
+ "ticks": 18,
+ "outcome": "victory",
+ "final": "df584499bd1cc1be9cd32378de0f5eb732228f6be8a980f32a443a98255335ce",
+ "perTick": "2c2ccbbdaf 4ca96d49d8 ea7f0cfed8 39d5ac4563 3da25e6349 3bf26fc0bc 2fb9a472e3 654fe9535a 0b6140e787 b0b69628d6 0926b4b78f 5f613b03a2 a0e331b62c 8b43a0cf6d e9c130d679 68248fd1ec e2fac711e3 309c01df2b 2ae5af9b7c",
+ "unseededRandomCalls": {
+  "setup": 2,
+  "ticks": 0,
+  "rebuild": 3
+ },
+ "replayRebuild": {
+  "frame": 9,
+  "digest": "5b25b48cb17eb10e",
+  "final": "6b2c083bb282aec4",
+  "endsLikeLiveRun": true
+ }
+}

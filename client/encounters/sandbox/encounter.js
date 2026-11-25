@@ -25,7 +25,13 @@
 // sandbox as its host, with every mechanic it has. The sandbox hands it
 // every hook the engine calls, adds the scenario's NPCs to its own, and
 // keeps the run going until both the host's fight and the scenario's are
-// won. The host's NPCs are a team of their own ("boss") in "ffa".
+// won. In "ffa" the host's NPCs are a team: their own ("boss"), or the one
+// the scenario names (`options.bossTeam`, "player" to fight for him). There
+// the boss fights the nearest enemy, monster or player, with its own
+// mechanics: each hook of the host that acts is handed a world whose player
+// is that enemy (hostContext), its attacks are rolled against it, and what
+// would land on the player's tile lands on it (strikeFocus). With no enemy
+// left the host rests. Duke Sucellus is woken at the start (wakeBoss).
 //
 // What the monsters make of each other (catalog.js names each): one that
 // summons (Jad his healers, Zuk Jad and his) does so as its hitpoints fall
@@ -83,6 +89,8 @@ const hostHooks = [
   "configureRunStart",
 ];
 const hostNpcHooks = { removeNpcIfDue: undefined, resolveNpcLocalEffects: [] };
+// Hooks handed the boss's world (hostContext), what they return landing on its enemy.
+const focusedHooks = new Set(["prepareNpcBand", "completeNpcBand", "removeNpcIfDue", "resolveNpcLocalEffects"]);
 // Every hook the sandbox hands its host: test/test-sandbox-wiring.mjs checks
 // that each method the engine calls on an encounter is the sandbox's own or
 // one of these, so that a hook the engine calls later is not skipped.
@@ -93,6 +101,11 @@ const firstActionAfterSpawn = 2;
 export class SandboxEncounter {
   // `createHost(kind)` makes the encounter of a kind (registry.js hands it in).
   constructor(arenaId, options, createHost) {
+    // Not state: the tick's world and events, for the hooks handed none; the
+    // enemy the host's boss fights this tick (focusOfBoss); and how that
+    // enemy looks to the host (playerView).
+    for (const name of ["world", "tickEvents", "bossFocus", "playerViews"]) Object.defineProperty(this, name, { value: undefined, writable: true });
+    this.playerViews = new WeakMap();
     this.arena = getSandboxArena(arenaId);
     this.kind = sandboxVariantKind(this.arena.id);
     this.createHost = createHost;
@@ -132,6 +145,11 @@ export class SandboxEncounter {
     // The dead a mager may bring back: { id, npc, team, size }.
     this.corpses = [];
     this.spawned = 0;
+    // In "ffa", the enemy the host's boss fights; bossId: the host's NPC that strikes.
+    this.bossTargetId = null;
+    this.bossFocus = undefined;
+    this.bossId = null;
+    this.bossRoused = false;
     const hosted = this.scenario.options.bossMechanics && this.arena.hostKind && this.createHost;
     this.setHost(hosted ? this.createHost(this.arena.hostKind) : null, seeds?.host);
     // The sandbox's own countdown (ownsCountdown): its monsters wait until this tick.
@@ -151,12 +169,33 @@ export class SandboxEncounter {
     for (const [name, answerForOwn] of Object.entries(hostNpcHooks)) {
       if (host[name]) this[name] = (npc, ...rest) => (isOwn(npc) ? answerForOwn : host[name](npc, ...rest));
     }
+    // A hook given a tick's context gets the boss's (hostContext).
+    for (const name of focusedHooks) {
+      const plain = this[name];
+      if (!plain) continue;
+      const npcHook = name in hostNpcHooks;
+      this[name] = (...args) => {
+        const at = npcHook ? 1 : 0;
+        const context = args[at];
+        const focused = this.hostContext(context);
+        if (focused === context) return plain(...args);
+        if (focused === null) return npcHook ? hostNpcHooks[name] : name === "completeNpcBand" ? [] : undefined;
+        const result = plain(...args.slice(0, at), focused, ...args.slice(at + 1));
+        return Array.isArray(result) ? this.strikeFocus(result, context) : result;
+      };
+    }
     if (host.onNpcDefeated) {
-      this.onNpcDefeated = (defeat, ...rest) => (this.npcIds.includes(defeat.npcId) ? undefined : host.onNpcDefeated(defeat, ...rest));
+      // The Doom of Mokhaiotl clears his room as he dies: not of the scenario's own.
+      this.onNpcDefeated = (defeat, context, ...rest) =>
+        this.npcIds.includes(defeat.npcId) ? undefined : host.onNpcDefeated(defeat, this.sparingOwn(context), ...rest);
     }
     if (host.moveNpc) {
-      this.moveNpc = (npc, context, mechanics) =>
-        isBrawler(npc) ? this.definitions.move(npc, { ...context, random: this.random }) : isObstacle(npc) ? [] : host.moveNpc(npc, context, mechanics);
+      this.moveNpc = (npc, context, mechanics) => {
+        if (isBrawler(npc)) return this.definitions.move(npc, { ...context, random: this.random });
+        if (isObstacle(npc)) return [];
+        const focused = this.hostContext(context);
+        return focused === null ? [] : host.moveNpc(npc, focused, mechanics);
+      };
     }
     if (host.runStartMechanicsKeys) this.runStartMechanicsKeys = host.runStartMechanicsKeys;
   }
@@ -336,6 +375,12 @@ export class SandboxEncounter {
     const host = this.host?.getEngineRules?.() ?? {};
     return {
       ...host,
+      // A boss of the player's side is not his to attack.
+      validateAttack: (attackKind, targetId, ...rest) => {
+        const target = this.world?.actors.get(targetId);
+        if (target && !isOwn(target) && target.kind === "npc" && this.sideOf(target) === playerTeam) return false;
+        return host.validateAttack?.(attackKind, targetId, ...rest) ?? null;
+      },
       onPlayerDamageTaken: (hit, rules) => {
         const source = hit.sourceId ? rules?.world?.actors.get(hit.sourceId) : null;
         if (isBrawler(source) && this.tickEvents) this.healFromDamage(source, hit.effectiveDamage, this.tickEvents);
@@ -345,8 +390,113 @@ export class SandboxEncounter {
   }
   resolveHazards(context, mechanics) {
     this.tickEvents = context.tickEvents;
+    this.world = context.world;
     this.landHeals(context);
-    return [...(this.host?.resolveHazards(context, mechanics) ?? []), ...this.landStrikes(context)];
+    this.bossFocus = this.focusOfBoss(context);
+    if (this.host && this.scenario.mode === "ffa" && !this.bossRoused) {
+      this.bossRoused = true;
+      this.host.wakeBoss?.(context);
+    }
+    const focused = this.host ? this.hostContext(context) : null;
+    const hostDamages = focused ? this.strikeFocus(this.host.resolveHazards(focused, mechanics), context) : [];
+    return [...hostDamages, ...this.landStrikes(context)];
+  }
+
+  // --- the arena's boss in a free-for-all ----------------------------------
+  // The host's first NPC that can be fought, alive (the boss).
+  hostBoss(world) {
+    return world.getNpcs().find((npc) => !isOwn(npc) && isActorAlive(npc) && !npc.untargetable) ?? null;
+  }
+  // The enemy the boss fights this tick: the one it had while that is an
+  // enemy, else the nearest (ties: the player, then the NPCs in order).
+  focusOfBoss(context) {
+    if (!this.host || this.scenario.mode !== "ffa") return undefined;
+    const world = context.world;
+    const boss = this.hostBoss(world);
+    this.bossId = boss?.id ?? null;
+    if (!boss) return null;
+    const current = this.bossTargetId ? world.actors.get(this.bossTargetId) : null;
+    if (current && this.isEnemy(boss, current)) return current;
+    let best = null;
+    let bestGap = Infinity;
+    for (const candidate of [world.getPlayer(), ...world.getNpcs()]) {
+      if (!candidate || !this.isEnemy(boss, candidate)) continue;
+      const gap = footprintGap(boss, candidate);
+      if (gap < bestGap) {
+        best = candidate;
+        bestGap = gap;
+      }
+    }
+    this.bossTargetId = best?.id ?? null;
+    return best;
+  }
+  // The context a host's hook is handed: the engine's when the boss fights the
+  // player (or there is no free-for-all); else one whose player is its enemy,
+  // with the player's own controls (prayers, teleports) out of its reach; null
+  // when it has no enemy, and rests.
+  hostContext(context) {
+    const focus = this.bossFocus;
+    if (focus === undefined || focus?.kind === "player" || !context?.world) return context;
+    if (focus === null) return null;
+    const view = focus.kind === "player" ? focus : this.playerView(focus);
+    const world = new Proxy(context.world, {
+      get(target, key) {
+        if (key === "getPlayer") return () => view;
+        if (key === "getPlayers") return () => [view];
+        const value = target[key];
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    return { ...this.sparingOwn(context), world, playerPos: [...focus.position], setProtectionPrayer: () => {}, disableProtectionPrayersUntil: () => {}, teleportPlayer: () => {} };
+  }
+  // A monster as a host sees its player: itself, with what only a player has
+  // in its place, neutral (no gear, no prayer, no timers running, its levels
+  // as its stats); what the host writes there stays there. Its kind stays
+  // "npc", so that attacks on it are rolled with its own stats.
+  playerView(npc) {
+    let view = this.playerViews.get(npc);
+    if (view) return view;
+    const levels = npc.formulaStats?.levels ?? {};
+    const stats = Object.fromEntries(["attack", "strength", "defence", "ranged", "magic", "hitpoints", "prayer", "agility"]
+      .map((skill) => [skill, { current: levels[skill] ?? 1, base: levels[skill] ?? 1 }]));
+    const zeros = new Proxy({}, { get: (target, key) => (key in target ? target[key] : 0) });
+    const defaults = {
+      stats, equipment: {}, equipmentStats: zeros, combatTimers: new Proxy({}, { get: (target, key) => (key in target ? target[key] : 0) }),
+      prayerState: { prayerActivationTicks: {} }, runEnergy: { energy: 10000 }, activePrayer: null, offensivePrayer: null,
+      activeEffects: [], inventory: [],
+    };
+    view = new Proxy(npc, {
+      get: (target, key) => (key in target ? target[key] : defaults[key]),
+      set: (target, key, value) => {
+        if (!(key in target) && key in defaults) defaults[key] = value;
+        else target[key] = value;
+        return true;
+      },
+    });
+    this.playerViews.set(npc, view);
+    return view;
+  }
+  // A context whose despawnNpc leaves the scenario's own NPCs be.
+  sparingOwn(context) {
+    if (!context?.despawnNpc) return context;
+    return { ...context, despawnNpc: (id) => (isOwn(context.world.getNpc(id)) ? undefined : context.despawnNpc(id)) };
+  }
+  // What the host meant for the player's tile, on the boss's enemy: each a hit
+  // of the boss, its damage rolled from what it says (a number, or [least, most]).
+  strikeFocus(damages, context) {
+    const focus = this.bossFocus;
+    if (!damages?.length || focus === undefined || focus?.kind === "player") return damages ?? [];
+    for (const damage of damages) {
+      if (!focus || !isActorAlive(focus) || !context.queueNpcHit || !this.bossId) break;
+      const base = damage.baseDamage;
+      const amount = Array.isArray(base) ? base[0] + Math.floor(this.random() * (base[1] - base[0] + 1)) : base;
+      if (!(amount >= 0)) continue;
+      context.queueNpcHit({
+        attackerId: this.bossId, targetId: focus.id, style: "typeless", attackKind: "typeless", rolledDamage: amount,
+        accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "persist",
+      });
+    }
+    return [];
   }
   // The heals due now land, if their healer still lives (zukHealers.js).
   landHeals(context) {
@@ -389,14 +539,16 @@ export class SandboxEncounter {
     return damages;
   }
   processPostTick(context, mechanics) {
-    const damages = this.host?.processPostTick(context, mechanics) ?? [];
+    // The host's, in the boss's context; resting, in the engine's, its damages dropped.
+    const focused = this.host ? this.hostContext(context) : null;
+    const damages = !this.host ? [] : focused ? this.strikeFocus(this.host.processPostTick(focused, mechanics), context) : (this.host.processPostTick(context, mechanics), []);
     for (const npc of context.world.getNpcs()) {
       if (isBrawler(npc) && npc.death !== undefined && !npc.state.deathSeen) this.onOwnDeath(npc, context);
       if (isBrawler(npc) && npc.death !== undefined && context.tick >= (npc.deathAnimationTick ?? npc.death.killTick) + deathTicks) context.despawnNpc(npc.id);
     }
     if (this.outcome.phase === "resolving") {
       if (context.tick >= this.outcome.completionTick) this.outcome = { ...this.outcome, phase: "victory" };
-    } else if (this.npcIds.length > 0) {
+    } else if (this.npcIds.length > 0 || (this.host && this.scenario.mode === "ffa")) {
       this.decideOutcome(context);
     }
     return damages;
@@ -421,7 +573,8 @@ export class SandboxEncounter {
   // With a host: won when its fight is won and the scenario's NPCs are too
   // (or there were none); the host's outcome times the victory.
   getOutcome() {
-    if (!this.host) return this.outcome;
+    // In a free-for-all the host's boss is one of the teams (decideOutcome).
+    if (!this.host || this.scenario.mode === "ffa") return this.outcome;
     const hostOutcome = this.host.getOutcome();
     if (hostOutcome.phase === "active") return hostOutcome;
     return this.npcIds.length === 0 || this.outcome.phase !== "active" ? hostOutcome : { phase: "active" };
@@ -460,7 +613,16 @@ export class SandboxEncounter {
   processNpcTick(npc, context, mechanics) {
     if (isBrawler(npc)) return this.definitions.tick(npc, { ...context, random: this.random });
     if (isObstacle(npc)) return { environmentalDamages: [] };
-    return this.host?.processNpcTick?.(npc, context, mechanics);
+    if (!this.host?.processNpcTick) return undefined;
+    const focused = this.hostContext(context);
+    if (focused === null) return { environmentalDamages: [] };
+    const turn = this.host.processNpcTick(npc, focused, mechanics);
+    if (!turn || focused === context) return turn;
+    return {
+      ...turn,
+      environmentalDamages: this.strikeFocus(turn.environmentalDamages, context),
+      npcAttacks: (turn.npcAttacks ?? []).map((attack) => (attack.targetId === "player" ? { ...attack, targetId: this.bossFocus.id } : attack)),
+    };
   }
 
   // --- the rules of the modes ---------------------------------------------
@@ -471,14 +633,20 @@ export class SandboxEncounter {
   playerIsFair() {
     return this.scenario.mode === "versus" || this.scenario.options.ffaIncludesPlayer;
   }
+  // The side of an actor: the player's; a monster's team; the host's NPCs',
+  // in "ffa" the scenario's `bossTeam` or their own.
+  sideOf(actor) {
+    if (actor.kind === "player") return playerTeam;
+    if (isBrawler(actor)) return actor.state.team;
+    return this.scenario.mode === "ffa" ? (this.scenario.options.bossTeam ?? bossTeam) : "enemies";
+  }
   isEnemy(actor, other) {
     // Nor one that cannot be attacked (the Leviathan's pathfinder, a meleer under the floor).
     if (other === actor || !isActorAlive(other) || isObstacle(other) || other.untargetable) return false;
     if (other.state?.dig) return false;
-    if (other.kind === "player") return actor.state.team !== playerTeam && this.playerIsFair();
+    if (other.kind === "player") return this.sideOf(actor) !== playerTeam && this.playerIsFair();
     if (this.scenario.mode !== "ffa") return false;
-    const team = isBrawler(other) ? other.state.team : bossTeam;
-    return team !== actor.state.team;
+    return this.sideOf(other) !== this.sideOf(actor);
   }
   // The target it has if that fights it back; else the attacker that hit
   // last, if it is an enemy; else the target it has; else the nearest enemy (ties: the player, then the NPCs in the order of
@@ -529,6 +697,8 @@ export class SandboxEncounter {
     if (!player?.alive) return;
     // The scenario's NPCs only: a host decides its own fight.
     const teams = new Set(context.world.getNpcs().filter((npc) => isBrawler(npc) && isActorAlive(npc)).map((npc) => npc.state.team));
+    // The host's boss, while its fight goes on, is its team.
+    if (this.host && this.scenario.mode === "ffa" && this.host.getOutcome().phase === "active") teams.add(this.sideOf({ kind: "npc" }));
     let won = false;
     if (this.playerIsFair()) {
       teams.delete(playerTeam);
@@ -536,7 +706,11 @@ export class SandboxEncounter {
     } else if (teams.size <= 1) {
       won = true;
       const [team] = teams;
-      this.winner = team === undefined ? null : team.startsWith("solo:") ? this.getNpcDamageSourceLabel(team.slice(5)) : team;
+      this.winner =
+        team === undefined ? null
+        : team.startsWith("solo:") ? this.getNpcDamageSourceLabel(team.slice(5))
+        : this.host && team === this.sideOf({ kind: "npc" }) && team === bossTeam ? this.host.getNpcDamageSourceLabel(this.bossId)
+        : team;
     }
     if (won) {
       this.outcome = {

@@ -604,6 +604,20 @@ function stepArena() {
     box.checked = draft.options.bossMechanics;
     nodes.push(el("label", { class: "sbx-row" }, [box, "Fight this arena's boss with all its mechanics"]));
     nodes.push(el("p", { class: "sbx-note", text: "The boss starts where its own fight puts it, with its own attacks, phases and hazards; your monsters fight beside it. The run is won when both are beaten." }));
+    if (draft.mode === "ffa" && draft.options.bossMechanics) {
+      const team = el("input", {
+        value: draft.options.bossTeam ?? "", maxlength: 20, placeholder: "its own", list: "sbx-boss-teams",
+        onchange: (event) => {
+          const { bossTeam, ...rest } = draft.options;
+          const value = event.target.value.trim();
+          draft.options = value ? { ...rest, bossTeam: value } : rest;
+          commit();
+        },
+      });
+      const teams = el("datalist", { id: "sbx-boss-teams" }, ["1", "2", "3", "4", playerTeam].map((value) => el("option", { value })));
+      nodes.push(el("div", { class: "sbx-row" }, [field("Boss team", team), teams]));
+      nodes.push(el("p", { class: "sbx-note", text: `In a free for all the boss fights the monsters of the other teams with its own mechanics, the nearest first; with the team "${playerTeam}" it fights for you.` }));
+    }
   }
 
   // The examples of the mode chosen above.

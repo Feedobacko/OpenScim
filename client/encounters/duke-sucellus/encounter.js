@@ -355,13 +355,7 @@ class DukeSucellusEncounter {
   processPostTick(context) {
     const boss = context.world.getNpc(bossActorId);
     const player = context.world.getPlayer();
-    if (this.wakeTick === null && boss?.alive && player?.alive && player.attackTarget === boss.id && isSquarelyBeside(player.position)) {
-      // The engine takes the player off him again, and refuses further clicks,
-      // while he cannot be attacked.
-      this.wakeTick = context.tick + wakeDelayTicks;
-      boss.attackBlockedUntilTick = this.wakeTick + attackableTicks;
-      boss.combat.nextActionTick = this.wakeTick + wakeTicks;
-    }
+    if (this.wakeTick === null && boss?.alive && player?.alive && player.attackTarget === boss.id && isSquarelyBeside(player.position)) this.rouse(boss, context.tick);
     for (const { endTick } of this.spits.filter(({ tick }) => tick === context.tick)) if (boss?.alive && player?.alive) this.spit(boss, player, context, endTick);
     this.spits = this.spits.filter(({ tick }) => tick > context.tick);
     if (this.outcome.phase === "resolving" && context.tick >= this.outcome.completionTick) this.outcome = { ...this.outcome, phase: "victory" };
@@ -407,6 +401,20 @@ class DukeSucellusEncounter {
     npc.combat.nextActionTick = context.tick + speed;
     if (isBeside(player.position)) return this.melee(npc, player, context);
     return this.magic(npc, player, context);
+  }
+
+  // He wakes two ticks from `tick`. The engine takes the player off him
+  // again, and refuses further clicks, while he cannot be attacked.
+  rouse(boss, tick) {
+    this.wakeTick = tick + wakeDelayTicks;
+    boss.attackBlockedUntilTick = this.wakeTick + attackableTicks;
+    boss.combat.nextActionTick = this.wakeTick + wakeTicks;
+  }
+  // The sandbox's free-for-all wakes him at the start (sandbox/encounter.js):
+  // there the monsters fight him, and none feeds him.
+  wakeBoss(context) {
+    const boss = context.world.getNpc(bossActorId);
+    if (this.wakeTick === null && boss?.alive) this.rouse(boss, context.tick);
   }
 
   // --- his attacks ------------------------------------------------------

@@ -13,7 +13,22 @@ const { sandboxVariantKind } = await import("../client/encounters/sandbox/arenas
 const kind = sandboxVariantKind("colosseum");
 await prepareArena(kind);
 
+// The encounter draws its own seed from Math.random (as the harness says):
+// a seeded one, the same for every run, keeps each run the same.
+function seededRandom(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+Math.random = seededRandom(17);
+
 function run(scenario, ticks, { prayer, each } = {}) {
+  Math.random = seededRandom(17);
   const engine = engineModule.createSimulationEngine({
     encounterConfig: { kind, mechanics: { infiniteHealth: true }, options: { scenario: { arena: "colosseum", meta: { name: "Test" }, ...scenario } } },
     objTypeLoader, combatSeed: 9,
@@ -44,7 +59,7 @@ const spectating = { mode: "ffa", options: { ffaIncludesPlayer: false } };
       { id: "jag1", npc: "colosseum.jaguar", position: [32, 34], team: "1" },
       { id: "jag2", npc: "colosseum.jaguar", position: [32, 38], team: "1" },
     ],
-  }, 40, { each: (engine) => { for (const id of ["jag1", "jag2"]) targets.add(engine.worldState.getNpc(id)?.combat.targetId); } });
+  }, 80, { each: (engine) => { for (const id of ["jag1", "jag2"]) targets.add(engine.worldState.getNpc(id)?.combat.targetId); } });
   const healers = npcs().filter((npc) => npc.npcTypeId === 7701 || npc.id.startsWith("jad_healer"));
   assert.ok(healers.length > 0 || [...targets].some((id) => id?.startsWith("jad_healer")), "Jad's healers come below half his hitpoints");
   assert.ok(heals.some((heal) => heal.targetId === "jad" && heal.amount === 10), "a healer heals Jad 10");
@@ -115,5 +130,26 @@ const spectating = { mode: "ffa", options: { ffaIncludesPlayer: false } };
   assert.ok(onMonster.heals.some((heal) => heal.targetId === "vard"), "and on a monster");
 }
 
-console.log("sandbox mechanics: Jad's and Zuk's healers, the healers first, the blob, the mager, the meleer, Vardorvis' heal");
+// The arena's boss in a free-for-all, on a team (encounter.js, bossTeam):
+// Duke Sucellus, woken at the start, fights a jaguar of another team with
+// his own attacks, and leaves the player, who watches, alone.
+{
+  const dukeKind = sandboxVariantKind("duke");
+  await prepareArena(dukeKind);
+  Math.random = seededRandom(17);
+  const engine = engineModule.createSimulationEngine({
+    encounterConfig: {
+      kind: dukeKind, mechanics: { infiniteHealth: true },
+      options: { scenario: { arena: "duke", mode: "ffa", meta: { name: "Test" }, options: { bossMechanics: true, ffaIncludesPlayer: false, bossTeam: "1" }, npcs: [{ id: "jag", npc: "colosseum.jaguar", position: [27, 46], team: "2", hp: 3000 }] } },
+    },
+    objTypeLoader, combatSeed: 9,
+    inventory: engineModule.createEmptyInventory(), equipment: {}, combatSupplies: engineModule.createEmptyCombatSupplies(), attackStylePerCategory: {},
+  });
+  for (let step = 0; step < 80; step++) engine.advanceTick(engine.getState().playerPosition);
+  const jaguar = engine.worldState.getNpc("jag");
+  assert.ok(jaguar.vitals.hp < 3000, "Duke hurts the jaguar");
+  assert.equal(engine.getState().damageHistory.filter((hit) => hit.targetId === "player").length, 0, "and not the player");
+}
+
+console.log("sandbox mechanics: Jad's and Zuk's healers, the healers first, the blob, the mager, the meleer, Vardorvis' heal, a boss in a free-for-all");
 process.exit(0);

@@ -103,6 +103,22 @@ export async function scenarios() {
       ...rangedGear,
       script: shootNearest(),
     })),
+    // Each arena's boss in a free-for-all, on a team against the two NPCs,
+    // with the player left out: it fights them with its own mechanics.
+    ...hostedArenas.map(({ arena, npcs }) => ({
+      name: `sandbox/host-ffa/${arena}`,
+      kind: sandboxVariantKind(arena),
+      seed: 19,
+      ticks: 80,
+      mechanics: { infiniteHealth: true },
+      options: {
+        scenario: {
+          arena, mode: "ffa", meta: { name: "Harness: host in a free-for-all" },
+          options: { bossMechanics: true, ffaIncludesPlayer: false, bossTeam: "1" },
+          npcs: npcs.map((npc) => ({ ...npc, team: "2" })),
+        },
+      },
+    })),
     ...ownFloorArenas.map(({ arena, obstacles, npcs }) => ({
       name: `sandbox/floor/${arena}`,
       kind: sandboxVariantKind(arena),
