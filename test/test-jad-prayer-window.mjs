@@ -57,5 +57,46 @@ for (const ticks of [1, 2, 3]) {
 // Four ticks after: the attack was released on the third, without the prayer.
 for (const { style, judged } of judgedPrayers(4)) assert.notEqual(judged, against[style], `switched after the release: the ${style} attack is not prayed against`);
 
-console.log("Jad's prayer window: three ticks from the animation to the release, judged on the release");
+// The sandbox's JalTok-Jad (client/encounters/sandbox/brawler.js, an attack
+// with a windup) gives the same window: its hit is queued as the animation
+// starts, but judged when the windup ends.
+const { sandboxVariantKind } = await import("../client/encounters/sandbox/arenas.js");
+const sandboxKind = sandboxVariantKind("colosseum");
+await prepareArena(sandboxKind);
+function sandboxJudgedPrayers(ticksAfterAnimation) {
+  const scenario = { arena: "colosseum", mode: "versus", meta: { name: "Jad" }, npcs: [{ id: "jad", npc: "inferno.jad", position: [30, 40] }] };
+  const engine = engineModule.createSimulationEngine({
+    encounterConfig: { kind: sandboxKind, mechanics: { infiniteHealth: true }, options: { scenario } },
+    objTypeLoader, combatSeed: 11,
+    inventory: engineModule.createEmptyInventory(), equipment: {}, combatSupplies: engineModule.createEmptyCombatSupplies(), attackStylePerCategory: {},
+  });
+  const attacks = [];
+  let switchAt = null;
+  for (let step = 0; step < 200 && attacks.filter((attack) => attack.judged !== undefined).length < 6; step++) {
+    if (switchAt && switchAt.tick === engine.currentTick + 1) engine.setProtectionPrayer(switchAt.prayer);
+    engine.advanceTick(engine.getState().playerPosition);
+    for (const event of engine.getLastTickEvents()) {
+      if (event.type !== "inferno_visual") continue;
+      for (const animation of event.animations) {
+        if (animation.actorId !== "jad" || !against[animation.clipId]) continue;
+        engine.setProtectionPrayer(null);
+        switchAt = { tick: engine.currentTick + ticksAfterAnimation, prayer: against[animation.clipId] };
+        attacks.push({ style: animation.clipId, animationTick: engine.currentTick, judged: undefined });
+      }
+    }
+    for (const hit of engine.getState().damageHistory.filter((entry) => entry.targetId === "player" && entry.tick === engine.currentTick && entry.sourceNpcTypeId === infernoNpcTypeIds.jad)) {
+      const attack = attacks.find((candidate) => candidate.judged === undefined && candidate.animationTick + 3 <= hit.tick);
+      if (attack) attack.judged = hit.activePrayer;
+    }
+  }
+  return attacks.filter((attack) => attack.judged !== undefined);
+}
+for (const ticks of [1, 2, 3]) {
+  const attacks = sandboxJudgedPrayers(ticks);
+  assert.ok(attacks.length >= 4, `sandbox: attacks seen (${attacks.length})`);
+  for (const { style, judged } of attacks) assert.equal(judged, against[style], `sandbox: switched ${ticks} ticks after the animation, the ${style} attack is prayed against`);
+}
+for (const { style, judged } of sandboxJudgedPrayers(4)) assert.notEqual(judged, against[style], `sandbox: switched after the release, the ${style} attack is not prayed against`);
+
+console.log("Jad's prayer window: three ticks from the animation to the release, judged on the release, in the Inferno and in the sandbox");
 process.exit(0);

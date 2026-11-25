@@ -58,7 +58,15 @@ function buildPlan(attack, maxHitOverride, attacker, target) {
   const maxHit = maxHitOverride ?? attack.maxHit;
   if (maxHit !== undefined) plan.maxHit = maxHit;
   const windupCycles = (attack.windupTicks ?? 0) * cyclesPerTick;
-  if (attack.windupTicks) plan.windupTicks = attack.windupTicks;
+  if (attack.windupTicks) {
+    plan.windupTicks = attack.windupTicks;
+    // The hit is queued as the animation starts, but the prayer is judged on
+    // the release, when the windup ends, as JalTok-Jad's own fight does it
+    // (inferno/jad.js; WIKI: after the release is too late): the player has
+    // the windup to switch. Without this it was judged at the animation's
+    // first tick, before anyone could react (issue #17).
+    plan.prayerCheckAt = { afterLaunchTicks: attack.windupTicks };
+  }
   let visual = [];
   const graphics = attack.targetGraphic
     ? [{ spotAnimId: attack.targetGraphic.spotAnimId, target: { kind: "tile", position: [...target.position] }, height: attack.targetGraphic.height ?? defaultTargetGraphicHeight, delayCycles: windupCycles }]
