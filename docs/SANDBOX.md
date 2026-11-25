@@ -27,15 +27,24 @@ editor** button, which opens a panel: a start screen and three steps.
    arena is another route, which the application enters without loading the
    page; the editor reopens at step 2); the mode, and the thirteen examples of
    that mode; the library; the scenarios saved in this browser.
-2. **Monsters**: a map of the arena's walkable tiles. Drag a monster from the
-   list onto its starting tile, drag it on the map to move it, click it to
-   edit its hitpoints, max hit, attack speed, levels and team, duplicate it or
-   remove it. The blue **P** is the player's starting tile; drag it the same
-   way. A footprint must stand on walkable tiles and on no one else. In a
-   free-for-all each monster shows its team's number in a corner; a right
-   click gives it the next team (none, 1 to 4, then **A**, the player's side).
-   **Boulders** (obstacles) are dragged from the same list, one tile each,
-   and a right click takes one away.
+2. **Monsters**: a map of the arena's walkable tiles on the left, the tools
+   on the right (one column on a narrow screen). Drag a monster from the list
+   (which a filter narrows by name or fight) onto its starting tile, drag it
+   on the map to move it, click it to edit its hitpoints, max hit, attack
+   speed, levels and team beside the map, duplicate it or remove it (also from
+   its row in the placed list). The blue **P** is the player's starting tile;
+   drag it the same way. A footprint must stand on walkable tiles and on no
+   one else. In a free-for-all each monster shows its team's number in a
+   corner; a right click gives it the next team (none, 1 to 4, then **A**, the
+   player's side). **Boulders** (obstacles) are dragged from the same list,
+   one tile each, and a right click takes one away.
+   The map zooms with the wheel, at the pointer (or with −, + and Fit above
+   it); dragging a free tile, or the middle button, pans it. A tooltip says
+   what is under the pointer and what can be done with it. Quicker edits:
+   **Alt+drag** copies a monster or a boulder, **Shift+click** on a free tile
+   places another like the selected monster, **Ctrl+D** duplicates the
+   selected one, **Del** removes it, **Esc** leaves it, and **+**, **−** and
+   **0** zoom.
 3. **Gear & share**: the scenario's gear ("Choose gear…" opens the
    application's setup window for the arena, with the presets of every
    fight; "Use my current gear" keeps what you wear in the scenario; "Remove
