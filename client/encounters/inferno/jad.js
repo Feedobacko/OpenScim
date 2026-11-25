@@ -309,8 +309,18 @@ var jadExecution = {
           ],
     );
   },
+  // WIKI (TzHaar Fight Cave/Strategies): a prayer switched after the ranged
+  // attack is released is too late, "even if the projectile has not hit you
+  // yet": the prayer is judged on the release, not on the hit. So the
+  // player's window is the windup, from the animation to the release
+  // (test/test-jad-prayer-window.mjs; issue #17).
   prayerCheckAtRelease: "launch",
-  rangedMagicPeriod: 8,
+  rangedMagicPeriod: 8, // WIKI: "8 ticks (4.8 seconds)"; wave 68's are 9 (waves.js)
+  // inferred: the release three ticks after the animation starts, magic and
+  // ranged alike (no tick count on the wiki; it says to switch "while he's
+  // rearing up", and "in between" the footwork of the ranged attack). The hit
+  // lands with the projectile (impactDelayTicks, the projectile's travel).
+  // The most each hits for: WIKI, 113.
   profiles: {
     magic: {
       windupTicks: 3,
@@ -338,6 +348,9 @@ var jadExecution = {
         maxHit: 113,
       },
     },
+    // WIKI: "Unlike the Magic and Ranged attacks, the Melee attack is
+    // instant", with no warning animation, every 4 ticks (the attack speed
+    // set below).
     melee: {
       windupTicks: 0,
       attack: {
