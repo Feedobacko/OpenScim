@@ -15205,6 +15205,8 @@ var gy = class e {
     ce(this, "sorterPitchSin", 0);
     ce(this, "sorterPitchCos", 1);
     ce(this, "visibleParts", new Map());
+    // Keyed by a part's positions: see cachedVisibility.
+    ce(this, "visibilityRecords", new WeakMap());
     ce(this, "renderFrame", 0);
     ce(this, "batchFamilies", []);
     ce(this, "batchParts", new Map());
@@ -16186,6 +16188,15 @@ var gy = class e {
       this.Ak(e.meshId, t, l, o, r, i);
       return true;
     }
+    const cachedVisible = e.animated
+      ? undefined
+      : this.cachedVisibility(positions3, transparentSort3, t, l, o, a.position);
+    if (cachedVisible !== undefined) {
+      if (cachedVisible) {
+        this.Ak(e.meshId, t, l, o, r, i);
+      }
+      return cachedVisible;
+    }
     const h = this.yk(a.position[0], a.position[1], a.position[2]);
     this.lk(this.sortModelMatrix, a);
     const f = this.zk(transparentSort3, positions3, this.sortModelMatrix);
@@ -16414,10 +16425,67 @@ var gy = class e {
         }
         return Ib(x);
       })(transparentSort3.triToModelFace, f, h).length > 0;
+    if (!e.animated) {
+      this.storeVisibility(positions3, transparentSort3, t, l, o, a.position, u);
+    }
     if (u && !e.animated) {
       this.Ak(e.meshId, t, l, o, r, i);
     }
     return u;
+  }
+  // The answer of ck for a part that is not animated, kept across frames: it
+  // depends only on the part's geometry, its transform and the camera, so it
+  // is reused while all of them are exactly as they were.
+  cachedVisibility(e, a, t, n, s, r) {
+    const records = this.visibilityRecords.get(e);
+    if (!records) {
+      return undefined;
+    }
+    for (const i of records) {
+      if (
+        i.transparentSort === a &&
+        i.yaw === t &&
+        i.pitch === n &&
+        i.scale === s &&
+        i.x === r[0] &&
+        i.y === r[1] &&
+        i.z === r[2] &&
+        i.cameraX === this.sorterCameraX &&
+        i.cameraY === this.sorterCameraY &&
+        i.cameraZ === this.sorterCameraZ &&
+        i.yawSin === this.sorterYawSin &&
+        i.yawCos === this.sorterYawCos &&
+        i.pitchSin === this.sorterPitchSin &&
+        i.pitchCos === this.sorterPitchCos
+      ) {
+        return i.visible;
+      }
+    }
+    return undefined;
+  }
+  storeVisibility(e, a, t, n, s, r, l) {
+    let records = this.visibilityRecords.get(e);
+    if (!records) {
+      records = [];
+      this.visibilityRecords.set(e, records);
+    }
+    const i = records.length < 4 ? {} : records.shift();
+    i.transparentSort = a;
+    i.yaw = t;
+    i.pitch = n;
+    i.scale = s;
+    i.x = r[0];
+    i.y = r[1];
+    i.z = r[2];
+    i.cameraX = this.sorterCameraX;
+    i.cameraY = this.sorterCameraY;
+    i.cameraZ = this.sorterCameraZ;
+    i.yawSin = this.sorterYawSin;
+    i.yawCos = this.sorterYawCos;
+    i.pitchSin = this.sorterPitchSin;
+    i.pitchCos = this.sorterPitchCos;
+    i.visible = l;
+    records.push(i);
   }
   wk(e, a, t, n, s, r) {
     const i = this.visibleParts.get(e);
@@ -17726,6 +17794,11 @@ var iz = class {
     this.materials.clear();
   }
 };
+// A producer that writes an animated mesh command's arrays (NPC and player
+// poses) stamps it with a new number from this counter. While the stamp and
+// a slot's array are the ones last uploaded, the data has not changed and the
+// renderer skips comparing it against its shadow copy.
+var meshUploadVersion = 0;
 function lz(e, a) {
   const length10 = a.length;
   if (length10 > e.length) {
@@ -19829,11 +19902,20 @@ var ea = class {
   }
   IS(e, a, t, n) {
     this.bindVertexArray(e, a.vao);
+    const unchanged =
+      !n &&
+      t.uploadVersion !== undefined &&
+      t.uploadVersion === a.uploadVersion;
     for (const s of a.slots) {
       if (!n && (s.attribute === "indices" || s.attribute === "tileCoords")) {
         continue;
       }
       const r = t[s.attribute];
+      const same = unchanged && r === s.uploadedArray;
+      s.uploadedArray = r;
+      if (same) {
+        continue;
+      }
       if (r && (!s.contents || !lz(s.contents, r))) {
         e.bindBuffer(s.target, s.buffer);
         if (r.byteLength > s.capacityBytes) {
@@ -19855,6 +19937,7 @@ var ea = class {
         }
       }
     }
+    a.uploadVersion = t.uploadVersion;
     if (n) {
       a.vertexCount = t.positions.length / 3;
       a.indexCount = t.indices?.length;
@@ -42379,6 +42462,7 @@ var NpcInstanceManager = class {
   }
   iL(e, a) {
     for (const t of e) {
+      t.uploadVersion = ++meshUploadVersion;
       if (t.meshId.includes("-opaque")) {
         t.positions = a.opaquePositions;
         t.normals = a.opaqueNormals;
@@ -43279,6 +43363,7 @@ var NpcInstanceManager = class {
     l.perVertexFaceBias = y.faceBias;
     l.uvs = y.uvs;
     l.perVertexTextureIds = y.textureIds;
+    l.uploadVersion = ++meshUploadVersion;
     e.transparentSortDirty = false;
   }
 };
@@ -46286,6 +46371,7 @@ var SceneCompositor = class e {
   RD(e) {
     if (this.cachedPlayerMeshes.length !== 0) {
       for (const a of this.cachedPlayerMeshes) {
+        a.uploadVersion = ++meshUploadVersion;
         const t = a.meshId.endsWith("-opaque") ? e.opaque : e.transparent;
         if (t) {
           a.positions = t.positions;
