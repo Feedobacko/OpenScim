@@ -10,6 +10,7 @@ import { blindfoldStore, listenForBlindfold } from "/plugins/blindfold.js";
 import { skyboxStore } from "/plugins/skybox.js";
 import { defenceTrackerStore, setDefenceTrackerEngine } from "/plugins/defenceTracker.js";
 if (typeof window !== "undefined") listenForBlindfold(window);
+import { showPluginsPausedHint } from "/plugins/pluginsPausedHint.js";
 import { thrallSpells, THRALL_END_SOUND_ID } from "/engine/thralls.js";
 const zebakSoundSearch = location.pathname === "/zebak/" ? new URLSearchParams(location.search).get("sound") : null;
 import { toEsModule } from "./rolldown-runtime.js";
@@ -52838,6 +52839,12 @@ function eCe({ devHarness: devHarness } = {}) {
   (0, React.useEffect)(
     () => listenForAttackRangesHotkey(window, () => attackRangesRef.current, setAttackRangesHotkeyOn),
     [],
+  );
+  // The Plugins panel (kY) holds the fight: say so over the scene. Not in a
+  // tutorial (kN, kJ), which opens the panel itself and holds the fight its own way.
+  (0, React.useEffect)(
+    () => (kY && "encounter" === sceneState.kind && !kN && kJ === null ? showPluginsPausedHint(() => kZ(false)) : undefined),
+    [kY, sceneState.kind, kN, kJ],
   );
   (0, React.useEffect)(() => {
     const engine = engineRef.current;
