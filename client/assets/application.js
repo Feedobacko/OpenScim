@@ -7792,6 +7792,8 @@ var Ace = {
     "Special attack needs poison; not simulated.",
     "Venom passive not simulated.",
   ],
+  // Seercull: its special (Soulshot) is the engine's, drawn with the weapon table's graphics; no recording of it was compared.
+  6724: ["Special attack graphics and sounds unverified."],
   12899: ["Venom not simulated."],
   22292: ["Venom not simulated."],
   11959: [Pce],
