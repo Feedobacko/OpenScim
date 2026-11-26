@@ -11,20 +11,22 @@
 //   slams every 4 ticks on a 3 x 4 in front of him, up to 55 (35 through
 //   Protect from Melee), each with three biles. Far and near take turns from
 //   then on; below a fifth he stays near for good.
-// A rotation is 4 to 7 attacks. A screech: a protection prayer up is hurt
-// every tick of it, his Defence is halved meanwhile, and ten piles of
-// carrion are thrown onto the floor, each breaking into fragments, which
-// stay as carrion; from 85% of his hitpoints, larvae too (larvae.js).
+// A rotation is 4 to 7 attacks. A screech: a protection prayer up on its
+// fourth and fifth ticks is hurt, his Defence is halved meanwhile, and ten
+// piles of carrion are thrown onto the floor, each breaking into fragments,
+// which stay as carrion; from 85% of his hitpoints, larvae too (larvae.js).
 //
 // Fire spells burn him and lower his Magic defence; he is weak to fire far
 // away, hardly near. A melee hit as a slam lands is a punish: it costs the
-// weapon no time and does half as much again.
+// weapon no time and does half as much again, and a crush one rarely misses.
 //
-// Sources: OBS is four kills (kill counts 686 to 689) of one player's
-// Outside recordings, 23 screeches and 26 larvae among them, and a fifth (690)
-// where it says so; WIKI the Maggot King and its Strategies page; CACHE and
-// tsps RSPSApp/tsps docs/maggot-king.md, which read the cache and the wiki.
-// Numbers no source gives are marked inferred.
+// Sources: OBS is 15 kills (kill counts 686 to 700) of one player's Outside
+// recordings, 80 screeches, 152 slams, 324 spits and 86 larvae among them;
+// WIKI the Maggot King and its Strategies page; CACHE and tsps RSPSApp/tsps
+// docs/maggot-king.md, which read the cache and the wiki. Numbers no source
+// gives are marked inferred. His hitpoints at a screech are those after the
+// hits of its tick (OBS: a larva at 1255 after a tick that began at 1294, none
+// at 1290).
 //
 // ponytail: not yet: sounds of the encounter's own (those of the sequences'
 // frames play). The engine applies no elemental weakness: the fire weakness is
@@ -53,50 +55,73 @@ export const maggotKingKind = "maggot_king";
 export const maggotKingMapSquare = { x: 45, y: 125 };
 export const bossActorId = "maggot-king";
 
-const firstAttackTick = 4; // OBS: his first spit 3 to 5 ticks into the four recordings
-const firstSpeed = 6; // OBS: before the first screech (every gap of the four)
-const distantSpeed = 5; // OBS, WIKI: a tick faster after it
-const slamSpeed = 4; // OBS
-// OBS: 4 to 7 attacks to a rotation, all 23 complete ones (WIKI, tsps: 4 to 8).
+const firstAttackTick = 4; // OBS: his first spit 3 to 5 ticks into the first four recordings
+const firstSpeed = 6; // OBS 15 kills: before the first screech (67 gaps of 67)
+const distantSpeed = 5; // OBS 15 kills, WIKI: a tick faster after it (198 of 198)
+const slamSpeed = 4; // OBS 15 kills (117 of 117)
+// OBS 15 kills: 4 to 7 attacks to a rotation, all 80 complete ones, no 8 (WIKI, tsps: 4 to 8).
 const rotation = [4, 7];
-// OBS: from a screech to the next rotation's first attack: 13 when he stays
-// far (8 of 8), 11 when he comes near, goes back or stays near (14 of 14).
-const afterScreech = { stay: 13, move: 11 };
-// His hitpoints as a screech starts. OBS: a larva after one at 1274, none at
-// 1302 and up (WIKI: about 1250); near after one at 983, not at 1042 and up
-// (kill 690; WIKI: about 980); for good after one at 291, not at 309 and up (kill 690; WIKI 305).
+// OBS 15 kills: from a screech to the next rotation's first attack, 13 ticks
+// while his hitpoints are high, 11 below: 13 after every screech at 1053 and
+// up (29 of 29, all far), 11 after those at 1042 and below (2 far, 47 near or
+// leaving it; once 12). inferred: the line at 1050 (70%).
+const afterScreech = { high: 13, low: 11 };
+const slowScreechHp = 1050;
+// His hitpoints at a screech, OBS 15 kills: a larva at 1274 and below, none
+// at 1290 and up (WIKI: about 1250); near at 983 and below, far at 1017 and up
+// (WIKI: about 980); near for good at 303 and below, back far at 350 and up
+// (WIKI: about 305). Below the line of the fill (larvae.js), four larvae.
 const larvaHp = 1275;
 const meleeHp = 1000;
 const finalHp = 305;
+// OBS 15 kills: the fill at 296 and below (7 screeches), one larva at 303 and 305; WIKI: about 299.
+const fillHp = 299;
 const spitMaxHit = 46; // WIKI
-const spitTicks = 2; // OBS: the hit lands 2 ticks after the spit (the projectile flies from 45 to 60 cycles)
-const bileTicks = 3; // OBS: the bile lies 3 ticks after the spit lands (its drops fall 90 cycles)
-// OBS: protection prayers were down from at most 3 ticks into a screech to at
-// least 8 (23 screeches, no damage taken); WIKI: 15 to 25 a tick when one is up.
-const screechWindow = [3, 8];
-const screechDamage = [15, 25];
-const throwTick = 3; // OBS: shadows, piles thrown, larvae launched, the roar's graphic
-const pileTicks = 4; // OBS: projectile 3796 flies 120 cycles
-const fragmentTicks = 2; // OBS: projectile 3797 flies 60 cycles
-const pileMaxHit = 25; // WIKI; OBS: 10 on a pile
-const fragmentMaxHit = 10; // WIKI; OBS: 1 to 10, nine hits
+const spitTicks = 2; // OBS 15 kills: the hit lands 2 ticks after the spit (324 of 324; the projectile flies from 45 to 60 cycles)
+const bileTicks = 3; // OBS 15 kills: the bile lies 3 ticks after the spit lands (324 of 324; its drops fall 90 cycles)
+// His Defence is halved (TABLE "Roaring") from 3 to 8 ticks into a screech
+// (inferred: the time the player's protection prayer was down in the first 23).
+const roarWindow = [3, 8];
+// OBS 15 kills: a protection prayer up hurts 3 and 4 ticks into a screech,
+// not 2 (up then in 7 screeches, never hurt) nor 5 to 9 (kill 692, up from 4
+// to 9, hurt once); hurt at 4 in both screeches it was up then (kills 692,
+// 694). WIKI: 15 to 25, "up to three times". OBS: 2 and 18, the prayer kept
+// up, the points drained by half the damage (9 of 18).
+const screechHurts = [3, 4];
+const screechDamage = [2, 25];
+const screechSource = "Screech";
+const throwTick = 3; // OBS 15 kills: shadows, piles thrown (79 screeches), larvae launched (86 of 86), the roar's graphic
+const pileTicks = 4; // OBS 15 kills: projectile 3796 flies 120 cycles; a pile hits 7 ticks into the screech (3 of 3)
+const fragmentTicks = 2; // OBS 15 kills: projectile 3797 flies 60 cycles; a fragment hits 9 ticks into the screech (32 of 32), carrion lies from then (79 of 79)
+const pileMaxHit = 25; // WIKI; OBS 15 kills: 10, 11 and 20, without a protection prayer
+// OBS 15 kills: 3 to 6, all 32 fragments that hit (WIKI: up to 10), with
+// Protect from Missiles or Magic up too (3 of them).
+const fragmentDamage = [3, 6];
 // OBS: five piles to each half of the floor, as the server lists them: the
-// east's x 31 to 38, the west's 24 to 32 (23 of 23 screeches).
+// east's x 31 to 38, the west's 24 to 32 (79 screeches of 15 kills).
 const halves = [[31, 38], [24, 32]];
 const pilesPerHalf = 5;
-// OBS: a pile breaks into at most 4 fragments on the tiles around it, fewer
-// at the floor's edge (inferred: 4 of its 8 neighbours, those off the floor lost).
+// OBS 15 kills: a pile breaks into 4 fragments on the floor's tiles around
+// it that no fragment of an earlier pile has taken, fewer where fewer are
+// left (778 of 786 piles); never off the floor, never two on a tile (2919 fragments).
 const fragmentsPerPile = 4;
 const slamMaxHit = 55; // WIKI
 const slamPrayed = 0.64; // WIKI: 35 of 55 through Protect from Melee
-const slamTicks = 2; // OBS: graphic 2953 on the twelve tiles and the biles land 2 ticks after the slam
-const slamBiles = 3; // OBS, WIKI
+const slamTicks = 2; // OBS 15 kills: graphic 2953 on the twelve tiles and the biles land 2 ticks after the slam (152 of 152)
+const slamBiles = 3; // OBS 15 kills (152 of 152), WIKI
 const drainsRestored = 9; // WIKI: drained Defence is restored after a screech (inferred: as it ends)
-const deathTicks = 8; // OBS: the corpse 8 ticks after his death
-const farReach = 4; // OBS: far, he walks till the player is within 4 columns of his middle
+const deathTicks = 8; // OBS 15 kills: the corpse 8 ticks after the killing hit (his death sequence 1 after it, 13 of 15)
+const farReach = 4; // OBS 15 kills: far, he walks till the player is within 4 columns of his middle (2295 of 2295 ticks)
 const burnDefence = 20; // WIKI: his Magic defence per stack of burn
 const burnPulses = 5; // WIKI: 5 burn damage a fire spell
-const punishBonus = 1.5; // WIKI: the first hitsplat of a punish
+// WIKI: the first hitsplat of a punish. OBS 15 kills, Dharok's greataxe on
+// crush: the largest punish 1.50 times the largest other hit, the mean 1.53
+// times, each scaled by the hitpoints the player was missing.
+const punishBonus = 1.5;
+// WIKI: a crush punish rolls against an 85% lower defence roll. OBS 15 kills:
+// 7 of 148 crush punishes missed, 29 of 97 other crush hits; that miss rate
+// gives a punish 4.4% to miss.
+const crushPunishDefence = 0.15;
 // WIKI (Elemental weakness): the standard spellbook's strikes to surges of the element.
 const fireSpells = new Map(combatSpells.filter((spell) => spell.element === "fire" && spell.spellbook === "standard").map((spell) => [spell.name, spell]));
 const fireSpell = (name) => fireSpells.get(name) ?? null;
@@ -161,6 +186,7 @@ class MaggotKingEncounter {
     this.attacksLeft = this.randomInt(...rotation);
     this.nextAt = firstAttackTick;
     this.final = false;
+    this.filled = false;
     this.movement = "far"; // "far" | "near" | "hold" | "ascend"
     this.screechAt = null;
     this.slam = null; // { tiles, landsAt }
@@ -240,8 +266,10 @@ class MaggotKingEncounter {
     if (boss?.alive) this.updateStats(boss, context.world.getPlayer());
     const damages = [...this.larvae.leech(context), ...this.drainPending()];
     const player = context.world.getPlayer();
-    if (boss?.alive && player.alive && this.screeching() && protectionPrayers.has(player.activePrayer)) {
-      damages.push({ baseDamage: screechDamage, attackType: "typeless", source: "Screech", playerPosition: [...player.position] });
+    if (boss?.alive && player.alive && this.screeching(screechHurts) && protectionPrayers.has(player.activePrayer)) {
+      damages.push({ baseDamage: screechDamage, attackType: "typeless", source: screechSource, playerPosition: [...player.position] });
+      // OBS: the message as it hurts (2 of 2).
+      context.tickEvents.emit({ type: "game_message", kind: "game", segments: [{ text: "The Maggot King's screech disrupts your concentration!" }] });
     }
     return damages;
   }
@@ -262,8 +290,8 @@ class MaggotKingEncounter {
     this.pending = [];
     return damages;
   }
-  screeching(tick = this.now) {
-    return this.screechAt !== null && tick >= this.screechAt + screechWindow[0] && tick <= this.screechAt + screechWindow[1];
+  screeching(window = roarWindow, tick = this.now) {
+    return this.screechAt !== null && tick >= this.screechAt + window[0] && tick <= this.screechAt + window[1];
   }
   // Which of his three sets of stats, with his burn's Magic defence off it.
   version(boss) {
@@ -278,6 +306,8 @@ class MaggotKingEncounter {
     // no weakness: here a fire spell's accuracy roll against him is that much
     // likelier to win, as a lower defence roll for the tick it is cast in.
     if (fireSpell(playerSpellName(player))) stats.defensive.magic = Math.floor((stats.defensive.magic + 64) / (1 + weaknessPercent[version] / 100)) - 64;
+    // The crush punish's lower defence roll, as a lower crush bonus for the tick the slam lands.
+    if (this.isSlamTick(this.now) && playerFormulaStyle(player) === "melee_crush") stats.defensive.crush = Math.floor((stats.defensive.crush + 64) * crushPunishDefence) - 64;
     boss.formulaStats = stats;
   }
 
@@ -368,7 +398,7 @@ class MaggotKingEncounter {
   }
 
   // The 3 x 4 in front of his middle: debris shows on it at once, it lands 2
-  // ticks later with three biles of either kind (OBS: 50 slams, both kinds).
+  // ticks later with three biles of one kind (OBS 15 kills: 152 slams).
   headSlam(boss, context) {
     if (this.movement === "near") this.movement = "hold";
     const middle = centreX(boss);
@@ -379,7 +409,10 @@ class MaggotKingEncounter {
     const biles = [...tiles];
     const chosen = [];
     while (chosen.length < slamBiles && biles.length) chosen.push(biles.splice(Math.floor(this.random() * biles.length), 1)[0]);
-    const kinds = chosen.map(() => (this.random() < 0.5 ? "poison" : "sticky"));
+    // OBS 15 kills: the three of a slam are of one kind (152 of 152), poisonous
+    // or sticky as it falls (83 and 69).
+    const kind = this.random() < 0.5 ? "poison" : "sticky";
+    const kinds = chosen.map(() => kind);
     // OBS: the biles fly from him, 50 high to the floor in 60 cycles, slope 10.
     const source = [middle, boss.position[1] + (bossSize >> 1)];
     const projectiles = chosen.map((tile, i) => tileProjectile(kinds[i] === "poison" ? spotAnims.rangedSpit : spotAnims.magicSpit, source, tile, 0, 60, 50, 0, 10));
@@ -402,20 +435,21 @@ class MaggotKingEncounter {
     const hp = boss.vitals.hp;
     const wasMelee = this.phase === "melee";
     let next = "distant";
-    let fill = false;
     // inferred: once below a fifth he stays near, whatever larvae heal him (WIKI: he "stops retreating").
     if (this.final || hp <= finalHp) {
       next = "melee";
-      fill = !this.final;
       this.final = true;
     } else if (hp <= meleeHp && !wasMelee) next = "melee";
-    // OBS: the far rotations take turns, ranged and magic, whatever near ones come between.
+    // The fill comes once, at the first screech below its line.
+    const fill = !this.filled && hp <= fillHp;
+    if (fill) this.filled = true;
+    // OBS 15 kills: the far rotations take turns, ranged first, then magic and ranged, whatever near ones come between (59 of 59).
     if (next === "distant") this.style = this.style === "range" ? "magic" : "range";
     this.screechAt = tick;
     this.phase = next;
     this.speed = next === "melee" ? slamSpeed : distantSpeed;
     this.attacksLeft = this.randomInt(...rotation);
-    this.nextAt = tick + (next === "distant" && !wasMelee ? afterScreech.stay : afterScreech.move);
+    this.nextAt = tick + (hp >= slowScreechHp ? afterScreech.high : afterScreech.low);
     this.slam = null;
     // Near, he goes on following the player's column until he moves off.
     if (wasMelee) this.movement = "near";
@@ -437,7 +471,7 @@ class MaggotKingEncounter {
   }
   // Ten piles, five to a half: a shadow on each as it is thrown from the
   // north; 4 ticks later it lands (up to 25 on its tile) and breaks into
-  // fragments, which land 2 ticks after that (up to 10 each) as carrion.
+  // fragments, which land 2 ticks after that (3 to 6 each) as carrion.
   throwCarrion(context) {
     const taken = new Set();
     const piles = [];
@@ -463,11 +497,12 @@ class MaggotKingEncounter {
     }
     const fragments = [];
     const projectiles = [];
+    const taken = new Set();
     for (const pile of piles) {
-      const around = neighbours(pile);
-      for (let n = 0; n < fragmentsPerPile; n++) {
+      const around = neighbours(pile).filter((tile) => onFloor(tile) && !taken.has(tile.join()));
+      for (let n = 0; n < fragmentsPerPile && around.length; n++) {
         const tile = around.splice(Math.floor(this.random() * around.length), 1)[0];
-        if (!onFloor(tile)) continue;
+        taken.add(tile.join());
         fragments.push(tile);
         projectiles.push(tileProjectile(spotAnims.fragment, pile, tile, 0, fragmentTicks * 30, 0, 0, 35));
       }
@@ -479,7 +514,7 @@ class MaggotKingEncounter {
       for (const tile of fragments) {
         this.floor.place(tile, "carrion");
         if (you.alive && tile[0] === you.position[0] && tile[1] === you.position[1]) {
-          this.pending.push({ baseDamage: [0, fragmentMaxHit], attackType: "typeless", source: "Carrion fragment", playerPosition: [...you.position] });
+          this.pending.push({ baseDamage: fragmentDamage, attackType: "typeless", source: "Carrion fragment", playerPosition: [...you.position] });
         }
       }
     });
@@ -492,6 +527,8 @@ class MaggotKingEncounter {
       playerAttackOnCooldown: (target, tick) => this.attackOnCooldown(target, tick),
       playerAttackKeepsReady: (target, tick) => this.isPunish(target, tick),
       playerAlwaysAccurate: (context, attack) => this.alwaysAccurate(context, attack),
+      // OBS: the screech drains prayer by half its damage (kill 694: 9 of 18).
+      onPlayerDamageTaken: (hit) => (hit.source === screechSource ? { prayerPointsDelta: -Math.floor(hit.effectiveDamage / 2) } : undefined),
     };
   }
   // OBS: a punish is on the tick a slam lands, 2 after it starts (a greataxe's
@@ -519,12 +556,12 @@ class MaggotKingEncounter {
   isPunish(target, tick) {
     return target.id === bossActorId && this.isSlamTick(tick) && playerFormulaStyle(this.world?.getPlayer()).startsWith("melee");
   }
-  // A standard ranged hit on a larva in the air never misses (WIKI: it dies of it).
-  // inferred: a crush punish never misses either (WIKI: crush gets "a
-  // significant accuracy boost"; others an unnamed one, not modelled).
+  // A standard ranged hit on a larva in the air never misses (WIKI: it dies of
+  // it). A crush punish can miss (updateStats); the wiki's unnamed boost to
+  // the other styles is not modelled (OBS: 3 slash punishes, too few).
   alwaysAccurate(context, attack) {
     if (this.larvae.isLarva(attack.target)) return this.shootsLarva(attack.target, context.tick, playerFormulaStyle(context.player), context.player?.equipment?.weapon);
-    return attack.target.id === bossActorId && attack.style === "melee" && this.isSlamTick(context.tick) && playerFormulaStyle(context.player) === "melee_crush";
+    return false;
   }
   onPlayerAttackStarted(attack) {
     this.lastTargetId = attack.targetId;

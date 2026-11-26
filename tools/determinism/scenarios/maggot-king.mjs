@@ -108,7 +108,7 @@ export const scenarios = [
     },
   },
   {
-    // Below a fifth (300): the first screech fills the room with four larvae.
+    // Below about 299 (at 290): the first screech fills the room with four larvae.
     // The player shoots two down in the air and lets the others land; one of
     // them crawls under him and leeches him until he steps off.
     name: "maggot-king/larvae",
@@ -118,7 +118,7 @@ export const scenarios = [
     mechanics: { infiniteHealth: true, infinitePrayer: true },
     ...rangedGear,
     script(tick, api) {
-      if (tick === 1) setBossHp(api, 300);
+      if (tick === 1) setBossHp(api, 290);
       pray(api, tick);
       const larvae = api.npcs().filter((npc) => npc.npcTypeId === 15743);
       const flying = flyingLarva(api, tick);
@@ -134,7 +134,7 @@ export const scenarios = [
     // Fire Surge from the Harmonised Nightmare staff in ancestral: each
     // landing surge burns him and takes 20 off his Magic defence a stack. The
     // player keeps Protect from Missiles up through the first screech and is
-    // hurt for it every tick of it.
+    // hurt for it 3 and 4 ticks into it, losing prayer too.
     name: "maggot-king/fire-surge",
     kind: KIND,
     seed: 11,
