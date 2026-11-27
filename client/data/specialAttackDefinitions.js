@@ -326,12 +326,16 @@ var specialAttackDefinitionByWeaponId = {
     defenceStyle: "melee_slash",
     animationId: 3300,
   },
+  // Dragon longsword, Cleave: 25%, against slash (WIKI)
   1305: {
     defenceStyle: "melee_slash",
+    energyCost: 25,
     animationId: 1058,
   },
+  // Dragon sword (the wiki's Dragon shortsword), Wild Stab: 40% (WIKI). Protect from Melee is not ignored here.
   21009: {
     defenceStyle: "melee_stab",
+    energyCost: 40,
     animationId: 7515,
   },
   4587: {
@@ -391,8 +395,10 @@ var specialAttackDefinitionByWeaponId = {
       },
     ],
   },
+  // Dragon mace, Shatter: 25% (WIKI)
   1434: {
     defenceStyle: "melee_crush",
+    energyCost: 25,
     animationId: 1060,
   },
   11061: {
@@ -408,12 +414,15 @@ var specialAttackDefinitionByWeaponId = {
   1377: {
     animationId: 1056,
   },
+  // Dragon and crystal halberd, Sweep: 30% (WIKI: Special attacks)
   3204: {
     defenceStyle: "melee_slash",
+    energyCost: 30,
     animationId: 1203,
   },
   23987: {
     defenceStyle: "melee_slash",
+    energyCost: 30,
     animationId: 1203,
   },
   23986: {
@@ -484,7 +493,10 @@ var specialAttackDefinitionByWeaponId = {
       height: 96,
     },
   },
+  // Saradomin sword, Saradomin's Lightning: 100%, against slash (WIKI)
   11838: {
+    defenceStyle: "melee_slash",
+    energyCost: 100,
     animationId: 1132,
   },
   12809: {
@@ -504,22 +516,30 @@ var specialAttackDefinitionByWeaponId = {
     defenceStyle: "melee_crush",
     animationId: 7511,
   },
+  // Dark bow and its painted versions, Descent of Darkness / Dragons: 55% (WIKI: Dark bow)
   11235: {
+    energyCost: 55,
     animationId: 426,
   },
   12765: {
+    energyCost: 55,
     animationId: 426,
   },
   12766: {
+    energyCost: 55,
     animationId: 426,
   },
   12767: {
+    energyCost: 55,
     animationId: 426,
   },
   12768: {
+    energyCost: 55,
     animationId: 426,
   },
+  // Magic shortbow, Snapshot: 55%; the (i), 50% (WIKI: Magic shortbow, Magic shortbow (i))
   861: {
+    energyCost: 55,
     animationId: 426,
   },
   // Seercull, Soulshot. WIKI: "consumes 100% of the player's special attack
@@ -541,15 +561,21 @@ var specialAttackDefinitionByWeaponId = {
     ],
   },
   12788: {
+    energyCost: 50,
     animationId: 426,
   },
+  // Light and heavy ballista, Concentrated Shot: 65% (WIKI: Heavy ballista)
   19478: {
+    energyCost: 65,
     animationId: 7555,
   },
   19481: {
+    energyCost: 65,
     animationId: 7555,
   },
+  // Dragon crossbow, Annihilate: 60% (WIKI: Dragon crossbow)
   21902: {
+    energyCost: 60,
     animationId: 4230,
   },
   26219: {
@@ -569,33 +595,8 @@ var specialAttackDefinitionByWeaponId = {
     animationId: 10173,
     graphicId: 2430,
   },
-  23995: {
-    animationId: 390,
-  },
-  24551: {
-    animationId: 390,
-  },
-  25870: {
-    animationId: 390,
-  },
-  25872: {
-    animationId: 390,
-  },
-  25874: {
-    animationId: 390,
-  },
-  25876: {
-    animationId: 390,
-  },
-  25878: {
-    animationId: 390,
-  },
-  25880: {
-    animationId: 390,
-  },
-  25882: {
-    animationId: 390,
-  },
+  // No entry for the Blade of Saeldor (23995) or its (c) versions: it has no special attack (WIKI: Blade of
+  // Saeldor; one was polled and did not pass). An entry gave it a special button that did nothing.
   22613: {
     defenceStyle: "melee_stab",
     animationId: 7515,
