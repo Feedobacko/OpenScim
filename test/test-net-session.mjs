@@ -10,6 +10,7 @@ import {
   ROOM_GRACE_MS,
   SLOW_RETRY_MAX_MS,
   SLOW_RETRY_MIN_MS,
+  STABLE_ROOM_MS,
   WELCOME_TIMEOUT_MS,
   createNetSession,
 } from "../client/net/netSession.js";
@@ -431,6 +432,101 @@ for (const [code, retry] of Object.entries(policies).map(([code, retry]) => [Num
   await clock.advance(1000);
   assert.equal(socket.messages.filter((msg) => msg.t === "join").length, 2);
   session.stop();
+}
+
+// --- the combat level goes with the look, and again only when it changes -----------------
+{
+  const { clock, session, connect } = setup();
+  const socket = await connect();
+  const looks = () => socket.messages.filter((msg) => msg.t === "appearance");
+  session.setAppearance(LOOK.appearance, LOOK.equipment, 90);
+  await clock.advance(1000);
+  assert.equal(looks().length, 1);
+  assert.equal(looks()[0].combat, 90);
+  session.setAppearance(LOOK.appearance, LOOK.equipment, 90);
+  await clock.advance(1000);
+  assert.equal(looks().length, 1, "the same level is not sent again");
+  session.setAppearance(LOOK.appearance, LOOK.equipment, 91);
+  await clock.advance(1000);
+  assert.equal(looks().length, 2);
+  assert.equal(looks()[1].combat, 91);
+  session.setAppearance(LOOK.appearance, LOOK.equipment);
+  await clock.advance(1000);
+  assert.equal("combat" in looks()[2], false, "no level, no field");
+  assert.throws(() => session.setAppearance(LOOK.appearance, LOOK.equipment, 200), TypeError);
+  session.stop();
+}
+
+// --- error room_closed: the others are gone, and join goes out again --------------------
+{
+  const { clock, ws, presence, session, connect, joinedFor } = setup();
+  const socket = await connect({ members: [other(8), other(9)] });
+  session.setAppearance(LOOK.appearance, LOOK.equipment);
+  session.sendPresence(presenceAt(31, 25));
+  await clock.advance(1000);
+  assert.equal(presence.players.size, 2);
+  const joinsBefore = socket.messages.filter((msg) => msg.t === "join").length;
+  const sentBefore = socket.messages.length;
+  socket.receive(fixtureBody("valid", "error.room-closed"));
+  assert.equal(session.getSnapshot().state, "open");
+  assert.equal(session.getSnapshot().room, null);
+  assert.equal(presence.players.size, 0, "the store is emptied");
+  assert.equal(session.getSnapshot().lastError.code, "room_closed");
+  assert.equal(socket.messages.length, sentBefore, "nothing at once");
+  await clock.advance(1000);
+  const after = socket.messages.slice(sentBefore).map((msg) => msg.t);
+  assert.equal(after.filter((t) => t === "join").length, 1, "join again");
+  assert.ok(after.indexOf("appearance") >= 0 && after.indexOf("appearance") < after.indexOf("join"), "the look goes first");
+  assert.ok(after.indexOf("presence") >= 0 && after.indexOf("presence") < after.indexOf("join"), "and the tile");
+  socket.receive(joinedFor({ messages: socket.messages.slice(sentBefore) }, [other(10)]));
+  assert.equal(session.getSnapshot().state, "joined");
+  assert.equal(presence.players.size, 1);
+  assert.equal(ws.sockets.length, 1, "the same socket");
+  assert.equal(socket.messages.filter((msg) => msg.t === "join").length, joinsBefore + 1);
+  // Not in a room (before joined): room_closed changes nothing.
+  // (The second room_closed waits longer: 1.5 s.)
+  socket.receive(fixtureBody("valid", "error.room-closed"));
+  socket.receive(fixtureBody("valid", "error.room-closed"));
+  await clock.advance(1500);
+  assert.equal(socket.messages.filter((msg) => msg.t === "join").length, joinsBefore + 2);
+  session.stop();
+  assert.equal(clock.pending(), 0);
+}
+
+// --- room_closed again and again: the re-join backs off, and is fast again after 30 s joined ---
+{
+  const { clock, ws, session, connect, joinedFor } = setup();
+  const socket = await connect();
+  const joins = () => socket.messages.filter((msg) => msg.t === "join").length;
+  // random() is 0.5: each wait is 3/4 of 1 s, 2 s, 4 s, ...
+  // How long after room_closed the join goes out (the send may also wait for the rate bucket).
+  const closeAndRejoin = async (wait) => {
+    const before = joins();
+    socket.receive(fixtureBody("valid", "error.room-closed"));
+    await clock.advance(wait - 1);
+    assert.equal(joins(), before, `not before ${wait} ms`);
+    let waited = wait - 1;
+    while (joins() === before && waited < 60_000) {
+      await clock.advance(50);
+      waited += 50;
+    }
+    assert.equal(joins(), before + 1, `a join after about ${wait} ms`);
+    socket.receive(joinedFor({ messages: socket.messages.filter((msg) => msg.t === "join").slice(-1) }));
+    assert.equal(session.getSnapshot().state, "joined");
+    return waited;
+  };
+  assert.ok((await closeAndRejoin(750)) < 1500);
+  await closeAndRejoin(1500);
+  await closeAndRejoin(3000);
+  // Joined for STABLE_ROOM_MS (the pings answered): back to the first wait.
+  for (let ms = 0; ms < STABLE_ROOM_MS; ms += PING_INTERVAL_MS) {
+    await clock.advance(PING_INTERVAL_MS);
+    socket.receive({ t: "pong", ts: 1, server_tick: 1 });
+  }
+  assert.equal(ws.sockets.length, 1);
+  assert.ok((await closeAndRejoin(750)) < 1500, "fast again");
+  session.stop();
+  assert.equal(clock.pending(), 0);
 }
 
 // --- the shutdown notice: the close is expected, then a reconnect ---------------------
