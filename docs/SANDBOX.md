@@ -97,9 +97,10 @@ the boss's own clock starts at once.
 the cache list now holds: `tools/assets/cache-groups.json`), never acts,
 cannot be attacked, and its tile is flagged in the arena's collision as the
 Inferno's pillars are (an object that also stops projectiles), through
-`refineArenaConfig`, on the host's arena too. The player, the monsters'
-pursuit and their route search walk around them; ranged and magic attacks
-need a line past them.
+`refineArenaConfig`, on the host's arena too. The player walks around them;
+a monster whose straight walk a boulder blocks stands still behind it (the
+player's safespot, as in the monsters' own fights); ranged and magic
+attacks need a line past them.
 
 ## The arena's boss
 
@@ -107,8 +108,9 @@ Step 1 has "Fight this arena's boss with all its mechanics" in the arenas
 that have one (`hostKind` in `arenas.js`): Sol Heredit's arena, Yama's room,
 Zebak's room, Vardorvis' clearing, both rooms of the Doom of Mokhaiotl,
 Duke Sucellus' asylum, the Leviathan's Scar, Araxxor's lair, the Maggot
-King's lair and the Corrupted Hunllef's room (the Leviathan's bridge and the
-Hunllef's floor are the arena's own, `arenaConfig`, and Duke's ice is added
+King's lair, the Corrupted Hunllef's room, the Alchemical Hydra's chamber
+and Phosani's dream (the Leviathan's bridge, the Hunllef's floor and the
+dream's plane 3 are the arena's own, `arenaConfig`, and Duke's ice is added
 to the map's, `refineArena`, with or without the boss).
 The scenario's `options.bossMechanics` then makes the arena's own encounter
 the sandbox's host (`encounter.js`): it is made by its own factory and runs
@@ -123,7 +125,10 @@ In "ffa" the host's NPCs are one team: their own ("boss"), or the one
 `options.bossTeam` names (step 1, "Boss team"; `player` to fight for the
 player, who then cannot attack it). The boss shows on step 2's map where its fight puts it
 (the snapshot's `sandbox.bosses`), dashed: it cannot be moved, and a right
-click gives it the next team. The boss fights the nearest enemy, a
+click gives it the next team. With the boss on and no tile of the
+scenario's own, the blue **P** is where the host puts the player (the
+snapshot's `sandbox.hostStart`), which may not be the arena's start (the
+Leviathan's, Yama's drawn at random). The boss fights the nearest enemy, a
 monster or the player, with its own mechanics: each of the host's hooks that
 acts is handed a world whose player is that enemy (`hostContext`), seen with
 a player's fields in neutral and as the tile of its body nearest the boss
@@ -132,7 +137,21 @@ a player's fields in neutral and as the tile of its body nearest the boss
 enemy's own stats, and what would land on the player's tile lands on it as a
 hit of the boss (`strikeFocus`). With no enemy left it rests. Duke Sucellus
 and Vardorvis, who wait for the player in their fights, start at once
-(`wakeBoss`). The host's boss is then one of the teams for the victory, and
+(`wakeBoss`). The host's boss is its NPC of the role "boss" even while it
+cannot be attacked (the Nightmare in her blast),
+so that its fight goes on meanwhile (`hostBoss`). Three more of an arena's
+fields make its fight one the monsters can win (`arenas.js`):
+`hostHealers`, the host's NPCs that heal its boss (the Maggot King's
+larvae, the Doom's larvae, Yama's void flares, the Nightmare's parasites),
+which every enemy of the boss goes for first (below);
+`hostRulesForMonsters`, a monster's hit on the host's NPCs taken by the
+host's own rule for the player's hits as it lands (`deferToHost`,
+`landHostHits`: the Nightmare's shield and totems, the Hydra's shield); and
+`hostObjectives`, what the fight must be won through while the boss cannot
+be hurt (the Nightmare's totems not yet charged), which the monsters go for
+(`nearestObjective`). A host's attack on a monster that prays against its
+style (the Corrupted Hunllef) does nothing, as the monsters' own do
+(`prayedAgainst`). The host's boss is then one of the teams for the victory, and
 the host may not take away the scenario's own NPCs (the Doom clears his room
 as he dies). "Two Suns" is the real Sol
 Heredit and a second one of the sandbox's.
@@ -149,7 +168,11 @@ intro is left out (the sandbox's Start replaces it).
   other teams (an NPC without a team is a team of its own) and, unless
   "Monsters may attack the player" is off, the player. NPCs of the team
   `player` fight on the player's side. An NPC that is hit turns on its
-  attacker if that is an enemy. Won when the player's side is the last
+  attacker if that is an enemy. Before all of that, an NPC goes for the
+  nearest enemy that heals one of its enemies, as soon as one comes, and
+  stays on it while it heals (`selectTarget`, `healerOf`): Jad's and Zuk's
+  healers while they heal, the Maggot King's larvae while he lives, and the
+  host's healers (above); the host's boss does the same. Won when the player's side is the last
   standing; with the player left out, when one team of NPCs is left. The top
   bar names the winner: the snapshot's `sandbox.winner`, which every
   snapshot of the sandbox carries, a host's included.
@@ -162,7 +185,7 @@ other.
 ## Limitations
 
 - Every monster placed from the catalog has one behaviour (`brawler.js`):
-  walk to the target (with the route search around obstacles), attack with
+  walk to the target, attack with
   whichever of its attacks reaches, wait its attack speed. A boss's full
   mechanics are those of the arena's host only (above). What the monsters do
   besides, from their own fights (`inferno/sandbox.js` and the rest name the
@@ -171,8 +194,12 @@ other.
   hits them (`supports`); his melee comes every 4 ticks. TzKal-Zuk calls Jad
   (with three healers) below 40 % and his four healers below 20 %, who heal
   him 15 to 24 from where they stand and throw sparks at whoever hits them.
-  A monster whose target is being healed goes for the healers first, one at
-  a time. The blob attacks with a style the player's prayer does not cover
+  The healers of its enemies are what a monster goes for first (Modes,
+  above). Its walk is the straight one of its own fight; where the room
+  (a wall, a tree, a pillar of the map) or other monsters block it, it
+  follows the route search round them until its target is in reach
+  (`walkTo`, `routeAround`), so that no monster that walks is held by the
+  arena; a boulder of the scenario's in its way still holds it. The blob attacks with a style the player's prayer does not cover
   (`readsPrayer`) and splits into its three children as it dies
   (`splitsInto`); the mager, one attack in ten, brings back a dead monster
   of its side at half its hitpoints (`revives`); the meleer digs when it has
@@ -234,10 +261,24 @@ other.
     its hitpoints. They chase its target for 20 ticks and hurt 15 to 30 a
     tick to whoever of its enemies they stand on (`tornadoes`,
     `bodies.js`). The floor's tiles are its room's only.
+  - The Alchemical Hydra walks, attacks from 10 tiles, three of a style then
+    the other with its heads' sway (`rotation`), and takes its next form
+    below three quarters, half and a quarter of its hitpoints (`forms`:
+    electric, flame, enraged, each with its max hits; the enraged one every
+    4 ticks, switching every attack).
+  - Phosani's Nightmare walks, casts and shoots from afar and claws beside
+    her, every 6 ticks, and takes her next form as her hitpoints fall a
+    third at a time (`forms`).
+  A monster's form change is drawn as the new NPC in every scene of the
+  sandbox (`redrawingForms`, `presentation.js`). The Maggot King's screech
+  hurts a monster with an overhead prayer (the Hunllef) as it hurts a
+  praying player.
   What is left out is what needs the room: the Leviathan's rocks, lightning
   and smoke, Duke's gaze and gas, Zebak's roar, waves and acid, Araxxor's
-  eggs and acid, the Maggot King's bile and carrion, and the Hunllef's
-  floor.
+  eggs and acid, the Maggot King's bile and carrion, the Hunllef's floor,
+  the Hydra's vents, poison, lightning and fire, and the Nightmare's shield,
+  totems, specials and sleepwalkers. `docs/SANDBOX-BOSSES.md` lists every
+  boss's mechanics and where each is available.
 - In a free-for-all a host boss's mechanics are aimed at one enemy at a
   time; its specials that strike the whole room (Sol's, Yama's) strike only
   that one.
@@ -245,7 +286,8 @@ other.
   already holds and whose stats are in the monster table
   (`client/data/monsters.js`). Its bosses: Sol Heredit, Yama, Vardorvis, the
   Doom of Mokhaiotl, JalTok-Jad, TzKal-Zuk, the Leviathan, Duke Sucellus,
-  Zebak, Araxxor, the Maggot King and the Corrupted Hunllef. The Doom's
+  Zebak, Araxxor, the Maggot King, the Corrupted Hunllef, the Alchemical
+  Hydra and Phosani's Nightmare. The Doom's
   larvae are left out (not in the table). A monster's numbers that are not the table's
   are named with their source in its encounter's `sandbox.js`; several are
   "inferred".
@@ -273,7 +315,7 @@ other.
 Each encounter keeps its monsters' catalog entries in its own
 `client/encounters/<encounter>/sandbox.js` (the Inferno, the Colosseum, Sol
 Heredit, Vardorvis, the Doom, Yama, the Leviathan, Duke Sucellus, Zebak in
-`tombs-of-amascut/`, Araxxor, the Maggot King, the Corrupted Hunllef), beside the ids, sequences and
+`tombs-of-amascut/`, Araxxor, the Maggot King, the Corrupted Hunllef, the Alchemical Hydra, Phosani's Nightmare), beside the ids, sequences and
 projectiles they copy; `catalog.js` gathers them.
 
 `test/test-sandbox-catalog.mjs` (part of `npm test`) keeps the catalog in
