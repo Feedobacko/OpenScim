@@ -43489,6 +43489,7 @@ var K_ = {
   block: "block",
   poison: "poison",
   venom: "venom",
+  disease: "disease",
   doom: "doom",
   heal: "heal",
   burn: "burn",
@@ -60115,7 +60116,9 @@ var lZ = {
   damage: "/assets/ui/hitsplat-damage.png",
   block: "/assets/ui/hitsplat-block.png",
   poison: "/assets/ui/hitsplat-poison.png",
-  venom: "/assets/ui/hitsplat-poison.png",
+  // CACHE: hitsplat 5, sprite 1632 (venom); hitsplat 4, sprite 1633 (disease).
+  venom: "/assets/ui/hitsplat-venom.png",
+  disease: "/assets/ui/hitsplat-disease.png",
   heal: "/assets/ui/hitsplat-heal.png",
   doom: "/assets/ui/hitsplat-doom-skull.png",
   burn: "/assets/ui/hitsplat-burn.png",
@@ -60515,10 +60518,6 @@ var dZ = ({
         if (r && r.getAttribute("data-sprite") !== l) {
           r.src = l;
           r.setAttribute("data-sprite", l);
-        }
-        if (r) {
-          r.style.filter =
-            n.type === "venom" ? "brightness(0.55) saturate(1.15)" : "none";
         }
         s.style.width = `${n.width}px`;
         s.style.height = `${n.height}px`;
@@ -62425,13 +62424,6 @@ var bZ = ({
         if (r && r.getAttribute("data-sprite") !== l) {
           r.src = l;
           r.setAttribute("data-sprite", l);
-        }
-        if (r) {
-          const e =
-            n.type === "venom" ? "brightness(0.55) saturate(1.15)" : "none";
-          if (r.style.filter !== e) {
-            r.style.filter = e;
-          }
         }
         const o = `${n.width}px`;
         const d = `${n.height}px`;
