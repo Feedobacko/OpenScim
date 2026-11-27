@@ -28,6 +28,7 @@
 import { canNpcActAtTick, isActorAlive, isNpcAlive } from "../../engine/npcState.js";
 import { getProjectileFlightCycles } from "../../engine/projectiles.js";
 import { getNpcPursuitMoves, isArenaFootprintWalkable } from "../shared/npcMovement.js";
+import { findNpcRouteToMeleeRange } from "../shared/npcRoutes.js";
 import { defineNpc } from "../shared/npcDefinitions.js";
 import { rollNpcAttack, isNpcInAttackRange, getDistanceFromNpcCentre } from "../shared/npcAttack.js";
 import { scheduleNextActionTick, buildNpcProjectileVisual, getProjectileSourcePosition, buildActorVisualTarget, faceActorToward } from "../shared/npcHelpers.js";
@@ -49,6 +50,14 @@ const cyclesPerTick = 30;
 // inferred: a graphic on a target tile at a body's height, as JalTok-Jad's ranged
 // graphic (inferno/jad.js) and Zuk's (inferno/zukFight.js) are drawn.
 const defaultTargetGraphicHeight = 92;
+
+// inferred: no defence at all, for a target the monster table has no stats of.
+const undefendedStats = {
+  burnImmunity: null, freezeResistance: 0, poisonResistance: 0, attributes: [],
+  levels: { attack: 1, strength: 1, defence: 1, ranged: 1, magic: 1 },
+  offensive: { atk: 0, ranged: 0, magic: 0, str: 0, rangedStr: 0, magicStr: 0 },
+  defensive: { stab: 0, slash: 0, crush: 0, rangedLight: 0, rangedStandard: 0, rangedHeavy: 0, magic: 0 },
+};
 
 /** The reach that brings an NPC close enough for its longest attack. */
 export const getApproachRange = (entry) => Math.max(...entry.attacks.map((attack) => attack.range));
@@ -304,9 +313,12 @@ function fuseTick(actor, explodes, context, config) {
   return idle;
 }
 
-// When the straight walk is blocked (a pillar, a wall between them and no
-// line of sight), one step along the route search toward the target, as the
-// Colosseum's minotaur does with its modifier Red Flag (colosseum/minotaur.js).
+// When the straight walk is blocked by the arena (a wall, a tree, a pillar of
+// the map) or by other monsters, one step along the route search toward the
+// target, as the Colosseum's minotaur does with its modifier Red Flag
+// (colosseum/minotaur.js), so that a monster that can walk is never frozen
+// by the room. A boulder of the scenario's in its way (`config.isObstacleAt`)
+// still holds it, as in its own fight: those are the player's safespots.
 function routeAround(actor, target, context) {
   const occupancy = context.world.occupancy;
   const [ownX, ownY] = actor.position;
@@ -329,6 +341,40 @@ function routeAround(actor, target, context) {
   const step = route.kind === "failed" ? undefined : route.steps[0];
   return step ? [{ npcId: actor.id, path: [step] }] : [];
 }
+// A boulder beside its footprint on the side of its target.
+function isBoulderInTheWay(actor, target, config) {
+  if (!config.isObstacleAt) return false;
+  const [x, y] = actor.position;
+  const size = actor.size;
+  const stepX = Math.sign(target.position[0] - x) * (target.position[0] >= x && target.position[0] < x + size ? 0 : 1);
+  const stepY = Math.sign(target.position[1] - y) * (target.position[1] >= y && target.position[1] < y + size ? 0 : 1);
+  for (let n = -1; n <= size; n++) {
+    if (stepX !== 0 && config.isObstacleAt(stepX > 0 ? x + size : x - 1, y + n)) return true;
+    if (stepY !== 0 && config.isObstacleAt(x + n, stepY > 0 ? y + size : y - 1)) return true;
+  }
+  return false;
+}
+// The straight walk; when it is blocked by anything but a boulder, around
+// (routeAround), and from then on along the route until it is in reach of
+// that target (`routeTargetId`): back on the straight walk it would step
+// into the same wall again, and to and fro.
+function walkTo(actor, target, context, config, range) {
+  const state = actor.state;
+  if (isNpcInAttackRange(actor, target, range)) {
+    delete state.routeTargetId;
+    return getNpcPursuitMoves(actor, context, target);
+  }
+  if (state.routeTargetId === target.id) {
+    const routed = routeAround(actor, target, context);
+    if (routed.length > 0) return routed;
+    delete state.routeTargetId;
+  }
+  const moves = getNpcPursuitMoves(actor, context, target);
+  if (moves.length > 0 || isBoulderInTheWay(actor, target, config)) return moves;
+  const routed = routeAround(actor, target, context);
+  if (routed.length > 0) state.routeTargetId = target.id;
+  return routed;
+}
 
 export const brawlerNpcDefinition = defineNpc({
   id: "sandbox-brawler",
@@ -347,7 +393,7 @@ export const brawlerNpcDefinition = defineNpc({
     if (support) {
       actor.combat.targetId = null;
       if (entry.immobile || isNpcInAttackRange(actor, support, entry.supports.reach)) return [];
-      return getNpcPursuitMoves(actor, context, support);
+      return walkTo(actor, support, context, config, entry.supports.reach);
     }
     // An NPC that never moves in its own fight (TzKal-Zuk) stays where it was placed.
     if (entry.immobile) {
@@ -359,10 +405,9 @@ export const brawlerNpcDefinition = defineNpc({
     if (!target) return [];
     // Still while an attack of tiles is on its way (special: Sol Heredit's spear and shield).
     if (context.tick < (actor.state.immobileUntilTick ?? 0)) return [];
-    // The straight walk only, as in the monsters' own fights: one whose step
-    // is blocked (a boulder, a wall, another monster) stands still. It does
-    // not find a way round, so that it can be stuck behind an obstacle.
-    return getNpcPursuitMoves(actor, context, target);
+    // The straight walk, as in the monsters' own fights; blocked by the room
+    // or by other monsters it goes round, but a boulder holds it (walkTo).
+    return walkTo(actor, target, context, config, actor.combat.attackRange);
   },
   tick: ({ actor, context, config }) => {
     const idle = { environmentalDamages: [] };
@@ -408,7 +453,10 @@ export const brawlerNpcDefinition = defineNpc({
     }
     // A rotation (the Corrupted Hunllef's): `every` attacks of one style, then
     // as many of the next.
-    const rotationStyle = entry.rotation ? entry.rotation.styles[Math.floor((count - 1) / entry.rotation.every) % entry.rotation.styles.length] : null;
+    // A form it has taken (`forms`: the Alchemical Hydra's) may change how often it switches.
+    const form = entry.forms?.[actor.state.formIndex];
+    const every = form?.rotationEvery ?? entry.rotation?.every;
+    const rotationStyle = entry.rotation ? entry.rotation.styles[Math.floor((count - 1) / every) % entry.rotation.styles.length] : null;
     if (rotationStyle) {
       const ofStyle = plain.filter((attack) => attack.style === rotationStyle);
       if (ofStyle.length > 0) plain = ofStyle;
@@ -421,7 +469,7 @@ export const brawlerNpcDefinition = defineNpc({
     if (rotationStyle) {
       actor.state.rotationStyle = rotationStyle;
       // The next attack is of another style: its cue next tick.
-      const next = entry.rotation.styles[Math.floor(count / entry.rotation.every) % entry.rotation.styles.length];
+      const next = entry.rotation.styles[Math.floor(count / every) % entry.rotation.styles.length];
       if (next !== rotationStyle) {
         actor.state.rotationStyle = next;
         actor.state.switchClipAt = context.tick + 1;
@@ -437,7 +485,9 @@ export const brawlerNpcDefinition = defineNpc({
       scheduleNextActionTick(actor.combat, context.tick, actor.combat.attackSpeed);
       return idle;
     }
-    const attack = due ?? (plain.length === 1 ? plain[0] : plain[Math.floor(context.random() * plain.length)]);
+    const drawn = due ?? (plain.length === 1 ? plain[0] : plain[Math.floor(context.random() * plain.length)]);
+    // Its form's max hit and hits for that style (`forms`), over the attack's.
+    const attack = form?.attacks?.[drawn.style] ? { ...drawn, ...form.attacks[drawn.style] } : drawn;
     if (entry.revives && tryRevive(actor, entry.revives, context, config)) return idle;
     if (attack.special) return special(actor, target, attack, context, config);
     if (attack.screech) return screech(actor, target, attack, context, config);
@@ -451,9 +501,13 @@ export const brawlerNpcDefinition = defineNpc({
     const npcAttacks = [];
     const visual = [];
     const graphics = [];
+    let firstImpactTicks;
     for (const part of parts) {
       const built = buildPlan(part, actor.state.maxHit, actor, target);
-      let rolled = rollNpcAttack({ attacker: actor, target, plan: built.plan, random: context.random });
+      // A target without stats of its own (Phosani's Nightmare's totems: the
+      // table has none) is rolled against as one with no defence (inferred).
+      const rolledAt = target.kind === "npc" && !target.formulaStats ? { ...target, formulaStats: undefendedStats } : target;
+      let rolled = rollNpcAttack({ attacker: actor, target: rolledAt, plan: built.plan, random: context.random });
       // Null when an NPC has no stats: the catalog holds only NPCs of the monster table.
       if (!rolled) return idle;
       // A target whose prayer turns this style away (the Corrupted Hunllef's): nothing.
@@ -469,17 +523,20 @@ export const brawlerNpcDefinition = defineNpc({
         rolled = { ...rolled, accuracySucceeded: true, rolledDamage: state.leech, prayerReduction: { type: "reduce", value: 1 } };
         if (state.summonerId) config.queueHeal({ at: context.tick + rolled.impactDelayTicks, healerId: actor.id, targetId: state.summonerId, amount: state.leech });
       }
-      npcAttacks.push(npcAttacks.length === 0 ? rolled : { ...rolled, isContinuation: true });
+      firstImpactTicks ??= rolled.impactDelayTicks;
       visual.push(...built.visual);
       graphics.push(...built.graphics);
+      // A host's NPC takes it by its fight's own rules as it lands, as it
+      // takes the player's (encounter.js, deferToHost): not the engine's hit.
+      if (config.deferToHost?.(actor, target, rolled, context)) continue;
+      npcAttacks.push(npcAttacks.length === 0 ? rolled : { ...rolled, isContinuation: true });
     }
-    const npcAttack = npcAttacks[0];
     emitInfernoNpcAttack(context, {
       actor,
       target,
       clipId: attack.clip,
       kind: `sandbox_${attack.style}`,
-      impactDelayTicks: npcAttack.impactDelayTicks,
+      impactDelayTicks: firstImpactTicks,
       projectiles: visual,
     });
     if (graphics.length > 0) emitInfernoVisual(context.tickEvents, { animations: [], projectiles: [], graphics });

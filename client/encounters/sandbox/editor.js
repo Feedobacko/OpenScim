@@ -215,7 +215,9 @@ function commit(render = true) {
   else drawMap();
 }
 const draftNpc = (id) => ui.draft.npcs.find((npc) => npc.id === id);
-const playerStartOf = (scenario) => scenario.options.playerStart ?? getSandboxArena(scenario.arena).playerStart;
+// The player's tile: the scenario's own, else where the arena's boss puts him
+// when it is on (the run's snapshot: encounter.js, hostStart), else the arena's.
+const playerStartOf = (scenario) => scenario.options.playerStart ?? (scenario === ui.draft ? hostStartOnMap() : null) ?? getSandboxArena(scenario.arena).playerStart;
 const isDraftInThisArena = () => ui.draft.arena === ui.arena.id;
 
 function loadDraft(scenario, savedId = null) {
@@ -435,6 +437,11 @@ function bossesOnMap() {
   const sandbox = ui.simulationState?.encounter?.sandbox;
   if (!ui.draft.options.bossMechanics || !getSandboxArena(ui.draft.arena).hostKind || sandbox?.arena !== ui.draft.arena) return [];
   return sandbox.bosses ?? [];
+}
+function hostStartOnMap() {
+  const sandbox = ui.simulationState?.encounter?.sandbox;
+  if (!ui.draft.options.bossMechanics || !getSandboxArena(ui.draft.arena).hostKind || sandbox?.arena !== ui.draft.arena) return null;
+  return sandbox.hostStart ?? null;
 }
 const bossAt = (tile) => bossesOnMap().find((boss) => covers(boss.position, boss.size, tile)) ?? null;
 function cycleBossTeam(boss) {
@@ -1501,7 +1508,7 @@ export function syncSandboxEditor(kind, simulationState) {
   if (refreshTiles() && ui.step === 2 && !ui.panel.hidden) renderBody();
   ui.simulationState = simulationState;
   // The map shows the boss once the run that has it is there.
-  const bosses = JSON.stringify(bossesOnMap());
+  const bosses = JSON.stringify([bossesOnMap(), hostStartOnMap()]);
   if (bosses !== ui.bossesDrawn) {
     ui.bossesDrawn = bosses;
     if (ui.step === 2 && !ui.panel.hidden) drawMap();

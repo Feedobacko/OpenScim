@@ -38,9 +38,10 @@
 // below its marks; the blob splits as it dies; the mager brings back the dead
 // of its side the sandbox keeps (`corpses`); Vardorvis heals off his hits; a
 // heal on its way (Zuk's healers) lands later (`heals`). What they make is
-// the scenario's too: of its side, and to be killed for the victory. A
-// monster whose target is being healed (Jad, Zuk) goes for its healers
-// first, one at a time, until none heals it.
+// the scenario's too: of its side, and to be killed for the victory. Every
+// NPC goes first for the nearest enemy that heals one of its enemies (Jad's
+// and Zuk's healers, the Maggot King's larvae, the host's healers), as soon
+// as one comes, and stays on it while it heals (selectTarget, healerOf).
 //
 // Seeds: `encounterSeed`, the host's seeds, and the scenario itself, so that
 // a replay or a restart with the same seeds plays the same scenario whatever
@@ -137,6 +138,8 @@ export class SandboxEncounter {
       summonTornadoes: (actor, target, context) => this.summonTornadoes(actor, target, context),
       onScreech: (actor, target, screech, context) => this.onScreech(actor, target, screech, context),
       blast: (actor, explodes, context) => this.blast(actor, explodes, context),
+      isObstacleAt: (x, y) => this.obstacleTiles.has(`${x},${y}`),
+      deferToHost: (actor, target, rolled, context) => this.deferToHost(actor, target, rolled, context),
     });
     this.companions = companionNpcDefinition.register(undefined);
     this.tornadoDefinitions = tornadoNpcDefinition.register({
@@ -150,6 +153,8 @@ export class SandboxEncounter {
     this.seed = seeds?.encounterSeed ?? Math.floor(Math.random() * 2 ** 32);
     this.random = createSeededRandom(this.seed);
     this.scenario = seeds?.scenario ? normalizeScenario(seeds.scenario) : this.pickScenario();
+    // The boulders' tiles: a monster's walk stops at them (brawler.js, walkTo).
+    this.obstacleTiles = new Set((this.scenario.obstacles ?? []).map(([x, y]) => `${x},${y}`));
     // The scene follows the run's scenario, not the editor's (visit.js).
     noteRunningScenario(this.arena.id, this.scenario);
     this.outcome = { phase: "active" };
@@ -167,6 +172,8 @@ export class SandboxEncounter {
     this.pendingTornadoes = [];
     // What lands on the player next tick, as damage to apply (a blast, a recoil).
     this.playerDamages = [];
+    // The monsters' hits on a host's NPCs, on their way (deferToHost): { at, attackerId, rolled }.
+    this.hostHits = [];
     // Screeches going on (catalog.js, an attack's screech): { ownerId, targetId, from, to }.
     this.screeches = [];
     this.spawned = 0;
@@ -273,6 +280,9 @@ export class SandboxEncounter {
     return this.host?.getArenaConfig() ?? this.arena.arenaConfig?.() ?? { bounds: null, collisionMap: null, walkableTiles: null };
   }
   createNpcs(startTile) {
+    // Where the host put the player, when the scenario names no tile of its
+    // own: the editor draws the blue P there (editor.js, playerStartOf).
+    this.hostStart = this.host && !this.scenario.options.playerStart && startTile ? [...startTile] : null;
     const hostNpcs = this.host?.createNpcs(startTile) ?? [];
     this.bossStarts = hostNpcs
       .filter((npc) => !npc.untargetable)
@@ -383,6 +393,51 @@ export class SandboxEncounter {
     return false;
   }
 
+  // A monster's hit on a host's NPC, where the arena says so (arenas.js,
+  // hostRulesForMonsters): kept until it lands (hostHits), and then what the
+  // host's rule for the player's hits makes of it (its playerDamageOnNpc).
+  // Phosani's Nightmare's shield takes it and nothing else does, her totems
+  // are charged by it; the Alchemical Hydra's shield takes three quarters off.
+  deferToHost(actor, target, rolled, context) {
+    if (!this.host || !this.arena.hostRulesForMonsters || !target || target.kind !== "npc" || isOwn(target)) return false;
+    if (!this.host.getEngineRules?.()?.playerDamageOnNpc) return false;
+    this.hostHits.push({ at: context.tick + rolled.impactDelayTicks, attackerId: actor.id, rolled });
+    return true;
+  }
+  // The monsters' hits on the host's NPCs due now, those on one NPC as one
+  // (its rule keeps a count of its own: a totem's charge), each a hit of the
+  // first that landed.
+  landHostHits(context) {
+    const due = this.hostHits.filter((hit) => hit.at <= context.tick);
+    if (due.length === 0) return;
+    this.hostHits = this.hostHits.filter((hit) => hit.at > context.tick);
+    const rule = this.host?.getEngineRules?.()?.playerDamageOnNpc;
+    const byTarget = new Map();
+    for (const hit of due) {
+      const list = byTarget.get(hit.rolled.targetId) ?? [];
+      list.push(hit);
+      byTarget.set(hit.rolled.targetId, list);
+    }
+    for (const [targetId, hits] of byTarget) {
+      const target = context.world.getNpc(targetId);
+      const attacker = context.world.getNpc(hits[0].attackerId);
+      if (!rule || !target || !attacker || !isActorAlive(target) || target.untargetable) continue;
+      const landed = hits.filter(({ rolled }) => rolled.accuracySucceeded && rolled.rolledDamage > 0);
+      const total = landed.reduce((sum, { rolled }) => sum + rolled.rolledDamage, 0);
+      const first = (landed[0] ?? hits[0]).rolled;
+      const damage = total > 0 ? Math.max(0, Math.floor(rule(total, { attacker, target, attack: { style: first.style, attackKind: first.attackKind, target } }) ?? total)) : 0;
+      context.queueNpcHit({ ...first, attackerId: attacker.id, rolledDamage: damage, accuracySucceeded: total > 0, impactDelayTicks: 0, sourceDeathPolicy: "persist" });
+    }
+  }
+  // A host's attack turned on a monster that prays against its style (the
+  // Corrupted Hunllef's protects) does nothing, and counts toward its switch,
+  // as the monsters' own attacks on it do (brawler.js, isProtected).
+  prayedAgainst(attack) {
+    const target = this.world?.actors.get(attack.targetId);
+    if (!isBrawler(target) || !this.isProtected(target, attack.style)) return attack;
+    return { ...attack, accuracySucceeded: false, rolledDamage: 0 };
+  }
+
   // --- the Corrupted Hunllef's tornadoes (catalog.js, tornadoes) ------------
   // As he calls them: `delayTicks` later, as many as his hitpoints' third
   // says, on free tiles around him, never on his target's.
@@ -459,7 +514,7 @@ export class SandboxEncounter {
     this.spawnOwn(larva.npc, spot, actor.state.team, context, { extra: { summonerId: actor.id } });
   }
 
-  // Each tick of a screech's window, a player praying against a style is
+  // Each tick of a screech's window, a player praying against a style (or a monster with an overhead) is
   // hurt (maggot-king/encounter.js: 15 to 25 a tick); after it, the
   // screecher's stats are those of his phase again.
   screechHits(context) {
@@ -473,10 +528,18 @@ export class SandboxEncounter {
         owner.formulaStats = statsOf(owner.npcTypeId, owner.state.closedIn ? entry.closesIn.statsVersion : entry.statsVersion, owner.state.levels);
         continue;
       }
+      if (context.tick < screech.from) continue;
       const player = context.world.getPlayer();
-      if (context.tick < screech.from || screech.targetId !== player?.id || !player.alive) continue;
-      if (player.activePrayer && /^Protect(Magic|Range|Melee)$/.test(player.activePrayer)) {
-        damages.push({ baseDamage: randomBetween(this.random, attack.screech.prayerDamage), attackType: "typeless", source: "Screech", playerPosition: [...player.position] });
+      if (screech.targetId === player?.id) {
+        if (player.alive && player.activePrayer && /^Protect(Magic|Range|Melee)$/.test(player.activePrayer)) {
+          damages.push({ baseDamage: randomBetween(this.random, attack.screech.prayerDamage), attackType: "typeless", source: "Screech", playerPosition: [...player.position] });
+        }
+        continue;
+      }
+      // A monster that prays (an overhead: the Corrupted Hunllef's) is hurt as a praying player is.
+      const target = context.world.getNpc(screech.targetId);
+      if (target && isActorAlive(target) && target.overheadPrayers?.length && this.isEnemy(owner, target)) {
+        context.queueNpcHit({ attackerId: owner.id, targetId: target.id, style: "typeless", attackKind: "typeless", rolledDamage: randomBetween(this.random, attack.screech.prayerDamage), accuracySucceeded: true, impactDelayTicks: 0, sourceDeathPolicy: "persist" });
       }
     }
     this.screeches = this.screeches.filter((screech) => context.tick <= screech.to && context.world.getNpc(screech.ownerId));
@@ -588,6 +651,25 @@ export class SandboxEncounter {
         this.echo(actor, entry.enrage.clip, context);
       }
     }
+    // Its next forms below their marks (the Alchemical Hydra's heads), each
+    // with its NPC, stats, speed and cue; one hit may pass more than one.
+    if (entry.forms && damage?.hpAfter > 0) {
+      let index = actor.state.formIndex ?? -1;
+      while (entry.forms[index + 1] && damage.hpAfter <= actor.vitals.maxHp * entry.forms[index + 1].belowFraction) index++;
+      if (index > (actor.state.formIndex ?? -1)) {
+        const form = entry.forms[index];
+        actor.state.formIndex = index;
+        actor.npcTypeId = form.npcTypeId;
+        // Its stats of that form, where the table has them.
+        if (getMonsterFormulaStats(form.npcTypeId, form.statsVersion)) actor.formulaStats = statsOf(form.npcTypeId, form.statsVersion, actor.state.levels);
+        if (form.attackSpeed) actor.combat.attackSpeed = form.attackSpeed;
+        if (form.clip) {
+          const animations = [{ actorId: actor.id, clipId: form.clip, delayCycles: 0 }];
+          emitInfernoVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+          emitColosseumVisual(context.tickEvents, { animations, projectiles: [], graphics: [] });
+        }
+      }
+    }
     if (!entry.summons || !(damage?.hpAfter > 0)) return;
     actor.state.summoned ??= [];
     entry.summons.forEach((summons, index) => {
@@ -658,6 +740,7 @@ export class SandboxEncounter {
     this.tickEvents = context.tickEvents;
     this.world = context.world;
     this.landHeals(context);
+    this.landHostHits(context);
     const previousId = this.bossTargetId;
     this.bossFocus = this.focusOfBoss(context);
     if (this.bossFocus !== undefined) this.aimHost(context.world, previousId);
@@ -675,9 +758,12 @@ export class SandboxEncounter {
   }
 
   // --- the arena's boss in a free-for-all ----------------------------------
-  // The host's first NPC that can be fought, alive (the boss).
+  // The host's boss: its NPC of the role "boss", alive, even while it cannot
+  // be attacked (Phosani's Nightmare in her blast):
+  // its fight goes on meanwhile. Else its first NPC that can be fought.
   hostBoss(world) {
-    return world.getNpcs().find((npc) => !isOwn(npc) && isActorAlive(npc) && !npc.untargetable) ?? null;
+    const hosts = world.getNpcs().filter((npc) => !isOwn(npc) && isActorAlive(npc) && !this.isHostHealer(npc));
+    return hosts.find((npc) => npc.role === "boss") ?? hosts.find((npc) => !npc.untargetable) ?? null;
   }
   // The enemy the boss fights this tick: the one it had while that is an
   // enemy, else the nearest (ties: the player, then the NPCs in order).
@@ -688,6 +774,13 @@ export class SandboxEncounter {
     this.bossId = boss?.id ?? null;
     if (!boss) return null;
     const current = this.bossTargetId ? world.actors.get(this.bossTargetId) : null;
+    // A healer of one of its enemies first, as the monsters do (selectTarget).
+    if (current && this.isEnemy(boss, current) && this.healsEnemyOf(boss, current, world)) return current;
+    const healer = this.nearestHealer(boss, world);
+    if (healer) {
+      this.bossTargetId = healer.id;
+      return healer;
+    }
     if (current && this.isEnemy(boss, current)) return current;
     let best = null;
     let bestGap = Infinity;
@@ -899,6 +992,7 @@ export class SandboxEncounter {
       countdownUntil: this.countdownUntil,
       // The host's boss where it starts (editor.js draws it on the map).
       ...(this.bossStarts.length ? { bosses: structuredClone(this.bossStarts) } : {}),
+      ...(this.hostStart ? { hostStart: [...this.hostStart] } : {}),
     };
     if (this.host) return { ...this.host.getSnapshot(input), sandbox };
     return { kind: this.kind, state: sandbox, sandbox, visuals: {} };
@@ -924,7 +1018,7 @@ export class SandboxEncounter {
     return {
       ...turn,
       environmentalDamages: this.strikeFocus(turn.environmentalDamages, context),
-      npcAttacks: (turn.npcAttacks ?? []).map((attack) => (attack.targetId === "player" ? { ...attack, targetId: this.bossFocus.id } : attack)),
+      npcAttacks: (turn.npcAttacks ?? []).map((attack) => (attack.targetId === "player" ? this.prayedAgainst({ ...attack, targetId: this.bossFocus.id }) : attack)),
     };
   }
 
@@ -952,27 +1046,75 @@ export class SandboxEncounter {
     return this.sideOf(other) !== this.sideOf(actor);
   }
   // The target it has if that fights it back; else the attacker that hit
-  // last, if it is an enemy; else the target it has; else the nearest enemy (ties: the player, then the NPCs in the order of
-  // the scenario).
+  // last, if it is an enemy; else the target it has; else the nearest enemy
+  // (ties: the player, then the NPCs in the order of the scenario). Before
+  // all of that, a healer of one of its enemies (healerOf): it goes for the
+  // nearest as soon as one comes, and stays on it while it heals.
   selectTarget(actor, context) {
     const world = context.world;
-    // A healer it is on, while that heals; else, if its target is being
-    // healed, the nearest of the healers (brawler.js, supports).
     const current = actor.combat.targetId ? world.actors.get(actor.combat.targetId) : undefined;
-    if (isBrawler(current) && current.state.healingId && this.isEnemy(actor, current)) return current;
-    const target = this.selectPlainTarget(actor, context);
-    if (!target) return target;
+    if (current && this.isEnemy(actor, current) && this.healsEnemyOf(actor, current, world)) return current;
+    return this.nearestHealer(actor, world) ?? this.nearestObjective(actor, world) ?? this.selectPlainTarget(actor, context);
+  }
+  // What the host's fight has to be attacked through, while it has (arenas.js,
+  // hostObjectives: Phosani's Nightmare's totems while she cannot be hurt):
+  // the nearest, for an enemy of the host's side.
+  nearestObjective(actor, world) {
+    if (!this.host || !this.arena.hostObjectives || this.scenario.mode !== "ffa" || this.sideOf(actor) === this.sideOf({ kind: "npc" })) return null;
+    const objectives = this.arena.hostObjectives(this.host, world);
+    // The one it is on, until it is done with it.
+    const current = actor.combat.targetId ? world.actors.get(actor.combat.targetId) : null;
+    if (current && objectives.includes(current) && isActorAlive(current) && !current.untargetable) return current;
+    let best = null;
+    let bestGap = Infinity;
+    for (const npc of objectives) {
+      if (!isActorAlive(npc) || npc.untargetable) continue;
+      const gap = footprintGap(actor, npc);
+      if (gap < bestGap) {
+        best = npc;
+        bestGap = gap;
+      }
+    }
+    return best;
+  }
+  // Whom an NPC heals, by id, while it heals: a healer of `supports` (Jad's,
+  // Zuk's) while it is on its charge (brawler.js); a leech (the Maggot King's
+  // larva) while the one that called it lives; a host's NPC of a kind its
+  // arena names (arenas.js, hostHealers: the Maggot King's larvae, the Doom's,
+  // Yama's void flares, the Nightmare's parasites), its boss. Null otherwise.
+  healerOf(npc, world) {
+    if (!npc || npc.kind !== "npc" || !isActorAlive(npc) || npc.death !== undefined) return null;
+    if (isBrawler(npc)) {
+      if (npc.state.healingId) return npc.state.healingId;
+      const leeches = npc.state.summonerId && getSandboxNpcEntry(npc.state.entryId)?.attacks.some((attack) => attack.leech);
+      const summoner = leeches ? world.getNpc(npc.state.summonerId) : null;
+      return summoner && isNpcAlive(summoner) ? summoner.id : null;
+    }
+    if (isOwn(npc) || !this.isHostHealer(npc)) return null;
+    return this.hostBoss(world)?.id ?? null;
+  }
+  isHostHealer(npc) {
+    return Boolean(this.host && this.arena.hostHealers?.includes(npc.definition?.id));
+  }
+  // An NPC that heals one of `actor`'s enemies.
+  healsEnemyOf(actor, npc, world) {
+    const healedId = this.healerOf(npc, world);
+    const healed = healedId ? world.actors.get(healedId) : null;
+    return Boolean(healed && healed !== actor && this.isEnemy(actor, healed));
+  }
+  // The nearest enemy of `actor` that heals one of its enemies, if any.
+  nearestHealer(actor, world) {
     let healer = null;
     let healerGap = Infinity;
     for (const npc of world.getNpcs()) {
-      if (!isBrawler(npc) || npc.state.healingId !== target.id || !this.isEnemy(actor, npc)) continue;
+      if (!this.isEnemy(actor, npc) || !this.healsEnemyOf(actor, npc, world)) continue;
       const gap = footprintGap(actor, npc);
       if (gap < healerGap) {
         healer = npc;
         healerGap = gap;
       }
     }
-    return healer ?? target;
+    return healer;
   }
   selectPlainTarget(actor, context) {
     const world = context.world;

@@ -38,6 +38,8 @@ const hostedArenas = [
   { arena: "araxxor", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [56, 20] }, { id: "jaguar", npc: "colosseum.jaguar", position: [58, 26] }] },
   { arena: "maggot_king", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [27, 34] }, { id: "bat", npc: "inferno.bat", position: [35, 34] }] },
   { arena: "corrupted_hunllef", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [52, 52] }, { id: "jaguar", npc: "colosseum.jaguar", position: [59, 52] }] },
+  { arena: "alchemical_hydra", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [13, 18] }, { id: "jaguar", npc: "colosseum.jaguar", position: [15, 22] }] },
+  { arena: "phosanis_nightmare", npcs: [{ id: "nib", npc: "inferno.nibbler", position: [27, 26] }, { id: "jaguar", npc: "colosseum.jaguar", position: [31, 26] }] },
 ];
 // The arenas whose floor is not the map's as it is (arenas.js: Duke's ice,
 // the Leviathan's bridge, the Corrupted Hunllef's room, the open arena), without their boss:

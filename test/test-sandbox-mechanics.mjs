@@ -154,6 +154,7 @@ const spectating = { mode: "ffa", options: { ffaIncludesPlayer: false } };
     sol_heredit: [28, 30], yama: [26, 33], zebak: [27, 36], vardorvis: [36, 22],
     doom: [26, 26], doom_deep: [26, 27], duke: [27, 46], leviathan: [25, 30],
     araxxor: [56, 20], maggot_king: [27, 34], corrupted_hunllef: [52, 52],
+    alchemical_hydra: [13, 18], phosanis_nightmare: [29, 27],
   };
   for (const arena of sandboxArenas.filter((candidate) => candidate.hostKind)) {
     const arenaKind = sandboxVariantKind(arena.id);
@@ -227,11 +228,24 @@ await prepareArena(kind);
   assert.equal(npcs().find((npc) => npc.id === "j").vitals.hp, 3000 - 64, "64 to what stands beside it (80 under it: araxxor/encounter.js)");
 }
 {
-  // The Maggot King screeches; below 85% a larva comes, which leeches and heals him.
-  const { clips, heals, npcs } = run({ ...spectating, npcs: [{ id: "k", npc: "maggot_king", position: [22, 28], team: "1", hp: 1000 }, { id: "j", npc: "colosseum.jaguar", position: [34, 32], team: "2", hp: 9000 }] }, 120);
+  // The Maggot King screeches; below 85% a larva comes, which leeches and
+  // heals him; the jaguar fighting him turns on the larva as it comes.
+  const larvae = new Set();
+  const onLarva = new Set();
+  const { clips, heals } = run({ ...spectating, npcs: [{ id: "k", npc: "maggot_king", position: [22, 28], team: "1", hp: 1000 }, { id: "j", npc: "colosseum.jaguar", position: [34, 32], team: "2", hp: 9000, maxHit: 0 }] }, 120, {
+    // The jaguar hits nothing, so that the larvae live to leech: the King starts below 85%.
+    each: (engine) => {
+      const king = engine.worldState.getNpc("k");
+      if (engine.currentTick === 1) king.vitals = { ...king.vitals, hp: 800 };
+      for (const npc of engine.worldState.getNpcs()) if (npc.npcTypeId === 15743 && npc.alive) larvae.add(npc.id);
+      const target = engine.worldState.getNpc("j")?.combat.targetId;
+      if (larvae.has(target)) onLarva.add(target);
+    },
+  });
   assert.ok(clips.some((clip) => clip.actorId === "k" && clip.clipId === "screech"), "he screeches");
-  assert.ok(npcs().some((npc) => npc.npcTypeId === 15743), "a larva comes");
+  assert.ok(larvae.size > 0, "a larva comes");
   assert.ok(heals.some((heal) => heal.targetId === "k"), "its leech heals him");
+  assert.deepEqual([...onLarva].sort(), [...larvae].sort(), "the jaguar goes for every larva that heals him");
 }
 
 {
@@ -245,5 +259,134 @@ await prepareArena(kind);
   assert.ok(clips.some((clip) => clip.actorId === "k" && clip.clipId === "slam"), "and slams");
 }
 
-console.log("sandbox mechanics: Jad's and Zuk's healers, the healers first, the blob, the mager, the meleer, Vardorvis' heal, every host's boss in a free-for-all, the bosses placed as monsters");
+{
+  // The Alchemical Hydra: three of a style then the other, and a new form
+  // below each quarter of its hitpoints, with that form's NPC.
+  const forms = [];
+  const styles = [];
+  run({ ...spectating, npcs: [{ id: "h", npc: "alchemical_hydra", position: [20, 28], team: "1", hp: 1100 }, { id: "j", npc: "colosseum.jaguar", position: [34, 30], team: "2", hp: 99000, maxHit: 0 }] }, 80, {
+    each: (engine) => {
+      const hydra = engine.worldState.getNpc("h");
+      if (engine.currentTick === 40) hydra.vitals = { ...hydra.vitals, hp: 600 };
+      if (forms.at(-1) !== hydra.npcTypeId) forms.push(hydra.npcTypeId);
+      for (const event of engine.getLastTickEvents()) if (event.type === "inferno_visual") for (const a of event.animations ?? []) if (a.actorId === "h" && (a.clipId === "range" || a.clipId === "magic")) styles.push(a.clipId);
+    },
+  });
+  assert.deepEqual(styles.slice(0, 6), ["range", "range", "range", "magic", "magic", "magic"], "three of a style, then the other");
+  // Its hitpoints set to 600 are not a hit: the next hit on it (the jaguar's 0s are hits) makes the form.
+  run({ ...spectating, npcs: [{ id: "h", npc: "alchemical_hydra", position: [20, 28], team: "1", hp: 1100 }, { id: "j", npc: "colosseum.jaguar", position: [26, 30], team: "2", hp: 99000, maxHit: 1, levels: { attack: 999 } }] }, 60, {
+    each: (engine) => {
+      const hydra = engine.worldState.getNpc("h");
+      if (engine.currentTick === 2) hydra.vitals = { ...hydra.vitals, hp: 560 };
+      if (forms.at(-1) !== hydra.npcTypeId) forms.push(hydra.npcTypeId);
+    },
+  });
+  assert.ok(forms.includes(8619) && forms.includes(8620), "below three quarters it is electric, below half flame (alchemical-hydra/ids.js)");
+}
+
+// A monster whose straight walk the room blocks (a tree of Vardorvis'
+// clearing) goes round it; a boulder still holds it (the wall above).
+{
+  const arenaKind = sandboxVariantKind("vardorvis");
+  await prepareArena(arenaKind);
+  Math.random = seededRandom(17);
+  const engine = engineModule.createSimulationEngine({
+    encounterConfig: { kind: arenaKind, mechanics: { infiniteHealth: true }, options: { scenario: { arena: "vardorvis", mode: "versus", meta: { name: "Test" }, npcs: [{ id: "jag", npc: "colosseum.jaguar", position: [47, 24], hp: 3000 }] } } },
+    objTypeLoader, combatSeed: 9,
+    inventory: engineModule.createEmptyInventory(), equipment: {}, combatSupplies: engineModule.createEmptyCombatSupplies(), attackStylePerCategory: {},
+  });
+  for (let step = 0; step < 80; step++) engine.advanceTick(engine.getState().playerPosition);
+  assert.ok(engine.getState().damageHistory.some((hit) => hit.targetId === "player" && hit.source === "Jaguar warrior"), "the jaguar comes round and attacks");
+}
+
+// The arena's boss in a free-for-all: its healers come first. The Maggot
+// King's larvae (arenas.js, hostHealers) are what the archers shoot as they come.
+{
+  const arenaKind = sandboxVariantKind("maggot_king");
+  await prepareArena(arenaKind);
+  Math.random = seededRandom(17);
+  const engine = engineModule.createSimulationEngine({
+    encounterConfig: {
+      kind: arenaKind, mechanics: { infiniteHealth: true },
+      options: { scenario: { arena: "maggot_king", mode: "ffa", meta: { name: "Test" }, options: { bossMechanics: true, ffaIncludesPlayer: false, bossTeam: "1" }, npcs: [
+        { id: "arch", npc: "warband.archer", position: [27, 34], team: "2", hp: 3000 }, { id: "seer", npc: "warband.seer", position: [35, 34], team: "2", hp: 3000 },
+      ] } },
+    },
+    objTypeLoader, combatSeed: 9,
+    inventory: engineModule.createEmptyInventory(), equipment: {}, combatSupplies: engineModule.createEmptyCombatSupplies(), attackStylePerCategory: {},
+  });
+  const larvae = new Set();
+  let onLarva = 0;
+  let larvaTicks = 0;
+  for (let step = 0; step < 400; step++) {
+    engine.advanceTick(engine.getState().playerPosition);
+    const living = engine.worldState.getNpcs().filter((npc) => npc.id.startsWith("maggot-larva") && npc.alive && !npc.state.dying);
+    for (const larva of living) larvae.add(larva.id);
+    if (living.length === 0) continue;
+    larvaTicks++;
+    if (["arch", "seer"].every((id) => living.some((larva) => larva.id === engine.worldState.getNpc(id).combat.targetId))) onLarva++;
+  }
+  assert.ok(larvae.size > 0, "his larvae come");
+  assert.equal(onLarva, larvaTicks, "while one lives, both are on a larva");
+}
+
+// Phosani's Nightmare in a free-for-all: the monsters break her shield,
+// charge her totems (arenas.js, hostObjectives) and her blasts come, until she is beaten.
+{
+  const arenaKind = sandboxVariantKind("phosanis_nightmare");
+  await prepareArena(arenaKind);
+  Math.random = seededRandom(17);
+  const strong = { attack: 300, strength: 300, ranged: 300 };
+  const engine = engineModule.createSimulationEngine({
+    encounterConfig: {
+      kind: arenaKind, mechanics: { infiniteHealth: true },
+      options: { scenario: { arena: "phosanis_nightmare", mode: "ffa", meta: { name: "Test" }, options: { bossMechanics: true, ffaIncludesPlayer: false, bossTeam: "1" }, npcs: [
+        { id: "j1", npc: "colosseum.jaguar", position: [26, 20], team: "2", hp: 99000, levels: strong },
+        { id: "j2", npc: "colosseum.jaguar", position: [34, 20], team: "2", hp: 99000, levels: strong },
+        { id: "a1", npc: "warband.archer", position: [30, 19], team: "2", hp: 99000, levels: strong },
+      ] } },
+    },
+    objTypeLoader, combatSeed: 9,
+    inventory: engineModule.createEmptyInventory(), equipment: {}, combatSupplies: engineModule.createEmptyCombatSupplies(), attackStylePerCategory: {},
+  });
+  const stages = new Set();
+  for (let step = 0; step < 1200 && engine.encounter.getOutcome().phase === "active"; step++) {
+    engine.advanceTick(engine.getState().playerPosition);
+    stages.add(engine.encounter.host.stage);
+  }
+  for (const stage of ["shield", "totems", "blast", "dead"]) assert.ok(stages.has(stage), `her ${stage}`);
+  assert.equal(engine.encounter.winner, "2", "the monsters' team wins");
+}
+
+// Where the player starts, in every arena, with and without its boss: on a
+// walkable tile under no one; on the scenario's own tile when it names one;
+// and with the boss, the snapshot says where the host put him (encounter.js,
+// hostStart), which the editor draws as the blue P.
+{
+  const { sandboxArenas } = await import("../client/encounters/sandbox/arenas.js");
+  const { isArenaTileWalkable } = await import("../client/engine/arena.js");
+  for (const arena of sandboxArenas) {
+    const arenaKind = sandboxVariantKind(arena.id);
+    await prepareArena(arenaKind);
+    for (const [bossMechanics, playerStart] of [[false, undefined], [Boolean(arena.hostKind), undefined], [Boolean(arena.hostKind), [arena.playerStart[0], arena.playerStart[1]]]]) {
+      Math.random = seededRandom(17);
+      const engine = engineModule.createSimulationEngine({
+        encounterConfig: { kind: arenaKind, mechanics: { infiniteHealth: true }, options: { scenario: { arena: arena.id, mode: "versus", meta: { name: "Test" }, options: { bossMechanics, ...(playerStart ? { playerStart } : {}) }, npcs: [] } } },
+        objTypeLoader, combatSeed: 9,
+        inventory: engineModule.createEmptyInventory(), equipment: {}, combatSupplies: engineModule.createEmptyCombatSupplies(), attackStylePerCategory: {},
+      });
+      const [x, y] = engine.getState().playerPosition;
+      const label = `${arena.id}${bossMechanics ? " with its boss" : ""}${playerStart ? " on the scenario's tile" : ""}`;
+      assert.ok(isArenaTileWalkable(x, y), `${label}: the player starts on a walkable tile`);
+      assert.ok(!engine.worldState.getNpcs().some((npc) => npc.alive && x >= npc.position[0] && x < npc.position[0] + npc.size && y >= npc.position[1] && y < npc.position[1] + npc.size), `${label}: under no one`);
+      if (playerStart) assert.deepEqual([x, y], playerStart, `${label}: on it`);
+      engine.advanceTick([x, y]);
+      const hostStart = engine.getEncounterSnapshot().sandbox.hostStart;
+      if (bossMechanics && !playerStart) assert.deepEqual(hostStart, [x, y], `${label}: the snapshot names where the host put him`);
+      else assert.equal(hostStart, undefined, `${label}: no host's start`);
+    }
+  }
+}
+
+console.log("sandbox mechanics: Jad's and Zuk's healers, the healers first (larvae too, the host's too), the blob, the mager, the meleer, Vardorvis' heal, every host's boss in a free-for-all, the bosses placed as monsters, the Hydra's forms, the walk round the room, Phosani's dream fought by monsters, the player's start in every arena");
 process.exit(0);

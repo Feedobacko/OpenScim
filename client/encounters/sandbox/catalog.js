@@ -55,6 +55,10 @@
 //                 damage, spread, npcTypeId, clip, impactSpotAnimId }: calls
 //                 tornadoes that chase its target (the Corrupted Hunllef;
 //                 sandbox/bodies.js)
+//   forms         [{ belowFraction, npcTypeId, statsVersion?, attackSpeed?,
+//                 rotationEvery?, clip?, attacks?: { <style>: { maxHit?, hits? } } }]:
+//                 below each mark it takes that form, with its stats, speed and
+//                 max hits, and plays its cue (the Alchemical Hydra's heads)
 //   spawnsEvery   { firstTicks, everyTicks, max, distance, cycle, graphic? }:
 //                 a monster of the cycle comes beside it by the clock (Araxxor's araxytes)
 //   recoils       { melee }: that share of a melee hit on it goes back (the Mirrorback)
@@ -83,6 +87,8 @@ import { dukeSucellusSandboxEntries } from "../duke-sucellus/sandbox.js";
 import { zebakSandboxEntries } from "../tombs-of-amascut/sandbox.js";
 import { maggotKingSandboxEntries } from "../maggot-king/sandbox.js";
 import { corruptedHunllefSandboxEntries } from "../corrupted-hunllef/sandbox.js";
+import { alchemicalHydraSandboxEntries } from "../alchemical-hydra/sandbox.js";
+import { phosanisNightmareSandboxEntries } from "../phosanis-nightmare/sandbox.js";
 
 export const curatedNpcCatalog = [
   ...infernoSandboxEntries,
@@ -97,6 +103,8 @@ export const curatedNpcCatalog = [
   ...zebakSandboxEntries,
   ...maggotKingSandboxEntries,
   ...corruptedHunllefSandboxEntries,
+  ...alchemicalHydraSandboxEntries,
+  ...phosanisNightmareSandboxEntries,
 ];
 
 // What the encounters draw that is not a monster to place, each with its
@@ -108,24 +116,22 @@ export const sandboxCatalogExclusions = {
   9035: "the Corrupted Hunllef praying against melee: a form of the catalog's Hunllef (corrupted_hunllef), which turns into it as it switches its prayer",
   9037: "the Corrupted Hunllef praying against magic: as above",
   11732: "Zebak enraged: a form of the catalog's Zebak, which turns into it below a quarter of his hitpoints",
-  8615: "the Alchemical Hydra, serpentine: its shield comes off only over its chamber's vents, and its forms follow its hitpoints: it is fought in its own chamber",
   8616: "the Alchemical Hydra losing its first head: only drawn for the 2 ticks of its change",
   8617: "the Alchemical Hydra losing its second head: as above, for 1 tick",
   8618: "the Alchemical Hydra losing its third head: as above, for 2 ticks",
-  8619: "the Alchemical Hydra, electric: as the serpentine form",
-  8620: "the Alchemical Hydra, flame: as the serpentine form",
-  8621: "the Alchemical Hydra, enraged: as the serpentine form",
+  8619: "the Alchemical Hydra, electric: a form of the catalog's Hydra (alchemical_hydra), which takes it below three quarters of its hitpoints",
+  8620: "the Alchemical Hydra, flame: a form of the catalog's Hydra, below half",
+  8621: "the Alchemical Hydra, enraged: a form of the catalog's Hydra, below a quarter",
   8622: "what is left of the Alchemical Hydra: only drawn for the 7 ticks of its death",
-  9416: "Phosani's Nightmare: her shield, totems, sleepwalkers and specials are her dream's, and her forms follow its phases: she is fought in her own dream",
-  9417: "Phosani's Nightmare, another phase form: as above",
-  9418: "Phosani's Nightmare, another phase form: as above",
-  11153: "Phosani's Nightmare, another phase form: as above",
-  9419: "Phosani's Nightmare with her shield down, while her totems are charged: as above",
+  11153: "Phosani's Nightmare, her second form: a form of the catalog's Nightmare (phosanis_nightmare), below two thirds of her hitpoints",
+  9418: "Phosani's Nightmare, her third form: a form of the catalog's Nightmare, below a third",
+  9417: "Phosani's Nightmare, her fourth form: only in her dream, where her forms start from any of the four",
+  9419: "Phosani's Nightmare with her shield down, while her totems are charged: her shield and totems are her dream's, where she is fought as the host (arenas.js)",
   9420: "Phosani's Nightmare with her shield down: as above",
   9421: "Phosani's Nightmare with her shield down: as above",
   11155: "Phosani's Nightmare with her shield down: as above",
   9422: "Phosani's Nightmare charging her blast while the sleepwalkers come: she never attacks in this form",
-  11154: "Phosani's Nightmare's desperation: her claws without end, after her third blast",
+  11154: "Phosani's Nightmare's desperation: her claws without end, after her third blast: her dream's",
   9466: "a husk of Phosani's Nightmare: it rises beside a player she holds in her trance, and never moves",
   9467: "a husk of Phosani's Nightmare: as above",
   9468: "a parasite of Phosani's Nightmare: it bursts out of a player she infected, and heals her shield or drains her totems",
