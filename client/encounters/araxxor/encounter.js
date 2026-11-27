@@ -1291,6 +1291,10 @@ class AraxxorEncounter {
   getOutcome() {
     return this.outcome;
   }
+  // The replay's auto markers (client/replay/markers.js).
+  getAutoMarkers() {
+    return this.enraged ? [{ id: "enrage", label: "enrage" }] : [];
+  }
   getSnapshot() {
     return {
       kind: this.kind,
