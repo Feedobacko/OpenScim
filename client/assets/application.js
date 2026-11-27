@@ -1347,6 +1347,9 @@ var SOUND_NAMES = {
   9320: "Emberlight Spec (Layer 2)",
   9321: "Emberlight Spec (Layer 3)",
   3892: "Armadyl Crossbow Spec",
+  5306: "Zaryte Crossbow Spec",
+  2911: "Ruby Bolt Effect",
+  2913: "Diamond Bolt Effect",
   9325: "Scorching Bow Spec Impact (Layer 1)",
   9326: "Scorching Bow Spec Impact (Layer 2)",
   9327: "Scorching Bow Spec (Layer 1)",
@@ -7516,6 +7519,7 @@ var cce =
   "docs/packets/weapon-attacks-zamorakian-hasta-abyssal-bludgeon-sarachnis-cudgel-packet-data.txt";
 var dce = "docs/packets/blowpipe-spec-bowfa-attacks-packet-data.txt";
 var CRYSTAL_BOW_OBSERVATION = "docs/research/crystal-bow.md#shot";
+var ZARYTE_CROSSBOW_OBSERVATION = "OBS: 12 recorded Nex kills, 2026-11-26";
 var hce = "docs/packets/inferno-waves-69-zuk-packet-data.txt";
 var pce = "docs/packets/abyssal-bludgeon-special-attack-packet-data.txt";
 var mce = "docs/packets/colosseum-no-sol-packet-data.txt";
@@ -7774,6 +7778,16 @@ var VERIFIED_WEAPONS = {
     projectile: [mce, gce, "src/data/weaponCombatVisuals.ts"],
     special: "none",
   },
+  // Compared with 12 recorded Nex kills (two players, 2026-11-26): ordinary
+  // shots and Evokes, their animation, bolts, sounds and the ruby and diamond
+  // bolt effects; the Evoke's rules and the passive from the wiki.
+  26374: {
+    name: "Zaryte crossbow",
+    animation: [ZARYTE_CROSSBOW_OBSERVATION],
+    sound: [ZARYTE_CROSSBOW_OBSERVATION],
+    projectile: [ZARYTE_CROSSBOW_OBSERVATION],
+    special: [ZARYTE_CROSSBOW_OBSERVATION, "WIKI: Zaryte crossbow"],
+  },
 };
 function Mce(h2) {
   return VERIFIED_WEAPONS[h2];
@@ -7796,6 +7810,8 @@ var WEAPON_VERIFICATION_LIMITATIONS = {
   ],
   // Seercull: its special (Soulshot) is the engine's, drawn with the weapon table's graphics; no recording of it was compared.
   6724: ["Special attack graphics and sounds unverified."],
+  // Only ruby and diamond bolt effects were recorded (BOLT_EFFECT_SOUNDS).
+  26374: ["Opal, pearl, sapphire, emerald, dragonstone and onyx bolt effects have no sound yet."],
   12899: ["Venom not simulated."],
   22292: ["Venom not simulated."],
   11959: [CHINCHOMPA_SOUNDS_UNMODELLED],
@@ -37347,6 +37363,13 @@ var xve = new Set([
   spotAnimIds.VFX_IGNITE_STAFF_01_2X2,
   spotAnimIds.VFX_IGNITE_STAFF_01_3X3,
 ]);
+// An enchanted bolt's effect is heard with its graphic on the target (OBS,
+// recorded kills: ruby's graphic 754 with 2911, 2 client cycles on; diamond's
+// 758 with 2913, 1 on). The other bolts' effects were not recorded.
+var BOLT_EFFECT_SOUNDS = new Map([
+  [754, { id: 2911, delayCycles: 2 }],
+  [758, { id: 2913, delayCycles: 1 }],
+]);
 var Tve = [5053, 5035];
 var ANCIENT_SPELL_SOUNDS = {
   "Smoke Rush": [183, 185],
@@ -37470,6 +37493,12 @@ var Gve = {
   id: 3892,
   delayCycles: 15,
 };
+// Zaryte crossbow, Evoke: 5306 two-thirds of a tick after the shot, in place
+// of the crossbow's 2695 (OBS: all 18 recorded Evokes in Nex kills).
+var ZARYTE_EVOKE_SOUND = {
+  id: 5306,
+  delayCycles: 20,
+};
 var Kve = [
   5027,
   {
@@ -37523,6 +37552,7 @@ var awe = Rve(11802, 20368, 11806, 20372, 11808, 20374);
 var iwe = Rve(4151, 12773, 12774, 26482, 12006, 26484);
 var owe = Rve(29589);
 var rwe = Rve(11785);
+var ZARYTE_CROSSBOW_WEAPONS = Rve(26374, 27186);
 var swe = Rve(27690);
 var lwe = Rve(21003, 27100);
 var cwe = Rve(13263);
@@ -37720,6 +37750,9 @@ function vwe(h2) {
       if (rwe.has(h6)) {
         return Gve;
       }
+      if (ZARYTE_CROSSBOW_WEAPONS.has(h6)) {
+        return ZARYTE_EVOKE_SOUND;
+      }
       if (swe.has(h6)) {
         return Kve;
       }
@@ -37877,6 +37910,7 @@ var coreAudioRules = {
       ...Wve.map((h2) => h2.id),
       Gve.id,
       ...zve.map((h2) => h2.id),
+      ZARYTE_EVOKE_SOUND.id,
       3869,
       5027,
       6182,
@@ -38033,8 +38067,13 @@ var coreAudioRules = {
     preloadIds: [6847, 2681],
   },
   npc_graphic_applied: {
-    resolve: (h2) => (xve.has(h2.spotAnimId) ? cr(Nve) : cC),
-    preloadIds: [Nve.id],
+    resolve: (h2) =>
+      xve.has(h2.spotAnimId)
+        ? cr(Nve)
+        : BOLT_EFFECT_SOUNDS.has(h2.spotAnimId)
+          ? cr(BOLT_EFFECT_SOUNDS.get(h2.spotAnimId))
+          : cC,
+    preloadIds: [Nve.id, ...[...BOLT_EFFECT_SOUNDS.values()].map((h2) => h2.id)],
   },
   status_effect_expired: {
     resolve: (h2) => {
